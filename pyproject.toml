@@ -52,9 +52,9 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/jaewilson07/domo_library"
-Repository = "https://github.com/jaewilson07/domo_library"
-Documentation = "https://jaewilson07.github.io/domo_library"
+Homepage = "https://github.com/jaewilson07/dl-remuxed"
+Repository = "https://github.com/jaewilson07/dl-remuxed.git"
+Documentation = "https://jaewilson07.github.io/dl-remuxed"
 
 [tool.uv]
 dev-dependencies = [
