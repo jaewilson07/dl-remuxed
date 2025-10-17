@@ -8,8 +8,6 @@ import traceback
 from dataclasses import dataclass
 from typing import List, Optional
 
-from nbdev.showdoc import patch_to
-
 
 @dataclass
 class TracebackDetails:
@@ -160,113 +158,103 @@ class Logger:
             parent_class=parent_class,
         )
 
+    def _add_log(
+        self,
+        message: str,
+        type_str: str,
+        debug_log: bool = False,
+        num_stacks_to_drop=3,
+        entity_id: Optional[str] = None,
+        domo_instance: Optional[str] = None,
+    ) -> dict:
+        """internal method to append message to log"""
 
-@patch_to(Logger)
-def _add_log(
-    self: Logger,
-    message: str,
-    type_str: str,
-    debug_log: bool = False,
-    num_stacks_to_drop=3,
-    entity_id: Optional[str] = None,
-    domo_instance: Optional[str] = None,
-) -> dict:
-    """internal method to append message to log"""
+        traceback_details = self.get_traceback(num_stacks_to_drop=num_stacks_to_drop)
 
-    traceback_details = self.get_traceback(num_stacks_to_drop=num_stacks_to_drop)
+        if debug_log:
+            print(traceback_details.__dict__)
 
-    if debug_log:
-        print(traceback_details.__dict__)
-
-    new_row = {
-        "date_time": dt.datetime.now(),
-        "application": self.app_name,
-        "log_type": type_str,
-        "log_message": message,
-        "breadcrumb": "->".join(self.breadcrumb),
-        "domo_instance": domo_instance or self.domo_instance,
-        "entity_id": entity_id or self.entity_id,
-    }
-
-    new_row.update(
-        {
-            "function_name": traceback_details.function_name,
-            "file_name": traceback_details.file_name,
-            "function_trail": traceback_details.function_trail,
+        new_row = {
+            "date_time": dt.datetime.now(),
+            "application": self.app_name,
+            "log_type": type_str,
+            "log_message": message,
+            "breadcrumb": "->".join(self.breadcrumb),
+            "domo_instance": domo_instance or self.domo_instance,
+            "entity_id": entity_id or self.entity_id,
         }
-    )
 
-    if debug_log:
-        print(new_row)
+        new_row.update(
+            {
+                "function_name": traceback_details.function_name,
+                "file_name": traceback_details.file_name,
+                "function_trail": traceback_details.function_trail,
+            }
+        )
 
-    self.logs.append(new_row)
+        if debug_log:
+            print(new_row)
 
-    return new_row
+        self.logs.append(new_row)
 
+        return new_row
 
-@patch_to(Logger)
-def log_info(
-    self: Logger,
-    message,
-    entity_id: Optional[str] = None,
-    domo_instance: Optional[str] = None,
-    debug_log=False,
-    num_stacks_to_drop=3,
-):
-    """log an informational message"""
-    return self._add_log(
-        message=message,
-        entity_id=entity_id,
-        domo_instance=domo_instance,
-        type_str="Info",
-        num_stacks_to_drop=num_stacks_to_drop,
-        debug_log=debug_log,
-    )
+    def log_info(
+        self,
+        message,
+        entity_id: Optional[str] = None,
+        domo_instance: Optional[str] = None,
+        debug_log=False,
+        num_stacks_to_drop=3,
+    ):
+        """log an informational message"""
+        return self._add_log(
+            message=message,
+            entity_id=entity_id,
+            domo_instance=domo_instance,
+            type_str="Info",
+            num_stacks_to_drop=num_stacks_to_drop,
+            debug_log=debug_log,
+        )
 
+    def log_error(
+        self,
+        message,
+        entity_id: Optional[str] = None,
+        domo_instance: Optional[str] = None,
+        debug_log=False,
+        num_stacks_to_drop=3,
+    ):
+        """log an error message"""
 
-@patch_to(Logger)
-def log_error(
-    self: Logger,
-    message,
-    entity_id: Optional[str] = None,
-    domo_instance: Optional[str] = None,
-    debug_log=False,
-    num_stacks_to_drop=3,
-):
-    """log an error message"""
+        return self._add_log(
+            message=message,
+            entity_id=entity_id,
+            domo_instance=domo_instance,
+            type_str="Error",
+            num_stacks_to_drop=num_stacks_to_drop,
+            debug_log=debug_log,
+        )
 
-    return self._add_log(
-        message=message,
-        entity_id=entity_id,
-        domo_instance=domo_instance,
-        type_str="Error",
-        num_stacks_to_drop=num_stacks_to_drop,
-        debug_log=debug_log,
-    )
+    def log_warning(
+        self,
+        message,
+        entity_id: Optional[str] = None,
+        domo_instance: Optional[str] = None,
+        debug_log=False,
+        num_stacks_to_drop=3,
+    ):
+        """log a warning message"""
 
+        return self._add_log(
+            message=message,
+            entity_id=entity_id,
+            domo_instance=domo_instance,
+            type_str="Warning",
+            num_stacks_to_drop=num_stacks_to_drop,
+            debug_log=debug_log,
+        )
 
-@patch_to(Logger)
-def log_warning(
-    self: Logger,
-    message,
-    entity_id: Optional[str] = None,
-    domo_instance: Optional[str] = None,
-    debug_log=False,
-    num_stacks_to_drop=3,
-):
-    """log a warning message"""
-
-    return self._add_log(
-        message=message,
-        entity_id=entity_id,
-        domo_instance=domo_instance,
-        type_str="Warning",
-        num_stacks_to_drop=num_stacks_to_drop,
-        debug_log=debug_log,
-    )
-
-
-@patch_to(Logger)
-def output_log(self: Logger):
-    """calls the user defined output function"""
-    return self.output_fn(self.logs)
+    def output_log(self):
+        """calls the user defined output function"""
+        return self.output_fn(self.logs)
