@@ -1,0 +1,76 @@
+__all__ = ["run_with_retry", "gather_with_concurrency", "run_sequence", "chunk_list"]
+
+import asyncio
+import functools
+from collections.abc import Awaitable
+from typing import Any, Callable, Tuple
+
+import httpx
+
+
+def run_with_retry(max_retry: int = 1, errors_to_retry_tp: Tuple = None):
+    errors_to_retry_tp = errors_to_retry_tp or ()
+
+    """runs a function with an automatic retry if it throws any sort of Exception"""
+
+    def actual_decorator(run_fn: Callable):
+        @functools.wraps(run_fn)
+        async def wrapper(*args, **kwargs):
+            retry = 0
+            while retry <= max_retry:
+                try:
+                    return await run_fn(*args, **kwargs)
+                except httpx.ConnectTimeout as e:
+                    print(f"connect timeout - retry attempt {retry} - {e}")
+                    retry += 1
+                    await asyncio.sleep(2)
+                    if retry > max_retry:
+                        raise
+                except Exception as e:
+                    # Only retry if error is in errors_to_retry_tp (if specified)
+                    if errors_to_retry_tp and not isinstance(e, errors_to_retry_tp):
+                        raise
+                    print(f"retry decorator attempt - {retry} - {e}")
+                    retry += 1
+                    if retry > max_retry:
+                        raise
+
+        return wrapper
+
+    return actual_decorator
+
+
+async def gather_with_concurrency(
+    *coros,  # list of coroutines to await
+    n=60,  # number of open coroutines
+):
+    """limits the number of open coroutines at a time."""
+
+    import asyncio
+
+    semaphore = asyncio.Semaphore(n)
+
+    async def sem_coro(coro):
+        async with semaphore:
+            return await coro
+
+    return await asyncio.gather(*(sem_coro(c) for c in coros))
+
+
+async def run_sequence(
+    *functions: Awaitable[Any],  # comma separated list of functions
+) -> None:  # no explicit return
+    """executes a sequence of functions"""
+
+    return [await function for function in functions]
+
+
+def chunk_list(
+    obj_ls: list[any],  # list of entities to split into n chunks
+    chunk_size: int,  # entities per sub list
+) -> list[list[dict]]:  # returns a list of chunk_size lists of objects
+
+    return [
+        obj_ls[i * chunk_size : (i + 1) * chunk_size]
+        for i in range((len(obj_ls) + chunk_size - 1) // chunk_size)
+    ]
