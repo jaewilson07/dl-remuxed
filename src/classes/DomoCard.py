@@ -17,7 +17,6 @@ from ..utils import DictDot as util_dd
 from ..utils import chunk_execution as dmce
 from ..utils import convert as dmut
 from ..utils import files as dmfi
-from ..client.entities import DomoEntity_w_Lineage
 
 
 @dataclass
