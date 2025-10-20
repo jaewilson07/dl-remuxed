@@ -1,33 +1,67 @@
 __all__ = [
-    "Streams_GET_Error",
+    "Stream_GET_Error",
+    "Stream_CRUD_Error",
     "get_streams",
     "get_stream_by_id",
-    "Streams_CRUD_Error",
     "update_stream",
     "create_stream",
     "execute_stream",
 ]
 
+from typing import Optional
+
 import httpx
 
-from ..client import auth as dmda
-from ..client import exceptions as dmde
+from ..client.auth import DomoAuth
+from ..client.exceptions import RouteError
 from ..client import get_data as gd
 from ..client import response as rgd
 
 
-class Streams_GET_Error(dmde.RouteError):
-    def __init__(self, res, message=None):
-        super().__init__(self, res=res, message=message or res.response)
+class Stream_GET_Error(RouteError):
+    """Raised when stream retrieval operations fail."""
+
+    def __init__(
+        self,
+        stream_id: Optional[str] = None,
+        message: Optional[str] = None,
+        response_data=None,
+        **kwargs,
+    ):
+        super().__init__(
+            message=message or "Stream retrieval failed",
+            entity_id=stream_id,
+            response_data=response_data,
+            **kwargs,
+        )
+
+
+class Stream_CRUD_Error(RouteError):
+    """Raised when stream create, update, delete, or execute operations fail."""
+
+    def __init__(
+        self,
+        operation: str,
+        stream_id: Optional[str] = None,
+        message: Optional[str] = None,
+        response_data=None,
+        **kwargs,
+    ):
+        super().__init__(
+            message=message or f"Stream {operation} operation failed",
+            entity_id=stream_id,
+            response_data=response_data,
+            **kwargs,
+        )
 
 
 @gd.route_function
 async def get_streams(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     loop_until_end: bool = True,
-    session: httpx.AsyncClient = None,
-    debug_num_stacks_to_drop=1,
-    parent_class: str = None,
+    session: Optional[httpx.AsyncClient] = None,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
     debug_api: bool = False,
     debug_loop: bool = False,
     return_raw: bool = False,
@@ -35,8 +69,8 @@ async def get_streams(
     maximum: int = 1000,
 ) -> rgd.ResponseGetData:
     """
-    streams do not appear to be reycled, not recommended for use as will return a virtually limiltess number of streams
-    instead use get_by_id
+    streams do not appear to be recycled, not recommended for use as will return a virtually limitless number of streams
+    instead use get_stream_by_id
     """
 
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/streams/"
@@ -67,19 +101,19 @@ async def get_streams(
         return res
 
     if not res.is_success:
-        raise Streams_GET_Error(res=res)
+        raise Stream_GET_Error(response_data=res)
 
     return res
 
 
 @gd.route_function
 async def get_stream_by_id(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     stream_id: str,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: str = None,
+    parent_class: Optional[str] = None,
 ) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/streams/{stream_id}"
 
@@ -94,25 +128,20 @@ async def get_stream_by_id(
     )
 
     if not res.is_success:
-        raise Streams_GET_Error(res=res)
+        raise Stream_GET_Error(stream_id=stream_id, response_data=res)
 
     return res
 
 
-class Streams_CRUD_Error(dmde.RouteError):
-    def __init__(self, res, message=None):
-        super().__init__(self, res=res, message=message or res.response)
-
-
 @gd.route_function
 async def update_stream(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     stream_id: str,
     body: dict,
-    session: httpx.AsyncClient = None,
-    debug_num_stacks_to_drop=1,
+    session: Optional[httpx.AsyncClient] = None,
+    debug_num_stacks_to_drop: int = 1,
     debug_api: bool = False,
-    parent_class: str = None,
+    parent_class: Optional[str] = None,
 ) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/streams/{stream_id}"
 
@@ -128,19 +157,21 @@ async def update_stream(
     )
 
     if not res.is_success:
-        raise Streams_CRUD_Error(res=res)
+        raise Stream_CRUD_Error(
+            operation="update", stream_id=stream_id, response_data=res
+        )
 
     return res
 
 
 @gd.route_function
 async def create_stream(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     body: dict,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop: bool = False,
-    parent_class: str = None,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
 ) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/streams"
 
@@ -156,19 +187,19 @@ async def create_stream(
     )
 
     if not res.is_success:
-        raise Streams_CRUD_Error(res=res)
+        raise Stream_CRUD_Error(operation="create", response_data=res)
 
     return res
 
 
 @gd.route_function
 async def execute_stream(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     stream_id: str,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
-    parent_class: str = None,
-    debug_num_stacks_to_drop=1,
+    parent_class: Optional[str] = None,
+    debug_num_stacks_to_drop: int = 1,
 ) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/streams/{stream_id}/executions"
 
@@ -183,6 +214,8 @@ async def execute_stream(
     )
 
     if not res.is_success:
-        raise Streams_CRUD_Error(res=res)
+        raise Stream_CRUD_Error(
+            operation="execute", stream_id=stream_id, response_data=res
+        )
 
     return res
