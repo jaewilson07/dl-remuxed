@@ -40,7 +40,7 @@ class Watchdog_Config(ABC):
     """base class for the different watchdog report types"""
 
     @classmethod
-    def _from_dict(cls, watcher_parameters_obj):  # executionPayload
+    def from_dict(cls, watcher_parameters_obj):  # executionPayload
         return cls(
             entity_ids=watcher_parameters_obj["entityIds"],
             entity_type=watcher_parameters_obj["entityType"],
@@ -176,7 +176,7 @@ class DomoJob_Watchdog(DomoJob_Base):
     webhooks: List[str] = None
 
     @classmethod
-    def _from_dict(cls, obj, auth):
+    def from_dict(cls, obj, auth):
         remote_instance = cls._format_remote_instance(
             obj["executionPayload"].get("domain")
         )
@@ -185,7 +185,7 @@ class DomoJob_Watchdog(DomoJob_Base):
 
         config = Watchdog_ConfigFactory[
             watchdog_parameters_obj["type"].upper()
-        ].value._from_dict(watchdog_parameters_obj)
+        ].value.from_dict(watchdog_parameters_obj)
 
         return cls(
             **cls._convert_API_res_to_DomoJob_base_obj(obj),
@@ -290,7 +290,7 @@ class DomoJob_Watchdog(DomoJob_Base):
         if return_raw:
             return res
 
-        return cls._from_dict(res.response, auth=auth)
+        return cls.from_dict(res.response, auth=auth)
 
 
 @patch_to(DomoJob_Base)

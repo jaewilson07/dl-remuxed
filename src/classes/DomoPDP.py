@@ -64,7 +64,7 @@ class PDP_Policy:
     virtual_user_ls: list[str]
 
     @classmethod
-    async def _from_dict(cls, obj, auth: dmda.DomoAuth):
+    async def from_dict(cls, obj, auth: dmda.DomoAuth):
         dd = util_dd.DictDot(obj)
 
         from . import DomoGroup as dmg
@@ -196,7 +196,7 @@ async def get_policies(
         domo_policy = await ce.gather_with_concurrency(
             n=60,
             *[
-                PDP_Policy._from_dict(policy_obj, auth=auth)
+                PDP_Policy.from_dict(policy_obj, auth=auth)
                 for policy_obj in res.response
             ],
         )

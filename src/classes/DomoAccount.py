@@ -9,7 +9,7 @@ import httpx
 
 from ..client import auth as dmda
 from ..client import entities as dmee
-from ..client import DomoError as dmde
+from ..client import exceptions as dmde
 from ..routes import account as account_routes
 from ..routes import datacenter as datacenter_routes
 
@@ -27,7 +27,7 @@ from ..classes.DomoAccount_Default import (
 from ..classes.DomoAccount_OAuth import DomoAccount_OAuth
 from ..client import DomoAuth as dmda
 from ..client import DomoEntity as dmee
-from ..client import DomoError as dmde
+from ..client import exceptions as dmde
 from ..routes import account as account_routes
 from ..routes import datacenter as datacenter_routes
 from ..utils import chunk_execution as dmce
@@ -36,7 +36,7 @@ from ..utils import chunk_execution as dmce
 @dataclass
 class DomoAccount(DomoAccount_Default):
     @classmethod
-    def _from_dict(
+    def from_dict(
         cls,
         obj: dict,
         is_admin_summary: bool = True,
@@ -51,7 +51,7 @@ class DomoAccount(DomoAccount_Default):
         else:
             new_cls = DomoAccount_Credential
 
-        return super()._from_dict(
+        return super().from_dict(
             auth=auth,
             obj=obj,
             is_admin_summary=is_admin_summary,
@@ -139,7 +139,7 @@ class DomoAccounts(dmee.DomoManager):
             return self.accounts
 
         self.accounts = [
-            DomoAccount._from_dict(
+            DomoAccount.from_dict(
                 account_obj,
                 auth=self.auth,
                 is_use_default_account_class=is_use_default_account_class,
@@ -202,7 +202,7 @@ class DomoAccounts(dmee.DomoManager):
             return res
 
         self.oauths = [
-            DomoAccount_OAuth._from_dict(
+            DomoAccount_OAuth.from_dict(
                 obj=obj, auth=self.auth, is_use_default_account_class=True
             )
             for obj in res.response

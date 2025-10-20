@@ -45,7 +45,7 @@ class DomoCertification(DomoSubEntity):
         )
 
     @classmethod
-    def _from_dict(
+    def from_dict(
         cls,
         data,
         parent=None,

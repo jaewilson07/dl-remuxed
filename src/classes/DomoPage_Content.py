@@ -15,7 +15,7 @@ class PageLayoutTemplate:
     virtual_appendix: bool
 
     @classmethod
-    def _from_dict(cls, dd):
+    def from_dict(cls, dd):
         return cls(
             content_key=dd.contentKey,
             x=dd.x,
@@ -59,7 +59,7 @@ class PageLayoutBackground:
     src: str
 
     @classmethod
-    def _from_dict(cls, dd):
+    def from_dict(cls, dd):
         if dd is not None:
             return cls(
                 id=dd.id,
@@ -128,7 +128,7 @@ class PageLayoutContent:
     background: PageLayoutBackground
 
     @classmethod
-    def _from_dict(cls, dd):
+    def from_dict(cls, dd):
         return cls(
             accept_date_filter=dd.acceptDateFilter,
             accept_filters=dd.acceptFilters,
@@ -152,7 +152,7 @@ class PageLayoutContent:
             type=dd.type,
             text=dd.text,
             background_id=dd.backgroundId,
-            background=PageLayoutBackground._from_dict(dd=dd.background),
+            background=PageLayoutBackground.from_dict(dd=dd.background),
         )
 
     def get_body(self):
@@ -196,7 +196,7 @@ class PageLayoutStandard:
     template: list[PageLayoutTemplate]
 
     @classmethod
-    def _from_dict(cls, dd):
+    def from_dict(cls, dd):
         obj = cls(
             aspect_ratio=dd.aspectRatio,
             width=dd.width,
@@ -208,7 +208,7 @@ class PageLayoutStandard:
 
         if dd.template is not None:
             for template_item in dd.template:
-                dc = PageLayoutTemplate._from_dict(dd=template_item)
+                dc = PageLayoutTemplate.from_dict(dd=template_item)
                 if dc not in obj.template:
                     obj.template.append(dc)
         return obj
@@ -224,7 +224,7 @@ class PageLayoutCompact:
     template: list[PageLayoutTemplate]
 
     @classmethod
-    def _from_dict(cls, dd):
+    def from_dict(cls, dd):
         obj = cls(
             aspect_ratio=dd.aspectRatio,
             width=dd.width,
@@ -235,7 +235,7 @@ class PageLayoutCompact:
         )
         if dd.template is not None:
             for template_item in dd.template:
-                dc = PageLayoutTemplate._from_dict(dd=template_item)
+                dc = PageLayoutTemplate.from_dict(dd=template_item)
                 if dc not in obj.template:
                     obj.template.append(dc)
         return obj
@@ -255,7 +255,7 @@ class PageLayout:
     background: PageLayoutBackground
 
     @classmethod
-    def _from_dict(cls, dd):
+    def from_dict(cls, dd):
         obj = cls(
             id=dd.layoutId,
             page_id=dd.pageUrn,
@@ -264,13 +264,13 @@ class PageLayout:
             is_dynamic=dd.isDynamic,
             content=[],
             has_page_breaks=dd.hasPageBreaks,
-            standard=PageLayoutStandard._from_dict(dd=dd.standard),
-            compact=PageLayoutCompact._from_dict(dd=dd.compact),
-            background=PageLayoutBackground._from_dict(dd=dd.background),
+            standard=PageLayoutStandard.from_dict(dd=dd.standard),
+            compact=PageLayoutCompact.from_dict(dd=dd.compact),
+            background=PageLayoutBackground.from_dict(dd=dd.background),
         )
         if dd.content is not None:
             for content_item in dd.content:
-                dc = PageLayoutContent._from_dict(dd=content_item)
+                dc = PageLayoutContent.from_dict(dd=content_item)
                 if dc not in obj.content:
                     obj.content.append(dc)
         return obj

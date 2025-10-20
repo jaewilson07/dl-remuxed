@@ -38,7 +38,7 @@ class DomoAccessToken(dmee.DomoEntity):
         return f"https://{self.auth.domo_instance}.domo.com/admin/security/accesstokens"
 
     @classmethod
-    async def _from_dict(
+    async def from_dict(
         cls,
         auth: dmda.DomoAuth,
         obj: dict,
@@ -79,7 +79,7 @@ class DomoAccessToken(dmee.DomoEntity):
         if return_raw:
             return res
 
-        return await cls._from_dict(obj=res.response, auth=auth)
+        return await cls.from_dict(obj=res.response, auth=auth)
 
     @classmethod
     async def generate(
@@ -107,7 +107,7 @@ class DomoAccessToken(dmee.DomoEntity):
         if return_raw:
             return res
 
-        return await cls._from_dict(obj=res.response, auth=auth)
+        return await cls.from_dict(obj=res.response, auth=auth)
 
     async def revoke(
         self,
@@ -181,7 +181,7 @@ class DomoAccessTokens(dmee.DomoManager):
 
         return await ce.gather_with_concurrency(
             *[
-                DomoAccessToken._from_dict(obj=obj, auth=self.auth)
+                DomoAccessToken.from_dict(obj=obj, auth=self.auth)
                 for obj in res.response
             ],
             n=10,

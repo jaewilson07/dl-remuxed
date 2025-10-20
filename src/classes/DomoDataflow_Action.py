@@ -38,7 +38,7 @@ class DomoDataflow_Action(DomoAction):
     parent_actions: List[dict] = None
 
     @classmethod
-    def _from_dict(cls, obj: dict, all_actions: List[DomoDataflow_Action] = None):
+    def from_dict(cls, obj: dict, all_actions: List[DomoDataflow_Action] = None):
         dd = obj
 
         if isinstance(dd, dict):
@@ -93,7 +93,7 @@ class DomoDataflow_ActionResult(DomoAction):
             self.duration_in_sec = (self.end_time - self.begin_time).total_seconds()
 
     @classmethod
-    def _from_dict(cls, obj: dict):
+    def from_dict(cls, obj: dict):
         return cls(
             id=obj.get("actionId"),
             type=obj.get("type"),

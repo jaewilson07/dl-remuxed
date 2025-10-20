@@ -12,13 +12,13 @@ import json
 from abc import abstractmethod
 from copy import deepcopy
 from dataclasses import asdict, dataclass, field
-from pprint import pprint  # pprint _from_dict
+from pprint import pprint  # pprint from_dict
 from typing import Any, Callable
 
 import httpx
 
 from ..client import auth as dmda
-from ..client import DomoError as dmde
+from ..client import exceptions as dmde
 from ..client import response as rgd
 from ..routes import instance_config_sso as sso_routes
 from ..utils import convert as dmcv
@@ -64,7 +64,7 @@ class SSO_Config(DomoEntity):
         return self
 
     @classmethod
-    def _parent_from_dict(
+    def _parentfrom_dict(
         cls,
         auth: dmda.DomoAuth,
         obj: dict,
@@ -209,7 +209,7 @@ class SSO_OIDC_Config(SSO_Config):
     public_key: str = None
 
     @classmethod
-    def _from_dict(cls, auth: dmda.DomoAuth, obj: dict, debug_prn: bool = False):
+    def from_dict(cls, auth: dmda.DomoAuth, obj: dict, debug_prn: bool = False):
         raw = deepcopy(obj)
 
         override_sso = obj.pop("overrideSSO")
@@ -218,7 +218,7 @@ class SSO_OIDC_Config(SSO_Config):
             obj.pop("certificate") if hasattr(obj, "certificate") else None
         )
 
-        return cls._parent_from_dict(
+        return cls._parentfrom_dict(
             auth=auth,
             obj=obj,
             raw=raw,
@@ -253,7 +253,7 @@ class SSO_OIDC_Config(SSO_Config):
         if return_raw:
             return res
 
-        return cls._from_dict(auth=auth, obj=res.response, debug_prn=debug_prn)
+        return cls.from_dict(auth=auth, obj=res.response, debug_prn=debug_prn)
 
     async def update(
         self,
@@ -289,7 +289,7 @@ class SSO_SAML_Config(SSO_Config):
     sign_auth_request: Any = None
 
     @classmethod
-    def _from_dict(cls, auth: dmda.DomoAuth, obj: dict, debug_prn: bool = False):
+    def from_dict(cls, auth: dmda.DomoAuth, obj: dict, debug_prn: bool = False):
         raw = deepcopy(obj)
 
         is_enabled = obj.pop("enabled")
@@ -304,7 +304,7 @@ class SSO_SAML_Config(SSO_Config):
             obj.pop("idpCertificate") if obj.get("idpCertificate") else None
         )
 
-        return cls._parent_from_dict(
+        return cls._parentfrom_dict(
             auth=auth,
             obj=obj,
             is_enabled=is_enabled,
@@ -340,7 +340,7 @@ class SSO_SAML_Config(SSO_Config):
         if return_raw:
             return res
 
-        return SSO_SAML_Config._from_dict(
+        return SSO_SAML_Config.from_dict(
             auth=auth, obj=res.response, debug_prn=debug_prn
         )
 

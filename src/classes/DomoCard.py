@@ -10,7 +10,7 @@ import httpx
 
 from . import DomoLineage as dmdl
 from ..client import auth as dmda
-from ..client import DomoError as dmde
+from ..client import exceptions as dmde
 from ..client.DomoEntity import DomoEntity_w_Lineage
 from ..routes import card as card_routes
 from ..utils import DictDot as util_dd
@@ -51,7 +51,7 @@ class DomoCard(DomoEntity_w_Lineage):
         return f"https://{self.auth.domo_instance}.domo.com/kpis/details/{self.id}"
 
     @classmethod
-    async def _from_dict(
+    async def from_dict(
         cls, card_obj, auth: dmda.DomoAuth, is_suppress_errors: bool = False
     ):
         from . import DomoGroup as dmgr
@@ -121,7 +121,7 @@ class DomoCard(DomoEntity_w_Lineage):
         if return_raw:
             return res
 
-        domo_card = await cls._from_dict(
+        domo_card = await cls.from_dict(
             res.response, auth, is_suppress_errors=is_suppress_errors
         )
 

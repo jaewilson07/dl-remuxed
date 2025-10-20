@@ -11,7 +11,7 @@ from nbdev.showdoc import patch_to
 from . import DomoLineage as dmdl
 from . import DomoPage_Content as dmpg_c
 from ..client import auth as dmda
-from ..client import DomoError as dmde
+from ..client import exceptions as dmde
 from ..client.DomoEntity import DomoEntity_w_Lineage
 from ..routes import page as page_routes
 from ..utils import DictDot as util_dd
@@ -163,7 +163,7 @@ class DomoPage(DomoEntity_w_Lineage):
         )
 
         if hasattr(dd, "pageLayoutV4") and dd.pageLayoutV4 is not None:
-            pg.layout = dmpg_c.PageLayout._from_dict(dd=dd.pageLayoutV4)
+            pg.layout = dmpg_c.PageLayout.from_dict(dd=dd.pageLayoutV4)
 
         if dd.page.owners and len(dd.page.owners) > 0:
             pg.owners = await pg._get_domo_owners_from_dd(
@@ -223,7 +223,7 @@ class DomoPage(DomoEntity_w_Lineage):
         return await cls.get_by_id(page_id=entity_id, **kwargs)
 
     @classmethod
-    async def _from_dict(cls, **kwargs):
+    async def from_dict(cls, **kwargs):
         return await cls._from_content_stacks_v3(**kwargs)
 
 

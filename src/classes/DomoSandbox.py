@@ -40,7 +40,7 @@ class DomoRepository(dmee.DomoEntity_w_Lineage):
         return f"https://{self.auth.domo_instance}.domo.com/admin/sandbox/repositories/{self.id}"
 
     @classmethod
-    def _from_dict(cls, auth: dmda.DomoAuth, obj: dict):
+    def from_dict(cls, auth: dmda.DomoAuth, obj: dict):
         return cls(
             id=obj["id"],
             auth=auth,
@@ -74,7 +74,7 @@ class DomoRepository(dmee.DomoEntity_w_Lineage):
             parent_class=cls.__name__,
         )
 
-        return cls._from_dict(obj=res.response, auth=auth)
+        return cls.from_dict(obj=res.response, auth=auth)
 
     @classmethod
     def _get_entity_by_id(
@@ -129,7 +129,7 @@ class DomoSandbox(dmee.DomoManager):
         )
 
         self.repositories = [
-            DomoRepository._from_dict(obj=obj, auth=self.auth) for obj in res.response
+            DomoRepository.from_dict(obj=obj, auth=self.auth) for obj in res.response
         ]
 
         return self.repositories

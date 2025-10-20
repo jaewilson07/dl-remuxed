@@ -8,7 +8,7 @@ import httpx
 from sqlglot import exp, parse_one
 
 from ..client import auth as dmda
-from ..client import DomoError as dmde
+from ..client import exceptions as dmde
 from ..routes import stream as stream_routes
 
 __all__ = [
@@ -321,7 +321,7 @@ class DomoStream:
         return st
 
     @classmethod
-    def _from_dict(cls, auth, obj):
+    def from_dict(cls, auth, obj):
         data_provider = obj.get("dataProvider", {})
         transport = obj.get("transport", {})
         datasource = obj.get("dataSource", {})
@@ -387,7 +387,7 @@ class DomoStream:
         if return_raw:
             return res
 
-        st = cls._from_dict(auth=auth, obj=res.response)
+        st = cls.from_dict(auth=auth, obj=res.response)
         st.parent = parent
         return st
 

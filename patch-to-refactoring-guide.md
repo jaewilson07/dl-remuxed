@@ -392,22 +392,22 @@ async def get_by_id(cls, ...):
 **Methods to move into classes:**
 
 **Target class: `DomoJob_Base`**
-- Line 144: `_from_dict()` (classmethod)
+- Line 144: `from_dict()` (classmethod)
 - Line 160: `async _get_by_id()` (classmethod)
 - Line 201: `async get_by_id()` (classmethod)
 - Line 230: `_generate_to_dict()` (instance method)
 - Line 257: `to_dict()` (instance method)
 
-**Example refactor for `_from_dict`:**
+**Example refactor for `from_dict`:**
 ```python
 # BEFORE:
 @patch_to(DomoJob_Base, cls_method=True)
-def _from_dict(cls: DomoJob_Base, ...):
+def from_dict(cls: DomoJob_Base, ...):
     pass
 
 # AFTER (inside class definition):
 @classmethod
-def _from_dict(cls, ...):
+def from_dict(cls, ...):
     pass
 ```
 
@@ -1737,7 +1737,7 @@ This shows which methods need to be moved into each class:
 
 **Total methods:** 7
 
-- `_from_dict()` (classmethod) - classes\DomoApplication_Job_Base.py:144
+- `from_dict()` (classmethod) - classes\DomoApplication_Job_Base.py:144
 - `async _get_by_id()` (classmethod) - classes\DomoApplication_Job_Base.py:160
 - `async get_by_id()` (classmethod) - classes\DomoApplication_Job_Base.py:201
 - `_generate_to_dict()` (instance) - classes\DomoApplication_Job_Base.py:230

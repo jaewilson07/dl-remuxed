@@ -43,7 +43,7 @@ class UserAttribute(DomoEntity):
         return f"https://{self.auth.domo_instance}.domo.com/admin/governance/attribute-management"
 
     @classmethod
-    def _from_dict(cls, obj, auth):
+    def from_dict(cls, obj, auth):
         return cls(
             auth=auth,
             id=obj["key"],
@@ -80,7 +80,7 @@ class UserAttribute(DomoEntity):
 
         if return_raw:
             return res
-        return cls._from_dict(obj=res.response, auth=auth)
+        return cls.from_dict(obj=res.response, auth=auth)
 
     async def update(
         self,
@@ -178,7 +178,7 @@ class UserAttributes(DomoManager):
             return res
 
         self.attributes = [
-            UserAttribute._from_dict(obj=obj, auth=auth) for obj in res.response
+            UserAttribute.from_dict(obj=obj, auth=auth) for obj in res.response
         ]
         return self.attributes
 

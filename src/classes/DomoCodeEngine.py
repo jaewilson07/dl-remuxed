@@ -17,7 +17,7 @@ import httpx
 
 from . import DomoUser as dmdu
 from ..client import auth as dmda
-from ..client import DomoError as dmde
+from ..client import exceptions as dmde
 from ..routes import codeengine as codeengine_routes
 from ..utils import files as dmuf
 from ..utils.convert import convert_string_to_datetime
@@ -113,7 +113,7 @@ class DomoCodeEngine_PackageVersion:
     # )
 
     # self.functions = [
-    #     DomoCodeEngine_Function._from_dict(
+    #     DomoCodeEngine_Function.from_dict(
     #         obj,
     #         is_private= obj.pop("is_private", False),
     #         language=self.language,
@@ -135,7 +135,7 @@ class DomoCodeEngine_PackageVersion:
     #     )
 
     @classmethod
-    def _from_dict(
+    def from_dict(
         cls,
         obj: dict,
         package_id,
@@ -207,7 +207,7 @@ class DomoCodeEngine_PackageVersion:
         if return_raw:
             return res
 
-        return cls._from_dict(
+        return cls.from_dict(
             auth=auth, obj=res.response, package_id=package_id, language=language
         )
 
@@ -320,7 +320,7 @@ class DomoCodeEngine_Package:
         package_id = obj["id"]
         language = obj["language"]
         versions = [
-            DomoCodeEngine_PackageVersion._from_dict(
+            DomoCodeEngine_PackageVersion.from_dict(
                 version, package_id=package_id, language=language, auth=auth
             )
             for version in obj.get("versions")

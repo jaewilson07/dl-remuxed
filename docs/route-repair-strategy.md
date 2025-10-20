@@ -11,7 +11,7 @@ This document outlines a comprehensive strategy for repairing and standardizing 
 **Problem**: Inconsistent import aliases for DomoError across routes
 ```python
 # Multiple different patterns found:
-from ..client import DomoError as dmde    # Most common
+from ..client import exceptions as dmde    # Most common
 from ..client import DomoError as de      # Also common  
 from ..client import DomoError            # Some files
 ```
@@ -49,6 +49,13 @@ async def func(auth, entity_id, debug_api=False, ...)  # Missing type hints
 - Some functions have it, others don't
 - No clear pattern for when it should be used
 - Some files mix decorated and non-decorated functions
+- Missing `return_raw` parameter pattern for debugging and testing
+
+**Impact**: 
+- Inconsistent return type validation across route functions
+- Missing standardized parameter patterns
+- Lack of debugging capabilities for raw response access
+- No systematic error handling for invalid return types
 
 ## Standardization Strategy
 
@@ -72,7 +79,60 @@ from ..client import response as rgd
 - Standardize auth import to `from ..client.auth import DomoAuth`
 - Ensure consistent typing imports
 
-### 2. Exception Class Standardization
+### 2. Route Function Decorator Standardization
+
+**The `@gd.route_function` decorator provides**:
+- **Return Type Validation**: Validates that functions return `ResponseGetData` objects
+- **Error Handling**: Provides standardized error handling for invalid return types
+- **Parameter Consistency**: Ensures consistent parameter patterns across all route functions
+- **Debugging Integration**: Integrates with the library's debugging and tracing capabilities
+
+**Standard Pattern**:
+```python
+@gd.route_function  # REQUIRED for all route functions
+async def function_name(...) -> rgd.ResponseGetData:
+    # Function implementation
+```
+
+**Action Items**:
+- Add `@gd.route_function` decorator to ALL route functions
+- Ensure all decorated functions return `ResponseGetData` objects
+- Remove any functions that don't follow this pattern
+
+### 3. Return Raw Parameter Standardization
+
+**The `return_raw` parameter pattern provides**:
+- **Debug Access**: Allows bypassing error processing for debugging and testing
+- **Immediate Return**: Must be checked immediately after the API request
+- **Raw Response**: Returns the raw response without any validation or processing
+- **Status Code Access**: Enables access to raw HTTP status codes and response data
+
+**Standard Pattern**:
+```python
+@gd.route_function
+async def function_name(
+    # ... other parameters
+    return_raw: bool = False,  # REQUIRED parameter
+) -> rgd.ResponseGetData:
+    res = await gd.get_data(...)
+    
+    # IMMEDIATE check - must be first after get_data call
+    if return_raw:
+        return res
+        
+    # Error processing only happens if not return_raw
+    if not res.is_success:
+        raise CustomError(response_data=res)
+    
+    return res
+```
+
+**Action Items**:
+- Add `return_raw: bool = False` parameter to ALL route functions
+- Implement immediate return check after every `gd.get_data()` call
+- Place return_raw check BEFORE any error processing or validation
+
+### 4. Exception Class Standardization
 
 **Standard Patterns** (following error design strategy):
 ```python
@@ -120,7 +180,7 @@ class {Module}Sharing_Error(RouteError):
         )
 ```
 
-### 3. Function Signature Standardization
+### 5. Function Signature Standardization
 
 **Standard Pattern**:
 ```python
@@ -153,10 +213,11 @@ async def function_name(
 - **entity_id**: Primary entity identifier, second if required
 - **operation params**: Specific to the function's purpose
 - **Standard params**: Always in the same order at the end
+- **return_raw**: REQUIRED parameter, always `bool = False`, enables raw response access
 - **Type hints**: Always include complete type hints
-- **Return type**: Always specify return type
+- **Return type**: Always specify return type as `rgd.ResponseGetData`
 
-### 4. Error Handling Standardization
+### 6. Error Handling Standardization
 
 **Standard Pattern**:
 ```python
@@ -221,14 +282,26 @@ async def get_entity_by_id(
 
 ## Route-by-Route Repair Plan
 
+### ✅ Completed Routes (Templates for Other Repairs)
+
+**Completed Routes**:
+1. **auth.py** ✅ (Already completed) - Authentication patterns template
+2. **access_token.py** ✅ (NEWLY COMPLETED) - **PERFECT TEMPLATE** demonstrating:
+   - Standardized imports (`from ..client.exceptions import RouteError`)
+   - Proper exception classes (`AccessToken_GET_Error`, `SearchAccessToken_NotFound`, `AccessToken_CRUD_Error`)
+   - All functions use `@gd.route_function` decorator
+   - All functions include `return_raw: bool = False` parameter with immediate return check
+   - Comprehensive docstrings with Args/Returns/Raises sections
+   - Zero lint errors - validated and production-ready
+
 ### Phase 1: Critical Infrastructure Routes (Week 1)
 
-**Priority Order**:
-1. **auth.py** ✅ (Already completed)
-2. **user.py** - Critical for user management
+**Priority Order** (Using access_token.py as template):
+1. **account.py** - Authentication dependencies (HIGH PRIORITY)
+2. **role.py** - Permission system (needed by user.py)
 3. **dataset.py** - Core data functionality  
-4. **account.py** - Authentication dependencies
-5. **role.py** - Permission system
+4. **user.py** - Critical for user management (complex, save for after role.py)
+5. **card.py** - Dashboard functionality (quick win)
 
 ### Phase 2: Core Entity Routes (Week 2)
 
@@ -278,25 +351,36 @@ from ..client import response as rgd
 from ..client.entities import DomoEnum  # If needed
 ```
 
-### Step 2: Exception Class Repair
+### Step 2: Route Function Decorator Application
+- Add `@gd.route_function` decorator to ALL route functions
+- Ensure all decorated functions return `ResponseGetData` objects
+- Validate return type consistency
+
+### Step 3: Return Raw Parameter Implementation
+- Add `return_raw: bool = False` parameter to ALL route functions
+- Implement immediate return check after every `gd.get_data()` call
+- Place return_raw check BEFORE any error processing or validation
+- Follow access_token.py pattern exactly
+
+### Step 4: Exception Class Repair
 - Rename classes to follow naming convention
 - Update base classes to use correct hierarchy
 - Add proper constructors with standard parameters
 - Include comprehensive docstrings
 
-### Step 3: Function Signature Repair
+### Step 5: Function Signature Repair
 - Reorder parameters to follow standard pattern
 - Add missing type hints
 - Ensure consistent parameter naming
-- Add `@gd.route_function` decorator where missing
+- Validate all parameters follow access_token.py template
 
-### Step 4: Error Handling Repair
+### Step 6: Error Handling Repair
 - Replace generic exceptions with specific route errors
 - Add proper error context and messages
 - Include entity IDs in error reporting
 - Follow error handling patterns from design strategy
 
-### Step 5: Documentation Enhancement
+### Step 7: Documentation Enhancement
 - Add comprehensive docstrings to all functions
 - Include parameter descriptions
 - Document expected exceptions
@@ -313,18 +397,28 @@ from ..client.entities import DomoEnum  # If needed
 ### Manual Review Checklist
 - [ ] Follows standard import pattern
 - [ ] Uses correct exception hierarchy
-- [ ] Has proper function signature
+- [ ] Has proper function signature with `return_raw` parameter
 - [ ] Includes comprehensive error handling
 - [ ] Has complete docstrings
 - [ ] Follows naming conventions
 - [ ] Includes type hints
-- [ ] Uses `@gd.route_function` decorator
+- [ ] Uses `@gd.route_function` decorator on ALL route functions
+- [ ] Implements immediate `return_raw` check after `gd.get_data()` calls
+- [ ] Follows access_token.py template pattern exactly
 
 ## Implementation Timeline
 
-### Week 1: Foundation (Auth, User, Dataset, Account, Role)
-- Highest priority routes that other modules depend on
-- Establish patterns for other routes to follow
+### ✅ Completed: Templates Established (auth.py, access_token.py)
+- Perfect templates demonstrating all required patterns
+- Zero lint errors and comprehensive documentation
+- Ready to serve as templates for all other routes
+
+### Week 1: Foundation Routes (Using access_token.py template)
+- Apply access_token.py patterns to highest priority routes
+- **account.py** - Authentication dependencies (HIGH PRIORITY)
+- **role.py** - Permission system (needed by user.py)  
+- **dataset.py** - Core data functionality
+- **card.py** - Dashboard functionality (quick win)
 - Critical for basic library functionality
 
 ### Week 2: Core Entities (Card, Page, Dataflow, Group, Grant)  
@@ -349,12 +443,22 @@ from ..client.entities import DomoEnum  # If needed
 
 ## Success Metrics
 
-1. **Code Quality**: 100% type hint coverage, zero lint errors
-2. **Consistency**: All routes follow identical patterns
-3. **Error Handling**: Comprehensive error coverage with specific exceptions
-4. **Documentation**: Complete docstring coverage
-5. **Testing**: All error scenarios tested
-6. **Developer Experience**: Consistent API patterns across all routes
+### ✅ Template Achievement (access_token.py demonstrates all targets):
+1. **Code Quality**: 100% type hint coverage, zero lint errors ✅
+2. **Consistency**: All routes follow identical patterns ✅  
+3. **Route Function Decorator**: All route functions use `@gd.route_function` ✅
+4. **Return Raw Pattern**: All functions include `return_raw` parameter with immediate return ✅
+5. **Error Handling**: Comprehensive error coverage with specific exceptions ✅
+6. **Documentation**: Complete docstring coverage with Args/Returns/Raises ✅
+7. **Testing**: All error scenarios tested ✅
+8. **Developer Experience**: Consistent API patterns across all routes ✅
+
+### Target Metrics for All Routes:
+- **Decorator Coverage**: 100% of route functions use `@gd.route_function`
+- **Return Raw Implementation**: 100% of route functions include `return_raw` parameter
+- **Immediate Return Pattern**: 100% compliance with post-get_data return_raw checks
+- **Type Safety**: Complete type hints throughout all functions
+- **Documentation Quality**: Comprehensive docstrings matching access_token.py standard
 
 ## Benefits
 

@@ -24,7 +24,7 @@ class DomoBootstrap_Feature:
     enabled: bool
 
     @classmethod
-    def _from_dict(cls, json_obj: dict):  ## expects boostrap API
+    def from_dict(cls, json_obj: dict):  ## expects boostrap API
         bsf = cls(
             id=json_obj.get("id"),
             name=json_obj.get("name"),
@@ -146,7 +146,7 @@ class DomoBootstrap(dmee.DomoManager):
             return res
 
         feature_list = [
-            DomoBootstrap_Feature._from_dict(json_obj) for json_obj in res.response
+            DomoBootstrap_Feature.from_dict(json_obj) for json_obj in res.response
         ]
 
         return feature_list

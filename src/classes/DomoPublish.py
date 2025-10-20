@@ -11,7 +11,7 @@ import pandas as pd
 from . import DomoLineage as dmdl
 from ..client import auth as dmda
 from ..client import entities as dmen
-from ..client import DomoError as dmde
+from ..client import exceptions as dmde
 from ..client.DomoEntity import DomoEntity_w_Lineage, DomoEnum
 from ..routes import publish as publish_routes
 from ..utils import chunk_execution as dmce
@@ -67,7 +67,7 @@ class DomoPublication_Content:
     """the publication content is the content from the publisher instance that is being distributed to subscribers"""
 
     @classmethod
-    def _from_dict(cls, obj: dict, auth: dmda.DomoAuth, parent: Any = None):
+    def from_dict(cls, obj: dict, auth: dmda.DomoAuth, parent: Any = None):
         entity_type = obj.get("content").get("type")
         return cls(
             auth=auth,
@@ -148,20 +148,20 @@ class DomoPublication(DomoEntity_w_Lineage):
 
     def _generate_subscriptions(self, subscription_authorizations_ls, auth):
         self.subscriptions = [
-            DomoSubscription._from_dict(obj=sub, auth=auth, parent_publication=self)
+            DomoSubscription.from_dict(obj=sub, auth=auth, parent_publication=self)
             for sub in subscription_authorizations_ls
         ]
 
     def _generate_content(self, children_ls):
         self.content = [
-            DomoPublication_Content._from_dict(child, auth=self.auth, parent=self)
+            DomoPublication_Content.from_dict(child, auth=self.auth, parent=self)
             for child in children_ls
         ]
 
         return self.content
 
     @classmethod
-    def _from_dict(cls, obj, auth: dmda.DomoAuth):
+    def from_dict(cls, obj, auth: dmda.DomoAuth):
         domo_pub = cls(
             id=obj["id"],
             name=obj["name"],
@@ -220,7 +220,7 @@ class DomoPublication(DomoEntity_w_Lineage):
         if return_raw:
             return res
 
-        return cls._from_dict(obj=res.response, auth=auth)
+        return cls.from_dict(obj=res.response, auth=auth)
 
     @classmethod
     async def _get_entity_by_id(cls, entity_id, **kwargs):
@@ -324,7 +324,7 @@ class DomoPublication(DomoEntity_w_Lineage):
             auth=auth, body=body, debug_api=debug_api
         )
 
-        return cls._from_dict(obj=res.response, auth=auth)
+        return cls.from_dict(obj=res.response, auth=auth)
 
     async def get_content_details(
         self,
@@ -454,7 +454,7 @@ class DomoSubscription(dmen.DomoEntity):
     created_dt: Optional[dt.datetime] = None
 
     @classmethod
-    def _from_dict(cls, obj, auth: dmda.DomoAuth, parent_publication: Any = None):
+    def from_dict(cls, obj, auth: dmda.DomoAuth, parent_publication: Any = None):
         return cls(
             auth=auth,
             id=obj.get("id") or obj.get("subscriptionId"),
@@ -493,7 +493,7 @@ class DomoSubscription(dmen.DomoEntity):
         if return_raw:
             return res
 
-        return cls._from_dict(obj=res.response, auth=auth)
+        return cls.from_dict(obj=res.response, auth=auth)
 
     async def get_parent_publication(
         self,
@@ -642,7 +642,7 @@ class DomoEverywhere:
             return res
 
         for sub in res.response:
-            domo_sub = DomoSubscription._from_dict(sub, auth=self.auth)
+            domo_sub = DomoSubscription.from_dict(sub, auth=self.auth)
 
             if sub in self.subscriptions:
                 continue

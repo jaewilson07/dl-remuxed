@@ -12,7 +12,7 @@ from ..classes.DomoInstanceConfig_InstanceSwitcher import (
     DomoInstanceConfig_InstanceSwitcher,
 )
 from ..client import DomoAuth as dmda
-from ..client import DomoError as dmde
+from ..client import exceptions as dmde
 from ..routes import application as application_routes
 from ..routes import instance_config as instance_config_routes
 from ..routes import sandbox as sandbox_routes
@@ -28,7 +28,7 @@ from . import DomoInstanceConfig_UserAttribute as dicua
 from . import DomoPublish as dmpb
 from . import DomoRole as dmrl
 from ..client import auth as dmda
-from ..client import DomoError as dmde
+from ..client import exceptions as dmde
 from ..routes import application as application_routes
 from ..routes import instance_config as instance_config_routes
 from ..routes import sandbox as sandbox_routes
@@ -105,7 +105,7 @@ async def get_applications(
         return res
 
     return [
-        dmapp.DomoApplication._from_dict(job, auth=self.auth) for job in res.response
+        dmapp.DomoApplication.from_dict(job, auth=self.auth) for job in res.response
     ]
 
 

@@ -55,7 +55,7 @@ class RemoteDomoStats_Config:
         return self.policies
 
     @classmethod
-    def _from_dict(cls, obj):
+    def from_dict(cls, obj):
         domo_policies = cls()
         [
             domo_policies._add_policy(report_type, dataset_id)
@@ -79,7 +79,7 @@ class DomoJob_RemoteDomoStats(DomoJob_Base):
     Config: RemoteDomoStats_Config = None
 
     @classmethod
-    def _from_dict(cls, obj, auth):
+    def from_dict(cls, obj, auth):
         return cls(
             **cls._convert_API_res_to_DomoJob_base_obj(obj),
             remote_instance=cls._format_remote_instance(
@@ -89,7 +89,7 @@ class DomoJob_RemoteDomoStats(DomoJob_Base):
                 "subscriberJobId", None
             ),
             auth=auth,
-            Config=RemoteDomoStats_Config._from_dict(
+            Config=RemoteDomoStats_Config.from_dict(
                 obj["executionPayload"]["policies"]
             ),
         )
@@ -184,4 +184,4 @@ class DomoJob_RemoteDomoStats(DomoJob_Base):
         if return_raw:
             return res
 
-        return cls._from_dict(res.response, auth=auth)
+        return cls.from_dict(res.response, auth=auth)

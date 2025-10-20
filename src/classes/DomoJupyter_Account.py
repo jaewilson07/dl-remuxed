@@ -16,7 +16,7 @@ from typing import Any, Callable, Union
 import httpx
 
 from ..client import DomoAuth as dmda
-from ..client import DomoError as dmde
+from ..client import exceptions as dmde
 from ..utils import xkcd_password as dmxkcd
 from . import DomoAccount as dmac
 
@@ -123,7 +123,7 @@ class DomoJupyter_Account:
                 raise e from e
 
     @classmethod
-    async def _from_dict(
+    async def from_dict(
         cls,
         obj,
         dj_workspace,

@@ -135,7 +135,7 @@ class DomoDatacenter:
             ]
 
         domo_account_ls = [
-            dmac.DomoAccount._from_dict(json_obj, auth=self.auth)
+            dmac.DomoAccount.from_dict(json_obj, auth=self.auth)
             for json_obj in json_list
         ]
 
@@ -222,7 +222,7 @@ class DomoDatacenter:
         domo_account_ls = await dmce.gather_with_concurrency(
             n=60,
             *[
-                dmc.DomoCard._from_dict(json_obj, auth=self.auth)
+                dmc.DomoCard.from_dict(json_obj, auth=self.auth)
                 for json_obj in res.response
             ],
         )

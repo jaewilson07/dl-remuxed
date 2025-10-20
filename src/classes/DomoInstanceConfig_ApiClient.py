@@ -8,7 +8,7 @@ import httpx
 
 from . import DomoUser as dmdu
 from ..client import auth as dmda
-from ..client import DomoError as dmde
+from ..client import exceptions as dmde
 from ..routes import instance_config_api_client as client_routes
 from ..utils import chunk_execution as dmce
 from ..client.entities import DomoEntity
@@ -40,7 +40,7 @@ class ApiClient(DomoEntity):
         return f"https://{self.auth.domo_instance}.domo.com/admin/api-clients"
 
     @classmethod
-    async def _from_dict(cls, auth: dmda.DomoAuth, obj):
+    async def from_dict(cls, auth: dmda.DomoAuth, obj):
         domo_user = None
         is_invalid = False
         try:
@@ -85,7 +85,7 @@ class ApiClient(DomoEntity):
         if return_raw:
             return res
 
-        return await cls._from_dict(auth=auth, obj=res.response)
+        return await cls.from_dict(auth=auth, obj=res.response)
 
     async def _get_by_id(self, **kwargs):
         self.get_by_id(**kwargs)
@@ -141,7 +141,7 @@ class ApiClients:
             return res
 
         self.domo_clients = await dmce.gather_with_concurrency(
-            *[ApiClient._from_dict(auth=self.auth, obj=obj) for obj in res.response],
+            *[ApiClient.from_dict(auth=self.auth, obj=obj) for obj in res.response],
             n=10,
         )
 

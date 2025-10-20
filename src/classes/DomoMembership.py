@@ -7,7 +7,7 @@ from typing import Any, List
 import httpx
 from nbdev.showdoc import patch_to
 
-from ..client import DomoError as dmde
+from ..client import exceptions as dmde
 from ..client.DomoEntity import DomoSubEntity, Entity_Relation
 from ..routes import group as group_routes
 from ..utils import chunk_execution as dmce

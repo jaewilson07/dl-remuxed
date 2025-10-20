@@ -19,7 +19,7 @@ from . import DomoAccount as dmac
 from . import DomoDataset as dmds
 from . import DomoUser as dmdu
 from ..client import auth as dmda
-from ..client import DomoError as dmde
+from ..client import exceptions as dmde
 from ..routes import jupyter as jupyter_routes
 
 from ..utils import chunk_execution as dmce
@@ -144,7 +144,7 @@ class DomoJupyterWorkspace(DomoEntity):
             )
 
     @classmethod
-    async def _from_dict(
+    async def from_dict(
         cls,
         obj,
         auth,
@@ -173,7 +173,7 @@ class DomoJupyterWorkspace(DomoEntity):
         if obj["outputConfiguration"]:
             dj_workspace.output_configuration = await dmce.gather_with_concurrency(
                 *[
-                    DomoJupyter_DataSource._from_dict(obj=oc, dj_workspace=dj_workspace)
+                    DomoJupyter_DataSource.from_dict(obj=oc, dj_workspace=dj_workspace)
                     for oc in obj["outputConfiguration"]
                 ],
                 n=10,
@@ -182,7 +182,7 @@ class DomoJupyterWorkspace(DomoEntity):
         if obj["inputConfiguration"]:
             dj_workspace.input_configuration = await dmce.gather_with_concurrency(
                 *[
-                    DomoJupyter_DataSource._from_dict(obj=ic, dj_workspace=dj_workspace)
+                    DomoJupyter_DataSource.from_dict(obj=ic, dj_workspace=dj_workspace)
                     for ic in obj["inputConfiguration"]
                 ],
                 n=10,
@@ -191,7 +191,7 @@ class DomoJupyterWorkspace(DomoEntity):
         if obj["accountConfiguration"]:
             dj_workspace.account_configuration = await dmce.gather_with_concurrency(
                 *[
-                    DomoJupyter_Account._from_dict(
+                    DomoJupyter_Account.from_dict(
                         obj=ac,
                         dj_workspace=dj_workspace,
                         debug_api=debug_api,
@@ -251,7 +251,7 @@ class DomoJupyterWorkspace(DomoEntity):
         if return_raw:
             return res
 
-        djw = await cls._from_dict(
+        djw = await cls.from_dict(
             auth=auth,
             obj=res.response,
             jupyter_token=jupyter_token,
@@ -698,7 +698,7 @@ async def get_content(
         return res
 
     self.content = [
-        DomoJupyter_Content._from_dict(obj, auth=self.auth) for obj in res.response
+        DomoJupyter_Content.from_dict(obj, auth=self.auth) for obj in res.response
     ]
     return self.content
 

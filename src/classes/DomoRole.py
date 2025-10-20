@@ -60,7 +60,7 @@ class DomoRole(dmee.DomoEntity):
     #             )
 
     @classmethod
-    def _from_dict(cls, obj: dict, auth=dmda.DomoAuth, is_default_role=None):
+    def from_dict(cls, obj: dict, auth=dmda.DomoAuth, is_default_role=None):
         return cls(
             id=obj.get("id"),
             name=obj.get("name"),
@@ -95,7 +95,7 @@ class DomoRole(dmee.DomoEntity):
         if return_raw:
             return res.response
 
-        return cls._from_dict(obj=res.response, auth=auth)
+        return cls.from_dict(obj=res.response, auth=auth)
 
 
 @patch_to(DomoRole)
@@ -206,7 +206,7 @@ async def create(
     if return_raw:
         return res
 
-    domo_role = cls._from_dict(obj=res.response, auth=auth)
+    domo_role = cls.from_dict(obj=res.response, auth=auth)
 
     if grants:
         await domo_role.set_grants(grants=grants)
@@ -449,7 +449,7 @@ class DomoRoles(dmee.DomoManager):
         await self.get_default_role()
 
         self.roles = [
-            DomoRole._from_dict(
+            DomoRole.from_dict(
                 obj=obj,
                 auth=self.auth,
                 is_default_role=obj["id"] == self.default_role.id,

@@ -27,7 +27,7 @@ class DomoConnector:
     capabilities: list[str] = field(default_factory=list)
 
     @classmethod
-    def _from_dict(cls, obj: dict):
+    def from_dict(cls, obj: dict):
         dd = util_dd.DictDot(obj)
 
         return cls(
@@ -78,5 +78,5 @@ class DomoConnectors:
         if len(res.response) == 0:
             self.domo_connectors = []
 
-        self.domo_connectors = [DomoConnector._from_dict(obj) for obj in res.response]
+        self.domo_connectors = [DomoConnector.from_dict(obj) for obj in res.response]
         return self.domo_connectors

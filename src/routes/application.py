@@ -23,7 +23,7 @@ from typing import Union
 import httpx
 
 from ..client import auth as dmda
-from ..client import DomoError as dmde
+from ..client import exceptions as dmde
 from ..client import get_data as gd
 from ..client import response as rgd
 

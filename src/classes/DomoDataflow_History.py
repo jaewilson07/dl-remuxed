@@ -38,11 +38,11 @@ class DomoDataflow_History_Execution:
     action_results: List[DomoDataflow_ActionResult] = None
 
     @classmethod
-    def _from_dict(cls, de_obj, auth: dmda.DomoAuth):
+    def from_dict(cls, de_obj, auth: dmda.DomoAuth):
         action_results = None
         if de_obj.get("actionResults"):
             action_results = [
-                DomoDataflow_ActionResult._from_dict(action_obj)
+                DomoDataflow_ActionResult.from_dict(action_obj)
                 for action_obj in de_obj.get("actionResults")
             ]
 
@@ -100,7 +100,7 @@ class DomoDataflow_History_Execution:
         if return_raw:
             return res
 
-        return cls._from_dict(auth=auth, de_obj=res.response)
+        return cls.from_dict(auth=auth, de_obj=res.response)
 
     async def get_actions(
         self,
@@ -127,7 +127,7 @@ class DomoDataflow_History_Execution:
         action_results = res.response.get("actionResults")
         if action_results:
             action_results = [
-                DomoDataflow_ActionResult._from_dict(action_obj)
+                DomoDataflow_ActionResult.from_dict(action_obj)
                 for action_obj in action_results
             ]
 
@@ -161,7 +161,7 @@ async def get_by_id(
     if return_raw:
         return res
 
-    return cls._from_dict(auth=auth, de_obj=res.response)
+    return cls.from_dict(auth=auth, de_obj=res.response)
 
 
 @patch_to(DomoDataflow_History_Execution)
@@ -190,7 +190,7 @@ async def get_actions(
     action_results = res.response.get("actionResults")
     if action_results:
         action_results = [
-            DomoDataflow_ActionResult._from_dict(action_obj)
+            DomoDataflow_ActionResult.from_dict(action_obj)
             for action_obj in action_results
         ]
 
@@ -234,7 +234,7 @@ class DomoDataflow_History:
             return res
 
         execution_history = [
-            DomoDataflow_History_Execution._from_dict(df_obj, auth)
+            DomoDataflow_History_Execution.from_dict(df_obj, auth)
             for df_obj in res.response
         ]
 
@@ -276,7 +276,7 @@ async def get_execution_history(
         return res
 
     execution_history = [
-        DomoDataflow_History_Execution._from_dict(df_obj, auth)
+        DomoDataflow_History_Execution.from_dict(df_obj, auth)
         for df_obj in res.response
     ]
 
