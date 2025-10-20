@@ -16,7 +16,7 @@ expected = (
     + "lib_name user branch license status min_python audience language".split()
 )
 for o in expected:
-    assert o in cfg, "missing expected setting: {}".format(o)
+    assert o in cfg, f"missing expected setting: {o}"
 setup_cfg = {o: cfg[o] for o in cfg_keys}
 
 licenses = {
@@ -78,7 +78,7 @@ setuptools.setup(
     zip_safe=False,
     entry_points={
         "console_scripts": cfg.get("console_scripts", "").split(),
-        "nbdev": [f'{cfg.get("lib_path")}={cfg.get("lib_path")}._modidx:d'],
+        "nbdev": [f"{cfg.get('lib_path')}={cfg.get('lib_path')}._modidx:d"],
     },
     **setup_cfg,
 )

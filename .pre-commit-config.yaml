@@ -1,0 +1,18 @@
+repos:
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: ruff
+        entry: .venv/Scripts/python.exe
+        args: [-m, ruff, check, --fix]
+        language: system
+        types: [python]
+        require_serial: true
+
+      - id: ruff-format
+        name: ruff format
+        entry: .venv/Scripts/python.exe
+        args: [-m, ruff, format]
+        language: system
+        types: [python]
+        require_serial: true

@@ -1,4 +1,4 @@
-# domolibrary
+# Domolibrary
 
 A Python library for interacting with Domo APIs.
 
@@ -8,49 +8,68 @@ A Python library for interacting with Domo APIs.
 pip install domolibrary
 ```
 
-Or using uv:
+## Usage
 
-```bash
-uv add domolibrary
+```python
+from domolibrary import DomoUser
+# Your code here
 ```
 
-## Features
+## Project Structure
 
-- Comprehensive API wrapper for Domo platform
-- Support for datasets, dataflows, and other Domo resources
-- Built with modern Python (3.9+)
-- Type hints and async support
-
-## Requirements
-
-- Python >= 3.9
+```
+src/                      # Main package source code
+├── classes/              # Domain model classes
+├── client/               # API client utilities
+├── integrations/         # Integration modules
+├── routes/               # API route implementations
+├── utils/                # Utility functions
+├── __init__.py           # Package initialization
+└── _modidx.py           # Module index
+scripts/                  # Development scripts
+tests/                    # Test files
+.vscode/                  # VS Code configuration
+.github/workflows/        # CI/CD workflows
+```
 
 ## Development
 
-To install development dependencies:
+This project uses `uv` for dependency management and development.
+
+### Setup Development Environment
 
 ```bash
-pip install domolibrary[dev]
+# Initial setup (run once)
+.\scripts\setup-dev.ps1
 ```
 
-Or using uv:
+### Development Scripts
+
+All development scripts are located in the `scripts/` folder:
+
+- **`.\scripts\setup-dev.ps1`** - Setup development environment
+- **`.\scripts\lint.ps1`** - Run linting and formatting
+- **`.\scripts\test.ps1`** - Run tests with coverage  
+- **`.\scripts\build.ps1`** - Build the package
+- **`.\scripts\publish.ps1`** - Publish to PyPI
+
+### Manual Development Commands
 
 ```bash
-uv sync --extra dev
+# Install dependencies
+uv sync --dev
+
+# Run linting
+uv run ruff check src/
+uv run pylint src/domolibrary
+
+# Run formatting
+uv run black src/
+uv run isort src/
+
+# Run tests
+uv run pytest tests/
+
+# Build package
+uv build
 ```
-
-## Documentation
-
-For full documentation, visit: [https://jaewilson07.github.io/dl-remuxed](https://jaewilson07.github.io/dl-remuxed)
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-
-This project is licensed under the Apache-2.0 License - see the [LICENSE](LICENSE) file for details.
-
-## Author
-
-Jae Wilson (jaewilson07@gmail.com)
