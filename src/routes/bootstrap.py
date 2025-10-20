@@ -11,8 +11,8 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
+from ..client import get_data as gd
 
 
 class Bootstrap_RetrievalError(dmde.RouteError):
@@ -96,7 +96,6 @@ async def get_bootstrap_features(
     debug_num_stacks_to_drop=2,
     parent_class=None,
 ) -> rgd.ResponseGetData:
-
     res = await get_bootstrap(
         auth=auth,
         session=session,
@@ -121,7 +120,6 @@ async def get_bootstrap_features_is_accountsv2_enabled(
     debug_num_stacks_to_drop=2,
     parent_class=None,
 ) -> rgd.ResponseGetData:
-
     res = await get_bootstrap_features(
         auth=auth,
         session=session,

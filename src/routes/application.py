@@ -24,8 +24,8 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
+from ..client import get_data as gd
 
 
 class Application_GET_Error(dmde.RouteError):
@@ -160,7 +160,6 @@ async def get_application_jobs(
     debug_num_stacks_to_drop=2,
     session: Union[httpx.AsyncClient, httpx.AsyncClient, None] = None,
 ) -> rgd.ResponseGetData:
-
     offset_params = {"offset": "offset", "limit": "limit"}
 
     url = f"https://{auth.domo_instance}.domo.com/api/executor/v2/applications/{application_id}/jobs"
@@ -201,7 +200,6 @@ async def get_application_job_by_id(
     debug_num_stacks_to_drop=2,
     session: Union[httpx.AsyncClient, httpx.AsyncClient, None] = None,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/executor/v1/applications/{application_id}/jobs/{job_id}"
 
     res = await gd.get_data(
@@ -235,7 +233,6 @@ def generate_remote_domostats(
     execution_timeout: int = 1440,
     debug_api: bool = False,
 ):
-
     instance_url = f"{target_instance}.domo.com"
 
     body = {
@@ -270,7 +267,6 @@ def generate_body_watchdog_generic(
     execution_timeout=1440,
     debug_api: bool = False,
 ):
-
     body = {
         "jobName": job_name,
         "jobDescription": f"Watchdog for {job_name}",
@@ -320,7 +316,6 @@ async def create_application_job(
     parent_class: str = None,
     session: Union[httpx.AsyncClient, httpx.AsyncClient, None] = None,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/executor/v1/applications/{application_id}/jobs"
 
     if debug_api:
@@ -361,7 +356,6 @@ async def update_application_job(
     session: Union[httpx.AsyncClient, httpx.AsyncClient, None] = None,
     debug_api: bool = False,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/executor/v1/applications/{application_id}/jobs/{job_id}"
 
     if debug_api:
@@ -402,7 +396,6 @@ async def update_application_job_trigger(
     session: Union[httpx.AsyncClient, httpx.AsyncClient, None] = None,
     debug_api: bool = False,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/executor/v1/applications/{application_id}/jobs/{job_id}/triggers/{trigger_id}"
 
     res = await gd.get_data(
@@ -504,7 +497,6 @@ async def get_available_rds_reports_step2(
     parent_class: str = None,
     session: httpx.AsyncClient = None,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/api/executor/v1/applications/{application_id}/jobs/{job_id}/executions/{execution_id}?includeTransient=true"
 
     res = await gd.get_data(

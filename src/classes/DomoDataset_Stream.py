@@ -60,7 +60,6 @@ class StreamConfig_Mapping:
         self,
         value_to_search: str,
     ) -> Union[StreamConfig_Mapping, None]:
-
         if self.is_default:
             if value_to_search in ["enteredCustomQuery", "query", "customQuery"]:
                 return "sql"
@@ -217,7 +216,6 @@ class StreamConfig_Mappings(Enum):
     def search(
         cls, value, debug_api: bool = False
     ) -> Union[StreamConfig_Mappings, None]:
-
         alt_search = value.lower().replace("-", "_")
 
         try:
@@ -239,7 +237,6 @@ class StreamConfig:
     parent: Any = field(repr=False, default=None)
 
     def __post_init__(self):
-
         # self.value_clean = self.value.replace("\n", " ")
         # sc.value_clean = re.sub(" +", " ", sc.value_clean)
 
@@ -254,7 +251,6 @@ class StreamConfig:
 
         try:
             for table in parse_one(self.value).find_all(exp.Table):
-
                 self.parent.configuration_tables.append(table.name.lower())
                 self.parent.configuration_tables = sorted(
                     list(set(self.parent.configuration_tables))
@@ -266,7 +262,6 @@ class StreamConfig:
 
     @classmethod
     def from_json(cls, obj: dict, data_provider_type: str, parent_stream: Any = None):
-
         config_name = obj["name"]
 
         mapping_enum = StreamConfig_Mappings.search(data_provider_type)
@@ -292,7 +287,6 @@ class StreamConfig:
 
 class Dataset_Stream_GET_Error(dmde.ClassError):
     def __init__(self, cls_instance, message):
-
         super().__init__(cls_instance=cls_instance, message=message, cls_name_attr="id")
 
 
@@ -328,7 +322,6 @@ class DomoStream:
 
     @classmethod
     def _from_dict(cls, auth, obj):
-
         data_provider = obj.get("dataProvider", {})
         transport = obj.get("transport", {})
         datasource = obj.get("dataSource", {})
@@ -382,7 +375,6 @@ class DomoStream:
         parent: Any = None,
         session: Optional[httpx.AsyncClient] = None,
     ):
-
         res = await stream_routes.get_stream_by_id(
             auth=auth,
             stream_id=stream_id,
@@ -433,7 +425,6 @@ class DomoStream:
         session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
     ):
-
         return await stream_routes.update_stream(
             auth=auth,
             stream_id=stream_id,

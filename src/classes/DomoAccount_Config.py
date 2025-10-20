@@ -32,8 +32,8 @@ from nbdev.showdoc import patch_to
 
 from ..client import DomoEntity as dmee
 from ..client import DomoError as dmde
-from ..utils import convert as dmcv
 from ..utils import DictDot as util_dd
+from ..utils import convert as dmcv
 
 
 @dataclass
@@ -96,7 +96,6 @@ class AccountConfig_UsesOauth(dmde.DomoError):
 
 @dataclass
 class DomoAccount_NoConfig_OAuth(DomoAccount_Config):
-
     data_provider_type: str = None
     is_oauth: bool = True
 
@@ -104,7 +103,6 @@ class DomoAccount_NoConfig_OAuth(DomoAccount_Config):
     def _from_dict(
         cls, obj: dict, data_provider_type: str, parent: Any = None, **kwargs
     ):
-
         return cls._from_parent(
             data_provider_type=data_provider_type,
             raw=obj,
@@ -130,7 +128,6 @@ class DomoAccount_NoConfig(DomoAccount_Config):
     def _from_dict(
         cls, data_provider_type: str, obj: dict, parent: Any = None, **kwargs
     ):
-
         return cls._from_parent(
             data_provider_type=data_provider_type, parent=parent, raw=obj
         )
@@ -149,7 +146,6 @@ class DomoAccount_Config_AbstractCredential(DomoAccount_Config):
 
     @classmethod
     def _from_dict(cls, obj, parent=None, **kwargs):
-
         return cls._from_parent(
             parent=parent,
             raw=obj,
@@ -170,7 +166,6 @@ class DomoAccount_Config_DatasetCopy(DomoAccount_Config):
 
     @classmethod
     def _from_dict(cls, obj: dict, parent: Any = None, **kwargs):
-
         return cls(
             access_token=obj.get("accessToken"),
             domo_instance=obj.get("instance"),
@@ -187,7 +182,6 @@ class DomoAccount_Config_DatasetCopy(DomoAccount_Config):
 
 @dataclass
 class DomoAccount_Config_DomoAccessToken(DomoAccount_Config):
-
     data_provider_type: str = "domo-access-token"
     is_oauth: bool = False
 
@@ -197,7 +191,6 @@ class DomoAccount_Config_DomoAccessToken(DomoAccount_Config):
 
     @classmethod
     def _from_dict(cls, obj: dict, parent: Any = None, **kwargs):
-
         return cls(
             domo_access_token=obj.get("domoAccessToken"),
             username=obj.get("username"),
@@ -227,7 +220,6 @@ class DomoAccount_Config_Governance(DomoAccount_Config):
 
     @classmethod
     def _from_dict(cls, obj: dict, parent: Any = None, **kwargs):
-
         return cls(
             access_token=obj.get("apikey"),
             domo_instance=obj.get("customer"),
@@ -377,7 +369,6 @@ class DomoAccount_Config_HighBandwidthConnector(DomoAccount_Config):
 
     @classmethod
     def _from_dict(cls, obj: dict, parent: Any = None, **kwargs):
-
         return cls(
             access_key=obj["awsAccessKey"],
             secret_key=obj["awsSecretKey"],

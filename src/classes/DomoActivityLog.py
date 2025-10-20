@@ -1,6 +1,5 @@
 """class based approach for interacting with the activity log"""
 
-
 __all__ = ["ActivityLog_ObjectType", "DomoActivityLog"]
 
 import datetime as dt
@@ -83,7 +82,6 @@ class ActivityLog_ObjectType(Enum):
 class DomoActivityLog:
     @staticmethod
     def _process_activity_log_row(row):
-
         if row.get("time"):
             row.update(
                 {

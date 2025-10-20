@@ -15,12 +15,12 @@ from dataclasses import dataclass, field
 import httpx
 from nbdev.showdoc import patch_to
 
-from . import DomoAccessToken as dmact
-from . import DomoAccount_Default as dmacb
-from . import DomoUser as dmdu
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
 from ..utils import convert as dmcv
+from . import DomoAccessToken as dmact
+from . import DomoAccount_Default as dmacb
+from . import DomoUser as dmdu
 
 
 class DAC_NoTargetInstance(dmde.ClassError):
@@ -82,7 +82,6 @@ class DAC_ValidAuth(dmde.ClassError):
 
 @dataclass
 class DomoAccount_Credential(dmacb.DomoAccount_Default):
-
     target_instance: str = None
 
     is_valid_full_auth: bool = None
@@ -303,7 +302,6 @@ async def update_target_user_password(
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
 ):
-
     target_auth = target_auth or self.target_auth
 
     if not target_auth:

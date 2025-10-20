@@ -129,7 +129,6 @@ async def upload_data(
 
     finally:
         if is_index:
-
             res = await consol_ds.index_dataset(
                 debug_api=debug_api, session=instance_session
             )

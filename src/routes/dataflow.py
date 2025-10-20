@@ -22,8 +22,8 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
+from ..client import get_data as gd
 
 
 class GET_Dataflow_Error(dmde.RouteError):
@@ -103,7 +103,6 @@ async def update_dataflow_definition(
     parent_class: str = None,
     session: httpx.AsyncClient = None,
 ) -> rgd.ResponseGetData:
-
     # Construct the URL
     url = f"https://{auth.domo_instance}.domo.com/api/dataprocessing/v1/dataflows/{dataflow_id}"
 
@@ -170,7 +169,6 @@ async def put_dataflow_tags_by_id(
     parent_class: str = None,
     session: httpx.AsyncClient = None,
 ) -> rgd.ResponseGetData:
-
     # Construct the URL
     url = f"https://{auth.domo_instance}.domo.com/api/dataprocessing/v1/dataflows/{dataflow_id}/tags"
 
@@ -205,7 +203,6 @@ async def get_dataflow_versions(
     debug_num_stacks_to_drop=1,
     debug_api: bool = False,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/api/dataprocessing/v1/dataflows/{dataflow_id}/versions"
 
     res = await gd.get_data(
@@ -234,7 +231,6 @@ async def get_dataflow_by_id_and_version(
     debug_num_stacks_to_drop=1,
     debug_api: bool = False,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/api/dataprocessing/v2/dataflows/{dataflow_id}/versions/{version_id}"
 
     res = await gd.get_data(
@@ -264,7 +260,6 @@ async def get_dataflow_execution_history(
     debug_loop: bool = False,
     debug_api: bool = False,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/api/dataprocessing/v1/dataflows/{dataflow_id}/executions"
 
     def arr_fn(res):

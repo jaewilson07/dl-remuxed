@@ -12,19 +12,18 @@ __all__ = [
 ]
 
 from abc import ABC, abstractmethod
-
 from dataclasses import dataclass, field
 from typing import Optional, Union
 
 import httpx
 
-from . import Logger as lg
 from ..routes import auth as auth_routes
 from ..routes.auth import (
     InvalidAuthTypeError,
     InvalidCredentialsError,
     InvalidInstanceError,
 )
+from . import Logger as lg
 
 # Custom exception placeholder
 
@@ -225,7 +224,9 @@ class DomoFullAuth(
 
 
 def test_is_full_auth(
-    auth, function_name=None, num_stacks_to_drop=1  # pass q for route pass 2 for class
+    auth,
+    function_name=None,
+    num_stacks_to_drop=1,  # pass q for route pass 2 for class
 ):
     """Test that the provided object is a DomoFullAuth instance."""
     tb = lg.get_traceback(num_stacks_to_drop=num_stacks_to_drop)
@@ -294,7 +295,6 @@ class DomoTokenAuth(_DomoTokenAuth_Required):
     """
 
     def __post_init__(self):
-
         self.token = self.domo_access_token
 
         if not self.token:
@@ -320,7 +320,6 @@ class DomoDeveloperAuth(_DomoAuth_Optional, _DomoAuth_Required):
     """
 
     def __post_init__(self):
-
         super().__init__(**self.__dict__)
 
     @property
@@ -368,7 +367,6 @@ class _DomoJupyter_Required:
         service_prefix: str = None,
         **kwargs,
     ):
-
         # Initialize fields, prompting if not provided
         self.jupyter_token = jupyter_token or input(
             "jupyter token: # retrieve this by monitoring Domo Jupyter network traffic. It is the Authorization header\n> "

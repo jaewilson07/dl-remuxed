@@ -1,6 +1,5 @@
 """a class based approach for interacting with Domo Datasets"""
 
-
 __all__ = [
     "DomoDataset_Default",
     "FederatedDomoDataset",
@@ -20,28 +19,27 @@ import httpx
 import pandas as pd
 from nbdev.showdoc import patch_to
 
+from ..client import DomoAuth as dmda
+from ..client import DomoError as dmde
+from ..client.DomoEntity import (
+    DomoEntity_w_Lineage,
+    DomoFederatedEntity,
+    DomoPublishedEntity,
+)
+from ..routes import dataset as dataset_routes
+from ..routes.dataset import (
+    DatasetNotFoundError,
+    QueryRequestError,
+    ShareDataset_AccessLevelEnum,
+)
+from ..utils import chunk_execution as dmce
+from ..utils import convert as dmcv
 from . import DomoCertification as dmdc
 from . import DomoDataset_Schema as dmdsc
 from . import DomoDataset_Stream as dmdst
 from . import DomoLineage as dmdl
 from . import DomoPDP as dmpdp
 from . import DomoTag as dmtg
-from ..client import DomoAuth as dmda
-from ..client import DomoError as dmde
-from ..routes import dataset as dataset_routes
-
-from ..utils import chunk_execution as dmce
-from ..utils import convert as dmcv
-from ..client.DomoEntity import (
-    DomoEntity_w_Lineage,
-    DomoFederatedEntity,
-    DomoPublishedEntity,
-)
-from ..routes.dataset import (
-    DatasetNotFoundError,
-    QueryRequestError,
-    ShareDataset_AccessLevelEnum,
-)
 
 
 @dataclass
@@ -93,7 +91,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
             self.Certification = dmdc.DomoCertification._from_parent(parent=self)
 
     def display_url(self):
-        return f"https://{self.auth.domo_instance }.domo.com/datasources/{self.id}/details/overview"
+        return f"https://{self.auth.domo_instance}.domo.com/datasources/{self.id}/details/overview"
 
     @classmethod
     def _from_dict(
@@ -202,7 +200,6 @@ async def query_dataset_private(
     maximum_retry: int = 5,
     is_return_dataframe: bool = True,
 ) -> pd.DataFrame:
-
     res = None
     retry = 1
 
@@ -256,7 +253,6 @@ async def delete(
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
 ):
-
     dataset_id = dataset_id or self.id
     auth = auth or self.auth
 
@@ -278,7 +274,6 @@ async def share(
     debug_prn: bool = False,
     session: httpx.AsyncClient = None,
 ):
-
     body = dataset_routes.generate_share_dataset_payload(
         entity_type="GROUP" if type(member).__name__ == "DomoGroup" else "USER",
         entity_id=int(member.id),
@@ -305,7 +300,6 @@ async def index_dataset(
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
 ):
-
     auth = auth or self.auth
     dataset_id = dataset_id or self.id
     return await dataset_routes.index_dataset(
@@ -327,7 +321,6 @@ async def upload_data(
     debug_api: bool = False,
     debug_prn: bool = False,
 ):
-
     auth = self.auth
     dataset_id = self.id
 
@@ -449,7 +442,6 @@ async def list_partitions(
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
 ):
-
     auth = auth or self.auth
     dataset_id = dataset_id or self.id
 
@@ -509,7 +501,6 @@ async def delete_partition(
     debug_prn: bool = False,
     return_raw: bool = False,
 ):
-
     auth = auth or self.auth
     dataset_id = dataset_id or self.id
 
@@ -575,7 +566,6 @@ async def reset_dataset(
     empty_df: pd.DataFrame = None,
     debug_api: bool = False,
 ):
-
     execute_reset = input(
         "This function will delete all rows.  Type BLOW_ME_AWAY to execute:"
     )
@@ -722,7 +712,6 @@ class FederatedDomoDataset(DomoDataset_Default, DomoFederatedEntity):
 
 @dataclass
 class DomoPublishDataset(FederatedDomoDataset, DomoPublishedEntity):
-
     async def get_subscription(self):
         super().get_subscription()
 
@@ -732,7 +721,6 @@ class DomoPublishDataset(FederatedDomoDataset, DomoPublishedEntity):
 
 @dataclass
 class DomoDataset(DomoDataset_Default):
-
     # def __post_init__(self):
     #     super().__init__(**self.__dict__)
 

@@ -17,8 +17,8 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
+from ..client import get_data as gd
 
 
 class AppStudio_API_Error(dmde.RouteError):
@@ -202,7 +202,6 @@ def generate_body_share_appstudio(
     user_ids: list = None,
     message: str = None,
 ) -> dict:
-
     group_ids = group_ids or []
     user_ids = user_ids or []
 
@@ -250,7 +249,6 @@ async def add_page_owner(
     debug_num_stacks_to_drop=1,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/dataapps/bulk/owners"
 
     body = generate_body_add_page_owner_appstudios(
@@ -296,7 +294,6 @@ async def share(
     debug_num_stacks_to_drop=1,
     return_raw: bool = False,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/dataapps/share?sendEmail=false"
 
     body = generate_body_share_appstudio(

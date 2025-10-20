@@ -6,15 +6,15 @@ from typing import List, Union
 import httpx
 from nbdev.showdoc import patch_to
 
-from . import DomoMembership as dmgm
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
-from ..routes import group as group_routes
 from ..client.DomoEntity import DomoEntity
+from ..routes import group as group_routes
 from ..routes.group import (
     Group_CRUD_Error,
     GroupType_Enum,
 )
+from . import DomoMembership as dmgm
 
 
 class Group_Class_Error(dmde.ClassError):
@@ -56,7 +56,6 @@ class DomoGroup(DomoEntity):
         self.is_system = True if self.type == "system" else False
 
     def __eq__(self, other):
-
         if self.__class__.__name__ != other.__class__.__name__:
             return False
 
@@ -79,7 +78,6 @@ class DomoGroup(DomoEntity):
 
     @classmethod
     def _from_grouplist_json(cls, auth: dmda.DomoAuth, json_obj: dict):
-
         return cls(
             auth=auth,
             id=json_obj.get("groupId"),
@@ -150,7 +148,6 @@ async def create_from_name(
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
 ):
-
     res = await group_routes.create_group(
         auth=auth,
         group_name=group_name,
@@ -208,7 +205,6 @@ async def update_metadata(
         self.type = updated_group.type or self.type
 
     except Group_CRUD_Error as e:
-
         if group_type != self.type:
             raise Group_Class_Error(
                 cls_instance=self,
@@ -265,7 +261,6 @@ class DomoGroups:
         debug_num_stacks_to_drop: int = 2,
         return_raw: bool = False,
     ):
-
         res = await group_routes.is_system_groups_visible(
             auth=self.auth,
             debug_api=debug_api,
@@ -318,7 +313,6 @@ async def get(
     debug_num_stacks_to_drop: bool = False,
     session: httpx.AsyncClient = None,
 ):
-
     await self.toggle_show_system_groups(
         is_hide_system_groups=is_hide_system_groups,
         session=session,
@@ -359,7 +353,6 @@ async def search_by_name(
 ) -> Union[
     DomoGroup, List[DomoGroup]
 ]:  # by default returns one DomoGroup, but can return a list of DomoGroups
-
     domo_groups = await self.get(
         is_hide_system_groups=is_hide_system_groups,
         debug_api=debug_api,

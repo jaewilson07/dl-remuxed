@@ -7,11 +7,11 @@ from typing import List
 import httpx
 from nbdev.showdoc import patch_to
 
-from . import DomoPage as dmpg
 from ..client import DomoAuth as dmda
 from ..client import DomoEntity as dmee
 from ..routes import bootstrap as bootstrap_routes
 from ..utils import chunk_execution as ce
+from . import DomoPage as dmpg
 
 
 @dataclass
@@ -104,7 +104,6 @@ async def get_pages(
     debug_num_stacks_to_drop=2,
     session: httpx.AsyncClient = None,
 ) -> List[dmpg.DomoPage]:
-
     res = await bootstrap_routes.get_bootstrap_pages(
         auth=self.auth,
         debug_api=debug_api,
@@ -138,7 +137,6 @@ async def get_features(
     debug_num_stacks_to_drop=2,
     session: httpx.AsyncClient = None,
 ):
-
     res = await bootstrap_routes.get_bootstrap_features(
         auth=self.auth,
         session=session,

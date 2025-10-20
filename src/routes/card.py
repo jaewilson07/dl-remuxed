@@ -16,14 +16,13 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as de
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
+from ..client import get_data as gd
 from ..client.DomoEntity import DomoEnum
 
 
 class Cards_API_Exception(de.DomoError):
     def __init__(self, res, message=None):
-
         super().__init__(res=res, message=message)
 
 
@@ -92,7 +91,6 @@ async def get_kpi_definition(
     parent_class: str = None,
     debug_num_stacks_to_drop=2,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/content/v3/cards/kpi/definition"
 
     body = {"urn": card_id}
@@ -143,7 +141,6 @@ async def get_card_metadata(
         List[Card_OptionalParts_Enum], str
     ] = "metadata,certification,datasources,owners,problems,domoapp",
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/cards"
 
     params = {"urns": card_id, "parts": optional_parts}
@@ -163,7 +160,6 @@ async def get_card_metadata(
         raise Cards_API_Exception(res=res)
 
     if res.is_success and len(res.response) == 0:
-
         raise CardSearch_NotFoundError(
             card_id=card_id,
             status=res.status,

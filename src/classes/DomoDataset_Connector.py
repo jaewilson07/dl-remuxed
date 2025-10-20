@@ -7,8 +7,8 @@ from typing import List
 import httpx
 
 from ..client import DomoAuth as dmda
-from ..utils import convert as cd
 from ..utils import DictDot as util_dd
+from ..utils import convert as cd
 
 
 @dataclass

@@ -20,12 +20,12 @@ from typing import List, Optional
 import httpx
 from nbdev.showdoc import patch_to
 
-from ..client import DomoAuth as dmda
-from ..routes import application as application_routes
 from ..classes.DomoApplication_Job_Base import (
     DomoJob_Base,
     DomoTrigger_Schedule,
 )
+from ..client import DomoAuth as dmda
+from ..routes import application as application_routes
 
 
 @dataclass
@@ -39,7 +39,6 @@ class Watchdog_Config(ABC):
 
     @classmethod
     def _from_dict(cls, watcher_parameters_obj):  # executionPayload
-
         return cls(
             entity_ids=watcher_parameters_obj["entityIds"],
             entity_type=watcher_parameters_obj["entityType"],
@@ -176,7 +175,6 @@ class DomoJob_Watchdog(DomoJob_Base):
 
     @classmethod
     def _from_dict(cls, obj, auth):
-
         remote_instance = cls._format_remote_instance(
             obj["executionPayload"].get("domain")
         )
@@ -210,7 +208,6 @@ class DomoJob_Watchdog(DomoJob_Base):
         debug_num_stacks_to_drop=2,
         return_raw: bool = False,
     ):
-
         return await cls._get_by_id(
             application_id=application_id,
             job_id=job_id,
@@ -245,7 +242,6 @@ async def update(
     session: Optional[httpx.AsyncClient] = None,
     debug_num_stacks_to_drop=2,
 ):
-
     res = await application_routes.update_application_job(
         auth=self.auth,
         body=self.to_dict(),
@@ -267,7 +263,6 @@ async def execute(
     session: Optional[httpx.AsyncClient] = None,
     debug_num_stacks_to_drop=2,
 ):
-
     res = await application_routes.execute_application_job(
         auth=self.auth,
         application_id=self.application_id,
@@ -303,7 +298,6 @@ async def create(
     session: Optional[httpx.AsyncClient] = None,
     return_raw: bool = False,
 ):
-
     domo_job = cls(
         auth=auth,
         name=name,

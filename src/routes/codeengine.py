@@ -14,8 +14,8 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
+from ..client import get_data as gd
 from ..client.DomoEntity import DomoEnum
 
 
@@ -150,7 +150,6 @@ async def get_codeengine_package_by_id_and_version(
     parent_class: str = None,
     debug_num_stacks_to_drop=1,
 ) -> rgd.ResponseGetData:
-
     if not package_id or not version:
         raise CodeEngine_FunctionCallError(
             message=f"Package ID {package_id or 'not provided '} and version {version or ' not provided  '} must be provided.",

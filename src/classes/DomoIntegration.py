@@ -7,14 +7,13 @@ __all__ = [
 ]
 
 from dataclasses import dataclass
-
 from typing import Any, Dict, List
 
 import httpx
 
 from ..client import DomoAuth as dmda
-from ..routes import cloud_amplifier as cloud_amplifier_routes
 from ..client.DomoEntity import DomoEntity
+from ..routes import cloud_amplifier as cloud_amplifier_routes
 
 
 @dataclass
@@ -145,7 +144,6 @@ class DomoIntegration(DomoEntity):
         return_raw: bool = False,
         session: httpx.AsyncClient = None,
     ) -> "DomoIntegration":
-
         res = await cloud_amplifier_routes.get_integration_by_id(
             integration_id=integration_id,
             auth=auth,

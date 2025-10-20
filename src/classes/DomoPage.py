@@ -8,15 +8,15 @@ from typing import List
 import httpx
 from nbdev.showdoc import patch_to
 
-from . import DomoLineage as dmdl
-from . import DomoPage_Content as dmpg_c
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
+from ..client.DomoEntity import DomoEntity_w_Lineage
 from ..routes import page as page_routes
+from ..utils import DictDot as util_dd
 from ..utils import chunk_execution as dmce
 from ..utils import convert as dmcv
-from ..utils import DictDot as util_dd
-from ..client.DomoEntity import DomoEntity_w_Lineage
+from . import DomoLineage as dmdl
+from . import DomoPage_Content as dmpg_c
 
 
 class DomoPage_GetRecursive(dmde.ClassError):
@@ -360,9 +360,7 @@ class DomoPages:
 
 @patch_to(DomoPage)
 async def get_children(self: DomoPage, is_suppress_errors: bool = False):
-
     async def _get_children_recur(parent_page, is_suppress_errors: bool = False):
-
         parent_page.children = parent_page.children or []
 
         try:
@@ -424,7 +422,6 @@ def flatten_children(self: DomoPage, path=None, hierarchy=0, results=None):
 
 @patch_to(DomoPage)
 async def get_parents(self: DomoPage, page=None):
-
     page = page or self
 
     if not page.parent_page_id:
@@ -723,7 +720,6 @@ async def get_datasets(
     session: httpx.AsyncClient = None,
     return_raw: bool = False,
 ):
-
     res = await page_routes.get_page_definition(
         auth=self.auth, page_id=self.id, debug_api=debug_api, session=session
     )

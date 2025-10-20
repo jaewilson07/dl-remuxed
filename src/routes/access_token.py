@@ -16,8 +16,8 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
+from ..client import get_data as gd
 
 
 class AccessToken_Error(dmde.RouteError):
@@ -34,7 +34,6 @@ async def get_access_tokens(
     session: httpx.AsyncClient = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/accesstokens"
 
     res = await gd.get_data(
@@ -72,7 +71,6 @@ async def get_access_token_by_id(
     debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
-
     res = await get_access_tokens(
         auth=auth,
         session=session,
@@ -100,7 +98,6 @@ async def get_access_token_by_id(
 def generate_expiration_unixtimestamp(
     duration_in_days: int = 90, debug_prn: bool = False
 ):
-
     today = dt.datetime.today()
     expiration_date = today + dt.timedelta(days=duration_in_days)
 
@@ -134,7 +131,6 @@ async def generate_access_token(
     parent_class=None,
     session: httpx.AsyncClient = None,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/accesstokens"
 
     expiration_timestamp = generate_expiration_unixtimestamp(

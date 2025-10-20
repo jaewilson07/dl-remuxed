@@ -8,7 +8,6 @@ __all__ = [
 import base64
 import io
 import os
-
 from typing import Union
 
 import numpy as np
@@ -25,7 +24,6 @@ def isBase64(s):
 
 
 def handle_string_to_bytes_and_decode(data: Union[str, bytes]):
-
     if isinstance(data, str):
         data = bytes(data)
 
@@ -36,7 +34,6 @@ def handle_string_to_bytes_and_decode(data: Union[str, bytes]):
 
 
 def handle_string_to_bytes_and_encode(data: Union[str, bytes]):
-
     if isinstance(data, str):
         data = bytes(data)
 
@@ -62,7 +59,6 @@ def to_bytes(self) -> bytes:
 
 @patch_to(Image)
 def crop_square(self):
-
     width, height = self.size  # Get dimensions
 
     new_edge = min(width, height)
@@ -97,7 +93,6 @@ def from_image_file(cls, image_path: str) -> Image:
 
 @patch_to(Image, cls_method=True)
 def from_bytestr(cls, data: Union[str, bytes]) -> Image:
-
     data = handle_string_to_bytes_and_decode(data)
 
     im = PIL.Image.open(io.BytesIO(data))

@@ -21,13 +21,12 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
+from ..client import get_data as gd
 
 
 class SSO_AddUserDirectSignonError(dmde.DomoError):
     def __init__(self, res: rgd.ResponseGetData, user_id_ls: List[str], message=None):
-
         message = (
             message or f"unable to add {', '.join(user_id_ls)} to DSO {res.response}"
         )
@@ -46,7 +45,6 @@ async def toggle_user_direct_signon_access(
     parent_class=None,
     debug_num_stacks_to_drop=1,
 ) -> rgd.ResponseGetData:
-
     user_id_ls = user_id_ls if isinstance(user_id_ls, list) else [user_id_ls]
 
     url = f"https://{auth.domo_instance}.domo.com/api/content/v3/users/directSignOn"
@@ -73,7 +71,6 @@ async def toggle_user_direct_signon_access(
 
 class SSO_GET_Error(dmde.RouteError):
     def __init__(self, res: rgd.ResponseGetData, message=None):
-
         message = (
             message
             or f"unable to rerieve SSO Config for {res.auth.domo_instance} - {res.response}"
@@ -83,7 +80,6 @@ class SSO_GET_Error(dmde.RouteError):
 
 class SSO_CRUD_Error(dmde.RouteError):
     def __init__(self, res: rgd.ResponseGetData, message=None):
-
         super().__init__(
             res=res,
             message=message
@@ -300,7 +296,6 @@ async def get_sso_saml_certificate(
     parent_class: str = None,
     debug_num_stacks_to_drop=1,
 ):
-
     res = await get_sso_saml_config(
         auth=auth,
         session=session,

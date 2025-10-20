@@ -39,8 +39,8 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
+from ..client import get_data as gd
 from ..client.DomoEntity import DomoEnum
 
 
@@ -111,7 +111,6 @@ async def get_oauth_accounts(
     parent_class: str = None,
     session: httpx.AsyncClient = None,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/accounts/templates/user/extended"
 
     res = await gd.get_data(
@@ -136,7 +135,6 @@ class Account_NoMatch(dmde.RouteError):
         account_id=None,
         message="Account not found --  has it been shared with the user?",
     ):
-
         super().__init__(
             message=message,
             res=res,
@@ -237,7 +235,6 @@ async def get_account_config(
     session: httpx.AsyncClient = None,
     is_unmask: bool = True,  # unmasks encrypted values IF config allows
 ) -> rgd.ResponseGetData:
-
     if not data_provider_type:
         res = await get_account_by_id(
             auth=auth,
@@ -376,7 +373,6 @@ async def create_account(
     parent_class: str = None,
     debug_num_stacks_to_drop=1,
 ) -> rgd.ResponseGetData:
-
     payload = payload or generate_create_account_body(
         account_name=account_name,
         data_provider_type=data_provider_type,
@@ -414,7 +410,6 @@ async def delete_account(
     parent_class: str = None,
     session: httpx.AsyncClient = None,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/accounts/{account_id}"
 
     res = await gd.get_data(
@@ -462,7 +457,6 @@ async def create_oauth_account(
     parent_class: str = None,
     debug_num_stacks_to_drop=1,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/accounts/templates"
 
     if not create_body and not (
@@ -509,7 +503,6 @@ async def delete_oauth_account(
     parent_class: str = None,
     session: httpx.AsyncClient = None,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/accounts/templates/{account_id}"
 
     res = await gd.get_data(
@@ -554,7 +547,6 @@ async def update_account_config(
     parent_class: str = None,
     session: httpx.AsyncClient = None,
 ) -> rgd.ResponseGetData:
-
     # get the data_provider_type, which is necessare for updating the config setting
     if not data_provider_type:
         res = await get_account_by_id(
@@ -604,7 +596,6 @@ async def update_oauth_account_config(
     parent_class: str = None,
     session: httpx.AsyncClient = None,
 ) -> rgd.ResponseGetData:
-
     # get the data_provider_type, which is necessare for updating the config setting
     if not data_provider_type:
         res = await get_oauth_account_by_id(
@@ -802,7 +793,6 @@ class ShareAccount_V1_AccessLevel(ShareAccount):
     default = "READ"
 
     def generate_payload(self, user_id: int, **kwargs):
-
         return {"type": "USER", "id": int(user_id), "permissions": [self.value]}
 
 

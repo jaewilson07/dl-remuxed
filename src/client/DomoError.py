@@ -1,6 +1,5 @@
 """preferred base error class for Domo Exceptions"""
 
-
 __all__ = ["DomoError", "RouteError", "ClassError"]
 
 from typing import Any, Optional
@@ -40,7 +39,7 @@ class DomoError(Exception):
         domo_instance = (
             domo_instance or res and res.auth and res.auth.domo_instance or None
         )
-        instance_str = f" at {domo_instance }" if domo_instance else ""
+        instance_str = f" at {domo_instance}" if domo_instance else ""
 
         status_str = f"status {res and res.status or status} || " if status else ""
         prefix = "🛑 " if not is_exception_not_error else "⚠️ "
@@ -61,7 +60,6 @@ class RouteError(DomoError):
         domo_instance: str = None,
         **kwargs,
     ):
-
         domo_instance = (
             domo_instance or (res and res.auth and res.auth.domo_instance) or None
         )

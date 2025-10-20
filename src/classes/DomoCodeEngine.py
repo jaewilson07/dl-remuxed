@@ -8,7 +8,6 @@ __all__ = [
 # from ..routes.codeengine import extract_functions
 import builtins
 import datetime as dt
-
 import os
 from dataclasses import dataclass, field
 from enum import Enum
@@ -17,13 +16,12 @@ from typing import List
 import httpx
 from nbdev.showdoc import patch_to
 
-from . import DomoUser as dmdu
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
 from ..routes import codeengine as codeengine_routes
 from ..utils import files as dmuf
 from ..utils.convert import convert_string_to_datetime
-
+from . import DomoUser as dmdu
 from .CodeEngineManifest import CodeEngineManifest
 
 
@@ -145,7 +143,6 @@ class DomoCodeEngine_PackageVersion:
         language: str,
         is_supress_error: bool = True,
     ):
-
         language = (language or obj.get("language", None)).upper()
 
         domo_version = cls(

@@ -15,17 +15,16 @@ from typing import Any, List
 import httpx
 from nbdev.showdoc import patch_to
 
-from . import DomoGrant as dmgt
-from . import DomoUser as dmdu
 from ..client import DomoAuth as dmda
 from ..client import DomoEntity as dmee
 from ..client import DomoError as dmde
 from ..routes import role as role_routes
+from . import DomoGrant as dmgt
+from . import DomoUser as dmdu
 
 
 @dataclass
 class DomoRole(dmee.DomoEntity):
-
     id: str
     name: str = None
     description: str = None
@@ -60,7 +59,6 @@ class DomoRole(dmee.DomoEntity):
 
     @classmethod
     def _from_dict(cls, obj: dict, auth=dmda.DomoAuth, is_default_role=None):
-
         return cls(
             id=obj.get("id"),
             name=obj.get("name"),
@@ -145,7 +143,6 @@ async def set_grants(
     session: httpx.AsyncClient = None,
     return_raw: bool = False,
 ):
-
     valid_grants = self._valid_grants(grants)
 
     res = await role_routes.set_role_grants(
@@ -194,7 +191,6 @@ async def create(
     debug_num_stacks_to_drop=2,
     return_raw: bool = False,
 ):
-
     res = await role_routes.create_role(
         auth=auth,
         name=name,
@@ -348,7 +344,6 @@ async def delete(
     session: httpx.AsyncClient = None,
     debug_num_stacks_to_drop=2,
 ):
-
     return await role_routes.delete_role(
         role_id=self.id,
         auth=self.auth,
@@ -400,7 +395,6 @@ class SearchRole_NotFound(dmde.ClassError):
 
 @dataclass
 class DomoRoles(dmee.DomoManager):
-
     roles: List[DomoRole] = field(default=None)
 
     default_role: DomoRole = field(default=None)

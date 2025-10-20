@@ -30,7 +30,6 @@ class DomoGrant:
 
     @classmethod
     def _from_dict(cls, obj):
-
         dd = obj
         if not isinstance(dd, util_dd.DictDot):
             dd = util_dd.DictDot(obj)

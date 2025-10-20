@@ -4,15 +4,14 @@ Quick progress checker for type hints implementation
 """
 
 import ast
-import os
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict
 
 
 def count_functions_with_type_hints(file_path: Path) -> Dict[str, int]:
     """Count functions with and without type hints in a file"""
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         tree = ast.parse(content)
@@ -110,7 +109,7 @@ def main():
         if remaining == 0:
             print("🎉 All functions have type hints! Great job!")
         else:
-            print(f"🎯 Next: Focus on directories with missing type hints")
+            print("🎯 Next: Focus on directories with missing type hints")
     else:
         print("No functions found to analyze")
 

@@ -1,6 +1,5 @@
 """a class based approach to handling role hierarchy"""
 
-
 __all__ = ["extract_role_hierarchy", "get_roles_w_hierarchy", "calc_role"]
 
 from ..classes import DomoRole as dmdr
@@ -9,7 +8,6 @@ from ..classes import DomoRole as dmdr
 def extract_role_hierarchy(
     role: dmdr.DomoRole, hierarchy_delimiter, debug_prn: bool = False
 ) -> dmdr.DomoRole:  # augments the domo role with a hierarchy INT attribute
-
     description_arr = role.description.split(hierarchy_delimiter)
 
     if len(description_arr) != 1:

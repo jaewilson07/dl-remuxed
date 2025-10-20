@@ -12,8 +12,8 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
+from ..client import get_data as gd
 
 
 class MFA_UPDATE_Error(dmde.DomoError):
@@ -22,7 +22,6 @@ class MFA_UPDATE_Error(dmde.DomoError):
         res: rgd.ResponseGetData,
         message=None,
     ):
-
         super().__init__(
             domo_instance=res.auth.domo_instance,
             function_name=res.traceback_details.function_name,
@@ -32,12 +31,10 @@ class MFA_UPDATE_Error(dmde.DomoError):
 
 
 class MFA_UPDATE_Value_Error(dmde.DomoError):
-
     def __init__(
         self,
         message,
     ):
-
         super().__init__(
             message=message,
         )
@@ -52,7 +49,6 @@ async def toggle_enable_mfa(
     parent_class: str = None,
     debug_num_stacks_to_drop: int = 1,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/customer-states/domo.policy.multifactor.required"
 
     payload = {
@@ -81,7 +77,7 @@ async def toggle_enable_mfa(
             message=f"failed to toggle MFA in {auth.domo_instance}",
         )
 
-    res.response = f'toggled MFA {"on" if is_enable_MFA else "off"}'
+    res.response = f"toggled MFA {'on' if is_enable_MFA else 'off'}"
 
     return res
 
@@ -92,7 +88,6 @@ class MFA_GET_Error(dmde.DomoError):
         res: rgd.ResponseGetData,
         message=None,
     ):
-
         super().__init__(
             domo_instance=res.auth.domo_instance,
             function_name=res.traceback_details.function_name,
@@ -113,7 +108,6 @@ async def get_mfa_config(
     debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
-
     params = {"ignoreCache": True}
 
     state_ls = []

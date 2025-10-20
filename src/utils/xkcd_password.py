@@ -34,7 +34,6 @@ def add_padding_characters_fn(
     padding,
     n: int = 1,  # num padding characters to add
 ):
-
     text += "".join(random.choices(padding, k=n))
     return text
 
@@ -112,9 +111,9 @@ def process_domo_password_fn(my_pass, delimiter):
 
 
 def generate_domo_password(
-    delimiter="-", process_fn: Callable = None  # defaults to process_domo_password_fn
+    delimiter="-",
+    process_fn: Callable = None,  # defaults to process_domo_password_fn
 ):
-
     process_fn = process_fn or process_domo_password_fn
 
     wordfile = xp.locate_wordfile()

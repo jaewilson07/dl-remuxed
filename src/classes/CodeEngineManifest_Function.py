@@ -12,10 +12,8 @@ from pprint import pprint
 from typing import List
 
 from ..utils import compare as dmcp
-
 from ..utils import convert as dmcv
 from ..utils import files as defi
-
 from .CodeEngineManifest_Argument import CodeEngineManifest_Argument
 
 
@@ -204,7 +202,6 @@ class CodeEngineManifest_Function:
     def validate_json_to_manifest(
         self, test_obj=None, debug_prn: bool = False, is_suppress_none=False
     ) -> List[dict]:
-
         test_obj: dict = self._target_from_api or test_obj
 
         if not test_obj:

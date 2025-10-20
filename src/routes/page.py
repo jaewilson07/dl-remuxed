@@ -19,8 +19,8 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
+from ..client import get_data as gd
 
 
 class Page_GET_Error(dmde.RouteError):
@@ -259,7 +259,6 @@ async def get_page_access_list(
 
 class CRUD_Page_Error(dmde.RouteError):
     def __init__(self, res: rgd.ResponseGetData, page_id=None, message=None):
-
         super().__init__(res=res, message=message or res.response, entity_id=page_id)
 
 
@@ -372,7 +371,6 @@ async def add_page_owner(
     debug_num_stacks_to_drop=1,
     parent_class: str = None,
 ) -> rgd.ResponseGetData:
-
     page_id_ls = [str(ele) for ele in page_id_ls]
 
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/pages/bulk/owners"
@@ -403,7 +401,7 @@ async def add_page_owner(
     if not res.is_success:
         raise CRUD_Page_Error(
             res=res,
-            message=f"unable to add owners to page { ', '.join(page_id_ls)} - {res.response}",
+            message=f"unable to add owners to page {', '.join(page_id_ls)} - {res.response}",
         )
 
     res.response = f"successfully added owners to pages {','.join(page_id_ls)}"

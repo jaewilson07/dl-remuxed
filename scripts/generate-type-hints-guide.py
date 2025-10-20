@@ -4,12 +4,11 @@ Script to systematically add type hints to Python files following project conven
 This script analyzes existing patterns and suggests type hints.
 """
 
+import argparse
 import ast
 import os
-import re
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
-import argparse
+from typing import Dict, List
 
 
 class TypeHintAnalyzer(ast.NodeVisitor):
@@ -172,7 +171,7 @@ class TypeHintAnalyzer(ast.NodeVisitor):
         elif func_name.startswith("get_") and func_name.endswith("_all"):
             if self.current_class:
                 self.needs_typing_imports.add("List")
-                return f'List[{self.current_class.replace("s", "")}]'  # Remove trailing 's'
+                return f"List[{self.current_class.replace('s', '')}]"  # Remove trailing 's'
             return "List[Any]"
         elif func_name in ["create", "upsert"]:
             if self.current_class:
@@ -225,7 +224,7 @@ class TypeHintAnalyzer(ast.NodeVisitor):
 def analyze_file(file_path: Path) -> TypeHintAnalyzer:
     """Analyze a single Python file"""
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         tree = ast.parse(content)
@@ -293,11 +292,11 @@ def create_implementation_guide(results: Dict[str, TypeHintAnalyzer], output_fil
                     )
                     if missing_imports:
                         f.write("**Add these imports:**\n")
-                        f.write(f"```python\n")
+                        f.write("```python\n")
                         f.write(
                             f"from typing import {', '.join(sorted(missing_imports))}\n"
                         )
-                        f.write(f"```\n\n")
+                        f.write("```\n\n")
 
                 # Function suggestions
                 for suggestion in analyzer.suggestions:
@@ -353,11 +352,11 @@ def create_implementation_guide(results: Dict[str, TypeHintAnalyzer], output_fil
         total_functions = sum(
             len(analyzer.suggestions) for analyzer in results.values()
         )
-        f.write(f"## Summary\n\n")
+        f.write("## Summary\n\n")
         f.write(f"- **Files to update:** {len(results)}\n")
         f.write(f"- **Functions needing type hints:** {total_functions}\n")
         f.write(
-            f"- **Implementation priority:** classes → client → routes → utils → integrations\n\n"
+            "- **Implementation priority:** classes → client → routes → utils → integrations\n\n"
         )
 
         f.write("## Next Steps\n\n")

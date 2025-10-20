@@ -18,10 +18,9 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
+from ..client import get_data as gd
 from . import codeengine as codeengine_routes
-
 from .codeengine import CodeEngine_API_Error
 
 
@@ -40,7 +39,6 @@ async def deploy_code_engine_package(
     parent_class: str = None,
     debug_num_stacks_to_drop=1,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/codeengine/v2/packages/{package_id}/versions/{version}/release"
 
     res = await gd.get_data(
@@ -74,7 +72,6 @@ async def create_code_engine_package(
     parent_class: str = None,
     debug_num_stacks_to_drop=1,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/codeengine/v2/packages"
 
     res = await gd.get_data(
@@ -124,7 +121,6 @@ async def upsert_code_engine_package_version(
     debug_api: bool = False,
     debug_prn: bool = False,
 ) -> rgd.ResponseGetData:
-
     package_id = payload.get("id")
     version = version or payload.get("version")
 
@@ -182,7 +178,6 @@ async def upsert_package(
     debug_num_stacks_to_drop=1,
     debug_prn: bool = False,
 ) -> rgd.ResponseGetData:
-
     package_id = payload.get("id")
 
     if not package_id:

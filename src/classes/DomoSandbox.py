@@ -8,10 +8,10 @@ import dateutil.parser as dtut
 import httpx
 import pandas as pd
 
-from . import DomoLineage as dmdl
 from ..client import DomoAuth as dmda
 from ..client import DomoEntity as dmee
 from ..routes import sandbox as sandbox_routes
+from . import DomoLineage as dmdl
 
 
 @dataclass
@@ -40,7 +40,6 @@ class DomoRepository(dmee.DomoEntity_w_Lineage):
 
     @classmethod
     def _from_dict(cls, auth: dmda.DomoAuth, obj: dict):
-
         return cls(
             id=obj["id"],
             auth=auth,
@@ -65,7 +64,6 @@ class DomoRepository(dmee.DomoEntity_w_Lineage):
         session: httpx.AsyncClient = None,
         debug_num_stacks_to_drop=2,
     ):
-
         res = await sandbox_routes.get_repo_from_id(
             repository_id=repository_id,
             auth=auth,
@@ -86,7 +84,6 @@ class DomoRepository(dmee.DomoEntity_w_Lineage):
         session: httpx.AsyncClient = None,
         debug_num_stacks_to_drop=2,
     ):
-
         return cls.get_by_id(
             repository_id=entity_id,
             auth=auth,
@@ -96,7 +93,6 @@ class DomoRepository(dmee.DomoEntity_w_Lineage):
         )
 
     def convert_lineage_to_dataframe(self, return_raw: bool = False) -> pd.DataFrame:
-
         flat_lineage_ls = self.Lineage._flatten_lineage()
 
         output_ls = [
@@ -127,7 +123,6 @@ class DomoSandbox(dmee.DomoManager):
     async def get_repositories(
         self, debug_api: bool = False, session: httpx.AsyncClient = None
     ):
-
         res = await sandbox_routes.get_shared_repos(
             auth=self.auth, debug_api=debug_api, session=session, parent_class=self
         )

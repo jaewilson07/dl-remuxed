@@ -161,11 +161,9 @@ class CodeEngine_Argument:
     def init(
         cls, annotation_text: str, has_default_value: bool = None
     ) -> Dict[str, Any]:
-
         return cls(annotation_text=annotation_text, has_default_value=has_default_value)
 
     def to_dict(self, is_map_type_to_codeengine: bool = True) -> Dict[str, Any]:
-
         schema_type = (
             self.schema_type.code_engine_schema_type
             if is_map_type_to_codeengine
@@ -180,7 +178,6 @@ class CodeEngine_Argument:
     def extract_schema_type_from_annotation_text(
         self, default: str = "OBJECT"
     ) -> PythonTypeToSchemaType:
-
         def _remove_optional_wrapper(annotation_text: str) -> str:
             if "Optional[" in annotation_text:
                 return re.sub(r"Optional\[(.*?)\]", r"\1", annotation_text)
@@ -363,7 +360,6 @@ class CodeEngineManifest_Argument(CodeEngine_Argument):
 
     @classmethod
     def from_ast_function_return_arg(cls, ast_fn: ast.FunctionDef):
-
         # return_node = extract_last_return_node_from_ast_fn(ast_fn)
 
         annotation_text = extract_ast_arg_type_annotation(ast_fn.returns)

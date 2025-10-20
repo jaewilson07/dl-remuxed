@@ -24,7 +24,6 @@ from ..client import DomoError as dmde
 async def search_domo_groups_by_name(
     auth: dmda.DomoAuth, group_names: List[str], is_hide_system_groups: bool = True
 ) -> List[dmdg.DomoGroup]:
-
     domo_groups = dmdg.DomoGroups(auth=auth)
 
     await domo_groups.get(is_hide_system_groups=is_hide_system_groups)
@@ -41,7 +40,6 @@ async def upsert_domo_group(
     is_hide_system_groups: bool = True,
     debug_api: bool = False,
 ) -> dmdg.DomoGroup:
-
     group_owner_names = group_owner_names or ["Role: Admin"]
 
     domo_group = await dmdg.DomoGroup.upsert(
@@ -101,7 +99,6 @@ class DJW_NoAccount(dmde.ClassError):
 async def search_domo_account_by_name(
     auth: dmda.DomoAuth, account_name: str
 ) -> dmacc.DomoAccount:
-
     domo_accounts = dmacc.DomoAccounts(auth=auth)
 
     await domo_accounts.get()
@@ -130,7 +127,6 @@ async def share_domo_account_with_domo_group(
     debug_api: bool = False,
     access_level=dmacc.ShareAccount_AccessLevel.default,
 ) -> str:
-
     share_domo_group = await search_or_upsert_domo_group(
         auth=auth,
         group_name=group_name,

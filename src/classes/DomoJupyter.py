@@ -15,20 +15,18 @@ from typing import Any, List
 import httpx
 from nbdev.showdoc import patch_to
 
-from . import DomoAccount as dmac
-from . import DomoDataset as dmds
-from . import DomoUser as dmdu
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
-from ..routes import jupyter as jupyter_routes
-
-from ..utils import chunk_execution as dmce
-from ..utils import files as defi
 from ..client.DomoEntity import DomoEntity, DomoManager
+from ..routes import jupyter as jupyter_routes
 from ..routes.jupyter import (
     JupyterAPI_Error,
 )
-
+from ..utils import chunk_execution as dmce
+from ..utils import files as defi
+from . import DomoAccount as dmac
+from . import DomoDataset as dmds
+from . import DomoUser as dmdu
 from .DomoJupyter_Account import DomoJupyter_Account
 from .DomoJupyter_Content import DomoJupyter_Content
 from .DomoJupyter_DataSource import DomoJupyter_DataSource
@@ -150,7 +148,6 @@ class DomoJupyterWorkspace(DomoEntity):
         is_use_default_account_class: bool = False,
         is_suppress_errors: bool = False,
     ):
-
         dj_workspace = cls(
             auth=auth,
             id=obj["id"],
@@ -207,7 +204,6 @@ class DomoJupyterWorkspace(DomoEntity):
         return dj_workspace
 
     def to_dict(self):
-
         return {
             "id": self.id,
             "name": self.name,
@@ -238,7 +234,6 @@ class DomoJupyterWorkspace(DomoEntity):
         is_use_default_account_class: bool = False,
         is_suppress_errors: bool = False,
     ):
-
         res = await jupyter_routes.get_jupyter_workspace_by_id(
             workspace_id=workspace_id,
             auth=auth,
@@ -344,7 +339,6 @@ async def get_output_configuration(
 
 @patch_to(DomoJupyterWorkspace)
 def _add_config(self, config, attribute):
-
     # print(config.alias)
     config_ls = getattr(self, attribute)
 
@@ -371,7 +365,6 @@ def add_config_input_datasource(self, dja_datasource: DomoJupyter_DataSource):
 
 @patch_to(DomoJupyterWorkspace)
 def add_config_output_datasource(self, dja_datasource: DomoJupyter_DataSource):
-
     if not isinstance(dja_datasource, DomoJupyter_DataSource):
         raise DJW_InvalidClass(
             message="must passs instance of DomoJupyter_DataSource", cls_instance=self
@@ -481,7 +474,6 @@ class DomoJupyterWorkspaces(DomoManager):
 
 @patch_to(DomoJupyterWorkspace)
 def _test_config_duplicates(self, config_name):
-
     configuration = getattr(self, config_name)
 
     if len(set([cfg.alias.lower() for cfg in configuration])) == len(configuration):
@@ -564,7 +556,6 @@ async def add_account(
             )
 
         except JupyterAPI_Error as e:
-
             share_user_id = (domo_user and domo_user.id) or (
                 await self.auth.who_am_i()
             ).response["id"]
@@ -614,7 +605,6 @@ async def add_input_dataset(
             return await self.update_config(debug_api=debug_api, session=session)
 
         except JupyterAPI_Error as e:
-
             domo_user = domo_user or await dmdu.DomoUser.get_by_id(
                 auth=self.auth,
                 user_id=(await self.auth.who_am_i()).response["id"],
@@ -663,7 +653,6 @@ async def add_output_dataset(
             return await self.update_config(debug_api=debug_api, session=session)
 
         except JupyterAPI_Error as e:
-
             domo_user = domo_user or await dmdu.DomoUser.get_by_id(
                 auth=self.auth,
                 user_id=(await self.auth.who_am_i()).response["id"],

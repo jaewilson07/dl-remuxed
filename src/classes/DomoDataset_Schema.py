@@ -1,6 +1,5 @@
 """a class based approach for interacting with Domo Datasets"""
 
-
 __all__ = [
     "DatasetSchema_Types",
     "DomoDataset_Schema_Column",
@@ -17,8 +16,8 @@ from nbdev.showdoc import patch_to
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
-from ..routes import dataset as dataset_routes
 from ..client.DomoEntity import DomoSubEntity
+from ..routes import dataset as dataset_routes
 
 
 class DatasetSchema_Types(Enum):
@@ -135,7 +134,6 @@ class DatasetSchema_InvalidSchema(dmde.DomoError):
         dataset_name=None,
         message=None,
     ):
-
         if dataset_id:
             message = f"{dataset_id}{f' - {dataset_name}' if dataset_name else ''} is missing columns {', '.join(missing_columns)}"
 
@@ -149,7 +147,6 @@ async def _test_missing_columns(
     dataset_id=None,
     auth: dmda.DomoAuth = None,
 ):
-
     dataset_id = dataset_id or self.parent.id
     auth = auth or self.parent.auth
 
@@ -190,10 +187,9 @@ async def reset_col_order(self: DomoDataset_Schema, df: pd.DataFrame):
 def add_col(
     self: DomoDataset_Schema, col: DomoDataset_Schema_Column, debug_prn: bool = False
 ):
-
     if col in self.columns and debug_prn:
         print(
-            f"column - {col.name} already in dataset {self.parent.name if self.parent else '' }"
+            f"column - {col.name} already in dataset {self.parent.name if self.parent else ''}"
         )
 
     if col not in self.columns:
@@ -208,7 +204,6 @@ def remove_col(
     col_to_remove: DomoDataset_Schema_Column,
     debug_prn: bool = False,
 ):
-
     [
         self.columns.pop(index)
         for index, col in enumerate(self.columns)
@@ -237,7 +232,6 @@ async def alter_schema(
     return_raw: bool = False,
     debug_api: bool = False,
 ):
-
     dataset_id = dataset_id or self.parent.id
     auth = auth or self.parent.auth
 
@@ -266,7 +260,6 @@ async def alter_schema_descriptions(
     return_raw: bool = False,
     debug_api: bool = False,
 ):
-
     dataset_id = dataset_id or self.parent.id
     auth = auth or self.parent.auth
 

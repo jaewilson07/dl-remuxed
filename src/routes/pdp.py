@@ -16,8 +16,8 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as de
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
+from ..client import get_data as gd
 
 
 class PDP_NotRetrieved(de.DomoError):
@@ -29,7 +29,6 @@ class PDP_NotRetrieved(de.DomoError):
         message,
         pdp_id=None,
     ):
-
         super().__init__(
             domo_instance=domo_instance,
             entity_id=pdp_id,
@@ -95,7 +94,6 @@ def search_pdp_policies_by_name(
     is_exact_match: bool = True,
     is_suppress_errors: bool = False,
 ):
-
     if is_exact_match:
         policy_search = next(
             (policy for policy in result_list if policy["name"] == search_name), None
@@ -189,7 +187,6 @@ async def create_policy(
     return_raw: bool = False,
     is_suppress_errors: bool = False,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/data-control/{dataset_id}/filter-groups"
 
     if not override_same_name:
@@ -239,7 +236,6 @@ async def update_policy(
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/data-control/{dataset_id}/filter-groups/{policy_id}"
 
     if debug_api:
@@ -264,7 +260,6 @@ async def delete_policy(
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/data-control/{dataset_id}/filter-groups/{policy_id}"
 
     if debug_api:
@@ -288,7 +283,6 @@ async def toggle_pdp(
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
 ) -> rgd.ResponseGetData:
-
     url = (
         f"https://{auth.domo_instance}.domo.com/api/query/v1/data-control/{dataset_id}"
     )

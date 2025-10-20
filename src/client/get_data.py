@@ -16,11 +16,11 @@ from typing import Any, Callable, Optional, Tuple, Union
 
 import httpx
 
+from ..utils import chunk_execution as dmce
 from . import DomoAuth as dmda
 from . import DomoError as dmde
 from . import Logger as dl
 from . import ResponseGetData as rgd
-from ..utils import chunk_execution as dmce
 
 
 class GetData_Error(dmde.DomoError):
@@ -302,7 +302,6 @@ async def get_data_stream(
                 headers=headers,
                 follow_redirects=is_follow_redirects,
             ) as res:
-
                 if res.status_code != 200:
                     return rgd.ResponseGetData._from_httpx_response(
                         res=res,

@@ -3,10 +3,9 @@
 Track @patch_to refactoring progress
 """
 
-import os
 import re
-from pathlib import Path
 from collections import defaultdict
+from pathlib import Path
 
 
 def count_patch_to_usage():
@@ -43,7 +42,7 @@ def count_patch_to_usage():
             dir_files += 1
 
             try:
-                with open(file_path, "r", encoding="utf-8") as f:
+                with open(file_path, encoding="utf-8") as f:
                     content = f.read()
 
                 patches = len(re.findall(r"@patch_to", content))
@@ -81,10 +80,10 @@ def count_patch_to_usage():
         print(
             f"🔧 Remaining: {total_patches} @patch_to decorators in {remaining_files} files"
         )
-        print(f"🎯 Continue with: .\\scripts\\refactor-patch-to.ps1")
+        print("🎯 Continue with: .\\scripts\\refactor-patch-to.ps1")
 
         # Show which directories still need work
-        print(f"\n📋 Remaining work by directory:")
+        print("\n📋 Remaining work by directory:")
         for directory in directories:
             patches = by_directory[directory]["patches"]
             if patches > 0:

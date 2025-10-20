@@ -23,7 +23,6 @@ async def get_workflow(
     parent_class: str = None,
     session: httpx.AsyncClient = None,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/api/workflow/v1/models/{model_id}/versions/{version_id}"
     res = await gd.get_data(
         auth=auth,
@@ -99,7 +98,6 @@ async def get_workflow_trigger_history(
     parent_class: str = None,
     session: httpx.AsyncClient = None,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/api/workflow/v2/executions/{model_id}"
 
     res = await gd.get_data(

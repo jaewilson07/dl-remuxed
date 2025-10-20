@@ -8,11 +8,11 @@ import httpx
 import pandas as pd
 from nbdev.showdoc import patch_to
 
-from . import DomoApplication_Job as dmdj
 from ..client import DomoAuth as dmda
 from ..routes import application as application_routes
-from ..utils import convert as cc
 from ..utils import DictDot as util_dd
+from ..utils import convert as cc
+from . import DomoApplication_Job as dmdj
 
 
 class DomoJob_Types(Enum):
@@ -105,7 +105,6 @@ async def get_jobs(
     session: Optional[httpx.AsyncClient] = None,
     return_raw: bool = False,
 ):
-
     res = await application_routes.get_application_jobs(
         auth=self.auth,
         application_id=self.id,
@@ -166,7 +165,6 @@ async def get_schedules(self) -> pd.DataFrame:
 async def find_next_job_schedule(
     self, return_raw: bool = False
 ) -> dmdj.DomoTrigger_Schedule:
-
     await self.get_jobs()
     await self.get_schedules()
 

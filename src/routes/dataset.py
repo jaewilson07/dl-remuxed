@@ -42,8 +42,8 @@ import pandas as pd
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as de
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
+from ..client import get_data as gd
 from ..client.DomoEntity import DomoEnum
 
 
@@ -368,7 +368,7 @@ async def set_dataset_tags(
 
     if res.status == 200:
         res.set_response(
-            response=f'Dataset {dataset_id} tags updated to [{ ", ".join(tag_ls) }]'
+            response=f"Dataset {dataset_id} tags updated to [{', '.join(tag_ls)}]"
         )
 
     if not res.is_success:
@@ -387,7 +387,7 @@ class UploadDataError(de.RouteError):
         res: rgd.ResponseGetData,
         message: str = None,
     ):
-        message = f"error uploading data during Stage { stage_num} - {message}"
+        message = f"error uploading data during Stage {stage_num} - {message}"
 
         super().__init__(entity_id=dataset_id, message=message, res=res)
 
@@ -794,7 +794,6 @@ async def create_dataset_enterprise_tookit(
     parent_class=None,
     session: httpx.AsyncClient = None,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/api/executor/v1/datasets"
 
     res = await gd.get_data(
@@ -964,7 +963,7 @@ async def share_dataset(
     update_user_ls = [f"{user['type']} - {user['id']}" for user in body["permissions"]]
 
     res.response = (
-        f"updated access list { ', '.join(update_user_ls)} added to {dataset_id}"
+        f"updated access list {', '.join(update_user_ls)} added to {dataset_id}"
     )
     return res
 

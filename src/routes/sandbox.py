@@ -13,8 +13,8 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
+from ..client import get_data as gd
 
 
 class Sandbox_GET_Error(dmde.RouteError):
@@ -101,7 +101,6 @@ async def get_shared_repos(
     debug_api: bool = False,
     debug_num_stacks_to_drop: bool = False,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/version/v1/repositories/search"
 
     body = {
@@ -160,7 +159,6 @@ async def get_repo_from_id(
     parent_class: str = None,
     session: httpx.AsyncClient = None,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/version/v1/repositories/{repository_id}"
 
     res = await gd.get_data(

@@ -3,8 +3,8 @@ __all__ = ["DomoCertificationState", "DomoCertification"]
 import datetime as dt
 from dataclasses import dataclass
 
-from ..utils import convert as cd
 from ..client.DomoEntity import DomoEnum, DomoSubEntity
+from ..utils import convert as cd
 
 
 class DomoCertificationState(DomoEnum):
@@ -22,7 +22,6 @@ class DomoCertification(DomoSubEntity):
 
     @classmethod
     def _from_parent(cls, parent):
-
         certification = parent.raw["certification"]
 
         cert_state = None

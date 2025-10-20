@@ -14,8 +14,8 @@ from typing import List, Literal, Optional
 import httpx
 
 from ..client import DomoAuth as dmda
-from ..routes import instance_config_scheduler_policies as scheduler_policies_routes
 from ..client.DomoEntity import DomoBase, DomoEnum, DomoSubEntity
+from ..routes import instance_config_scheduler_policies as scheduler_policies_routes
 
 
 def parse_dt(dt: str) -> datetime:

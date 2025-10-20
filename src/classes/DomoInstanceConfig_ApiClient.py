@@ -7,15 +7,15 @@ from typing import List
 import httpx
 from nbdev.showdoc import patch_to
 
-from . import DomoUser as dmdu
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
-from ..routes import instance_config_api_client as client_routes
-from ..utils import chunk_execution as dmce
 from ..client.DomoEntity import DomoEntity
+from ..routes import instance_config_api_client as client_routes
 from ..routes.instance_config_api_client import (
     ApiClient_ScopeEnum,
 )
+from ..utils import chunk_execution as dmce
+from . import DomoUser as dmdu
 
 
 @dataclass
@@ -40,7 +40,6 @@ class ApiClient(DomoEntity):
 
     @classmethod
     async def _from_dict(cls, auth: dmda.DomoAuth, obj):
-
         domo_user = None
         is_invalid = False
         try:
@@ -130,7 +129,6 @@ class ApiClients:
         debug_num_stacks_to_drop=2,
         return_raw: bool = False,
     ):
-
         res = await client_routes.get_api_clients(
             auth=self.auth,
             session=session,
@@ -159,7 +157,6 @@ class ApiClients:
         session: httpx.AsyncClient = None,
         debug_num_stacks_to_drop: int = 2,
     ):
-
         await self.get(
             debug_api=debug_api,
             session=session,
@@ -192,7 +189,6 @@ async def create_for_authorized_user(
     session: httpx.AsyncClient = None,
     return_raw: bool = False,
 ):
-
     res = await client_routes.create_api_client(
         auth=self.auth,
         client_name=client_name,
@@ -227,7 +223,6 @@ async def upsert_client(
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 2,
 ):
-
     domo_client = None
 
     try:

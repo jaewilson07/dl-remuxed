@@ -13,14 +13,14 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
-from ..routes import account as account_routes
-from ..utils import chunk_execution as dmce
 from ..client.DomoEntity import DomoSubEntity, Entity_Relation
+from ..routes import account as account_routes
 from ..routes.account import (
     ShareAccount,
     ShareAccount_AccessLevel,
     ShareAccount_V1_AccessLevel,
 )
+from ..utils import chunk_execution as dmce
 
 
 class Access_Config_Error(dmde.ClassError):
@@ -32,7 +32,6 @@ class Access_Config_Error(dmde.ClassError):
 
 @dataclass
 class Access_Entity(Entity_Relation):
-
     relation_type: ShareAccount = None
 
 
@@ -52,7 +51,6 @@ class DomoAccess(DomoSubEntity):
         super().__post_init__()
 
         if not issubclass(self.share_enum, ShareAccount):
-
             raise Access_Config_Error(
                 cls_instance=self,
                 account_id=self.parent_id,
@@ -70,7 +68,6 @@ class DomoAccess(DomoSubEntity):
         debug_num_stacks_to_drop: int = 1,
         session: httpx.AsyncClient = None,
     ):
-
         from . import DomoGroup as dmdg
         from . import DomoUser as dmdu
 
@@ -185,7 +182,6 @@ class DomoAccess_Account(DomoAccess):
     share_enum: ShareAccount = field(repr=False, default=ShareAccount_AccessLevel)
 
     def __post_init__(self):
-
         super().__post_init__()
 
         if isinstance(self.share_enum, ShareAccount_AccessLevel):
