@@ -39,7 +39,7 @@ class DomoJupyter_Content:
             self.folder = self.folder.replace(self.name, "")
 
     @classmethod
-    def _from_dict(cls, obj: dict, auth: dmda.DomoJupyterAuth):
+    def from_dict(cls, obj: dict, auth: dmda.DomoJupyterAuth):
         dd = util_dd.DictDot(obj) if not isinstance(obj, util_dd.DictDot) else obj
 
         dc = cls(
@@ -107,7 +107,7 @@ class DomoJupyter_Content:
         if return_raw:
             return res
 
-        dj_content = cls._from_dict(auth=auth, obj=res.response)
+        dj_content = cls.from_dict(auth=auth, obj=res.response)
 
         if new_content:
             dj_content.content = new_content

@@ -29,7 +29,7 @@ class DomoGrant:
         return self.id == other.id
 
     @classmethod
-    def _from_dict(cls, obj):
+    def from_dict(cls, obj):
         dd = obj
         if not isinstance(dd, util_dd.DictDot):
             dd = util_dd.DictDot(obj)
@@ -63,6 +63,6 @@ class DomoGrants:
         if return_raw or not res.is_success:
             return res
 
-        self.grants = [DomoGrant._from_dict(obj) for obj in res.response]
+        self.grants = [DomoGrant.from_dict(obj) for obj in res.response]
 
         return self.grants

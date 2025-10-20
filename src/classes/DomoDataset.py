@@ -20,7 +20,7 @@ import pandas as pd
 from nbdev.showdoc import patch_to
 
 from ..client import DomoAuth as dmda
-from ..client import DomoError as dmde
+from ..client import exceptions as dmde
 from ..client.DomoEntity import (
     DomoEntity_w_Lineage,
     DomoFederatedEntity,
@@ -41,7 +41,7 @@ from . import DomoLineage as dmdl
 from . import DomoPDP as dmpdp
 from . import DomoTag as dmtg
 from ..client import auth as dmda
-from ..client import DomoError as dmde
+from ..client import exceptions as dmde
 from ..routes import dataset as dataset_routes
 
 from ..utils import chunk_execution as dmce
@@ -110,7 +110,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
         return f"https://{self.auth.domo_instance}.domo.com/datasources/{self.id}/details/overview"
 
     @classmethod
-    def _from_dict(
+    def from_dict(
         cls,
         obj: dict,
         auth: dmda.DomoAuth,
@@ -187,7 +187,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
         if return_raw:
             return res
 
-        return cls._from_dict(
+        return cls.from_dict(
             obj=res.response,
             auth=auth,
             new_cls=cls,
@@ -718,7 +718,7 @@ class FederatedDomoDataset(DomoDataset_Default, DomoFederatedEntity):
         if return_raw:
             return res
 
-        return cls._from_dict(
+        return cls.from_dict(
             obj=res.response,
             auth=auth,
             new_cls=cls,
@@ -741,7 +741,7 @@ class DomoDataset(DomoDataset_Default):
     #     super().__init__(**self.__dict__)
 
     @classmethod
-    def _from_dict(
+    def from_dict(
         cls,
         obj: dict,
         # is_admin_summary: bool = True,
@@ -761,7 +761,7 @@ class DomoDataset(DomoDataset_Default):
 
         # TO DO -- how do we know if it's published?
 
-        return super()._from_dict(
+        return super().from_dict(
             auth=auth,
             obj=obj,
             is_use_default_dataset_class=is_use_default_dataset_class,

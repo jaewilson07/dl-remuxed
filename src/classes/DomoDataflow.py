@@ -49,7 +49,7 @@ class DomoDataflow(DomoEntity_w_Lineage):
         self.Lineage = dmdl.DomoLineage._from_parent(auth=self.auth, parent=self)
 
     @classmethod
-    def _from_dict(cls, obj, auth, version_id=None, version_number=None):
+    def from_dict(cls, obj, auth, version_id=None, version_number=None):
         domo_dataflow = cls(
             auth=auth,
             id=obj.get("id"),
@@ -65,9 +65,7 @@ class DomoDataflow(DomoEntity_w_Lineage):
 
         if obj.get("actions"):
             domo_dataflow.actions = [
-                DomoDataflow_Action._from_dict(
-                    action, all_actions=domo_dataflow.actions
-                )
+                DomoDataflow_Action.from_dict(action, all_actions=domo_dataflow.actions)
                 for action in obj.get("actions")
             ]
 
@@ -103,7 +101,7 @@ class DomoDataflow(DomoEntity_w_Lineage):
         if not res.is_success:
             return None
 
-        return cls._from_dict(res.response, auth=auth)
+        return cls.from_dict(res.response, auth=auth)
 
     @classmethod
     async def _get_entity_by_id(cls, auth, entity_id, **kwargs):
@@ -224,7 +222,7 @@ class DomoDataflow(DomoEntity_w_Lineage):
         if return_raw:
             return res
 
-        domo_dataflow = cls._from_dict(
+        domo_dataflow = cls.from_dict(
             res.response["dataFlow"],
             version_id=res.response["id"],
             version_number=res.response["versionNumber"],

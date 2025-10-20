@@ -21,7 +21,7 @@ from aenum import Enum as DomoEnum
 from aenum import NoAlias
 
 from ..client import auth as dmda
-from ..client import DomoError as dmde
+from ..client import exceptions as dmde
 from ..client.DomoEntity import DomoEntity
 from ..routes import datacenter as datacenter_routes
 from ..utils import chunk_execution as dmce
@@ -59,7 +59,7 @@ class DomoLineage_Link(ABC):
 
     @classmethod
     @abstractmethod
-    async def get_from_dict(cls, obj, auth):
+    async def getfrom_dict(cls, obj, auth):
         """
         Create a DomoLineage_Link instance from a JSON object.
         """
@@ -108,7 +108,7 @@ class DomoLineageLink_Dataflow(DomoLineage_Link):
         return await dmdf.DomoDataflow.get_by_id(dataflow_id=entity_id, auth=auth)
 
     @classmethod
-    async def get_from_dict(cls, obj, auth):
+    async def getfrom_dict(cls, obj, auth):
         entity = await cls.get_entity(entity_id=obj["id"], auth=auth)
 
         return cls(
@@ -146,7 +146,7 @@ class DomoLineageLink_Publication(DomoLineage_Link):
         )
 
     @classmethod
-    async def get_from_dict(cls, obj, auth):
+    async def getfrom_dict(cls, obj, auth):
         """
         Initialize a DomoLineage instance for a publication.
         """
@@ -180,7 +180,7 @@ class DomoLineageLink_Card(DomoLineage_Link):
         )
 
     @classmethod
-    async def get_from_dict(cls, obj, auth):
+    async def getfrom_dict(cls, obj, auth):
         """
         Initialize a DomoLineage instance for a publication.
         """
@@ -217,7 +217,7 @@ class DomoLineageLink_Dataset(DomoLineage_Link):
         )
 
     @classmethod
-    async def get_from_dict(cls, obj, auth):
+    async def getfrom_dict(cls, obj, auth):
         """
         Initialize a DomoLineage instance for a publication.
         """
@@ -334,14 +334,14 @@ class DomoLineage:
 
         # dmcv.merge_dict(res.response, self.raw_datacenter)
 
-        async def _get_entity_from_dict(obj):
+        async def _get_entityfrom_dict(obj):
             entity = DomoLineageLinkTypeFactory_Enum[obj["type"]].value  ## abc
 
-            return await entity.get_from_dict(obj=obj, auth=self.auth)
+            return await entity.getfrom_dict(obj=obj, auth=self.auth)
 
         dx_classes = await dmce.gather_with_concurrency(
             *[
-                _get_entity_from_dict(obj)
+                _get_entityfrom_dict(obj)
                 for _, obj in res.response.items()
                 if str(obj["id"]) != str(self.parent_id)
             ],

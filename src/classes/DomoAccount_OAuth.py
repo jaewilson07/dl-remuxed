@@ -30,7 +30,7 @@ class DomoAccountOAuth_Config_SnowflakeOauth(dmacnfg.DomoAccount_Config):
     secret: str = None
 
     @classmethod
-    def _from_dict(cls, obj: dict, parent: Any = None, **kwargs):
+    def from_dict(cls, obj: dict, parent: Any = None, **kwargs):
         return cls(
             client_id=obj["client-id"],
             secret=obj["client-secret"],
@@ -51,7 +51,7 @@ class DomoAccountOAuth_Config_JiraOnPremOauth(dmacnfg.DomoAccount_Config):
     secret: str = None
 
     @classmethod
-    def _from_dict(cls, obj: dict, parent: Any = None):
+    def from_dict(cls, obj: dict, parent: Any = None):
         return cls(
             client_id=obj["client_id"],
             secret=obj["client_secret"],
@@ -129,7 +129,7 @@ class DomoAccount_OAuth(dmacb.DomoAccount_Default):
         if not is_suppress_no_config and not config_fn.is_defined_config:
             raise config_fn._associated_exception(self.data_provider_type)
 
-        self.Config = config_fn._from_dict(res.response)
+        self.Config = config_fn.from_dict(res.response)
 
         if self.Config and self.Config.to_dict() != {}:
             if not res.response:
@@ -176,7 +176,7 @@ class DomoAccount_OAuth(dmacb.DomoAccount_Default):
         if return_raw:
             return res
 
-        acc = cls._from_dict(
+        acc = cls.from_dict(
             obj=res.response,
             auth=auth,
             is_admin_summary=False,

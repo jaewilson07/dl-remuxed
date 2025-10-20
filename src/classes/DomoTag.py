@@ -9,7 +9,7 @@ from typing import Any, List, Optional
 import httpx
 
 from ..client import auth as dmda
-from ..client import DomoError as dmde
+from ..client import exceptions as dmde
 from ..routes import dataset as dataset_routes
 
 

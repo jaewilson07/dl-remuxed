@@ -7,7 +7,7 @@ import httpx
 from nbdev.showdoc import patch_to
 
 from ..client import auth as dmda
-from ..client import DomoError as dmde
+from ..client import exceptions as dmde
 from ..routes import instance_config_mfa as mfa_routes
 
 
@@ -24,7 +24,7 @@ class MFA_Config:
     num_days_valid: int = None
 
     @classmethod
-    def _from_dict(cls, auth: dmda.DomoAuth, obj: List[dict]):
+    def from_dict(cls, auth: dmda.DomoAuth, obj: List[dict]):
         return cls(
             auth=auth,
             is_multifactor_required=obj.get("is_multifactor_required"),
@@ -65,7 +65,7 @@ class MFA_Config:
                 message=f"must enable MFA to get MFA config from {auth.domo_instance}",
             )
 
-        return cls._from_dict(auth=auth, obj=res.response)
+        return cls.from_dict(auth=auth, obj=res.response)
 
     async def get(
         self,

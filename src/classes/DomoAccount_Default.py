@@ -16,7 +16,7 @@ import httpx
 
 from . import DomoAccess as dmas
 from ..client import auth as dmda
-from ..client import DomoError as dmde
+from ..client import exceptions as dmde
 from ..routes import account as account_routes
 from ..utils import convert as cd
 from ..classes.DomoAccount_Config import (
@@ -81,7 +81,7 @@ class DomoAccount_Default(DomoEntity):
         return f"{self.auth.domo_instance}/datacenter/accounts"
 
     @classmethod
-    def _from_dict(
+    def from_dict(
         cls,
         auth: dmda.DomoAuth,
         obj: dict,
@@ -167,7 +167,7 @@ class DomoAccount_Default(DomoEntity):
         config_fn = AccountConfig(self.data_provider_type).value
 
         try:
-            self.Config = config_fn._from_dict(
+            self.Config = config_fn.from_dict(
                 obj=res.response, data_provider_type=self.data_provider_type
             )
 
@@ -214,7 +214,7 @@ class DomoAccount_Default(DomoEntity):
 
         obj = res.response
 
-        acc = cls._from_dict(
+        acc = cls.from_dict(
             obj=obj,
             auth=auth,
             is_admin_summary=False,

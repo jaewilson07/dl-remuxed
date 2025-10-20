@@ -18,7 +18,7 @@ from ..classes import DomoAccount as dmacc
 from ..classes import DomoDataset as dmds
 from ..classes import DomoGroup as dmdg
 from ..client import auth as dmda
-from ..client import DomoError as dmde
+from ..client import exceptions as dmde
 
 
 async def search_domo_groups_by_name(

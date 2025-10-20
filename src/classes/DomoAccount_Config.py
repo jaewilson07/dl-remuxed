@@ -29,7 +29,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from ..client import entities as dmee
-from ..client import DomoError as dmde
+from ..client import exceptions as dmde
 from ..utils import DictDot as util_dd
 from ..utils import convert as dmcv
 
@@ -69,7 +69,7 @@ class DomoAccount_Config(dmee.DomoBase, ABC):
 
     @classmethod
     @abstractmethod
-    def _from_dict(cls, obj: dict, data_provider_type: str = None, **kwargs):
+    def from_dict(cls, obj: dict, data_provider_type: str = None, **kwargs):
         """convert accounts API response into a class object"""
         pass
 
@@ -98,7 +98,7 @@ class DomoAccount_NoConfig_OAuth(DomoAccount_Config):
     is_oauth: bool = True
 
     @classmethod
-    def _from_dict(
+    def from_dict(
         cls, obj: dict, data_provider_type: str, parent: Any = None, **kwargs
     ):
         return cls._from_parent(
@@ -123,7 +123,7 @@ class DomoAccount_NoConfig(DomoAccount_Config):
     is_oauth: bool = False
 
     @classmethod
-    def _from_dict(
+    def from_dict(
         cls, data_provider_type: str, obj: dict, parent: Any = None, **kwargs
     ):
         return cls._from_parent(
@@ -143,7 +143,7 @@ class DomoAccount_Config_AbstractCredential(DomoAccount_Config):
     is_oauth: bool = False
 
     @classmethod
-    def _from_dict(cls, obj, parent=None, **kwargs):
+    def from_dict(cls, obj, parent=None, **kwargs):
         return cls._from_parent(
             parent=parent,
             raw=obj,
@@ -163,7 +163,7 @@ class DomoAccount_Config_DatasetCopy(DomoAccount_Config):
     access_token: str = field(repr=False, default=None)
 
     @classmethod
-    def _from_dict(cls, obj: dict, parent: Any = None, **kwargs):
+    def from_dict(cls, obj: dict, parent: Any = None, **kwargs):
         return cls(
             access_token=obj.get("accessToken"),
             domo_instance=obj.get("instance"),
@@ -188,7 +188,7 @@ class DomoAccount_Config_DomoAccessToken(DomoAccount_Config):
     password: str = field(repr=False, default=None)
 
     @classmethod
-    def _from_dict(cls, obj: dict, parent: Any = None, **kwargs):
+    def from_dict(cls, obj: dict, parent: Any = None, **kwargs):
         return cls(
             domo_access_token=obj.get("domoAccessToken"),
             username=obj.get("username"),
@@ -217,7 +217,7 @@ class DomoAccount_Config_Governance(DomoAccount_Config):
     access_token: str = field(repr=False, default=None)
 
     @classmethod
-    def _from_dict(cls, obj: dict, parent: Any = None, **kwargs):
+    def from_dict(cls, obj: dict, parent: Any = None, **kwargs):
         return cls(
             access_token=obj.get("apikey"),
             domo_instance=obj.get("customer"),
@@ -242,7 +242,7 @@ class DomoAccount_Config_AmazonS3(DomoAccount_Config):
     region: str = "us-west-2"
 
     @classmethod
-    def _from_dict(cls, obj: dict, parent: Any = None, **kwargs):
+    def from_dict(cls, obj: dict, parent: Any = None, **kwargs):
         dd = util_dd.DictDot(obj)
 
         return cls(
@@ -284,7 +284,7 @@ class DomoAccount_Config_AmazonS3Advanced(DomoAccount_Config):
     region: str = "us-west-2"
 
     @classmethod
-    def _from_dict(cls, obj: dict = None, parent: Any = None, **kwargs):
+    def from_dict(cls, obj: dict = None, parent: Any = None, **kwargs):
         dd = util_dd.DictDot(obj)
 
         return cls(
@@ -326,7 +326,7 @@ class DomoAccount_Config_AwsAthena(DomoAccount_Config):
     region: str = "us-west-2"
 
     @classmethod
-    def _from_dict(cls, obj: dict, parent: Any = None, **kwargs):
+    def from_dict(cls, obj: dict, parent: Any = None, **kwargs):
         dd = util_dd.DictDot(obj)
 
         return cls(
@@ -366,7 +366,7 @@ class DomoAccount_Config_HighBandwidthConnector(DomoAccount_Config):
     workgroup: str = None
 
     @classmethod
-    def _from_dict(cls, obj: dict, parent: Any = None, **kwargs):
+    def from_dict(cls, obj: dict, parent: Any = None, **kwargs):
         return cls(
             access_key=obj["awsAccessKey"],
             secret_key=obj["awsSecretKey"],
@@ -403,7 +403,7 @@ class DomoAccount_Config_Snowflake(DomoAccount_Config):
     role: str = None
 
     @classmethod
-    def _from_dict(cls, obj: dict, parent: Any = None, **kwargs):
+    def from_dict(cls, obj: dict, parent: Any = None, **kwargs):
         dd = util_dd.DictDot(obj)
 
         return cls(
@@ -445,7 +445,7 @@ class DomoAccount_Config_SnowflakeUnload_V2(DomoAccount_Config):
     role: str = None
 
     @classmethod
-    def _from_dict(cls, obj: dict, parent: Any = None, **kwargs):
+    def from_dict(cls, obj: dict, parent: Any = None, **kwargs):
         dd = util_dd.DictDot(obj)
 
         return cls(
@@ -487,7 +487,7 @@ class DomoAccount_Config_SnowflakeUnloadAdvancedPartition(DomoAccount_Config):
     role: str = None
 
     @classmethod
-    def _from_dict(cls, obj: dict, parent: Any = None, **kwargs):
+    def from_dict(cls, obj: dict, parent: Any = None, **kwargs):
         return cls(
             password=obj["password"],
             role=obj.get("role"),
@@ -520,7 +520,7 @@ class DomoAccount_Config_SnowflakeWriteback(DomoAccount_Config):
     username: str = None
 
     @classmethod
-    def _from_dict(cls, obj: dict, parent: Any = None, **kwargs):
+    def from_dict(cls, obj: dict, parent: Any = None, **kwargs):
         return cls(
             domo_client_secret=obj["domoClientSecret"],
             domo_client_id=obj["domoClientId"],
@@ -556,7 +556,7 @@ class DomoAccount_Config_SnowflakeUnload(DomoAccount_Config):
     bucket: str = None
 
     @classmethod
-    def _from_dict(cls, obj: dict, parent: Any = None, **kwargs):
+    def from_dict(cls, obj: dict, parent: Any = None, **kwargs):
         return cls(
             secret_key=obj["secretKey"],
             access_key=obj["accessKey"],
@@ -594,7 +594,7 @@ class DomoAccount_Config_SnowflakeFederated(DomoAccount_Config):
     role: str = None
 
     @classmethod
-    def _from_dict(cls, obj: dict, parent: Any = None, **kwargs):
+    def from_dict(cls, obj: dict, parent: Any = None, **kwargs):
         return cls(
             password=obj["password"],
             host=obj["host"],
@@ -630,7 +630,7 @@ class DomoAccount_Config_SnowflakeInternalUnload(DomoAccount_Config):
     role: str = None
 
     @classmethod
-    def _from_dict(cls, obj: dict, parent: Any = None, **kwargs):
+    def from_dict(cls, obj: dict, parent: Any = None, **kwargs):
         return cls(
             password=obj["password"],
             role=obj.get("role"),
@@ -663,7 +663,7 @@ class DomoAccount_Config_SnowflakeKeyPairAuthentication(DomoAccount_Config):
     role: str = None
 
     @classmethod
-    def _from_dict(cls, obj: dict, parent: Any = None, **kwargs):
+    def from_dict(cls, obj: dict, parent: Any = None, **kwargs):
         return cls(
             private_key=obj["privateKey"],
             role=obj.get("role"),

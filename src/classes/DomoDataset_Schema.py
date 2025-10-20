@@ -14,7 +14,7 @@ from typing import Any, List, TYPE_CHECKING
 import pandas as pd
 
 from ..client import auth as dmda
-from ..client import DomoError as dmde
+from ..client import exceptions as dmde
 from ..routes import dataset as dataset_routes
 from ..client.entities import DomoSubEntity
 
@@ -50,7 +50,7 @@ class DomoDataset_Schema_Column:
                 return True
 
     @classmethod
-    def _from_dict(cls, obj: dict):
+    def from_dict(cls, obj: dict):
         # from . import DomoTag as dmtg
 
         return cls(
@@ -117,7 +117,7 @@ class DomoDataset_Schema(DomoSubEntity):
             return res
 
         self.columns = [
-            DomoDataset_Schema_Column._from_dict(obj=obj)
+            DomoDataset_Schema_Column.from_dict(obj=obj)
             for obj in res.response.get("tables")[0].get("columns")
         ]
 

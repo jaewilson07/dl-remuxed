@@ -36,7 +36,7 @@ class DomoScheduler_Policy_Frequencies:
     dataflow_frequency: DomoScheduler_Policy_Restrictions
 
     @classmethod
-    def _from_dict(cls, d: dict):
+    def from_dict(cls, d: dict):
         def to_enum(v: int) -> DomoScheduler_Policy_Restrictions:
             try:
                 return DomoScheduler_Policy_Restrictions(v)
@@ -62,7 +62,7 @@ class DomoScheduler_Policy_Member:
     id: str
 
     @classmethod
-    def _from_dict(cls, d: dict):
+    def from_dict(cls, d: dict):
         return cls(type=d["type"], id=str(d["id"]))
 
     def to_dict(self) -> dict:
@@ -81,13 +81,13 @@ class DomoScheduler_Policy(DomoBase):
     policy_id: Optional[str] = field(default=None)
 
     @classmethod
-    def _from_dict(cls, d: dict):
+    def from_dict(cls, d: dict):
         return cls(
             created_on=parse_dt(d["createdOn"]),
             id=d["id"],
             name=d["name"],
-            frequencies=DomoScheduler_Policy_Frequencies._from_dict(d["frequencies"]),
-            members=[DomoScheduler_Policy_Member._from_dict(m) for m in d["members"]],
+            frequencies=DomoScheduler_Policy_Frequencies.from_dict(d["frequencies"]),
+            members=[DomoScheduler_Policy_Member.from_dict(m) for m in d["members"]],
         )
 
     def to_dict(self) -> dict:
@@ -122,7 +122,7 @@ class DomoScheduler_Policies(DomoSubEntity):
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
             **kwargs,
         )
-        self.policies = [DomoScheduler_Policy._from_dict(p) for p in res.response]
+        self.policies = [DomoScheduler_Policy.from_dict(p) for p in res.response]
         return self.policies
 
     async def upsert(
@@ -147,7 +147,7 @@ class DomoScheduler_Policies(DomoSubEntity):
                 session=session,
                 return_raw=return_raw,
             )
-            policy = DomoScheduler_Policy._from_dict(res.response)
+            policy = DomoScheduler_Policy.from_dict(res.response)
             self.policies.append(policy)
             return policy
         else:
@@ -161,7 +161,7 @@ class DomoScheduler_Policies(DomoSubEntity):
                 session=session,
                 return_raw=return_raw,
             )
-            policy = DomoScheduler_Policy._from_dict(res.response)
+            policy = DomoScheduler_Policy.from_dict(res.response)
             self.policies[idx] = policy
             return policy
 

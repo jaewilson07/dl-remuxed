@@ -65,7 +65,7 @@ class DomoTrigger:
     schedule: List[DomoTrigger_Schedule] = None
 
     @classmethod
-    def _from_dict(cls, obj):
+    def from_dict(cls, obj):
         return cls(
             id=obj["triggerId"],
             job_id=obj["jobId"],
@@ -117,7 +117,7 @@ class DomoJob_Base:
 
         triggers_ls = obj.get("triggers")
         domo_triggers = (
-            [DomoTrigger._from_dict(tg) for tg in triggers_ls] if triggers_ls else []
+            [DomoTrigger.from_dict(tg) for tg in triggers_ls] if triggers_ls else []
         )
 
         return {
@@ -139,12 +139,12 @@ class DomoJob_Base:
         }
 
     @classmethod
-    def _from_dict(
+    def from_dict(
         cls,
         obj,
         auth,
     ):
-        """_from_dict is a required abstract method.  Each DomoJob_Base implementation must have an instance of _from_dict"""
+        """from_dict is a required abstract method.  Each DomoJob_Base implementation must have an instance of from_dict"""
 
         base_obj = cls._convert_API_res_to_DomoJob_base_obj(obj=obj)
 
@@ -168,7 +168,7 @@ class DomoJob_Base:
     ):
         """
         this function will receive the parent_class as an input_parameter (instead of relying on the actual class DomoJob_Base)
-        to call the `new_class._from_dict()`
+        to call the `new_class.from_dict()`
 
         this process will handle converting the JSON obj into 'the correct' class
         """
@@ -188,7 +188,7 @@ class DomoJob_Base:
 
         cls = new_cls or cls
 
-        return cls._from_dict(
+        return cls.from_dict(
             obj=res.response,
             auth=auth,
         )
@@ -207,7 +207,7 @@ class DomoJob_Base:
         """
         stub abstract function that each `DomoJob_Base` will have.
         note we pass the calling functions class into classmethod _get_by_id()
-        so that we can call cls._from_dict() during code execution
+        so that we can call cls.from_dict() during code execution
         """
 
         return await cls._get_by_id(

@@ -71,7 +71,7 @@ class AppDbDocument:
         return self._id == other._id
 
     @classmethod
-    def _from_dict(
+    def from_dict(
         cls,
         auth: dmda.DomoAuth,
         content,
@@ -214,7 +214,7 @@ class AppDbDocument:
     ):
         content = obj.pop("content")
 
-        return cls._from_dict(
+        return cls.from_dict(
             auth=auth,
             content=content,
             new_cls=cls,
@@ -230,7 +230,7 @@ class AppDbDocument:
         content: dict,
         identity_columns: List[str] = None,
     ):
-        return cls._from_dict(
+        return cls.from_dict(
             auth=auth,
             content=content,
             new_cls=cls,
@@ -348,7 +348,7 @@ class AppDbCollection:
     domo_documents: List[AppDbDocument] = None
 
     @classmethod
-    def _from_dict(cls, auth, obj):
+    def from_dict(cls, auth, obj):
         return cls(
             auth=auth,
             id=obj["id"],
@@ -380,7 +380,7 @@ class AppDbCollection:
         if return_raw:
             return res
 
-        return cls._from_dict(auth=auth, obj=res.response)
+        return cls.from_dict(auth=auth, obj=res.response)
 
     def __eq__(self, other):
         if not isinstance(other, AppDbCollection):

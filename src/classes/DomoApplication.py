@@ -56,7 +56,7 @@ class DomoApplication:
     jobs_schedule: List[dmdj.DomoTrigger_Schedule] = field(default=None, repr=False)
 
     @classmethod
-    def _from_dict(cls, obj, auth: dmda.DomoAuth = None):
+    def from_dict(cls, obj, auth: dmda.DomoAuth = None):
         dd = util_dd.DictDot(obj)
 
         return cls(
@@ -94,7 +94,7 @@ class DomoApplication:
         if return_raw:
             return res
 
-        return cls._from_dict(obj=res.response, auth=auth)
+        return cls.from_dict(obj=res.response, auth=auth)
 
     async def get_jobs(
         self,
@@ -117,7 +117,7 @@ class DomoApplication:
         job_cls = self._get_job_class()
         # print(job_cls)
 
-        self.jobs = [job_cls._from_dict(job, auth=self.auth) for job in res.response]
+        self.jobs = [job_cls.from_dict(job, auth=self.auth) for job in res.response]
         return self.jobs
 
     async def get_schedules(self) -> pd.DataFrame:

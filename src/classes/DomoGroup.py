@@ -7,7 +7,7 @@ import httpx
 
 from . import DomoMembership as dmgm
 from ..client import auth as dmda
-from ..client import DomoError as dmde
+from ..client import exceptions as dmde
 from ..routes import group as group_routes
 from ..client.entities import DomoEntity
 from ..routes.group import (
@@ -62,7 +62,7 @@ class DomoGroup(DomoEntity):
         return self.id == other.id
 
     @classmethod
-    def _from_dict(cls, auth: dmda.DomoAuth, json_obj: dict):
+    def from_dict(cls, auth: dmda.DomoAuth, json_obj: dict):
         # from group API
 
         return cls(
@@ -93,7 +93,7 @@ class DomoGroup(DomoEntity):
     @staticmethod
     def _groups_to_domo_group(json_list, auth: dmda.DomoAuth) -> List[dict]:
         domo_groups = [
-            DomoGroup._from_dict(auth=auth, json_obj=json_obj) for json_obj in json_list
+            DomoGroup.from_dict(auth=auth, json_obj=json_obj) for json_obj in json_list
         ]
 
         return domo_groups
@@ -122,7 +122,7 @@ class DomoGroup(DomoEntity):
         if return_raw:
             return res
 
-        dg = cls._from_dict(auth=auth, json_obj=res.response)
+        dg = cls.from_dict(auth=auth, json_obj=res.response)
 
         # await dg.Membership.get_owners()
         # await dg.Membership.get_members() # disabled because causes recursion
@@ -158,7 +158,7 @@ class DomoGroup(DomoEntity):
             parent_class=cls.__name__,
         )
 
-        domo_group = cls._from_dict(auth=auth, json_obj=res.response)
+        domo_group = cls.from_dict(auth=auth, json_obj=res.response)
 
         if is_include_manage_groups_role:
             await domo_group.Membership.add_owner_manage_all_groups_role(
@@ -258,7 +258,7 @@ async def create_from_name(
         parent_class=cls.__name__,
     )
 
-    domo_group = cls._from_dict(auth=auth, json_obj=res.response)
+    domo_group = cls.from_dict(auth=auth, json_obj=res.response)
 
     if is_include_manage_groups_role:
         await domo_group.Membership.add_owner_manage_all_groups_role(
@@ -351,7 +351,7 @@ class DomoGroups:
     @staticmethod
     def _groups_to_domo_group(json_list, auth: dmda.DomoAuth):
         return [
-            DomoGroup._from_dict(auth=auth, json_obj=json_obj) for json_obj in json_list
+            DomoGroup.from_dict(auth=auth, json_obj=json_obj) for json_obj in json_list
         ]
 
     async def get_is_system_groups_visible(

@@ -12,7 +12,7 @@ from typing import Any, List
 import httpx
 
 from ..client import auth as dmda
-from ..client import DomoError as dmde
+from ..client import exceptions as dmde
 from ..routes import account as account_routes
 from ..utils import chunk_execution as dmce
 from ..client.entities import DomoSubEntity, Entity_Relation

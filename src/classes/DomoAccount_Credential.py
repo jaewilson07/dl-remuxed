@@ -18,7 +18,7 @@ from . import DomoAccessToken as dmact
 from . import DomoAccount_Default as dmacb
 from . import DomoUser as dmdu
 from ..client import auth as dmda
-from ..client import DomoError as dmde
+from ..client import exceptions as dmde
 from ..utils import convert as dmcv
 from . import DomoAccessToken as dmact
 from . import DomoAccount_Default as dmacb
@@ -101,14 +101,14 @@ class DomoAccount_Credential(dmacb.DomoAccount_Default):
     #         raise DAC_NoTargetInstance(self)
 
     @classmethod
-    def _class_from_dict(
+    def _classfrom_dict(
         cls,
         obj: dict,
         is_admin_summary: bool = True,
         auth: dmda.DomoAuth = None,
         **kwargs,
     ):
-        return cls._default_from_dict(
+        return cls._defaultfrom_dict(
             obj=obj,
             is_admin_summary=is_admin_summary,
             auth=auth,
