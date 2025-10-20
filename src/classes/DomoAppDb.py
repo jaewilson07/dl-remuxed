@@ -93,8 +93,12 @@ class AppDbDocument:
 
         return cls(
             auth=auth,
-            obj=res.response,
-            identity_columns=identity_columns or [],
+            _id=document_id,
+            _created_on_dt=created_on_dt,
+            _updated_on_dt=updated_on_dt,
+            content=content,
+            _collection_id=collection_id,
+            _identity_columns=identity_columns or [],
         )
 
     @classmethod
