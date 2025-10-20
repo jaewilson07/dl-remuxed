@@ -1,5 +1,6 @@
 __all__ = [
-    "BeastModes_API_Error",
+    "BeastMode_GET_Error",
+    "BeastMode_CRUD_Error",
     "Search_BeastModeLink",
     "generate_beastmode_body",
     "search_beastmodes",
@@ -10,21 +11,53 @@ __all__ = [
     "get_page_beastmodes",
 ]
 
-from typing import List
+from typing import Optional
 
 import httpx
 
-from ..client import auth as dmda
-from ..client import exceptions as dmde
 from ..client import get_data as gd
 from ..client import response as rgd
-from ..utils import chunk_execution as dmce
+from ..client.auth import DomoAuth
 from ..client.entities import DomoEnum
+from ..client.exceptions import RouteError
+from ..utils import chunk_execution as dmce
 
 
-class BeastModes_API_Error(dmde.RouteError):
-    def __init__(self, res: rgd.ResponseGetData, message: str = None):
-        super().__init__(res=res, message=message)
+class BeastMode_GET_Error(RouteError):
+    """Raised when BeastMode retrieval operations fail."""
+
+    def __init__(
+        self,
+        beastmode_id: Optional[str] = None,
+        message: Optional[str] = None,
+        response_data=None,
+        **kwargs,
+    ):
+        super().__init__(
+            message=message or "BeastMode retrieval failed",
+            entity_id=beastmode_id,
+            response_data=response_data,
+            **kwargs,
+        )
+
+
+class BeastMode_CRUD_Error(RouteError):
+    """Raised when BeastMode create, update, or delete operations fail."""
+
+    def __init__(
+        self,
+        operation: str,
+        beastmode_id: Optional[str] = None,
+        message: Optional[str] = None,
+        response_data=None,
+        **kwargs,
+    ):
+        super().__init__(
+            message=message or f"BeastMode {operation} operation failed",
+            entity_id=beastmode_id,
+            response_data=response_data,
+            **kwargs,
+        )
 
 
 class Search_BeastModeLink(DomoEnum):
@@ -33,11 +66,11 @@ class Search_BeastModeLink(DomoEnum):
 
 
 def generate_beastmode_body(
-    name: str = None,
-    filters: List[dict] = None,
-    is_unlocked: bool = None,
-    is_not_variable: bool = None,
-    link: Search_BeastModeLink = None,
+    name: Optional[str] = None,
+    filters: Optional[list[dict]] = None,
+    is_unlocked: Optional[bool] = None,
+    is_not_variable: Optional[bool] = None,
+    link: Optional[Search_BeastModeLink] = None,
 ):
     filters = filters or []
 
@@ -54,15 +87,15 @@ def generate_beastmode_body(
 
 @gd.route_function
 async def search_beastmodes(
-    auth: dmda.DomoAuth,
-    filters: List[dict] = None,
-    session: httpx.AsyncClient = None,
+    auth: DomoAuth,
+    filters: Optional[list[dict]] = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
+    debug_num_stacks_to_drop: int = 1,
     debug_loop: bool = False,
-    parent_class=None,
+    parent_class: Optional[str] = None,
     return_raw: bool = False,
-):
+) -> rgd.ResponseGetData:
     offset_params = {
         "offset": "offset",
         "limit": "limit",
@@ -92,21 +125,21 @@ async def search_beastmodes(
     )
 
     if not res.is_success:
-        raise BeastModes_API_Error(res=res)
+        raise BeastMode_GET_Error(response_data=res)
 
     return res
 
 
 @gd.route_function
 async def lock_beastmode(
-    beastmode_id,
+    beastmode_id: str,
     is_locked: bool,
-    auth: dmda.DomoAuth,
-    session: httpx.AsyncClient = None,
+    auth: DomoAuth,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class: str = None,
-):
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/functions/template/{beastmode_id}"
 
     body = {"locked": is_locked}
@@ -123,20 +156,22 @@ async def lock_beastmode(
     )
 
     if not res.is_success:
-        raise BeastModes_API_Error(res=res)
+        raise BeastMode_CRUD_Error(
+            operation="lock", beastmode_id=beastmode_id, response_data=res
+        )
 
     return res
 
 
 @gd.route_function
 async def get_beastmode_by_id(
-    beastmode_id,
-    auth: dmda.DomoAuth,
-    session: httpx.AsyncClient = None,
+    beastmode_id: str,
+    auth: DomoAuth,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class: str = None,
-):
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/functions/template/{beastmode_id}"
 
     res = await gd.get_data(
@@ -150,17 +185,17 @@ async def get_beastmode_by_id(
     )
 
     if not res.is_success:
-        raise BeastModes_API_Error(res=res)
+        raise BeastMode_GET_Error(beastmode_id=beastmode_id, response_data=res)
 
     return res
 
 
 async def get_card_beastmodes(
-    card_id,
-    auth: dmda.DomoAuth,
+    card_id: str,
+    auth: DomoAuth,
     debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-    debug_num_stacks_to_drop=2,
+    session: Optional[httpx.AsyncClient] = None,
+    debug_num_stacks_to_drop: int = 2,
     return_raw: bool = False,
 ):
     res = await search_beastmodes(
@@ -202,11 +237,11 @@ async def get_card_beastmodes(
 
 
 async def get_dataset_beastmodes(
-    dataset_id,
-    auth: dmda.DomoAuth,
+    dataset_id: str,
+    auth: DomoAuth,
     debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-    debug_num_stacks_to_drop=2,
+    session: Optional[httpx.AsyncClient] = None,
+    debug_num_stacks_to_drop: int = 2,
     return_raw: bool = False,
 ):
     all_bms = (
@@ -247,7 +282,7 @@ async def get_dataset_beastmodes(
     ]
 
 
-async def get_page_beastmodes(page_id, auth: dmda.DomoAuth):
+async def get_page_beastmodes(page_id: str, auth: DomoAuth):
     from . import page as page_routes
 
     page_definition = (
