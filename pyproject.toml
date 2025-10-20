@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "domolibrary"
+name = "domolibrary2"
 version = "4.5.29"
 description = "A Python library for interacting with Domo APIs"
 authors = [
@@ -46,8 +46,19 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "pylint",
     "pytest",
+    "pre-commit",
+]
+
+[dependency-groups]
+dev = [
+    "pylint",
+    "ruff", 
+    "black",
+    "isort",
+    "mypy",
+    "pytest",
+    "pytest-cov",
     "pre-commit",
 ]
 
@@ -56,12 +67,39 @@ Homepage = "https://github.com/jaewilson07/dl-remuxed"
 Repository = "https://github.com/jaewilson07/dl-remuxed.git"
 Documentation = "https://jaewilson07.github.io/dl-remuxed"
 
-[dependency-groups]
-dev = [
-    "pylint",
-    "pytest", 
-    "pre-commit",
-]
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+src = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = ["E501"]  # Line too long (handled by black)
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+mypy_path = "src"
+
+[[tool.mypy.overrides]]
+module = "domolibrary2.*"
+ignore_missing_imports = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["domolibrary"]
+packages = ["src"]
+
+[tool.hatch.build.targets.wheel.sources]
+"src" = "domolibrary2"
