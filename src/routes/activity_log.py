@@ -1,29 +1,41 @@
 """routes for interacting with the activity log"""
 
-__all__ = ["ActivityLog_Error", "get_activity_log_object_types", "search_activity_log"]
+__all__ = [
+    "ActivityLog_GET_Error",
+    "get_activity_log_object_types",
+    "search_activity_log",
+]
+
+from typing import Optional
 
 import httpx
 
-from ..client import auth as dmda
-from ..client import exceptions as dmde
+from ..client.auth import DomoAuth
+from ..client.exceptions import RouteError
 from ..client import get_data as gd
 from ..client import response as rgd
 
 
-class ActivityLog_Error(dmde.RouteError):
-    """Error class for the activity_log route"""
+class ActivityLog_GET_Error(RouteError):
+    """Raised when activity log retrieval operations fail."""
 
-    def __init__(self, res, message: str = None):
-        super().__init__(message=message, res=res)
+    def __init__(
+        self, message: Optional[str] = None, response_data=None, **kwargs
+    ):
+        super().__init__(
+            message=message or "Activity log retrieval failed",
+            response_data=response_data,
+            **kwargs,
+        )
 
 
 @gd.route_function
 async def get_activity_log_object_types(
-    auth: dmda.DomoAuth,
-    parent_class: str = None,
-    debug_num_stacks_to_drop=1,
+    auth: DomoAuth,
+    parent_class: Optional[str] = None,
+    debug_num_stacks_to_drop: int = 1,
     debug_api: bool = False,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
 ) -> rgd.ResponseGetData:
     """retrieves a list of valid objectTypes that can be used to search the activity_log API"""
 
@@ -40,23 +52,25 @@ async def get_activity_log_object_types(
     )
 
     if not res.is_success:
-        raise ActivityLog_Error(res, "Failed to get activity log object types")
+        raise ActivityLog_GET_Error(
+            message="Failed to get activity log object types", response_data=res
+        )
 
     return res
 
 
 @gd.route_function
 async def search_activity_log(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     start_time: int,  # epoch time in milliseconds
     end_time: int,  # epoch time in milliseconds
-    maximum: int = None,
-    object_type: str = None,
+    maximum: Optional[int] = None,
+    object_type: Optional[str] = None,
     debug_api: bool = False,
     debug_loop: bool = False,
-    parent_class: str = None,
+    parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
 ) -> rgd.ResponseGetData:
     """loops over activity log api to retrieve audit logs"""
 
@@ -98,7 +112,7 @@ async def search_activity_log(
     )
 
     if not res.is_success:
-        raise ActivityLog_Error(res)
+        raise ActivityLog_GET_Error(response_data=res)
 
     if is_close_session:
         await session.aclose()

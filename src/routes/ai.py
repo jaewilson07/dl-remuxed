@@ -1,4 +1,6 @@
 __all__ = [
+    "AI_GET_Error",
+    "AI_CRUD_Error",
     "DataDictionary_ColumnsDict",
     "ColumnsDict",
     "generate_chat_body",
@@ -12,15 +14,45 @@ __all__ = [
 ]
 
 import json
-from typing import List, TypedDict
+from typing import List, Optional, TypedDict
 
 import httpx
 
-from ..client import auth as dmda
-from ..client import exceptions as dmde
+from ..client.auth import DomoAuth
+from ..client.exceptions import RouteError
 from ..client import get_data as gd
 from ..client import response as rgd
 from ..client.entities import DomoEnum
+
+
+class AI_GET_Error(RouteError):
+    """Raised when AI service retrieval operations fail."""
+
+    def __init__(
+        self, message: Optional[str] = None, response_data=None, **kwargs
+    ):
+        super().__init__(
+            message=message or "AI service retrieval failed",
+            response_data=response_data,
+            **kwargs,
+        )
+
+
+class AI_CRUD_Error(RouteError):
+    """Raised when AI service create, update, or delete operations fail."""
+
+    def __init__(
+        self,
+        operation: str,
+        message: Optional[str] = None,
+        response_data=None,
+        **kwargs,
+    ):
+        super().__init__(
+            message=message or f"AI service {operation} operation failed",
+            response_data=response_data,
+            **kwargs,
+        )
 
 
 def generate_chat_body(
@@ -35,14 +67,14 @@ def generate_chat_body(
 
 @gd.route_function
 async def llm_generate_text(
-    text_input,
-    auth: dmda.DomoAuth,
-    chat_body: dict = None,
+    text_input: str,
+    auth: DomoAuth,
+    chat_body: Optional[dict] = None,
     debug_api: bool = False,
-    parent_class: str = None,
-    debug_num_stacks_to_drop=1,
+    parent_class: Optional[str] = None,
+    debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
 ) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/ai/v1/text/generation"
 
@@ -63,7 +95,7 @@ async def llm_generate_text(
         return res
 
     if not res.is_success:
-        raise dmde.RouteError(res=res)
+        raise AI_CRUD_Error(operation="generate text", response_data=res)
 
     res.response["output"] = res.response["choices"][0]["output"]
 
@@ -100,17 +132,17 @@ def generate_summarize_body(
 @gd.route_function
 async def llm_summarize_text(
     text_input: str,
-    auth: dmda.DomoAuth,
-    system_prompt: str = None,
+    auth: DomoAuth,
+    system_prompt: Optional[str] = None,
     summary_length: int = 100,
     output_style: OutputStyleEnum = OutputStyleEnum.BULLETED,
-    summary_body: dict = None,
+    summary_body: Optional[dict] = None,
     return_raw: bool = False,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    session: httpx.AsyncClient = None,
-    parent_class: str = None,
-):
+    debug_num_stacks_to_drop: int = 1,
+    session: Optional[httpx.AsyncClient] = None,
+    parent_class: Optional[str] = None,
+) -> rgd.ResponseGetData:
     output_style = (
         output_style.value
         if isinstance(output_style, OutputStyleEnum)
@@ -141,7 +173,7 @@ async def llm_summarize_text(
         return res
 
     if not res.is_success:
-        raise dmde.RouteError(res=res)
+        raise AI_CRUD_Error(operation="summarize text", response_data=res)
 
     res.response["ouptput"] = res.response["choices"][0]["output"]
 
@@ -150,13 +182,13 @@ async def llm_summarize_text(
 
 @gd.route_function
 async def get_dataset_ai_readiness(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataset_id: str,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    session: httpx.AsyncClient = None,
-    parent_class: str = None,
-):
+    debug_num_stacks_to_drop: int = 1,
+    session: Optional[httpx.AsyncClient] = None,
+    parent_class: Optional[str] = None,
+) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/ai/readiness/v1/data-dictionary/dataset/{dataset_id}"
 
     res = await gd.get_data(
@@ -170,7 +202,7 @@ async def get_dataset_ai_readiness(
     )
 
     if not res.is_success:
-        raise dmde.RouteError(res=res)
+        raise AI_GET_Error(response_data=res, entity_id=dataset_id)
 
     return res
 
@@ -186,16 +218,16 @@ class DataDictionary_ColumnsDict(TypedDict):
 
 @gd.route_function
 async def create_dataset_ai_readiness(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataset_id: str,
     dictionary_name: str,
-    description: str = None,
-    columns: List[DataDictionary_ColumnsDict] = None,
+    description: Optional[str] = None,
+    columns: Optional[List[DataDictionary_ColumnsDict]] = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    session: httpx.AsyncClient = None,
-    parent_class: str = None,
-):
+    debug_num_stacks_to_drop: int = 1,
+    session: Optional[httpx.AsyncClient] = None,
+    parent_class: Optional[str] = None,
+) -> rgd.ResponseGetData:
     body = {
         "datasetId": dataset_id,
         "name": dictionary_name,
@@ -218,7 +250,9 @@ async def create_dataset_ai_readiness(
     )
 
     if not res.is_success:
-        raise dmde.RouteError(res=res)
+        raise AI_CRUD_Error(
+            operation="create", response_data=res, entity_id=dataset_id
+        )
 
     return res
 
@@ -234,18 +268,18 @@ class ColumnsDict(TypedDict):
 
 @gd.route_function
 async def update_dataset_ai_readiness(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataset_id: str,
-    dictionary_id: str = None,
-    dictionary_name: str = None,
-    columns: List[ColumnsDict] = None,
-    description: str = None,
-    body=None,
+    dictionary_id: Optional[str] = None,
+    dictionary_name: Optional[str] = None,
+    columns: Optional[List[ColumnsDict]] = None,
+    description: Optional[str] = None,
+    body: Optional[dict] = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    session: httpx.AsyncClient = None,
-    parent_class: str = None,
-):
+    debug_num_stacks_to_drop: int = 1,
+    session: Optional[httpx.AsyncClient] = None,
+    parent_class: Optional[str] = None,
+) -> rgd.ResponseGetData:
     body = body or {
         "id": dictionary_id,
         "name": dictionary_name,
@@ -269,6 +303,8 @@ async def update_dataset_ai_readiness(
     )
 
     if not res.is_success:
-        raise dmde.RouteError(res=res)
+        raise AI_CRUD_Error(
+            operation="update", response_data=res, entity_id=dataset_id
+        )
 
     return res
