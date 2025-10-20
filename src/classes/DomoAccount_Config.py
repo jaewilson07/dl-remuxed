@@ -28,7 +28,6 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Any
 
-from nbdev.showdoc import patch_to
 
 from ..client import DomoEntity as dmee
 from ..client import DomoError as dmde
@@ -689,7 +688,7 @@ class DomoAccount_Config_SnowflakeKeyPairAuthentication(DomoAccount_Config):
 
 
 @staticmethod
-@patch_to(dmee.DomoEnum)
+# Removed leftover marker
 def generate_alt_search_str(raw_value):
     return raw_value.lower().replace("-", "_")
 

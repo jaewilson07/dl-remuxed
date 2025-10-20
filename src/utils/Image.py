@@ -12,7 +12,6 @@ from typing import Union
 
 import numpy as np
 import PIL
-from nbdev.showdoc import patch_to
 from PIL.Image import Image
 
 
@@ -43,7 +42,6 @@ def handle_string_to_bytes_and_encode(data: Union[str, bytes]):
     return data
 
 
-@patch_to(Image)
 def to_bytes(self) -> bytes:
     byte_arr = io.BytesIO()
 
@@ -57,7 +55,6 @@ def to_bytes(self) -> bytes:
     return self.data
 
 
-@patch_to(Image)
 def crop_square(self):
     width, height = self.size  # Get dimensions
 
@@ -76,7 +73,6 @@ def crop_square(self):
     return self.area
 
 
-@patch_to(Image, cls_method=True)
 def from_image_file(cls, image_path: str) -> Image:
     if not os.path.exists(image_path):
         raise FileNotFoundError(image_path)
@@ -91,7 +87,6 @@ def from_image_file(cls, image_path: str) -> Image:
     return im
 
 
-@patch_to(Image, cls_method=True)
 def from_bytestr(cls, data: Union[str, bytes]) -> Image:
     data = handle_string_to_bytes_and_decode(data)
 
