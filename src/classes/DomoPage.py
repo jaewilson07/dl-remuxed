@@ -8,15 +8,17 @@ from typing import List
 import httpx
 from nbdev.showdoc import patch_to
 
-from ..client import DomoAuth as dmda
+from . import DomoLineage as dmdl
+from . import DomoPage_Content as dmpg_c
+from ..client import auth as dmda
 from ..client import DomoError as dmde
 from ..client.DomoEntity import DomoEntity_w_Lineage
 from ..routes import page as page_routes
 from ..utils import DictDot as util_dd
 from ..utils import chunk_execution as dmce
 from ..utils import convert as dmcv
-from . import DomoLineage as dmdl
-from . import DomoPage_Content as dmpg_c
+from ..utils import DictDot as util_dd
+from ..client.entities import DomoEntity_w_Lineage
 
 
 class DomoPage_GetRecursive(dmde.ClassError):

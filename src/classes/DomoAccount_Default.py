@@ -13,18 +13,17 @@ from dataclasses import dataclass, field
 from typing import Any, List
 
 import httpx
-from nbdev.showdoc import patch_to
 
+from . import DomoAccess as dmas
+from ..client import auth as dmda
+from ..client import DomoError as dmde
+from ..routes import account as account_routes
+from ..utils import convert as cd
 from ..classes.DomoAccount_Config import (
     AccountConfig,
     DomoAccount_Config,
 )
-from ..client import DomoAuth as dmda
-from ..client import DomoError as dmde
-from ..client.DomoEntity import DomoEntity
-from ..routes import account as account_routes
-from ..utils import convert as cd
-from . import DomoAccess as dmas
+from ..client.entities import DomoEntity
 
 
 class Account_CanIModify(dmde.ClassError):
@@ -238,152 +237,173 @@ class DomoAccount_Default(DomoEntity):
         """Alias for get_by_id"""
         return await cls.get_by_id(account_id=entity_id, **kwargs)
 
+    @classmethod
+    async def create_account(
+        cls,
+        account_name: str,
+        config: DomoAccount_Config,
+        auth: dmda.DomoAuth,
+        debug_api: bool = False,
+        return_raw: bool = False,
+        session: httpx.AsyncClient = None,
+        debug_num_stacks_to_drop: int = 2,
+    ):
 
-@patch_to(DomoAccount_Default, cls_method=True)
-async def create_account(
-    cls: DomoAccount_Default,
-    account_name: str,
-    config: DomoAccount_Config,
-    auth: dmda.DomoAuth,
-    debug_api: bool = False,
-    return_raw: bool = False,
-    session: httpx.AsyncClient = None,
-    debug_num_stacks_to_drop: int = 2,
-):
-    res = await account_routes.create_account(
-        account_name=account_name,
-        data_provider_type=config.data_provider_type,
-        auth=auth,
-        config_body=config.to_dict(),
-        debug_api=debug_api,
-        session=session,
-        parent_class=cls.__name__,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-    )
+        res = await account_routes.create_account(
+            account_name=account_name,
+            data_provider_type=config.data_provider_type,
+            auth=auth,
+            config_body=config.to_dict(),
+            debug_api=debug_api,
+            session=session,
+            parent_class=cls.__name__,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        )
 
-    if return_raw:
+        if return_raw:
+            return res
+
+        acc = await cls.get_by_id(auth=auth, account_id=res.response.get("id"))
+        acc.Config = config
+        return acc
+
+    async def update_name(
+        self,
+        account_name: str = None,
+        auth: dmda.DomoAuth = None,
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+        return_raw: bool = False,
+    ):
+        auth = auth or self.auth
+
+        res = await account_routes.update_account_name(
+            auth=auth,
+            account_id=self.id,
+            account_name=account_name or self.name,
+            debug_api=debug_api,
+            session=session,
+        )
+
+        if return_raw:
+            return res
+
+        if not res.is_success and self.is_admin_summary:
+            raise Account_CanIModify(
+                account_id=self.id, domo_instance=auth.domo_instance
+            )
+
+        new_acc = await DomoAccount_Default.get_by_id(auth=auth, account_id=self.id)
+
+        self._update_self(new_class=new_acc, skip_props=["Config"])
+
+        return self
+
+    async def delete_account(
+        self,
+        auth: dmda.DomoAuth = None,
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+        debug_num_stacks_to_drop=2,
+        parent_class=None,
+    ):
+        auth = auth or self.auth
+
+        res = await account_routes.delete_account(
+            auth=auth,
+            account_id=self.id,
+            debug_api=debug_api,
+            session=session,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
+        if not res.is_success and self.is_admin_summary:
+            raise Account_CanIModify(
+                account_id=self.id, domo_instance=auth.domo_instance
+            )
+
         return res
 
-    acc = await cls.get_by_id(auth=auth, account_id=res.response.get("id"))
-    acc.Config = config
-    return acc
+    async def update_config(
+        self,
+        auth: dmda.DomoAuth = None,
+        debug_api: bool = False,
+        config: DomoAccount_Config = None,
+        is_suppress_no_config=False,
+        debug_num_stacks_to_drop=2,
+        session: httpx.AsyncClient = None,
+        return_raw: bool = False,
+        is_update_config: bool = False,  # if calling the Api, Domo will send encrypted values (astericks) in most cases it's best not to try to retrieve updated values from the API
+    ):
+        auth = auth or self.auth
 
+        if config:
+            self.Config = config
 
-@patch_to(DomoAccount_Default)
-async def update_name(
-    self: DomoAccount_Default,
-    account_name: str = None,
-    auth: dmda.DomoAuth = None,
-    debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-    return_raw: bool = False,
-):
-    auth = auth or self.auth
+        if not self.Config:
+            raise AccountClass_CRUD_Error(
+                cls_instance=self,
+                message="unable to update account - no domo_account.Config not provided",
+            )
 
-    res = await account_routes.update_account_name(
-        auth=auth,
-        account_id=self.id,
-        account_name=account_name or self.name,
-        debug_api=debug_api,
-        session=session,
-    )
+        res = await account_routes.update_account_config(
+            auth=auth,
+            account_id=self.id,
+            config_body=self.Config.to_dict(),
+            debug_api=debug_api,
+            session=session,
+        )
 
-    if return_raw:
-        return res
+        # await asyncio.sleep(3)
 
-    if not res.is_success and self.is_admin_summary:
-        raise Account_CanIModify(account_id=self.id, domo_instance=auth.domo_instance)
+        # new_acc = await DomoAccount_Default.get_by_id(auth=auth, account_id=self.id)
 
-    new_acc = await DomoAccount_Default.get_by_id(auth=auth, account_id=self.id)
+        # self._update_self(new_class = new_acc, skip_props = ['Config'])
 
-    self._update_self(new_class=new_acc, skip_props=["Config"])
+        if return_raw:
+            return res
 
-    return self
+        if not res.is_success and self.is_admin_summary:
+            raise Account_CanIModify(
+                account_id=self.id, domo_instance=auth.domo_instance
+            )
 
+        if not is_update_config:
+            return self.Config
 
-@patch_to(DomoAccount_Default)
-async def delete_account(
-    self: DomoAccount_Default,
-    auth: dmda.DomoAuth = None,
-    debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-    debug_num_stacks_to_drop=2,
-    parent_class=None,
-):
-    auth = auth or self.auth
+        await asyncio.sleep(3)
 
-    res = await account_routes.delete_account(
-        auth=auth,
-        account_id=self.id,
-        debug_api=debug_api,
-        session=session,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-    )
+        await self._get_config(
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
+            is_suppress_no_config=is_suppress_no_config,
+        )
 
-    if not res.is_success and self.is_admin_summary:
-        raise Account_CanIModify(account_id=self.id, domo_instance=auth.domo_instance)
+        return self.Config
 
-    return res
+    async def upsert_target_account(
+        self,
+        target_auth: dmda.DomoAuth,  # valid auth for target destination
+        account_name: str = None,  # defaults to self.name
+        debug_api: bool = False,
+    ):
+        """
+        upsert an account in a target instance with self.Config
+        """
+        from copy import deepcopy
+
+        # Import here to avoid circular import
+        from . import DomoAccount
+
+        return await DomoAccount.DomoAccounts.upsert_account(
+            auth=target_auth,
+            account_name=account_name or self.name,
+            account_config=deepcopy(self.Config),
+            debug_api=debug_api,
+        )
 
 
 class AccountClass_CRUD_Error(dmde.ClassError):
     def __init__(self, cls_instance, message):
         super().__init__(cls_instance=cls_instance, message=message)
-
-
-@patch_to(DomoAccount_Default)
-async def update_config(
-    self: DomoAccount_Default,
-    auth: dmda.DomoAuth = None,
-    debug_api: bool = False,
-    config: DomoAccount_Config = None,
-    is_suppress_no_config=False,
-    debug_num_stacks_to_drop=2,
-    session: httpx.AsyncClient = None,
-    return_raw: bool = False,
-    is_update_config: bool = False,  # if calling the Api, Domo will send encrypted values (astericks) in most cases it's best not to try to retrieve updated values from the API
-):
-    auth = auth or self.auth
-
-    if config:
-        self.Config = config
-
-    if not self.Config:
-        raise AccountClass_CRUD_Error(
-            cls_instance=self,
-            message="unable to update account - no domo_account.Config not provided",
-        )
-
-    res = await account_routes.update_account_config(
-        auth=auth,
-        account_id=self.id,
-        config_body=self.Config.to_dict(),
-        debug_api=debug_api,
-        session=session,
-    )
-
-    # await asyncio.sleep(3)
-
-    # new_acc = await DomoAccount_Default.get_by_id(auth=auth, account_id=self.id)
-
-    # self._update_self(new_class = new_acc, skip_props = ['Config'])
-
-    if return_raw:
-        return res
-
-    if not res.is_success and self.is_admin_summary:
-        raise Account_CanIModify(account_id=self.id, domo_instance=auth.domo_instance)
-
-    if not is_update_config:
-        return self.Config
-
-    await asyncio.sleep(3)
-
-    await self._get_config(
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
-        is_suppress_no_config=is_suppress_no_config,
-    )
-
-    return self.Config

@@ -5,7 +5,7 @@ from dataclasses import dataclass
 import httpx
 from nbdev.showdoc import patch_to
 
-from ..client import DomoAuth as dmda
+from ..client import auth as dmda
 from ..client import DomoError as de
 from ..routes import pdp as pdp_routes
 from ..utils import DictDot as util_dd

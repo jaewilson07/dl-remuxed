@@ -13,9 +13,11 @@ __all__ = [
 from dataclasses import dataclass, field
 
 import httpx
-from nbdev.showdoc import patch_to
 
-from ..client import DomoAuth as dmda
+from . import DomoAccessToken as dmact
+from . import DomoAccount_Default as dmacb
+from . import DomoUser as dmdu
+from ..client import auth as dmda
 from ..client import DomoError as dmde
 from ..utils import convert as dmcv
 from . import DomoAccessToken as dmact
@@ -257,178 +259,171 @@ class DomoAccount_Credential(dmacb.DomoAccount_Default):
             "is_valid_token_auth": self.is_valid_token_auth,
         }
 
+    async def get_target_user(
+        self,
+        user_email: str = None,  # defaults to username from the AccountConfig object
+        target_auth: dmda.DomoAuth = None,
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+    ):
+        user_email = user_email or self.Config.username
 
-@patch_to(DomoAccount_Credential)
-async def get_target_user(
-    self,
-    user_email: str = None,  # defaults to username from the AccountConfig object
-    target_auth: dmda.DomoAuth = None,
-    debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-):
-    user_email = user_email or self.Config.username
+        if not user_email:
+            raise DAC_NoUserName(self)
 
-    if not user_email:
-        raise DAC_NoUserName(self)
+        target_auth = target_auth or self.target_auth
 
-    target_auth = target_auth or self.target_auth
+        if not target_auth:
+            raise DAC_ValidAuth(
+                self,
+                message="no target_auth, pass a valid backup_auth",
+            )
 
-    if not target_auth:
-        raise DAC_ValidAuth(
-            self,
-            message="no target_auth, pass a valid backup_auth",
-        )
-
-    self.target_user = await dmdu.DomoUsers.by_email(
-        email_ls=[user_email],
-        auth=target_auth,
-        debug_api=debug_api,
-        session=session,
-    )
-
-    if not self.target_user:
-        raise DAC_NoTargetUser(self)
-
-    return self.target_user
-
-
-@patch_to(DomoAccount_Credential)
-async def update_target_user_password(
-    self: DomoAccount_Credential,
-    new_password: str,
-    user_email: str = None,  # defaults to username from the AccountConfig object
-    is_update_account: bool = True,
-    target_auth: dmda.DomoAuth = None,
-    debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-):
-    target_auth = target_auth or self.target_auth
-
-    if not target_auth:
-        raise DAC_ValidAuth(
-            self,
-            message="no target_auth, pass a valid backup_auth",
-        )
-
-    if not self.target_user:
-        await self.get_target_user(
-            debug_api=debug_api,
-            session=session,
-            user_email=user_email,
-            target_auth=target_auth,
-        )
-
-    await self.target_user.reset_password(
-        new_password=new_password,
-        debug_api=debug_api,
-        session=session,
-    )
-
-    self.set_password(new_password)
-
-    if is_update_account:
-        await self.update_config(debug_api=debug_api, session=session)
-
-    return self
-
-
-@patch_to(DomoAccount_Credential)
-async def get_target_access_token(
-    self,
-    token_name=None,
-    user_email: str = None,  # defaults to username from the AccountConfig object
-    target_auth: dmda.DomoAuth = None,
-    debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-):
-    target_auth = target_auth or self.target_auth
-
-    if not target_auth:
-        raise DAC_ValidAuth(
-            self,
-            message="no target_auth, pass a valid backup_auth",
-        )
-
-    if not self.target_user:
-        await self.get_target_user(
-            debug_api=debug_api,
-            session=session,
-            user_email=user_email,
-            target_auth=target_auth,
-        )
-
-    token_name = token_name or self.name
-
-    if not token_name:
-        raise DAC_NoAccessTokenName(self)
-
-    domo_access_tokens = await self.target_user.get_access_tokens(
-        session=session,
-        debug_api=debug_api,
-    )
-
-    self.target_access_token = next(
-        (
-            dat
-            for dat in domo_access_tokens
-            if dat and (dat.name and dat.name.lower() == token_name.lower())
-        ),
-        None,
-    )
-
-    return self.target_access_token
-
-
-@patch_to(DomoAccount_Credential)
-async def regenerate_target_access_token(
-    self,
-    token_name=None,
-    duration_in_days=90,
-    user_email: str = None,  # defaults to username from the AccountConfig object
-    is_update_account: bool = True,
-    target_auth: dmda.DomoAuth = None,
-    debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-):
-    target_auth = target_auth or self.target_auth
-
-    if not target_auth:
-        raise DAC_ValidAuth(
-            self,
-            message="no target_auth, pass a valid backup_auth",
-        )
-
-    domo_access_token = await self.get_target_access_token(
-        token_name=token_name,
-        user_email=user_email,
-        target_auth=target_auth,
-        debug_api=debug_api,
-        session=session,
-    )  # handles retrieving target user
-
-    if not self.target_user:
-        raise DAC_NoTargetUser(self)
-
-    if domo_access_token:
-        await domo_access_token.regenerate(
-            duration_in_days=duration_in_days, session=session, debug_api=debug_api
-        )
-
-    else:
-        domo_access_token = await dmact.DomoAccessToken.generate(
-            duration_in_days=duration_in_days,
-            token_name=token_name,
+        self.target_user = await dmdu.DomoUsers.by_email(
+            email_ls=[user_email],
             auth=target_auth,
-            owner=self.target_user,
             debug_api=debug_api,
             session=session,
         )
 
-        self.target_access_token = domo_access_token
+        if not self.target_user:
+            raise DAC_NoTargetUser(self)
 
-    self.set_access_token(domo_access_token.token)
+        return self.target_user
 
-    if is_update_account:
-        await self.update_config(debug_api=debug_api, session=session)
+    async def update_target_user_password(
+        self,
+        new_password: str,
+        user_email: str = None,  # defaults to username from the AccountConfig object
+        is_update_account: bool = True,
+        target_auth: dmda.DomoAuth = None,
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+    ):
 
-    return self
+        target_auth = target_auth or self.target_auth
+
+        if not target_auth:
+            raise DAC_ValidAuth(
+                self,
+                message="no target_auth, pass a valid backup_auth",
+            )
+
+        if not self.target_user:
+            await self.get_target_user(
+                debug_api=debug_api,
+                session=session,
+                user_email=user_email,
+                target_auth=target_auth,
+            )
+
+        await self.target_user.reset_password(
+            new_password=new_password,
+            debug_api=debug_api,
+            session=session,
+        )
+
+        self.set_password(new_password)
+
+        if is_update_account:
+            await self.update_config(debug_api=debug_api, session=session)
+
+        return self
+
+    async def get_target_access_token(
+        self,
+        token_name=None,
+        user_email: str = None,  # defaults to username from the AccountConfig object
+        target_auth: dmda.DomoAuth = None,
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+    ):
+        target_auth = target_auth or self.target_auth
+
+        if not target_auth:
+            raise DAC_ValidAuth(
+                self,
+                message="no target_auth, pass a valid backup_auth",
+            )
+
+        if not self.target_user:
+            await self.get_target_user(
+                debug_api=debug_api,
+                session=session,
+                user_email=user_email,
+                target_auth=target_auth,
+            )
+
+        token_name = token_name or self.name
+
+        if not token_name:
+            raise DAC_NoAccessTokenName(self)
+
+        domo_access_tokens = await self.target_user.get_access_tokens(
+            session=session,
+            debug_api=debug_api,
+        )
+
+        self.target_access_token = next(
+            (
+                dat
+                for dat in domo_access_tokens
+                if dat and (dat.name and dat.name.lower() == token_name.lower())
+            ),
+            None,
+        )
+
+        return self.target_access_token
+
+    async def regenerate_target_access_token(
+        self,
+        token_name=None,
+        duration_in_days=90,
+        user_email: str = None,  # defaults to username from the AccountConfig object
+        is_update_account: bool = True,
+        target_auth: dmda.DomoAuth = None,
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+    ):
+        target_auth = target_auth or self.target_auth
+
+        if not target_auth:
+            raise DAC_ValidAuth(
+                self,
+                message="no target_auth, pass a valid backup_auth",
+            )
+
+        domo_access_token = await self.get_target_access_token(
+            token_name=token_name,
+            user_email=user_email,
+            target_auth=target_auth,
+            debug_api=debug_api,
+            session=session,
+        )  # handles retrieving target user
+
+        if not self.target_user:
+            raise DAC_NoTargetUser(self)
+
+        if domo_access_token:
+            await domo_access_token.regenerate(
+                duration_in_days=duration_in_days, session=session, debug_api=debug_api
+            )
+
+        else:
+            domo_access_token = await dmact.DomoAccessToken.generate(
+                duration_in_days=duration_in_days,
+                token_name=token_name,
+                auth=target_auth,
+                owner=self.target_user,
+                debug_api=debug_api,
+                session=session,
+            )
+
+            self.target_access_token = domo_access_token
+
+        self.set_access_token(domo_access_token.token)
+
+        if is_update_account:
+            await self.update_config(debug_api=debug_api, session=session)
+
+        return self

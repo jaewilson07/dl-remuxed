@@ -4,7 +4,7 @@ import httpx
 import pandas as pd
 
 from ..classes import DomoDataset as dmds
-from ..client import DomoAuth as dmda
+from ..client import auth as dmda
 from ..client import Logger as lc
 
 

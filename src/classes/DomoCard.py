@@ -1,14 +1,15 @@
 __all__ = ["DomoCard", "Card_DownloadSourceCode"]
 
 import json
+import os
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Any, List
+from typing import Any, List, TYPE_CHECKING
 
 import httpx
-from nbdev.showdoc import patch_to
 
-from ..client import DomoAuth as dmda
+from . import DomoLineage as dmdl
+from ..client import auth as dmda
 from ..client import DomoError as dmde
 from ..client.DomoEntity import DomoEntity_w_Lineage
 from ..routes import card as card_routes
@@ -16,7 +17,7 @@ from ..utils import DictDot as util_dd
 from ..utils import chunk_execution as dmce
 from ..utils import convert as dmut
 from ..utils import files as dmfi
-from . import DomoLineage as dmdl
+from ..client.entities import DomoEntity_w_Lineage
 
 
 @dataclass
@@ -140,182 +141,187 @@ class DomoCard(DomoEntity_w_Lineage):
             **kwargs,
         )
 
+    async def get_datasets(
+        self,
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+        return_raw: bool = False,
+    ):
 
-@patch_to(DomoCard)
-async def get_datasets(
-    self,
-    debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-    return_raw: bool = False,
-):
-    res = await card_routes.get_card_metadata(
-        auth=self.auth,
-        card_id=self.id,
-        optional_parts="datasources",
-        debug_api=debug_api,
-        session=session,
-        parent_class=self.__class__.__name__,
-    )
+        res = await card_routes.get_card_metadata(
+            auth=self.auth,
+            card_id=self.id,
+            optional_parts="datasources",
+            debug_api=debug_api,
+            session=session,
+            parent_class=self.__class__.__name__,
+        )
 
-    res.response = res.response["datasources"]
+        res.response = res.response["datasources"]
 
-    if return_raw:
+        if return_raw:
+            return res
+
+        from . import DomoDataset as dmds
+
+        self.datasets = await dmce.gather_with_concurrency(
+            *[
+                dmds.DomoDataset.get_by_id(
+                    dataset_id=obj["dataSourceId"], auth=self.auth
+                )
+                for obj in res.response
+            ],
+            n=10,
+        )
+
+        return self.datasets
+
+    async def share(
+        self: "DomoCard",
+        auth: "dmda.DomoAuth" = None,
+        domo_users: list = None,  # DomoUsers to share card with,
+        domo_groups: list = None,  # DomoGroups to share card with
+        message: str = None,  # message for automated email
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+    ):
+        from ..routes import datacenter as datacenter_routes
+
+        if domo_groups:
+            domo_groups = (
+                domo_groups if isinstance(domo_groups, list) else [domo_groups]
+            )
+        if domo_users:
+            domo_users = domo_users if isinstance(domo_users, list) else [domo_users]
+
+        res = await datacenter_routes.share_resource(
+            auth=auth or self.auth,
+            resource_ids=[self.id],
+            resource_type=datacenter_routes.ShareResource_Enum.CARD,
+            group_ids=[group.id for group in domo_groups] if domo_groups else None,
+            user_ids=[user.id for user in domo_users] if domo_users else None,
+            message=message,
+            debug_api=debug_api,
+            session=session,
+        )
+
         return res
 
-    from . import DomoDataset as dmds
+    async def get_collections(
+        self,
+        debug_api: bool = False,
+        return_raw: bool = False,
+        debug_num_stacks_to_drop=2,
+    ):
+        from . import DomoAppDb as dmdb
 
-    self.datasets = await dmce.gather_with_concurrency(
-        *[
-            dmds.DomoDataset.get_by_id(dataset_id=obj["dataSourceId"], auth=self.auth)
-            for obj in res.response
-        ],
-        n=10,
-    )
+        domo_collections = await dmdb.AppDbCollections.get_collections(
+            datastore_id=self.datastore_id,
+            auth=self.auth,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            return_raw=return_raw,
+        )
 
-    return self.datasets
+        if return_raw:
+            return domo_collections
 
+        self.domo_collections = await dmce.gather_with_concurrency(
+            *[
+                dmdb.AppDbCollection.get_by_id(
+                    collection_id=domo_collection.id,
+                    auth=self.auth,
+                    debug_api=debug_api,
+                )
+                for domo_collection in domo_collections
+            ],
+            n=60,
+        )
 
-@patch_to(DomoCard)
-async def share(
-    self: DomoCard,
-    auth: dmda.DomoAuth = None,
-    domo_users: list = None,  # DomoUsers to share card with,
-    domo_groups: list = None,  # DomoGroups to share card with
-    message: str = None,  # message for automated email
-    debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-):
-    from ..routes import datacenter as datacenter_routes
+        return self.domo_collections
 
-    if domo_groups:
-        domo_groups = domo_groups if isinstance(domo_groups, list) else [domo_groups]
-    if domo_users:
-        domo_users = domo_users if isinstance(domo_users, list) else [domo_users]
+    async def get_source_code(
+        self, debug_api: bool = False, try_auto_share: bool = False
+    ):
 
-    res = await datacenter_routes.share_resource(
-        auth=auth or self.auth,
-        resource_ids=[self.id],
-        resource_type=datacenter_routes.ShareResource_Enum.CARD,
-        group_ids=[group.id for group in domo_groups] if domo_groups else None,
-        user_ids=[user.id for user in domo_users] if domo_users else None,
-        message=message,
-        debug_api=debug_api,
-        session=session,
-    )
+        await self.get_collections(debug_api=debug_api)
 
-    return res
+        collection_name = "ddx_app_client_code"
+        code_collection = next(
+            (
+                domo_collection
+                for domo_collection in self.domo_collections
+                if domo_collection.name == collection_name
+            ),
+            None,
+        )
+
+        if not code_collection:
+            raise Card_DownloadSourceCode(
+                cls=deepcopy(self),
+                auth=self.auth,
+                message=f"collection - {collection_name} not found for {self.title} - {self.id}",
+            )
+
+        documents = await code_collection.query_documents(
+            debug_api=debug_api, try_auto_share=try_auto_share
+        )
+
+        if not documents:
+            raise Card_DownloadSourceCode(
+                cls=deepcopy(self),
+                auth=self.auth,
+                message=f"collection - {collection_name} - {code_collection.id} - unable to retrieve documents for {self.title} - {self.id}",
+            )
+
+        self.domo_source_code = documents[0]
+
+        return self.domo_source_code
+
+    async def download_source_code(
+        self,
+        download_folder="./EXPORT/",
+        file_name=None,
+        debug_api: bool = False,
+        try_auto_share: bool = False,
+    ):
+        doc = await self.get_source_code(
+            debug_api=debug_api, try_auto_share=try_auto_share
+        )
+
+        if file_name:
+            download_path = os.path.join(
+                download_folder, dmut.change_suffix(file_name, new_extension=".json")
+            )
+            dmfi.upsert_folder(download_path)
+
+            with open(download_path, "w+", encoding="utf-8") as f:
+                f.write(json.dumps(doc.content))
+                return doc
+
+        ddx_type = next(iter(doc.content))
+
+        for key, value in doc.content[ddx_type].items():
+            if key == "js":
+                file_name = "app.js"
+            elif key == "html":
+                file_name = "index.html"
+            elif key == "css":
+                file_name = "styles.css"
+            else:
+                file_name = f"{key}.txt"
+
+            download_path = os.path.join(
+                download_folder, f"{ddx_type}/{self.id}/{file_name}"
+            )
+            dmfi.upsert_folder(download_path)
+
+            with open(download_path, "w+", encoding="utf-8") as f:
+                f.write(value)
+
+        return doc
 
 
 class Card_DownloadSourceCode(dmde.DomoError):
     def __init__(self, cls, auth, message):
         super().__init__(cls=cls, auth=auth, message=message)
-
-
-@patch_to(DomoCard)
-async def get_collections(
-    self, debug_api: bool = False, return_raw: bool = False, debug_num_stacks_to_drop=2
-):
-    from . import DomoAppDb as dmdb
-
-    domo_collections = await dmdb.AppDbCollections.get_collections(
-        datastore_id=self.datastore_id,
-        auth=self.auth,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        return_raw=return_raw,
-    )
-
-    if return_raw:
-        return domo_collections
-
-    self.domo_collections = await dmce.gather_with_concurrency(
-        *[
-            dmdb.AppDbCollection.get_by_id(
-                collection_id=domo_collection.id, auth=self.auth, debug_api=debug_api
-            )
-            for domo_collection in domo_collections
-        ],
-        n=60,
-    )
-
-    return self.domo_collections
-
-
-@patch_to(DomoCard)
-async def get_source_code(self, debug_api: bool = False, try_auto_share: bool = False):
-    await self.get_collections(debug_api=debug_api)
-
-    collection_name = "ddx_app_client_code"
-    code_collection = next(
-        (
-            domo_collection
-            for domo_collection in self.domo_collections
-            if domo_collection.name == collection_name
-        ),
-        None,
-    )
-
-    if not code_collection:
-        raise Card_DownloadSourceCode(
-            cls=deepcopy(self),
-            auth=self.auth,
-            message=f"collection - {collection_name} not found for {self.title} - {self.id}",
-        )
-
-    documents = await code_collection.query_documents(
-        debug_api=debug_api, try_auto_share=try_auto_share
-    )
-
-    if not documents:
-        raise Card_DownloadSourceCode(
-            cls=deepcopy(self),
-            auth=self.auth,
-            message=f"collection - {collection_name} - {code_collection.id} - unable to retrieve documents for {self.title} - {self.id}",
-        )
-
-    self.domo_source_code = documents[0]
-
-    return self.domo_source_code
-
-
-@patch_to(DomoCard)
-async def download_source_code(
-    self,
-    download_folder="./EXPORT/",
-    file_name=None,
-    debug_api: bool = False,
-    try_auto_share: bool = False,
-):
-    doc = await self.get_source_code(debug_api=debug_api, try_auto_share=try_auto_share)
-
-    if file_name:
-        download_path = os.path.join(
-            download_folder, dmut.change_suffix(file_name, new_extension=".json")
-        )
-        dmfi.upsert_folder(download_path)
-
-        with open(download_path, "w+", encoding="utf-8") as f:
-            f.write(json.dumps(doc.content))
-            return doc
-
-    ddx_type = next(iter(doc.content))
-
-    for key, value in doc.content[ddx_type].items():
-        if key == "js":
-            file_name = "app.js"
-        elif key == "html":
-            file_name = "index.html"
-        elif key == "css":
-            file_name = "styles.css"
-        else:
-            file_name = f"{key}.txt"
-
-        download_path = os.path.join(
-            download_folder, f"{ddx_type}/{self.id}/{file_name}"
-        )
-        dmfi.upsert_folder(download_path)
-
-        with open(download_path, "w+", encoding="utf-8") as f:
-            f.write(value)
-
-    return doc

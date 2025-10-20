@@ -7,7 +7,7 @@ from typing import Any, List, Optional, Union
 import httpx
 from sqlglot import exp, parse_one
 
-from ..client import DomoAuth as dmda
+from ..client import auth as dmda
 from ..client import DomoError as dmde
 from ..routes import stream as stream_routes
 

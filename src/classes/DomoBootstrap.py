@@ -5,10 +5,10 @@ from dataclasses import dataclass, field
 from typing import List
 
 import httpx
-from nbdev.showdoc import patch_to
 
-from ..client import DomoAuth as dmda
-from ..client import DomoEntity as dmee
+from . import DomoPage as dmpg
+from ..client import auth as dmda
+from ..client import entities as dmee
 from ..routes import bootstrap as bootstrap_routes
 from ..utils import chunk_execution as ce
 from . import DomoPage as dmpg
@@ -70,110 +70,104 @@ class DomoBootstrap(dmee.DomoManager):
 
         return self.raw
 
+    async def get_customer_id(
+        self,
+        return_raw: bool = False,
+        debug_api: bool = False,
+        debug_num_stacks_to_drop=3,
+        session: httpx.AsyncClient = None,
+    ):
+        res = await bootstrap_routes.get_bootstrap_customerid(
+            auth=self.auth,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            return_raw=return_raw,
+            parent_class=self.__class__.__name__,
+            session=session,
+        )
 
-@patch_to(DomoBootstrap)
-async def get_customer_id(
-    self: DomoBootstrap,
-    return_raw: bool = False,
-    debug_api: bool = False,
-    debug_num_stacks_to_drop=3,
-    session: httpx.AsyncClient = None,
-):
-    res = await bootstrap_routes.get_bootstrap_customerid(
-        auth=self.auth,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        return_raw=return_raw,
-        parent_class=self.__class__.__name__,
-        session=session,
-    )
+        if return_raw:
+            return res
 
-    if return_raw:
-        return res
+        self.customer_id = res.response
 
-    self.customer_id = res.response
+        return self.customer_id
 
-    return self.customer_id
+    async def get_pages(
+        self,
+        return_raw: bool = False,
+        debug_api: bool = False,
+        debug_num_stacks_to_drop=2,
+        session: httpx.AsyncClient = None,
+    ) -> List[dmpg.DomoPage]:
 
+        res = await bootstrap_routes.get_bootstrap_pages(
+            auth=self.auth,
+            debug_api=debug_api,
+            session=session,
+            parent_class=self.__class__.__name__,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        )
 
-@patch_to(DomoBootstrap)
-async def get_pages(
-    self: DomoBootstrap,
-    return_raw: bool = False,
-    debug_api: bool = False,
-    debug_num_stacks_to_drop=2,
-    session: httpx.AsyncClient = None,
-) -> List[dmpg.DomoPage]:
-    res = await bootstrap_routes.get_bootstrap_pages(
-        auth=self.auth,
-        debug_api=debug_api,
-        session=session,
-        parent_class=self.__class__.__name__,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-    )
+        if return_raw:
+            return res
 
-    if return_raw:
-        return res
+        if not res.is_success:
+            return None
 
-    if not res.is_success:
-        return None
+        self.page_ls = await ce.gather_with_concurrency(
+            n=60,
+            *[
+                dmpg.DomoPage._from_bootstrap(page_obj, auth=self.auth)
+                for page_obj in res.response
+            ],
+        )
 
-    self.page_ls = await ce.gather_with_concurrency(
-        n=60,
-        *[
-            dmpg.DomoPage._from_bootstrap(page_obj, auth=self.auth)
-            for page_obj in res.response
-        ],
-    )
+        return self.page_ls
 
-    return self.page_ls
+    async def get_features(
+        self,
+        debug_api: bool = False,
+        return_raw: bool = False,
+        debug_num_stacks_to_drop=2,
+        session: httpx.AsyncClient = None,
+    ):
 
+        res = await bootstrap_routes.get_bootstrap_features(
+            auth=self.auth,
+            session=session,
+            debug_api=debug_api,
+            return_raw=return_raw,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=self.__class__.__name__,
+        )
 
-@patch_to(DomoBootstrap)
-async def get_features(
-    self: DomoBootstrap,
-    debug_api: bool = False,
-    return_raw: bool = False,
-    debug_num_stacks_to_drop=2,
-    session: httpx.AsyncClient = None,
-):
-    res = await bootstrap_routes.get_bootstrap_features(
-        auth=self.auth,
-        session=session,
-        debug_api=debug_api,
-        return_raw=return_raw,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=self.__class__.__name__,
-    )
+        if return_raw:
+            return res
 
-    if return_raw:
-        return res
+        feature_list = [
+            DomoBootstrap_Feature._from_dict(json_obj) for json_obj in res.response
+        ]
 
-    feature_list = [
-        DomoBootstrap_Feature._from_dict(json_obj) for json_obj in res.response
-    ]
+        return feature_list
 
-    return feature_list
+    async def is_feature_accountsv2_enabled(
+        self,
+        debug_api: bool = False,
+        return_raw: bool = False,
+        debug_num_stacks_to_drop=3,
+        session: httpx.AsyncClient = None,
+    ):
+        res = await bootstrap_routes.get_bootstrap_features_is_accountsv2_enabled(
+            auth=self.auth,
+            session=session,
+            return_raw=return_raw,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=self.__class__.__name__,
+        )
 
+        if return_raw:
+            return res
 
-@patch_to(DomoBootstrap)
-async def is_feature_accountsv2_enabled(
-    self: DomoBootstrap,
-    debug_api: bool = False,
-    return_raw: bool = False,
-    debug_num_stacks_to_drop=3,
-    session: httpx.AsyncClient = None,
-):
-    res = await bootstrap_routes.get_bootstrap_features_is_accountsv2_enabled(
-        auth=self.auth,
-        session=session,
-        return_raw=return_raw,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=self.__class__.__name__,
-    )
-
-    if return_raw:
-        return res
-
-    return res.response
+        return res.response

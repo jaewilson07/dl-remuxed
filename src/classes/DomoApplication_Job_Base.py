@@ -2,12 +2,11 @@ __all__ = ["DomoTrigger_Schedule", "DomoTrigger", "DomoJob_Base"]
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING
 
 import httpx
-from nbdev.showdoc import patch_to
 
-from ..client import DomoAuth as dmda
+from ..client.auth import DomoAuth
 from ..routes import application as application_routes
 from ..utils import convert as cc
 
@@ -139,121 +138,116 @@ class DomoJob_Base:
             "triggers": domo_triggers,
         }
 
+    @classmethod
+    def _from_dict(
+        cls,
+        obj,
+        auth,
+    ):
+        """_from_dict is a required abstract method.  Each DomoJob_Base implementation must have an instance of _from_dict"""
 
-@patch_to(DomoJob_Base, cls_method=True)
-def _from_dict(
-    cls,
-    obj,
-    auth,
-):
-    """_from_dict is a required abstract method.  Each DomoJob_Base implementation must have an instance of _from_dict"""
+        base_obj = cls._convert_API_res_to_DomoJob_base_obj(obj=obj)
 
-    base_obj = cls._convert_API_res_to_DomoJob_base_obj(obj=obj)
+        return cls(
+            auth=auth,
+            **base_obj,
+        )
 
-    return cls(
-        auth=auth,
-        **base_obj,
-    )
+    @classmethod
+    async def _get_by_id(
+        cls,
+        application_id,
+        job_id,
+        auth: dmda.DomoAuth,
+        debug_api: bool = False,
+        session: Optional[httpx.AsyncClient] = None,
+        debug_num_stacks_to_drop=2,
+        new_cls: DomoJob_Base = None,  # pass in a child class which has the mandatory "from_json" function
+        return_raw: bool = False,
+        parent_class=None,
+    ):
+        """
+        this function will receive the parent_class as an input_parameter (instead of relying on the actual class DomoJob_Base)
+        to call the `new_class._from_dict()`
 
+        this process will handle converting the JSON obj into 'the correct' class
+        """
 
-@patch_to(DomoJob_Base, cls_method=True)
-async def _get_by_id(
-    cls,
-    application_id,
-    job_id,
-    auth: dmda.DomoAuth,
-    debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
-    debug_num_stacks_to_drop=2,
-    new_cls: DomoJob_Base = None,  # pass in a child class which has the mandatory "from_json" function
-    return_raw: bool = False,
-    parent_class=None,
-):
-    """
-    this function will receive the parent_class as an input_parameter (instead of relying on the actual class DomoJob_Base)
-    to call the `new_class._from_dict()`
+        res = await application_routes.get_application_job_by_id(
+            auth=auth,
+            application_id=application_id,
+            job_id=job_id,
+            session=session,
+            debug_api=debug_api,
+            parent_class=parent_class,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        )
 
-    this process will handle converting the JSON obj into 'the correct' class
-    """
+        if return_raw:
+            return res
 
-    res = await application_routes.get_application_job_by_id(
-        auth=auth,
-        application_id=application_id,
-        job_id=job_id,
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-    )
+        cls = new_cls or cls
 
-    if return_raw:
-        return res
+        return cls._from_dict(
+            obj=res.response,
+            auth=auth,
+        )
 
-    cls = new_cls or cls
+    @classmethod
+    async def get_by_id(
+        cls,
+        application_id,
+        job_id,
+        auth: dmda.DomoAuth,
+        debug_api: bool = False,
+        session: Optional[httpx.AsyncClient] = None,
+        debug_num_stacks_to_drop=2,
+        return_raw: bool = False,
+    ):
+        """
+        stub abstract function that each `DomoJob_Base` will have.
+        note we pass the calling functions class into classmethod _get_by_id()
+        so that we can call cls._from_dict() during code execution
+        """
 
-    return cls._from_dict(
-        obj=res.response,
-        auth=auth,
-    )
+        return await cls._get_by_id(
+            application_id=application_id,
+            job_id=job_id,
+            auth=auth,
+            debug_api=debug_api,
+            session=session,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            return_raw=return_raw,
+            new_cls=cls,
+        )
 
+    def _generate_to_dict(self) -> dict:
+        """returns a base dictionary representation of the DomoJob_Base class"""
 
-@patch_to(DomoJob_Base, cls_method=True)
-async def get_by_id(
-    cls,
-    application_id,
-    job_id,
-    auth: dmda.DomoAuth,
-    debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
-    debug_num_stacks_to_drop=2,
-    return_raw: bool = False,
-):
-    """
-    stub abstract function that each `DomoJob_Base` will have.
-    note we pass the calling functions class into classmethod _get_by_id()
-    so that we can call cls._from_dict() during code execution
-    """
+        trigger_ls = (
+            [self.triggers[0].schedule.to_dict()] if len(self.triggers) > 0 else []
+        )
 
-    return await cls._get_by_id(
-        application_id=application_id,
-        job_id=job_id,
-        auth=auth,
-        debug_api=debug_api,
-        session=session,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        return_raw=return_raw,
-        new_cls=cls,
-    )
+        execution_payload = self.execution_payload or {}
+        execution_payload.update({"metricsDatasetId": self.logs_dataset_id})
 
+        return {
+            "jobId": self.id,
+            "jobName": self.name,
+            "userId": self.user_id,
+            "applicationId": self.application_id,
+            "customerId": self.customer_id,
+            "executionTimeout": self.execution_timeout,
+            "executionPayload": execution_payload,
+            "shareState": self.share_state,
+            # created / excluded because generated metadata
+            # updated / excluded because generated metadata
+            "triggers": trigger_ls,
+            "jobDescription": self.description,
+            "executionTimeout": self.execution_timeout,
+            "accounts": self.accounts,
+        }
 
-@patch_to(DomoJob_Base)
-def _generate_to_dict(self) -> dict:
-    """returns a base dictionary representation of the DomoJob_Base class"""
-
-    trigger_ls = [self.triggers[0].schedule.to_dict()] if len(self.triggers) > 0 else []
-
-    execution_payload = self.execution_payload or {}
-    execution_payload.update({"metricsDatasetId": self.logs_dataset_id})
-
-    return {
-        "jobId": self.id,
-        "jobName": self.name,
-        "userId": self.user_id,
-        "applicationId": self.application_id,
-        "customerId": self.customer_id,
-        "executionTimeout": self.execution_timeout,
-        "executionPayload": execution_payload,
-        "shareState": self.share_state,
-        # created / excluded because generated metadata
-        # updated / excluded because generated metadata
-        "triggers": trigger_ls,
-        "jobDescription": self.description,
-        "executionTimeout": self.execution_timeout,
-        "accounts": self.accounts,
-    }
-
-
-@patch_to(DomoJob_Base)
-def to_dict(self):
-    """this is an abstract method, each DomoJob_Base implementation must define a to_dict() function"""
-    return self._generate_to_dict()
+    def to_dict(self):
+        """this is an abstract method, each DomoJob_Base implementation must define a to_dict() function"""
+        return self._generate_to_dict()

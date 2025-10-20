@@ -14,7 +14,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Any, Dict, List
 
-from ..client import DomoEntity as dmen
+from ..client import entities as dmen
 from ..utils import convert as dmcv
 
 

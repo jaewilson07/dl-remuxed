@@ -8,7 +8,6 @@ __all__ = [
     "route_function",
 ]
 
-import json
 import time
 from functools import wraps
 from pprint import pprint
@@ -16,22 +15,26 @@ from typing import Any, Callable, Optional, Tuple, Union
 
 import httpx
 
-from ..utils import chunk_execution as dmce
-from . import DomoAuth as dmda
-from . import DomoError as dmde
+from . import auth as dmda
+from .exceptions import DomoError
 from . import Logger as dl
-from . import ResponseGetData as rgd
+from . import response as rgd
+from ..utils import chunk_execution as dmce
 
 
-class GetData_Error(dmde.DomoError):
+class GetData_Error(DomoError):
     def __init__(self, message, url):
         super().__init__(message=message, domo_instance=url)
 
 
 def create_headers(
     auth: dmda.DomoAuth,  # The authentication object containing the Domo API token.
-    content_type: dict = None,  # The content type for the request. Defaults to None.
-    headers: dict = None,  # Any additional headers for the request. Defaults to None.
+    content_type: Optional[
+        str
+    ] = None,  # The content type for the request. Defaults to None.
+    headers: Optional[
+        dict
+    ] = None,  # Any additional headers for the request. Defaults to None.
 ) -> dict:  # The headers for the request.
     """
     Creates default headers for interacting with Domo APIs.
@@ -52,7 +55,7 @@ def create_headers(
 
 
 def create_httpx_session(
-    session: httpx.AsyncClient = None, is_verify: bool = False
+    session: Optional[httpx.AsyncClient] = None, is_verify: bool = False
 ) -> Tuple[httpx.AsyncClient, bool]:
     """Creates or reuses an asynchronous HTTPX session.
 
@@ -76,139 +79,107 @@ async def get_data(
     url: str,
     method: str,
     auth: dmda.DomoAuth,
-    content_type: Optional[dict] = None,
+    content_type: Optional[str] = None,
     headers: Optional[dict] = None,
     body: Union[dict, str, None] = None,
     params: Optional[dict] = None,
     debug_api: bool = False,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     return_raw: bool = False,
     is_follow_redirects: bool = False,
-    timeout=20,
-    parent_class: str = None,  # name of the parent calling class
-    num_stacks_to_drop: int = 2,  # number of stacks to drop from the stack trace.  see `domolibrary.client.Logger.TracebackDetails`.  use 2 with class > route structure.  use 1 with route based approach
-    debug_traceback: bool = False,
+    timeout: int = 20,
+    parent_class: Optional[str] = None,  # noqa: ARG001
+    num_stacks_to_drop: int = 2,  # noqa: ARG001
+    debug_traceback: bool = False,  # noqa: ARG001
     is_verify: bool = False,
 ) -> rgd.ResponseGetData:
-    """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint.
-
-    Args:
-        url: API endpoint URL.
-        method: HTTP method to use for the request.
-        auth: Authentication object containing token and header details.
-        content_type: Optional content type for the request, defaults to application/json.
-        headers: Additional HTTP headers.
-        body: Request payload, either as a dict or string.
-        params: URL query parameters.
-        debug_api: Enable debugging output for API calls.
-        session: Optional HTTPX session to use for the request.
-        return_raw: Flag indicating whether to return the raw HTTPX response.
-        is_follow_redirects: Flag to follow HTTP redirects.
-        timeout: Request timeout in seconds.
-        parent_class: (Optional) Name of the calling class.
-        num_stacks_to_drop: Number of stack frames to drop in traceback.
-        debug_traceback: Enable detailed traceback debugging.
-        is_verify: SSL verification flag.
-
-    Returns:
-        An instance of ResponseGetData containing the response data and metadata.
-    """
+    """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint."""
 
     if debug_api:
-        print("🐛 debugging get_data")
+        print(f"🐛 Debugging get_data: {method} {url}")
 
-    if auth:
-        if not auth.token:
-            await auth.get_auth_token()
-
-        # if not auth.auth_header:
-        #     auth.generate_auth_header()
-
-    headers = create_headers(auth=auth, content_type=content_type, headers=headers)
+    headers = create_headers(
+        auth=auth, content_type=content_type, headers=headers or {}
+    )
 
     session, is_close_session = create_httpx_session(
         session=session, is_verify=is_verify
     )
 
-    traceback_details = dl.get_traceback(
-        num_stacks_to_drop=num_stacks_to_drop,
-        root_module="<module>",
-        parent_class=parent_class,
-        debug_traceback=debug_traceback,
+    # Create request metadata
+    request_metadata = rgd.RequestMetadata(
+        url=url,
+        headers=headers,
+        body=body if isinstance(body, str) else (str(body) if body else None),
+        params=params,
     )
 
-    if debug_api:
-        pprint(
-            {
-                "parent_class": parent_class,
-                "function_name": traceback_details.function_name,
-                "method": method,
-                "url": url,
-                "headers": headers,
-                "body": body,
-                "params": params,
-            }
+    # Create additional information with parent_class and traceback_details
+    additional_information = {}
+    if parent_class:
+        additional_information["parent_class"] = parent_class
+    if debug_traceback:
+        traceback_details = dl.get_traceback(
+            num_stacks_to_drop=num_stacks_to_drop,
+            root_module="<module>",
+            parent_class=parent_class or "",
+            debug_traceback=debug_traceback,
         )
+        additional_information["traceback_details"] = traceback_details
 
     try:
-        if isinstance(body, dict) or isinstance(body, list):
-            if debug_api:
-                print("get_data: sending json")
-
-            if method.lower() == "delete":
-                res = httpx.request(
-                    method="DELETE",
-                    url=url,
-                    headers=headers,
-                    content=json.dumps(body),
-                    params=params,
-                    follow_redirects=is_follow_redirects,
-                    timeout=timeout,
-                )
-            else:
-                res = await getattr(session, method.lower())(
-                    url=url,
-                    headers=headers,
-                    json=body,
-                    params=params,
-                    follow_redirects=is_follow_redirects,
-                    timeout=timeout,
-                )
-
-        elif body:
-            if debug_api:
-                print("get_data: sending data")
-
-            res = await getattr(session, method.lower())(
-                url=url,
-                headers=headers,
-                data=body,
-                params=params,
-                follow_redirects=is_follow_redirects,
-                timeout=timeout,
-            )
-
-        else:
-            if debug_api:
-                print("get_data: no body")
-
-            res = await getattr(session, method.lower())(
-                url=url,
-                headers=headers,
-                params=params,
-                follow_redirects=is_follow_redirects,
-                timeout=timeout,
-            )
+        response = await session.request(
+            method=method,
+            url=url,
+            headers=headers,
+            json=body if isinstance(body, dict) else None,
+            content=body if isinstance(body, str) else None,
+            params=params,
+            follow_redirects=is_follow_redirects,
+            timeout=timeout,
+        )
 
         if debug_api:
-            print("get_data_response", res)
+            print(f"Response Status: {response.status_code}")
 
+        # Check for VPN block
+        if response.status_code in range(200, 400):
+            if "<title>Domo - Blocked</title>" in response.text:
+                ip_address = rgd.find_ip(response.text)
+                # Create a custom response for VPN block with 403 status
+                vpn_response = rgd.ResponseGetData(
+                    status=403,  # Forbidden - blocked by VPN
+                    response=f"Blocked by VPN: {ip_address}",
+                    is_success=False,
+                    request_metadata=request_metadata,
+                    additional_information=additional_information,
+                )
+                return vpn_response
+
+        # Return raw response if requested
         if return_raw:
-            return res
+            return rgd.ResponseGetData(
+                status=response.status_code,
+                response=response,
+                is_success=True,
+                request_metadata=request_metadata,
+                additional_information=additional_information,
+            )
 
-        return rgd.ResponseGetData._from_httpx_response(
-            res, auth=auth, traceback_details=traceback_details
+        # Process response into ResponseGetData using from_httpx_response
+        return rgd.ResponseGetData.from_httpx_response(
+            res=response,
+            request_metadata=request_metadata,
+            additional_information=additional_information,
         )
+
+    except httpx.HTTPStatusError as http_err:
+        print(f"HTTP error occurred: {http_err}")
+        raise
+
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        raise
 
     finally:
         if is_close_session:
@@ -220,16 +191,16 @@ async def get_data_stream(
     url: str,
     auth: dmda.DomoAuth,
     method: str = "GET",
-    content_type: Optional[dict] = None,
+    content_type: Optional[str] = None,
     headers: Optional[dict] = None,
     # body: Union[dict, str, None] = None,
     params: Optional[dict] = None,
     debug_api: bool = False,
-    timeout: int = 10,
-    parent_class: str = None,  # name of the parent calling class
+    timeout: int = 10,  # noqa: ARG001
+    parent_class: Optional[str] = None,  # name of the parent calling class
     num_stacks_to_drop: int = 2,  # number of stacks to drop from the stack trace.  see `domolibrary.client.Logger.TracebackDetails`.  use 2 with class > route structure.  use 1 with route based approach
     debug_traceback: bool = False,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     is_verify: bool = False,
     is_follow_redirects: bool = True,
 ) -> rgd.ResponseGetData:
@@ -275,12 +246,26 @@ async def get_data_stream(
     if auth:
         headers.update(**auth.auth_header)
 
+    # Create request metadata
+    request_metadata = rgd.RequestMetadata(
+        url=url,
+        headers=headers,
+        body=None,  # No body in stream function
+        params=params,
+    )
+
+    # Create additional information with parent_class and traceback_details
+    additional_information = {}
+    if parent_class:
+        additional_information["parent_class"] = parent_class
+
     traceback_details = dl.get_traceback(
         num_stacks_to_drop=num_stacks_to_drop,
         root_module="<module>",
-        parent_class=parent_class,
+        parent_class=parent_class or "",
         debug_traceback=debug_traceback,
     )
+    additional_information["traceback_details"] = traceback_details
 
     if debug_api:
         pprint(
@@ -301,13 +286,15 @@ async def get_data_stream(
                 url=url,
                 headers=headers,
                 follow_redirects=is_follow_redirects,
+                timeout=timeout,
             ) as res:
                 if res.status_code != 200:
-                    return rgd.ResponseGetData._from_httpx_response(
-                        res=res,
-                        auth=auth,
-                        parent_class=parent_class,
-                        traceback_details=traceback_details,
+                    return rgd.ResponseGetData(
+                        status=res.status_code,
+                        response=res.text if hasattr(res, "text") else str(res.content),
+                        is_success=False,
+                        request_metadata=request_metadata,
+                        additional_information=additional_information,
                     )
 
                 content = bytearray()
@@ -318,30 +305,29 @@ async def get_data_stream(
                     status=res.status_code,
                     response=content,
                     is_success=True,
-                    auth=auth,
-                    traceback_details=traceback_details,
-                    parent_class=parent_class,
+                    request_metadata=request_metadata,
+                    additional_information=additional_information,
                 )
 
     except httpx.TransportError as e:
         raise GetData_Error(url=url, message=e) from e
 
 
-class LooperError(dmde.DomoError):
+class LooperError(DomoError):
     def __init__(self, loop_stage: str, message):
-        super().__init__(f"{loop_stage} - {message}")
+        super().__init__(message=f"{loop_stage} - {message}")
 
 
 async def looper(
     auth: dmda.DomoAuth,
-    session: httpx.AsyncClient,
+    session: Optional[httpx.AsyncClient],
     url,
     offset_params,
-    arr_fn: callable,
+    arr_fn: Callable,
     loop_until_end: bool = False,  # usually you'll set this to true.  it will override maximum
     method="POST",
-    body: dict = None,
-    fixed_params: dict = None,
+    body: Optional[dict] = None,
+    fixed_params: Optional[dict] = None,
     offset_params_in_body: bool = False,
     body_fn=None,
     limit=1000,
@@ -350,8 +336,8 @@ async def looper(
     debug_api: bool = False,
     debug_loop: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: str = None,
-    timeout: bool = 10,
+    parent_class: Optional[str] = None,
+    timeout: int = 10,
     wait_sleep: int = 0,
     is_verify: bool = False,
     return_raw: bool = False,
@@ -392,7 +378,7 @@ async def looper(
     allRows = []
     isLoop = True
 
-    res = None
+    res: Optional[rgd.ResponseGetData] = None
 
     if maximum and maximum <= limit and not loop_until_end:
         limit = maximum
@@ -401,6 +387,8 @@ async def looper(
         params = fixed_params or {}
 
         if offset_params_in_body:
+            if body is None:
+                body = {}
             body.update(
                 {offset_params.get("offset"): skip, offset_params.get("limit"): limit}
             )
@@ -437,11 +425,13 @@ async def looper(
             num_stacks_to_drop=debug_num_stacks_to_drop,
         )
 
-        if not res.is_success:
+        if not res or not res.is_success:
             if is_close_session:
                 await session.aclose()
 
-            return res
+            return res or rgd.ResponseGetData(
+                status=500, response="No response", is_success=False
+            )
 
         if return_raw:
             return res
@@ -479,7 +469,12 @@ async def looper(
     if is_close_session:
         await session.aclose()
 
-    return await rgd.ResponseGetData._from_looper(res=res, array=allRows)
+    if not res:
+        return rgd.ResponseGetData(
+            status=500, response="No response received", is_success=False
+        )
+
+    return await rgd.ResponseGetData.from_looper(res=res, array=allRows)
 
 
 class RouteFunction_ResponseTypeError(TypeError):
@@ -512,10 +507,10 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(func)
     async def wrapper(
         *args: Any,
-        parent_class: str = None,
+        parent_class: Optional[str] = None,
         debug_num_stacks_to_drop: int = 1,
         debug_api: bool = False,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         **kwargs: Any,
     ) -> Any:
         result = await func(

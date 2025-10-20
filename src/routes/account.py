@@ -1,22 +1,22 @@
 __all__ = [
     "Account_GET_Error",
+    "SearchAccount_NotFound",
+    "Account_CRUD_Error",
+    "AccountSharing_Error",
+    "Account_Config_Error",
     "get_available_data_providers",
     "get_accounts",
     "get_oauth_accounts",
-    "Account_NoMatch",
     "get_account_by_id",
     "get_oauth_account_by_id",
     "get_account_config",
     "get_oauth_account_config",
-    "Account_CRUD_Error",
-    "Account_CreateParams_Error",
     "generate_create_account_body",
     "create_account",
     "delete_account",
     "generate_create_oauth_account_body",
     "create_oauth_account",
     "delete_oauth_account",
-    "Account_Config_Error",
     "update_account_config",
     "update_oauth_account_config",
     "update_account_name",
@@ -26,39 +26,113 @@ __all__ = [
     "ShareAccount",
     "ShareAccount_V1_AccessLevel",
     "ShareAccount_AccessLevel",
-    "Account_Share_Error",
-    "Account_AlreadyShared_Error",
     "share_account",
     "share_oauth_account",
     "share_account_v1",
 ]
 
 from abc import abstractmethod
+from typing import Any, List, Optional, Union
 
 import httpx
 
-from ..client import DomoAuth as dmda
-from ..client import DomoError as dmde
-from ..client import ResponseGetData as rgd
+from ..client.auth import DomoAuth
+from ..client.exceptions import RouteError
 from ..client import get_data as gd
-from ..client.DomoEntity import DomoEnum
+from ..client import response as rgd
+from ..client.entities import DomoEnum
 
 
-class Account_GET_Error(dmde.RouteError):
+class Account_GET_Error(RouteError):
+    """Raised when account retrieval operations fail."""
+
+    def __init__(self, account_id: Optional[str] = None, response_data=None, **kwargs):
+        super().__init__(
+            message="Account retrieval failed",
+            entity_id=account_id,
+            response_data=response_data,
+            **kwargs,
+        )
+
+
+class SearchAccount_NotFound(RouteError):
+    """Raised when account search operations return no results."""
+
+    def __init__(self, search_criteria: str, response_data=None, **kwargs):
+        message = f"No accounts found matching: {search_criteria}"
+        super().__init__(
+            message=message,
+            response_data=response_data,
+            additional_context={"search_criteria": search_criteria},
+            **kwargs,
+        )
+
+
+class Account_CRUD_Error(RouteError):
+    """Raised when account create, update, or delete operations fail."""
+
     def __init__(
-        self, res: rgd.ResponseGetData, account_id: int = None, message: str = None
+        self,
+        operation: str,
+        account_id: Optional[str] = None,
+        response_data=None,
+        **kwargs,
     ):
-        super().__init__(res=res, message=message, entity_id=account_id)
+        message = f"Account {operation} operation failed"
+        super().__init__(
+            message=message, entity_id=account_id, response_data=response_data, **kwargs
+        )
+
+
+class AccountSharing_Error(RouteError):
+    """Raised when account sharing operations fail."""
+
+    def __init__(
+        self,
+        operation: str,
+        account_id: Optional[str] = None,
+        response_data=None,
+        **kwargs,
+    ):
+        message = f"Account sharing {operation} failed"
+        super().__init__(
+            message=message, entity_id=account_id, response_data=response_data, **kwargs
+        )
+
+
+class Account_Config_Error(RouteError):
+    """Raised when account configuration operations fail."""
+
+    def __init__(self, account_id: Optional[str] = None, response_data=None, **kwargs):
+        message = "Account configuration update failed"
+        super().__init__(
+            message=message, entity_id=account_id, response_data=response_data, **kwargs
+        )
 
 
 @gd.route_function
 async def get_available_data_providers(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class: str = None,
-    session: httpx.AsyncClient = None,
-):
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+) -> rgd.ResponseGetData:
+    """Retrieve available data providers from Domo.
+
+    Args:
+        auth: Authentication object
+        session: HTTP client session (optional)
+        debug_api: Enable API debugging
+        debug_num_stacks_to_drop: Stack frames to drop for debugging
+        parent_class: Name of calling class for debugging
+
+    Returns:
+        ResponseGetData object containing available data providers
+
+    Raises:
+        Account_GET_Error: If data provider retrieval fails
+    """
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/providers"
 
     res = await gd.get_data(
@@ -72,7 +146,7 @@ async def get_available_data_providers(
     )
 
     if not res.is_success:
-        raise Account_GET_Error(res=res)
+        raise Account_GET_Error(response_data=res)
     return res
 
 

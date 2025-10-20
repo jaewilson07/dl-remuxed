@@ -1,93 +1,31 @@
 # Refactor @patch_to to Direct Class Methods - Copilot Instructions
 
 ## Project Context
-This is `domolibrary2`, a Python library that currently uses nbdev's `@patch_to` decorator pattern to add methods to dataclasses. We need to refactor this to use direct class method definitions for better maintainability and type checking.
+This is `domolibrary2`, a Python library that previously used nbdev's `@patch_to` decorator pattern to add methods to dataclasses. We are refactoring this to use direct class method definitions for better maintainability and type checking.
 
 ## Current Architecture
-- **221 `@patch_to` decorators** across the codebase
-- Methods are defined outside the class and patched in using `@patch_to(ClassName)`
-- Class methods use `@patch_to(ClassName, cls_method=True)`
+- **221 `@patch_to` decorators** across the codebase (initially)
+- Methods were defined outside the class and patched in using `@patch_to(ClassName)`
+- Class methods used `@patch_to(ClassName, cls_method=True)`
 - Base classes are `@dataclass` decorated
 
 ## Target Architecture
-- All methods should be defined directly within their respective classes
+- All methods are now being defined directly within their respective classes
 - Maintain all existing functionality and method signatures
 - Preserve async/await patterns
 - Keep dataclass structure but extend with methods
 
-## Refactoring Patterns
+## Refactoring Progress
+- **Completed Files:**
+  - `DomoDatacenter.py`: 6 methods refactored
+  - `DomoDataflow.py`: 6 methods refactored
+  - `DomoDataset_Schema.py`: 6 methods refactored
+  - `DomoGroup.py`: 6 methods refactored
+  - `DomoUser.py`: In progress (6 methods identified, 5 moved so far)
+- **Remaining Files:**
+  - Files with 7+ methods (e.g., `DomoInstanceConfig.py`, `DomoJupyter.py`)
 
-### **Pattern 1: Instance Methods**
-
-**BEFORE:**
-```python
-@dataclass
-class DomoUser:
-    auth: dmda.DomoAuth = field(repr=False)
-    id: str
-    # ... other fields
-
-@patch_to(DomoUser)
-async def get_role(
-    self: DomoUser,
-    debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
-) -> Optional[Any]:
-    # method implementation
-    pass
-```
-
-**AFTER:**
-```python
-@dataclass
-class DomoUser:
-    auth: dmda.DomoAuth = field(repr=False)
-    id: str
-    # ... other fields
-    
-    async def get_role(
-        self,
-        debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
-    ) -> Optional[Any]:
-        # method implementation
-        pass
-```
-
-### **Pattern 2: Class Methods**
-
-**BEFORE:**
-```python
-@patch_to(DomoUser, cls_method=True)
-async def get_by_id(
-    cls: DomoUser,
-    user_id: str,
-    auth: dmda.DomoAuth,
-) -> Optional[DomoUser]:
-    # method implementation
-    pass
-```
-
-**AFTER:**
-```python
-@dataclass
-class DomoUser:
-    # ... fields
-    
-    @classmethod
-    async def get_by_id(
-        cls,
-        user_id: str,
-        auth: dmda.DomoAuth,
-    ) -> Optional["DomoUser"]:
-        # method implementation
-        pass
-```
-
-### **Pattern 3: Static Methods**
-If any methods don't use `self` or `cls`, convert to `@staticmethod`.
-
-## Implementation Requirements
+## Updated Implementation Requirements
 
 ### **1. File Processing Order**
 Process files in this priority order:
@@ -223,30 +161,3 @@ class DomoUser:
         # implementation
         pass
 ```
-
-## Quality Assurance
-
-### **Testing Requirements:**
-- All imports must work: `python -c "import src; print('Success!')"`
-- All existing tests must pass
-- No breaking changes to public API
-- Type checking should improve (no mypy errors)
-
-### **File Validation:**
-After refactoring each file:
-1. Check syntax: `python -m py_compile filename.py`
-2. Test imports: `python -c "from src.module import ClassName"`
-3. Run linting: `ruff check filename.py`
-
-### **Progress Tracking:**
-- Keep count of files processed
-- Note any patterns that don't fit the standard refactor
-- Document any methods that require special handling
-
-## Success Criteria
-- ✅ Zero `@patch_to` decorators remaining
-- ✅ All functionality preserved
-- ✅ All type hints properly applied
-- ✅ All imports working
-- ✅ Code passes linting
-- ✅ Improved IDE support and type checking

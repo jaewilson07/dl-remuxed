@@ -3,8 +3,8 @@ __all__ = ["DomoCertificationState", "DomoCertification"]
 import datetime as dt
 from dataclasses import dataclass
 
-from ..client.DomoEntity import DomoEnum, DomoSubEntity
 from ..utils import convert as cd
+from ..client.entities import DomoEnum, DomoSubEntity
 
 
 class DomoCertificationState(DomoEnum):

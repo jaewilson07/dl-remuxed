@@ -20,6 +20,8 @@ from typing import List, Optional
 import httpx
 from nbdev.showdoc import patch_to
 
+from ..client import auth as dmda
+from ..routes import application as application_routes
 from ..classes.DomoApplication_Job_Base import (
     DomoJob_Base,
     DomoTrigger_Schedule,
@@ -234,6 +236,62 @@ class DomoJob_Watchdog(DomoJob_Base):
             },
         }
 
+    @classmethod
+    async def create(
+        cls,
+        auth: dmda.DomoAuth,
+        name: str,
+        application_id: str,
+        config: Watchdog_Config,
+        logs_dataset_id: str,
+        notify_user_ids: list = None,
+        notify_group_ids: list = None,
+        notify_emails: list = None,
+        triggers: List[DomoTrigger_Schedule] = None,
+        description: str = f"created via domolibrary - {dt.date.today()}",
+        execution_timeout=1440,
+        accounts: list[int] = None,
+        remote_instance=None,
+        custom_message: str = None,
+        webhooks: List[str] = None,
+        debug_api: bool = False,
+        session: Optional[httpx.AsyncClient] = None,
+        return_raw: bool = False,
+    ):
+
+        domo_job = cls(
+            auth=auth,
+            name=name,
+            description=description,
+            application_id=application_id,
+            execution_timeout=execution_timeout,
+            notify_user_ids=notify_user_ids or [],
+            notify_group_ids=notify_group_ids or [],
+            notify_emails=notify_emails or [],
+            triggers=triggers or [],
+            accounts=accounts or [],
+            logs_dataset_id=logs_dataset_id,
+            remote_instance=remote_instance,
+            Config=config,
+            custom_message=custom_message,
+            webhooks=webhooks,
+        )
+
+        body = domo_job.to_dict()
+
+        res = await application_routes.create_application_job(
+            auth=auth,
+            application_id=application_id,
+            body=body,
+            debug_api=debug_api,
+            session=session,
+        )
+
+        if return_raw:
+            return res
+
+        return cls._from_dict(res.response, auth=auth)
+
 
 @patch_to(DomoJob_Base)
 async def update(
@@ -274,59 +332,3 @@ async def execute(
     )
 
     return res
-
-
-@patch_to(DomoJob_Watchdog, cls_method=True)
-async def create(
-    cls,
-    auth: dmda.DomoAuth,
-    name: str,
-    application_id: str,
-    config: Watchdog_Config,
-    logs_dataset_id: str,
-    notify_user_ids: list = None,
-    notify_group_ids: list = None,
-    notify_emails: list = None,
-    triggers: List[DomoTrigger_Schedule] = None,
-    description: str = f"created via domolibrary - {dt.date.today()}",
-    execution_timeout=1440,
-    accounts: list[int] = None,
-    remote_instance=None,
-    custom_message: str = None,
-    webhooks: List[str] = None,
-    debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
-    return_raw: bool = False,
-):
-    domo_job = cls(
-        auth=auth,
-        name=name,
-        description=description,
-        application_id=application_id,
-        execution_timeout=execution_timeout,
-        notify_user_ids=notify_user_ids or [],
-        notify_group_ids=notify_group_ids or [],
-        notify_emails=notify_emails or [],
-        triggers=triggers or [],
-        accounts=accounts or [],
-        logs_dataset_id=logs_dataset_id,
-        remote_instance=remote_instance,
-        Config=config,
-        custom_message=custom_message,
-        webhooks=webhooks,
-    )
-
-    body = domo_job.to_dict()
-
-    res = await application_routes.create_application_job(
-        auth=auth,
-        application_id=application_id,
-        body=body,
-        debug_api=debug_api,
-        session=session,
-    )
-
-    if return_raw:
-        return res
-
-    return cls._from_dict(res.response, auth=auth)

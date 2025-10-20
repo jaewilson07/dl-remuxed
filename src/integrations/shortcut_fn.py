@@ -6,7 +6,7 @@ from typing import List
 
 from ..classes import DomoAccount as dmacc
 from ..classes import DomoGroup as dmdg
-from ..client import DomoAuth as dmda
+from ..client import auth as dmda
 
 
 async def share_domo_account_with_domo_group(

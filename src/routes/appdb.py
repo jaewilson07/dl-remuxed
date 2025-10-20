@@ -18,10 +18,10 @@ __all__ = [
 
 import httpx
 
-from ..client import DomoAuth as dmda
+from ..client import auth as dmda
 from ..client import DomoError as de
 from ..client import get_data as gd
-from ..client.DomoEntity import DomoEnum
+from ..client.entities import DomoEnum
 
 
 class AppDb_GET_Exception(de.DomoError):

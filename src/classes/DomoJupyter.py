@@ -15,10 +15,16 @@ from typing import Any, List
 import httpx
 from nbdev.showdoc import patch_to
 
-from ..client import DomoAuth as dmda
+from . import DomoAccount as dmac
+from . import DomoDataset as dmds
+from . import DomoUser as dmdu
+from ..client import auth as dmda
 from ..client import DomoError as dmde
-from ..client.DomoEntity import DomoEntity, DomoManager
 from ..routes import jupyter as jupyter_routes
+
+from ..utils import chunk_execution as dmce
+from ..utils import files as defi
+from ..client.entities import DomoEntity, DomoManager
 from ..routes.jupyter import (
     JupyterAPI_Error,
 )

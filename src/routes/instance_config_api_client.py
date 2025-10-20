@@ -14,11 +14,11 @@ from typing import List
 
 import httpx
 
-from ..client import DomoAuth as dmda
+from ..client import auth as dmda
 from ..client import DomoError as dmde
-from ..client import ResponseGetData as rgd
 from ..client import get_data as gd
-from ..client.DomoEntity import DomoEnum
+from ..client import response as rgd
+from ..client.entities import DomoEnum
 
 
 class ApiClient_GET_Error(dmde.RouteError):

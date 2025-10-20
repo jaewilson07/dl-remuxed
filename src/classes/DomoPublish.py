@@ -3,19 +3,22 @@ from __future__ import annotations
 import datetime as dt
 import uuid
 from dataclasses import dataclass, field
-from typing import Any, Callable, List, Optional
+from typing import Any, Callable, List, Optional, Union, TYPE_CHECKING
 
 import httpx
 import pandas as pd
-from nbdev.showdoc import patch_to
 
-from ..client import DomoAuth as dmda
-from ..client import DomoEntity as dmen
+from . import DomoLineage as dmdl
+from ..client import auth as dmda
+from ..client import entities as dmen
 from ..client import DomoError as dmde
 from ..client.DomoEntity import DomoEntity_w_Lineage, DomoEnum
 from ..routes import publish as publish_routes
 from ..utils import chunk_execution as dmce
-from . import DomoLineage as dmdl
+from ..client.entities import DomoEntity_w_Lineage, DomoEnum
+
+if TYPE_CHECKING:
+    from . import DomoCard, DomoDataset, DomoPage
 
 __all__ = [
     "DomoPublication_Content_Enum",
@@ -251,12 +254,13 @@ class DomoPublication(DomoEntity_w_Lineage):
     async def get_publication_entity_by_subscriber_entity(
         self,
         subscriber_domain: str,
-        subscriber: Union[DomoCard, DomoDataset, DomoPage],
+        subscriber: "Union[DomoCard, DomoDataset, DomoPage]",
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
         debug_num_stacks_to_drop: int = 2,
         is_suppress_errors: bool = False,
-    ) -> Union[DomoCard, DomoDataset, DomoPage, None]:
+    ) -> "Union[DomoCard, DomoDataset, DomoPage, None]":
+
         res = await self.get_content_details(
             subscriber_domain=subscriber_domain,
             debug_api=debug_api,
@@ -282,81 +286,142 @@ class DomoPublication(DomoEntity_w_Lineage):
             entity_id=obj["publisherObjectId"], auth=self.auth
         )
 
+    @classmethod
+    async def create_publication(
+        cls,
+        auth: "dmda.DomoAuth",
+        name: str,
+        content_ls: List["DomoPublication_Content"],
+        subscription_ls: List["DomoSubscription"],
+        unique_id: str = None,
+        description: str = None,
+        debug_api: bool = False,
+    ):
 
-@patch_to(DomoPublication, cls_method=True)
-async def create_publication(
-    cls,
-    auth: dmda.DomoAuth,
-    name: str,
-    content_ls: List[DomoPublication_Content],
-    subscription_ls: List[DomoSubscription],
-    unique_id: str = None,
-    description: str = None,
-    debug_api: bool = False,
-):
-    if not isinstance(subscription_ls, list):
-        subscription_ls = [subscription_ls]
+        if not isinstance(subscription_ls, list):
+            subscription_ls = [subscription_ls]
 
-    domain_ls = []
-    content_json_ls = []
-    for sub in subscription_ls:
-        domain_ls.append(sub.domain)
-    for content_item in content_ls:
-        content_json_ls.append(content_item.to_api_json())
+        domain_ls = []
+        content_json_ls = []
+        for sub in subscription_ls:
+            domain_ls.append(sub.subscriber_domain)
+        for content_item in content_ls:
+            content_json_ls.append(content_item.to_api_json())
 
-    if not unique_id:
-        unique_id = str(uuid.uuid4())
+        unique_id = unique_id or str(uuid.uuid4())
 
-    if not description:
-        description = ""
+        body = publish_routes.generate_publish_body(
+            url=f"{auth.domo_instance}.domo.com",
+            sub_domain_ls=domain_ls,
+            content_ls=content_json_ls,
+            name=name,
+            unique_id=unique_id,
+            description=description or "",
+            is_new=True,
+        )
 
-    body = publish_routes.generate_publish_body(
-        url=f"{auth.domo_instance}.domo.com",
-        sub_domain_ls=domain_ls,
-        content_ls=content_json_ls,
-        name=name,
-        unique_id=unique_id,
-        description=description,
-        is_new=True,
-    )
+        res = await publish_routes.create_publish_job(
+            auth=auth, body=body, debug_api=debug_api
+        )
 
-    res = await publish_routes.create_publish_job(
-        auth=auth, body=body, debug_api=debug_api
-    )
+        return cls._from_dict(obj=res.response, auth=auth)
 
-    return cls._from_dict(obj=res.response, auth=auth)
+    async def get_content_details(
+        self,
+        subscriber_domain: str = None,
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+        debug_num_stacks_to_drop: int = 2,
+    ):
 
+        res = await publish_routes.get_publication_by_id(
+            auth=self.auth,
+            publication_id=self.id,
+            debug_api=debug_api,
+            session=session,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=self.__class__.__name__,
+        )
 
-@patch_to(DomoPublication)
-async def update_publication(
-    self,
-    name: str,
-    content_ls: List[DomoPublication_Content],
-    subscription_ls: List[DomoSubscription],
-    description: str = "",
-    debug_api: bool = False,
-):
-    if not isinstance(subscription_ls, list):
-        subscription_ls = [subscription_ls]
+        # Extract subscription details
+        if subscriber_domain:
+            subscription_auth = next(
+                (
+                    sub
+                    for sub in res.response.get("subscriptionAuthorizations", [])
+                    if sub.get("subscriberDomain") == subscriber_domain
+                ),
+                None,
+            )
+            if subscription_auth:
+                res.response = subscription_auth
+            else:
+                res.response = []
 
-    domain_ls = [sub.subscriber_domain for sub in subscription_ls]
-    content_json_ls = [content_item.to_api_json() for content_item in content_ls]
+        return res
 
-    body = publish_routes.generate_publish_body(
-        url=f"{self.auth.domo_instance}.domo.com",
-        sub_domain_ls=domain_ls,
-        content_ls=content_json_ls,
-        name=name,
-        unique_id=self.id,
-        description=description,
-        is_new=False,
-    )
+    async def revoke_subscription_auth(
+        self,
+        auth: "dmda.DomoAuth" = None,
+        subscription_id: str = None,
+        subscription: "DomoSubscription" = None,
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+        debug_num_stacks_to_drop: int = 2,
+    ):
 
-    res = await publish_routes.update_publish_job(
-        auth=self.auth, publication_id=self.id, body=body
-    )
+        # Note: This function may not have a direct route implementation
+        # It would need to be implemented based on the available API endpoints
+        auth = auth or self.auth
+        subscription_id = subscription_id or subscription.id
 
-    return res
+        # This is a placeholder implementation - would need actual API route
+        raise NotImplementedError("revoke_subscription_auth route not yet implemented")
+
+    async def update_publication(
+        self,
+        auth: "dmda.DomoAuth" = None,
+        content_ls: List["DomoPublication_Content"] = None,
+        description: str = None,
+        name: str = None,
+        subscription_ls: List["DomoSubscription"] = None,
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+        debug_num_stacks_to_drop: int = 2,
+    ):
+
+        auth = auth or self.auth
+
+        # Use the actual available route
+        if not isinstance(subscription_ls, list) and subscription_ls:
+            subscription_ls = [subscription_ls]
+
+        domain_ls = []
+        content_json_ls = []
+
+        if subscription_ls:
+            for sub in subscription_ls:
+                domain_ls.append(sub.subscriber_domain)
+
+        if content_ls:
+            for content_item in content_ls:
+                content_json_ls.append(content_item.to_api_json())
+
+        body = publish_routes.generate_publish_body(
+            url=f"{auth.domo_instance}.domo.com",
+            sub_domain_ls=domain_ls,
+            content_ls=content_json_ls,
+            name=name or self.name,
+            unique_id=self.id,
+            description=description or self.description,
+            is_new=False,
+        )
+
+        res = await publish_routes.update_publish_job(
+            auth=auth, publication_id=self.id, body=body
+        )
+
+        return res
 
 
 class DomoSubscription_NoParentAuth(dmde.ClassError):
@@ -502,37 +567,6 @@ class DomoSubscription(dmen.DomoEntity):
         return self.content
 
 
-@patch_to(DomoPublication)
-async def get_content(
-    self,
-    return_raw: bool = False,
-    timeout=10,
-    debug_api: bool = False,
-    debug_num_stacks_to_drop=2,
-    session: httpx.AsyncClient = None,
-):
-    res = await publish_routes.get_publication_by_id(
-        auth=self.auth,
-        publication_id=self.id,
-        timeout=timeout,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        session=session,
-        parent_class=self.__class__.__name__,
-    )
-
-    content = res.response.get("children")
-
-    if return_raw:
-        res.response = content
-        return res
-
-    if not content or len(content) == 0:
-        return content
-
-    return self._generate_content(content)
-
-
 @dataclass
 class DomoEverywhere:
     auth: dmda.DomoAuth = field(repr=False)
@@ -647,46 +681,3 @@ class DomoEverywhere:
             return res.response
         else:
             return None
-
-
-@patch_to(DomoPublication)
-async def report_content_as_dataframe(self, return_raw: bool = False):
-    if return_raw:
-        return await self.get_content()
-
-    return pd.DataFrame(
-        [
-            {
-                "plubication_id": self.id,
-                "publication_name": self.name,
-                "is_v2": self.is_v2,
-                "publish_created_dt": self.created_dt,
-                "entity_type": content.entity_type,
-                "entity_id": content.entity_id,
-                "entity_updated": content.updated_dt,
-            }
-            for content in self.content
-        ]
-    )
-
-
-@patch_to(DomoPublication)
-def report_lineage_as_dataframe(self, return_raw: bool = False):
-    flat_lineage_ls = self.Lineage._flatten_lineage()
-
-    output_ls = [
-        {
-            "plubication_id": self.id,
-            "publication_name": self.name,
-            "is_v2": self.is_v2,
-            "publish_created_dt": self.created_dt,
-            # "entity_type": row.get("entity_type"),
-            "entity_id": row.get("entity_id"),
-        }
-        for row in flat_lineage_ls
-    ]
-
-    if return_raw:
-        return output_ls
-
-    return pd.DataFrame(output_ls)

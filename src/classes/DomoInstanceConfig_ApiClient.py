@@ -5,12 +5,13 @@ from dataclasses import dataclass, field
 from typing import List
 
 import httpx
-from nbdev.showdoc import patch_to
 
-from ..client import DomoAuth as dmda
+from . import DomoUser as dmdu
+from ..client import auth as dmda
 from ..client import DomoError as dmde
-from ..client.DomoEntity import DomoEntity
 from ..routes import instance_config_api_client as client_routes
+from ..utils import chunk_execution as dmce
+from ..client.entities import DomoEntity
 from ..routes.instance_config_api_client import (
     ApiClient_ScopeEnum,
 )
@@ -177,80 +178,78 @@ class ApiClients:
 
         return domo_client
 
+    async def create_for_authorized_user(
+        self,
+        client_name: str,
+        client_description: str = f"created via DL {dt.date.today()}",
+        scope: List[ApiClient_ScopeEnum] = None,
+        debug_api: bool = False,
+        debug_num_stacks_to_drop=2,
+        session: httpx.AsyncClient = None,
+        return_raw: bool = False,
+    ):
 
-@patch_to(ApiClients)
-async def create_for_authorized_user(
-    self,
-    client_name: str,
-    client_description: str = f"created via DL {dt.date.today()}",
-    scope: List[ApiClient_ScopeEnum] = None,
-    debug_api: bool = False,
-    debug_num_stacks_to_drop=2,
-    session: httpx.AsyncClient = None,
-    return_raw: bool = False,
-):
-    res = await client_routes.create_api_client(
-        auth=self.auth,
-        client_name=client_name,
-        client_description=client_description,
-        scope=scope,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=self.__class__.__name__,
-        session=session,
-    )
-
-    if return_raw:
-        return res
-
-    domo_client = await self.get_by_name(
-        client_name=client_name, session=session, debug_api=debug_api
-    )
-    domo_client.client_id = res.response["client_id"]
-    domo_client.client_secret = res.response["client_secret"]
-
-    return domo_client
-
-
-@patch_to(ApiClients)
-async def upsert_client(
-    self,
-    client_name: str,
-    client_description: str = None,
-    scope: List[ApiClient_ScopeEnum] = None,
-    is_regenerate: bool = False,
-    session: httpx.AsyncClient = None,
-    debug_api: bool = False,
-    debug_num_stacks_to_drop: int = 2,
-):
-    domo_client = None
-
-    try:
-        domo_client = await self.get_by_name(
+        res = await client_routes.create_api_client(
+            auth=self.auth,
             client_name=client_name,
-            session=session,
-            debug_api=debug_api,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
-        )
-
-    except ApiClient_Search_Error:
-        pass
-
-    if domo_client:
-        if not is_regenerate:
-            return domo_client
-
-        await domo_client.revoke(
-            session=session,
+            client_description=client_description,
+            scope=scope,
             debug_api=debug_api,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=self.__class__.__name__,
+            session=session,
         )
 
-    return await self.create_for_authorized_user(
-        client_name=client_name,
-        client_description=client_description,
-        scope=scope,
-        session=session,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        debug_api=debug_api,
-    )
+        if return_raw:
+            return res
+
+        domo_client = await self.get_by_name(
+            client_name=client_name, session=session, debug_api=debug_api
+        )
+        domo_client.client_id = res.response["client_id"]
+        domo_client.client_secret = res.response["client_secret"]
+
+        return domo_client
+
+    async def upsert_client(
+        self,
+        client_name: str,
+        client_description: str = None,
+        scope: List[ApiClient_ScopeEnum] = None,
+        is_regenerate: bool = False,
+        session: httpx.AsyncClient = None,
+        debug_api: bool = False,
+        debug_num_stacks_to_drop: int = 2,
+    ):
+
+        domo_client = None
+
+        try:
+            domo_client = await self.get_by_name(
+                client_name=client_name,
+                session=session,
+                debug_api=debug_api,
+                debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
+            )
+
+        except ApiClient_Search_Error:
+            pass
+
+        if domo_client:
+            if not is_regenerate:
+                return domo_client
+
+            await domo_client.revoke(
+                session=session,
+                debug_api=debug_api,
+                debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            )
+
+        return await self.create_for_authorized_user(
+            client_name=client_name,
+            client_description=client_description,
+            scope=scope,
+            session=session,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            debug_api=debug_api,
+        )

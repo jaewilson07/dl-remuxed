@@ -5,14 +5,13 @@ from dataclasses import dataclass, field
 from typing import List
 
 import httpx
-from nbdev.showdoc import patch_to
 
-from ..classes.DomoLineage import DomoLineage
-from ..client import DomoAuth as dmda
-from ..client.DomoEntity import DomoEntity_w_Lineage
+from ..client import auth as dmda
 from ..routes import appstudio as appstudio_routes
-from ..utils import DictDot as util_dd
 from ..utils import chunk_execution as ce
+from ..utils import DictDot as util_dd
+from ..classes.DomoLineage import DomoLineage
+from ..client.entities import DomoEntity_w_Lineage
 
 
 @dataclass
@@ -124,26 +123,136 @@ class DomoAppStudio(DomoEntity_w_Lineage):
 
         return res
 
+    @classmethod
+    async def _from_adminsummary(cls, appstudio_obj, auth: dmda.DomoAuth):
 
-@patch_to(DomoAppStudio, cls_method=True)
-async def _from_adminsummary(cls, appstudio_obj, auth: dmda.DomoAuth):
-    dd = appstudio_obj
+        dd = appstudio_obj
 
-    if isinstance(appstudio_obj, dict):
-        dd = util_dd.DictDot(appstudio_obj)
+        if isinstance(appstudio_obj, dict):
+            dd = util_dd.DictDot(appstudio_obj)
 
-    aps = cls(
-        id=int(dd.id or dd.dataAppId),
-        title=dd.title or dd.Title,
-        is_locked=dd.locked,
-        auth=auth,
-        raw=appstudio_obj,
-    )
+        aps = cls(
+            id=int(dd.id or dd.dataAppId),
+            title=dd.title or dd.Title,
+            is_locked=dd.locked,
+            auth=auth,
+            raw=appstudio_obj,
+        )
 
-    if dd.owners and len(dd.owners) > 0:
-        aps.owners = await aps._get_domo_owners_from_dd(dd.owners)
+        if dd.owners and len(dd.owners) > 0:
+            aps.owners = await aps._get_domo_owners_from_dd(dd.owners)
 
-    return aps
+        return aps
+
+    async def get_accesslist(
+        self,
+        auth: dmda.DomoAuth = None,
+        return_raw: bool = False,
+        debug_api: bool = False,
+    ):
+        auth = auth or self.auth
+
+        res = await appstudio_routes.get_appstudio_access(
+            auth=auth,
+            appstudio_id=self.id,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=2,
+            parent_class=self.__class__.__name__,
+        )
+
+        if return_raw:
+            return res
+
+        if not res.is_success:
+            raise Exception("error getting access list")
+
+        from . import DomoGroup as dmg
+        from . import DomoUser as dmu
+
+        s = {
+            # "explicit_shared_user_count": res.response.get("explicitSharedUserCount"),
+            "total_user_count": res.response.get("totalUserCount"),
+        }
+
+        user_ls = res.response.get("users", None)
+        domo_users = []
+        if user_ls and isinstance(user_ls, list) and len(user_ls) > 0:
+            domo_users = await dmu.DomoUsers.by_id(
+                user_ids=[user.get("id") for user in user_ls],
+                only_allow_one=False,
+                auth=auth,
+            )
+
+        group_ls = res.response.get("groups", None)
+        domo_groups = []
+        if group_ls and isinstance(group_ls, list) and len(group_ls) > 0:
+            domo_groups = await ce.gather_with_concurrency(
+                n=60,
+                *[
+                    dmg.DomoGroup.get_by_id(group_id=group.get("id"), auth=auth)
+                    for group in group_ls
+                ],
+            )
+
+        return {
+            **s,
+            "domo_users": domo_users,
+            "domo_groups": domo_groups,
+        }
+
+    async def share(
+        self,
+        auth: dmda.DomoAuth = None,
+        domo_users: list = None,  # DomoUsers to share page with,
+        domo_groups: list = None,  # DomoGroups to share page with
+        message: str = None,  # message for automated email
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+    ):
+
+        if domo_groups:
+            domo_groups = (
+                domo_groups if isinstance(domo_groups, list) else [domo_groups]
+            )
+        if domo_users:
+            domo_users = domo_users if isinstance(domo_users, list) else [domo_users]
+
+        res = await appstudio_routes.share(
+            auth=auth or self.auth,
+            resource_ids=[self.id],
+            group_ids=[group.id for group in domo_groups] if domo_groups else None,
+            user_ids=[user.id for user in domo_users] if domo_users else None,
+            message=message,
+            debug_api=debug_api,
+            session=session,
+        )
+
+        return res
+
+    @classmethod
+    async def add_appstudio_owner(
+        cls,
+        auth: dmda.DomoAuth,
+        appstudio_id_ls: List[int],  # AppStudio IDs to be updated by owner,
+        group_id_ls: List[int],  # DomoGroup IDs to share page with
+        user_id_ls: List[int],  # DomoUser IDs to share page with
+        note: str = None,  # message for automated email
+        send_email: bool = False,  # send or not email to the new owners
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+    ):
+        res = await appstudio_routes.add_page_owner(
+            auth=auth,
+            appstudio_id_ls=appstudio_id_ls,
+            group_id_ls=group_id_ls,
+            user_id_ls=user_id_ls,
+            note=note,
+            send_email=send_email,
+            debug_api=debug_api,
+            session=session,
+        )
+
+        return res
 
 
 @dataclass
@@ -186,115 +295,3 @@ class DomoAppStudios:
         finally:
             if is_close_session:
                 await session.aclose()
-
-
-@patch_to(DomoAppStudio)
-async def get_accesslist(
-    self,
-    auth: dmda.DomoAuth = None,
-    return_raw: bool = False,
-    debug_api: bool = False,
-):
-    auth = auth or self.auth
-
-    res = await appstudio_routes.get_appstudio_access(
-        auth=auth,
-        appstudio_id=self.id,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=2,
-        parent_class=self.__class__.__name__,
-    )
-
-    if return_raw:
-        return res
-
-    if not res.is_success:
-        raise Exception("error getting access list")
-
-    from . import DomoGroup as dmg
-    from . import DomoUser as dmu
-
-    s = {
-        # "explicit_shared_user_count": res.response.get("explicitSharedUserCount"),
-        "total_user_count": res.response.get("totalUserCount"),
-    }
-
-    user_ls = res.response.get("users", None)
-    domo_users = []
-    if user_ls and isinstance(user_ls, list) and len(user_ls) > 0:
-        domo_users = await dmu.DomoUsers.by_id(
-            user_ids=[user.get("id") for user in user_ls],
-            only_allow_one=False,
-            auth=auth,
-        )
-
-    group_ls = res.response.get("groups", None)
-    domo_groups = []
-    if group_ls and isinstance(group_ls, list) and len(group_ls) > 0:
-        domo_groups = await ce.gather_with_concurrency(
-            n=60,
-            *[
-                dmg.DomoGroup.get_by_id(group_id=group.get("id"), auth=auth)
-                for group in group_ls
-            ],
-        )
-
-    return {
-        **s,
-        "domo_users": domo_users,
-        "domo_groups": domo_groups,
-    }
-
-
-@patch_to(DomoAppStudio)
-async def share(
-    self: DomoAppStudio,
-    auth: dmda.DomoAuth = None,
-    domo_users: list = None,  # DomoUsers to share page with,
-    domo_groups: list = None,  # DomoGroups to share page with
-    message: str = None,  # message for automated email
-    debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-):
-    if domo_groups:
-        domo_groups = domo_groups if isinstance(domo_groups, list) else [domo_groups]
-    if domo_users:
-        domo_users = domo_users if isinstance(domo_users, list) else [domo_users]
-
-    res = await appstudio_routes.share(
-        auth=auth or self.auth,
-        resource_ids=[self.id],
-        group_ids=[group.id for group in domo_groups] if domo_groups else None,
-        user_ids=[user.id for user in domo_users] if domo_users else None,
-        message=message,
-        debug_api=debug_api,
-        session=session,
-    )
-
-    return res
-
-
-@patch_to(DomoAppStudio, cls_method=True)
-async def add_appstudio_owner(
-    cls,
-    auth: dmda.DomoAuth,
-    appstudio_id_ls: List[int],  # AppStudio IDs to be updated by owner,
-    group_id_ls: List[int],  # DomoGroup IDs to share page with
-    user_id_ls: List[int],  # DomoUser IDs to share page with
-    note: str = None,  # message for automated email
-    send_email: bool = False,  # send or not email to the new owners
-    debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-):
-    res = await appstudio_routes.add_page_owner(
-        auth=auth,
-        appstudio_id_ls=appstudio_id_ls,
-        group_id_ls=group_id_ls,
-        user_id_ls=user_id_ls,
-        note=note,
-        send_email=send_email,
-        debug_api=debug_api,
-        session=session,
-    )
-
-    return res

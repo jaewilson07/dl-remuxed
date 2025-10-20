@@ -14,7 +14,6 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Union
 
 import httpx
-from nbdev.showdoc import patch_to
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
@@ -243,123 +242,122 @@ class DomoJupyter_Account:
 
         return self.creds
 
+    async def regenerate_failed_password(
+        self,
+        domojupyter_fn: Callable,
+        debug_api: bool = False,
+        debug_prn: bool = False,
+        new_password: str = None,  # only used if current password does not validate will autogenerate if no passwordd provided
+        target_account_name: str = None,
+        target_auth: dmda.DomoAuth = None,
+        is_deploy_account_to_target_instance: bool = True,
+        is_force_reset: bool = False,
+    ) -> dmac.DomoAccount:
+        """
+        tests credentials for target_user -- will reset passsword or access token
+        """
+
+        creds = self.read_creds(domojupyter_fn=domojupyter_fn)
+
+        if target_auth:
+            self.domo_account.target_auth = target_auth
+            self.domo_account.target_instance = target_auth.domo_instance
+
+        if not self.domo_account.target_auth:
+            await self.domo_account.test_auths()
+
+        if debug_prn:
+            print(
+                f"\n\n🛢️ Phase 0: read creds - {json.dumps(creds)} and test against {self.domo_account.target_auth.domo_instance}\n\n"
+            )
+
+        if not self.domo_account.target_user:
+            await self.domo_account.get_target_user()
+
+            if debug_prn:
+                print(
+                    f"\n\n🛢️ Phase 0.5: get_target_user {self.domo_account.target_user.display_name} from {self.domo_account.target_user.auth.domo_instance}"
+                )
+
+        if not self.domo_account.target_user:
+            raise dmac.DAC_NoTargetUser(self.domo_account)
+
+        await self.domo_account.test_full_auth()
+
+        if self.domo_account.is_valid_full_auth and not is_force_reset:
+            return self.domo_account
+
+        new_password = new_password or dmxkcd.generate_domo_password()
+
+        if debug_prn:
+            print(
+                f"\n\n🛢️🛢️ Phase 1: Password Invalid on {self.alias} - for user {self.domo_account.target_user.display_name} - reseting password {new_password}\n\n"
+            )
+
+        await self.domo_account.set_target_user_password(
+            new_password=new_password, debug_api=debug_api
+        )
+
+        if is_deploy_account_to_target_instance:
+            await self.domo_account.upsert_target_account(
+                account_name=target_account_name or self.domo_account.name,
+                debug_api=debug_api,
+            )
+
+        return self.domo_account
+
+    async def regenerate_failed_token(
+        self,
+        domojupyter_fn: Callable,
+        debug_api: bool = False,
+        debug_prn: bool = False,
+        target_account_name: str = None,
+        target_auth: dmda.DomoAuth = None,
+        is_deploy_account_to_target_instance: bool = True,
+        is_force_reset: bool = False,
+    ) -> dict:
+        """
+        tests credentials for target_user -- will reset passsword or access token
+        """
+
+        creds = self.read_creds(domojupyter_fn=domojupyter_fn)
+
+        if target_auth:
+            self.domo_account.target_auth = target_auth
+            self.domo_account.target_instance = target_auth.domo_instance
+
+        if not self.domo_account.target_auth:
+            await self.domo_account.test_auths()
+
+        if debug_prn:
+            print(
+                f"\n\n🛢️ Phase 0: read creds - {json.dumps(creds)} and test against {self.domo_account.target_auth.domo_instance}\n\n"
+            )
+
+        await self.domo_account.test_token_auth()
+
+        if self.domo_account.is_valid_token_auth and not is_force_reset:
+            return self.domo_account
+
+        if debug_prn:
+            print(
+                f"\n\n🛢️🛢️ Phase 1: Invalid token on {self.alias} - regenerating token\n\n"
+            )
+
+        await self.domo_account.reset_access_token(
+            token_name=target_account_name or self.domo_account.name,
+            debug_api=debug_api,
+        )
+
+        if is_deploy_account_to_target_instance:
+            await self.domo_account.upsert_target_account(
+                account_name=target_account_name or self.domo_account.name,
+                debug_api=debug_api,
+            )
+
+        return self.domo_account
+
 
 class DJW_InvalidClass(dmde.ClassError):
     def __init__(self, cls_instance, message):
         super().__init__(cls_instance=cls_instance, message=message)
-
-
-@patch_to(DomoJupyter_Account)
-async def regenerate_failed_password(
-    self,
-    domojupyter_fn: Callable,
-    debug_api: bool = False,
-    debug_prn: bool = False,
-    new_password: str = None,  # only used if current password does not validate will autogenerate if no passwordd provided
-    target_account_name: str = None,
-    target_auth: dmda.DomoAuth = None,
-    is_deploy_account_to_target_instance: bool = True,
-    is_force_reset: bool = False,
-) -> dmac.DomoAccount:
-    """
-    tests credentials for target_user -- will reset passsword or access token
-    """
-
-    creds = self.read_creds(domojupyter_fn=domojupyter_fn)
-
-    if target_auth:
-        self.domo_account.target_auth = target_auth
-        self.domo_account.target_instance = target_auth.domo_instance
-
-    if not self.domo_account.target_auth:
-        await self.domo_account.test_auths()
-
-    if debug_prn:
-        print(
-            f"\n\n🛢️ Phase 0: read creds - {json.dumps(creds)} and test against {self.domo_account.target_auth.domo_instance}\n\n"
-        )
-
-    if not self.domo_account.target_user:
-        await self.domo_account.get_target_user()
-
-        if debug_prn:
-            print(
-                f"\n\n🛢️ Phase 0.5: get_target_user {self.domo_account.target_user.display_name} from {self.domo_account.target_user.auth.domo_instance}"
-            )
-
-    if not self.domo_account.target_user:
-        raise dmac.DAC_NoTargetUser(self.domo_account)
-
-    await self.domo_account.test_full_auth()
-
-    if self.domo_account.is_valid_full_auth and not is_force_reset:
-        return self.domo_account
-
-    new_password = new_password or dmxkcd.generate_domo_password()
-
-    if debug_prn:
-        print(
-            f"\n\n🛢️🛢️ Phase 1: Password Invalid on {self.alias} - for user {self.domo_account.target_user.display_name} - reseting password {new_password}\n\n"
-        )
-
-    await self.domo_account.set_target_user_password(
-        new_password=new_password, debug_api=debug_api
-    )
-
-    if is_deploy_account_to_target_instance:
-        await self.domo_account.upsert_target_account(
-            account_name=target_account_name or self.domo_account.name,
-            debug_api=debug_api,
-        )
-
-    return self.domo_account
-
-
-@patch_to(DomoJupyter_Account)
-async def regenerate_failed_token(
-    self,
-    domojupyter_fn: Callable,
-    debug_api: bool = False,
-    debug_prn: bool = False,
-    target_account_name: str = None,
-    target_auth: dmda.DomoAuth = None,
-    is_deploy_account_to_target_instance: bool = True,
-    is_force_reset: bool = False,
-) -> dict:
-    """
-    tests credentials for target_user -- will reset passsword or access token
-    """
-
-    creds = self.read_creds(domojupyter_fn=domojupyter_fn)
-
-    if target_auth:
-        self.domo_account.target_auth = target_auth
-        self.domo_account.target_instance = target_auth.domo_instance
-
-    if not self.domo_account.target_auth:
-        await self.domo_account.test_auths()
-
-    if debug_prn:
-        print(
-            f"\n\n🛢️ Phase 0: read creds - {json.dumps(creds)} and test against {self.domo_account.target_auth.domo_instance}\n\n"
-        )
-
-    await self.domo_account.test_token_auth()
-
-    if self.domo_account.is_valid_token_auth and not is_force_reset:
-        return self.domo_account
-
-    if debug_prn:
-        print(f"\n\n🛢️🛢️ Phase 1: Invalid token on {self.alias} - regenerating token\n\n")
-
-    await self.domo_account.reset_access_token(
-        token_name=target_account_name or self.domo_account.name, debug_api=debug_api
-    )
-
-    if is_deploy_account_to_target_instance:
-        await self.domo_account.upsert_target_account(
-            account_name=target_account_name or self.domo_account.name,
-            debug_api=debug_api,
-        )
-
-    return self.domo_account

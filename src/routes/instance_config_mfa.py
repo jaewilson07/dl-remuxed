@@ -10,10 +10,10 @@ __all__ = [
 
 import httpx
 
-from ..client import DomoAuth as dmda
+from ..client import auth as dmda
 from ..client import DomoError as dmde
-from ..client import ResponseGetData as rgd
 from ..client import get_data as gd
+from ..client import response as rgd
 
 
 class MFA_UPDATE_Error(dmde.DomoError):

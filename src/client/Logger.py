@@ -161,9 +161,12 @@ class Logger:
         domo_instance: Optional[str] = None,
     ) -> dict:
         """internal method to append message to log"""
+
         traceback_details = self.get_traceback(num_stacks_to_drop=num_stacks_to_drop)
+
         if debug_log:
             print(traceback_details.__dict__)
+
         new_row = {
             "date_time": dt.datetime.now(),
             "application": self.app_name,
@@ -173,6 +176,7 @@ class Logger:
             "domo_instance": domo_instance or self.domo_instance,
             "entity_id": entity_id or self.entity_id,
         }
+
         new_row.update(
             {
                 "function_name": traceback_details.function_name,
@@ -180,9 +184,12 @@ class Logger:
                 "function_trail": traceback_details.function_trail,
             }
         )
+
         if debug_log:
             print(new_row)
+
         self.logs.append(new_row)
+
         return new_row
 
     def log_info(
@@ -212,6 +219,7 @@ class Logger:
         num_stacks_to_drop=3,
     ):
         """log an error message"""
+
         return self._add_log(
             message=message,
             entity_id=entity_id,
@@ -230,6 +238,7 @@ class Logger:
         num_stacks_to_drop=3,
     ):
         """log a warning message"""
+
         return self._add_log(
             message=message,
             entity_id=entity_id,

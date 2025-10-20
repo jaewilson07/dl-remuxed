@@ -6,9 +6,9 @@ from typing import List, Optional
 
 import httpx
 import pandas as pd
-from nbdev.showdoc import patch_to
 
-from ..client import DomoAuth as dmda
+from . import DomoApplication_Job as dmdj
+from ..client import auth as dmda
 from ..routes import application as application_routes
 from ..utils import DictDot as util_dd
 from ..utils import convert as cc
@@ -73,138 +73,133 @@ class DomoApplication:
     def _get_job_class(self):
         return DomoJob_Types.get_from_api_name(self.name)
 
+    @classmethod
+    async def get_by_id(
+        cls,
+        auth: dmda.DomoAuth,
+        application_id,
+        return_raw: bool = False,
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+        debug_num_stacks_to_drop=2,
+    ):
+        res = await application_routes.get_application_by_id(
+            application_id=application_id,
+            auth=auth,
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        )
 
-@patch_to(DomoApplication, cls_method=True)
-async def get_by_id(
-    cls,
-    auth: dmda.DomoAuth,
-    application_id,
-    return_raw: bool = False,
-    debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-    debug_num_stacks_to_drop=2,
-):
-    res = await application_routes.get_application_by_id(
-        application_id=application_id,
-        auth=auth,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-    )
+        if return_raw:
+            return res
 
-    if return_raw:
-        return res
+        return cls._from_dict(obj=res.response, auth=auth)
 
-    return cls._from_dict(obj=res.response, auth=auth)
+    async def get_jobs(
+        self,
+        debug_api: bool = False,
+        session: Optional[httpx.AsyncClient] = None,
+        return_raw: bool = False,
+    ):
 
+        res = await application_routes.get_application_jobs(
+            auth=self.auth,
+            application_id=self.id,
+            debug_api=debug_api,
+            session=session,
+            parent_class=self.__class__.__name__,
+        )
 
-@patch_to(DomoApplication)
-async def get_jobs(
-    self,
-    debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
-    return_raw: bool = False,
-):
-    res = await application_routes.get_application_jobs(
-        auth=self.auth,
-        application_id=self.id,
-        debug_api=debug_api,
-        session=session,
-        parent_class=self.__class__.__name__,
-    )
+        if return_raw:
+            return res
 
-    if return_raw:
-        return res
+        job_cls = self._get_job_class()
+        # print(job_cls)
 
-    job_cls = self._get_job_class()
-    # print(job_cls)
+        self.jobs = [job_cls._from_dict(job, auth=self.auth) for job in res.response]
+        return self.jobs
 
-    self.jobs = [job_cls._from_dict(job, auth=self.auth) for job in res.response]
-    return self.jobs
+    async def get_schedules(self) -> pd.DataFrame:
+        if not self.jobs:
+            await self.get_jobs()
 
+        if not self.jobs:
+            return
 
-@patch_to(DomoApplication)
-async def get_schedules(self) -> pd.DataFrame:
-    if not self.jobs:
-        await self.get_jobs()
+        triggered_jobs = [job for job in self.jobs if len(job.triggers) > 0]
 
-    if not self.jobs:
-        return
+        if not triggered_jobs:
+            self.jobs_schedule = None
+            return self.jobs_schedule
 
-    triggered_jobs = [job for job in self.jobs if len(job.triggers) > 0]
+        schedules = pd.DataFrame(
+            [
+                {
+                    **trigger.schedule.to_obj(),
+                    "job_name": job.name,
+                    "job_id": job.id,
+                    "description": job.description,
+                    "remote_instance": job.remote_instance,
+                    "application": self.name,
+                }
+                for job in triggered_jobs
+                for trigger in job.triggers
+                if job and trigger
+            ]
+        )
 
-    if not triggered_jobs:
-        self.jobs_schedule = None
+        # return schedules
+
+        self.jobs_schedule = schedules.sort_values(
+            ["hour", "minute"], ascending=True
+        ).reset_index(drop=True)
         return self.jobs_schedule
 
-    schedules = pd.DataFrame(
-        [
-            {
-                **trigger.schedule.to_obj(),
-                "job_name": job.name,
-                "job_id": job.id,
-                "description": job.description,
-                "remote_instance": job.remote_instance,
-                "application": self.name,
-            }
-            for job in triggered_jobs
-            for trigger in job.triggers
-            if job and trigger
-        ]
-    )
+    async def find_next_job_schedule(
+        self, return_raw: bool = False
+    ) -> dmdj.DomoTrigger_Schedule:
 
-    # return schedules
+        await self.get_jobs()
+        await self.get_schedules()
 
-    self.jobs_schedule = schedules.sort_values(
-        ["hour", "minute"], ascending=True
-    ).reset_index(drop=True)
-    return self.jobs_schedule
+        if self.jobs_schedule is None:
+            return dmdj.DomoTrigger_Schedule(hour=0, minute=0)
 
+        df_all_hours = pd.DataFrame(range(0, 23), columns=["hour"])
+        df_all_minutes = pd.DataFrame(range(0, 60), columns=["minute"])
 
-@patch_to(DomoApplication)
-async def find_next_job_schedule(
-    self, return_raw: bool = False
-) -> dmdj.DomoTrigger_Schedule:
-    await self.get_jobs()
-    await self.get_schedules()
+        df_all_hours["tmp"] = 1
+        df_all_minutes["tmp"] = 1
+        df_all = pd.merge(df_all_hours, df_all_minutes, on="tmp").drop(columns=["tmp"])
 
-    if self.jobs_schedule is None:
-        return dmdj.DomoTrigger_Schedule(hour=0, minute=0)
+        # get the number of occurencies of each hour and minutes
+        schedules_grouped = (
+            self.jobs_schedule.groupby(["hour", "minute"])
+            .size()
+            .reset_index(name="cnt_schedule")
+        )
 
-    df_all_hours = pd.DataFrame(range(0, 23), columns=["hour"])
-    df_all_minutes = pd.DataFrame(range(0, 60), columns=["minute"])
+        # print(schedules_grouped)
+        # print(df_all)
 
-    df_all_hours["tmp"] = 1
-    df_all_minutes["tmp"] = 1
-    df_all = pd.merge(df_all_hours, df_all_minutes, on="tmp").drop(columns=["tmp"])
+        schedules_interpolated = pd.merge(
+            df_all, schedules_grouped, how="left", on=["hour", "minute"]
+        )
 
-    # get the number of occurencies of each hour and minutes
-    schedules_grouped = (
-        self.jobs_schedule.groupby(["hour", "minute"])
-        .size()
-        .reset_index(name="cnt_schedule")
-    )
+        schedules_interpolated["cnt_schedule"] = schedules_interpolated[
+            "cnt_schedule"
+        ].fillna(value=0)
+        schedules_interpolated.sort_values(
+            ["cnt_schedule", "hour", "minute"], ascending=True, inplace=True
+        )
 
-    # print(schedules_grouped)
-    # print(df_all)
+        schedules_interpolated.reset_index(drop=True, inplace=True)
 
-    schedules_interpolated = pd.merge(
-        df_all, schedules_grouped, how="left", on=["hour", "minute"]
-    )
+        if return_raw:
+            return schedules_interpolated
 
-    schedules_interpolated["cnt_schedule"] = schedules_interpolated[
-        "cnt_schedule"
-    ].fillna(value=0)
-    schedules_interpolated.sort_values(
-        ["cnt_schedule", "hour", "minute"], ascending=True, inplace=True
-    )
-
-    schedules_interpolated.reset_index(drop=True, inplace=True)
-
-    if return_raw:
-        return schedules_interpolated
-
-    return dmdj.DomoTrigger_Schedule(
-        hour=int(schedules_interpolated.loc[0].get("hour")),
-        minute=int(schedules_interpolated.loc[0].get("minute")),
-    )
+        return dmdj.DomoTrigger_Schedule(
+            hour=int(schedules_interpolated.loc[0].get("hour")),
+            minute=int(schedules_interpolated.loc[0].get("minute")),
+        )

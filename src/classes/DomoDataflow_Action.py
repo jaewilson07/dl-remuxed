@@ -4,11 +4,9 @@ import datetime as dt
 from dataclasses import dataclass
 from typing import List
 
-from nbdev.showdoc import patch_to
-
-from ..client.DomoEntity import DomoEnum
-from ..utils import DictDot as util_dd
 from ..utils import convert as ct
+from ..utils import DictDot as util_dd
+from ..client.entities import DomoEnum
 
 __all__ = [
     "DomoDataflow_Action_Type",
@@ -63,25 +61,23 @@ class DomoDataflow_Action(DomoAction):
 
         return action
 
+    def get_parents(self, domo_actions: List["DomoDataflow_Action"]):
+        if self.depends_on and len(self.depends_on) > 0:
+            self.parent_actions = [
+                parent_action
+                for depends_id in self.depends_on
+                for parent_action in domo_actions
+                if parent_action.id == depends_id
+            ]
 
-@patch_to(DomoDataflow_Action)
-def get_parents(self: DomoDataflow_Action, domo_actions: List[DomoDataflow_Action]):
-    if self.depends_on and len(self.depends_on) > 0:
-        self.parent_actions = [
-            parent_action
-            for depends_id in self.depends_on
-            for parent_action in domo_actions
-            if parent_action.id == depends_id
-        ]
+        if self.parent_actions:
+            [
+                parent.get_parents(domo_actions)
+                for parent in self.parent_actions
+                if parent.depends_on
+            ]
 
-    if self.parent_actions:
-        [
-            parent.get_parents(domo_actions)
-            for parent in self.parent_actions
-            if parent.depends_on
-        ]
-
-    return self.parent_actions
+        return self.parent_actions
 
 
 @dataclass

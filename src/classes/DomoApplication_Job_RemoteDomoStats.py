@@ -9,8 +9,9 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 import httpx
-from nbdev.showdoc import patch_to
 
+from ..client import auth as dmda
+from ..routes import application as application_routes
 from ..classes.DomoApplication_Job_Base import (
     DomoJob_Base,
     DomoTrigger,
@@ -129,58 +130,58 @@ class DomoJob_RemoteDomoStats(DomoJob_Base):
 
         return s
 
+    @classmethod
+    async def create(
+        cls,
+        auth: dmda.DomoAuth,
+        name: str,
+        config: RemoteDomoStats_Config,
+        application_id: str,
+        logs_dataset_id: str,
+        description: str = f"created via domolibrary f{dt.date.today()}",
+        remote_instance: str = None,
+        accounts: List[int] = None,
+        triggers: List[DomoTrigger_Schedule] = None,
+        execution_timeout: int = 1440,
+        return_raw: bool = False,
+        debug_api: bool = False,
+        debug_num_stacks_to_drop=2,
+        session: Optional[httpx.AsyncClient] = None,
+    ):
 
-@patch_to(DomoJob_RemoteDomoStats, cls_method=True)
-async def create(
-    cls,
-    auth: dmda.DomoAuth,
-    name: str,
-    config: RemoteDomoStats_Config,
-    application_id: str,
-    logs_dataset_id: str,
-    description: str = f"created via domolibrary f{dt.date.today()}",
-    remote_instance: str = None,
-    accounts: List[int] = None,
-    triggers: List[DomoTrigger_Schedule] = None,
-    execution_timeout: int = 1440,
-    return_raw: bool = False,
-    debug_api: bool = False,
-    debug_num_stacks_to_drop=2,
-    session: Optional[httpx.AsyncClient] = None,
-):
-    triggers_ls = []
-    if triggers is not None and len(triggers) > 0:
-        triggers_ls = [
-            DomoTrigger(id=None, job_id=None, schedule=schedule)
-            for schedule in triggers
-        ]
+        triggers_ls = []
+        if triggers is not None and len(triggers) > 0:
+            triggers_ls = [
+                DomoTrigger(id=None, job_id=None, schedule=schedule)
+                for schedule in triggers
+            ]
 
-    domo_job = cls(
-        application_id=application_id,
-        auth=auth,
-        name=name,
-        logs_dataset_id=logs_dataset_id,
-        accounts=accounts,
-        description=description,
-        remote_instance=remote_instance,
-        Config=config,
-        triggers=triggers_ls,
-        execution_timeout=execution_timeout,
-    )
+        domo_job = cls(
+            application_id=application_id,
+            auth=auth,
+            name=name,
+            logs_dataset_id=logs_dataset_id,
+            accounts=accounts,
+            description=description,
+            remote_instance=remote_instance,
+            Config=config,
+            triggers=triggers_ls,
+            execution_timeout=execution_timeout,
+        )
 
-    body = domo_job.to_dict()
+        body = domo_job.to_dict()
 
-    res = await application_routes.create_application_job(
-        auth=auth,
-        application_id=application_id,
-        body=body,
-        parent_class=cls.__name__,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-    )
+        res = await application_routes.create_application_job(
+            auth=auth,
+            application_id=application_id,
+            body=body,
+            parent_class=cls.__name__,
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        )
 
-    if return_raw:
-        return res
+        if return_raw:
+            return res
 
-    return cls._from_dict(res.response, auth=auth)
+        return cls._from_dict(res.response, auth=auth)
