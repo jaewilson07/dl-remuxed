@@ -561,7 +561,7 @@ async def upsert(
     )
 
     res = await domo_collection.query_documents(query=query, debug_api=debug_api)
-        domo_doc = res[0]
+    domo_doc = res[0] if res and len(res) > 0 else None
 
     if not domo_doc:
         return await cls.create_document(
