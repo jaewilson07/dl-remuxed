@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "domolibrary2"
-version = "4.5.29"
+version = "0.0.1-alpha"
 description = "A Python library for interacting with Domo APIs"
 authors = [
     { name = "Jae Wilson", email = "jaewilson07@gmail.com" }
