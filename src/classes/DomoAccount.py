@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from typing import List
 
 import httpx
-from nbdev.showdoc import patch_to
 
 from ..classes.DomoAccount_Config import (
     AccountConfig,
@@ -177,8 +176,9 @@ class DomoAccounts(dmee.DomoManager):
 
         return self.accounts
 
+    # Removed leftover marker
 
-@patch_to(DomoAccounts)
+
 async def get_oauths(
     self,
     debug_api: bool = False,
@@ -206,8 +206,9 @@ async def get_oauths(
 
     return self.oauths
 
+    # Removed leftover marker
 
-@patch_to(DomoAccounts, cls_method=True)
+
 async def upsert_account(
     cls: DomoAccounts,
     auth: dmda.DomoAuth,
@@ -306,8 +307,9 @@ async def upsert_account(
 
     return acc
 
+    # Removed leftover marker
 
-@patch_to(DomoAccount_Default)
+
 async def upsert_target_account(
     self,
     target_auth: dmda.DomoAuth,  # valid auth for target destination
