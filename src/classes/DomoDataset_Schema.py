@@ -163,7 +163,7 @@ class DatasetSchema_InvalidSchema(dmde.DomoError):
                 f"DataFrame columns: {list(df.columns)}"
             )
 
-        for index, col in enumerate(self.schema.columns):
+        for index, col in enumerate(self.columns):
             col.order = col.order if col.order > 0 else index
 
         return await dataset_routes.alter_schema(
