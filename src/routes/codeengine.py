@@ -1,5 +1,6 @@
 __all__ = [
-    "CodeEngine_API_Error",
+    "CodeEngine_GET_Error",
+    "CodeEngine_CRUD_Error",
     "get_packages",
     "CodeEngine_Package_Parts",
     "CodeEngine_FunctionCallError",
@@ -10,28 +11,62 @@ __all__ = [
     "test_package_is_identical",
 ]
 
+from typing import Optional
+
 import httpx
 
-from ..client import auth as dmda
-from ..client import exceptions as dmde
+from ..client.auth import DomoAuth
+from ..client.exceptions import RouteError
 from ..client import get_data as gd
 from ..client import response as rgd
 from ..client.entities import DomoEnum
 
 
-class CodeEngine_API_Error(dmde.RouteError):
-    def __init__(self, res: rgd.ResponseGetData):
-        super().__init__(res=res)
+class CodeEngine_GET_Error(RouteError):
+    """Raised when CodeEngine retrieval operations fail."""
+
+    def __init__(
+        self,
+        codeengine_id: Optional[str] = None,
+        message: Optional[str] = None,
+        response_data=None,
+        **kwargs,
+    ):
+        super().__init__(
+            message=message or "CodeEngine retrieval failed",
+            entity_id=codeengine_id,
+            response_data=response_data,
+            **kwargs,
+        )
+
+
+class CodeEngine_CRUD_Error(RouteError):
+    """Raised when CodeEngine create, update, or delete operations fail."""
+
+    def __init__(
+        self,
+        operation: str,
+        codeengine_id: Optional[str] = None,
+        message: Optional[str] = None,
+        response_data=None,
+        **kwargs,
+    ):
+        super().__init__(
+            message=message or f"CodeEngine {operation} operation failed",
+            entity_id=codeengine_id,
+            response_data=response_data,
+            **kwargs,
+        )
 
 
 @gd.route_function
 async def get_packages(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    session: httpx.AsyncClient = None,
-    parent_class: str = None,
-):
+    debug_num_stacks_to_drop: int = 1,
+    session: Optional[httpx.AsyncClient] = None,
+    parent_class: Optional[str] = None,
+) -> rgd.ResponseGetData:
     url = f"http://{auth.domo_instance}.domo.com/api/codeengine/v2/packages"
 
     res = await gd.get_data(
@@ -46,7 +81,7 @@ async def get_packages(
     )
 
     if not res.is_success:
-        raise CodeEngine_API_Error(res=res)
+        raise CodeEngine_GET_Error(response_data=res)
 
     return res
 
@@ -57,20 +92,20 @@ class CodeEngine_Package_Parts(DomoEnum):
     CODE = "code"
 
 
-class CodeEngine_FunctionCallError(dmde.DomoError):
-    def __init__(self, message: str, auth: dmda.DomoAuth):
+class CodeEngine_FunctionCallError(RouteError):
+    def __init__(self, message: str, auth: DomoAuth):
         super().__init__(message=message, domo_instance=auth.domo_instance)
 
 
 @gd.route_function
 async def get_codeengine_package_by_id(
-    package_id,
-    auth: dmda.DomoAuth,
+    package_id: str,
+    auth: DomoAuth,
     debug_api: bool = False,
-    params: dict = None,
-    session: httpx.AsyncClient = None,
-    parent_class: str = None,
-    debug_num_stacks_to_drop=1,
+    params: Optional[dict] = None,
+    session: Optional[httpx.AsyncClient] = None,
+    parent_class: Optional[str] = None,
+    debug_num_stacks_to_drop: int = 1,
 ) -> rgd.ResponseGetData:
     url = (
         f"https://{auth.domo_instance}.domo.com/api/codeengine/v2/packages/{package_id}"
@@ -96,20 +131,20 @@ async def get_codeengine_package_by_id(
     )
 
     if not res.is_success:
-        raise CodeEngine_API_Error(res=res)
+        raise CodeEngine_GET_Error(codeengine_id=package_id, response_data=res)
 
     return res
 
 
 @gd.route_function
 async def get_package_versions(
-    auth: dmda.DomoAuth,
-    package_id,
+    auth: DomoAuth,
+    package_id: str,
     debug_api: bool = False,
-    parent_class: str = None,
-    debug_num_stacks_to_drop=1,
-    session: httpx.AsyncClient = None,
-):
+    parent_class: Optional[str] = None,
+    debug_num_stacks_to_drop: int = 1,
+    session: Optional[httpx.AsyncClient] = None,
+) -> rgd.ResponseGetData:
     """each package can have one or many version"""
 
     if not package_id:
@@ -134,21 +169,21 @@ async def get_package_versions(
     )
 
     if not res.is_success:
-        raise CodeEngine_API_Error(res=res)
+        raise CodeEngine_GET_Error(codeengine_id=package_id, response_data=res)
 
     return res
 
 
 @gd.route_function
 async def get_codeengine_package_by_id_and_version(
-    package_id,
-    version,
-    auth: dmda.DomoAuth,
+    package_id: str,
+    version: str,
+    auth: DomoAuth,
     debug_api: bool = False,
-    params: dict = None,
-    session: httpx.AsyncClient = None,
-    parent_class: str = None,
-    debug_num_stacks_to_drop=1,
+    params: Optional[dict] = None,
+    session: Optional[httpx.AsyncClient] = None,
+    parent_class: Optional[str] = None,
+    debug_num_stacks_to_drop: int = 1,
 ) -> rgd.ResponseGetData:
     if not package_id or not version:
         raise CodeEngine_FunctionCallError(
@@ -172,22 +207,22 @@ async def get_codeengine_package_by_id_and_version(
     )
 
     if not res.is_success:
-        raise CodeEngine_API_Error(res=res)
+        raise CodeEngine_GET_Error(codeengine_id=f"{package_id}/{version}", response_data=res)
 
     return res
 
 
 async def test_package_is_released(
-    package_id,
-    version,
-    auth: dmda.DomoAuth,
-    existing_package=None,
+    package_id: str,
+    version: str,
+    auth: DomoAuth,
+    existing_package: Optional[dict] = None,
     debug_api: bool = False,
-    params: dict = None,
-    session: httpx.AsyncClient = None,
-    parent_class: str = None,
-    debug_num_stacks_to_drop=1,
-):
+    params: Optional[dict] = None,
+    session: Optional[httpx.AsyncClient] = None,
+    parent_class: Optional[str] = None,
+    debug_num_stacks_to_drop: int = 1,
+) -> bool:
     """Return True if the package is already released."""
     existing_package = (
         existing_package
@@ -209,18 +244,18 @@ async def test_package_is_released(
 
 
 async def test_package_is_identical(
-    package_id,
-    version,
-    auth: dmda.DomoAuth,
-    existing_package=None,
-    new_package=None,
-    new_code=None,
+    package_id: str,
+    version: str,
+    auth: DomoAuth,
+    existing_package: Optional[dict] = None,
+    new_package: Optional[dict] = None,
+    new_code: Optional[str] = None,
     debug_api: bool = False,
-    params: dict = None,
-    session: httpx.AsyncClient = None,
-    parent_class: str = None,
-    debug_num_stacks_to_drop=1,
-):
+    params: Optional[dict] = None,
+    session: Optional[httpx.AsyncClient] = None,
+    parent_class: Optional[str] = None,
+    debug_num_stacks_to_drop: int = 1,
+) -> bool:
     """Return True if the code in the new package matches the existing one."""
     existing_package = (
         existing_package
