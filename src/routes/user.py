@@ -182,9 +182,7 @@ def process_v1_search_users(
     return clean_users
 
 
-gd.route_function
-
-
+@gd.route_function
 async def search_users(
     auth: dmda.DomoAuth,
     body: dict,
