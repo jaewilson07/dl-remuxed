@@ -25,12 +25,6 @@ from ..classes.DomoAccount_Default import (
     UpsertAccount_MatchCriteria,
 )
 from ..classes.DomoAccount_OAuth import DomoAccount_OAuth
-from ..client import DomoAuth as dmda
-from ..client import DomoEntity as dmee
-from ..client import exceptions as dmde
-from ..routes import account as account_routes
-from ..routes import datacenter as datacenter_routes
-from ..utils import chunk_execution as dmce
 
 
 @dataclass
