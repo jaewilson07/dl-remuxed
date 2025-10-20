@@ -146,7 +146,7 @@ class DomoDataset_Schema(DomoSubEntity):
                 missing_columns=missing_columns,
             )
 
-        return res
+        return True
 
 
 class DatasetSchema_InvalidSchema(dmde.DomoError):
