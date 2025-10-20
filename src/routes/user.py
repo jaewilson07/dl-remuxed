@@ -1,8 +1,9 @@
 __all__ = [
-    "User_CrudError",
-    "GetUser_Error",
+    "User_GET_Error",
+    "User_CRUD_Error",
+    "SearchUser_NotFound",
+    "UserSharing_Error",
     "ResetPassword_PasswordUsed",
-    "SearchUser_NoResults",
     "DownloadAvatar_Error",
     "get_all_users",
     "search_users",
@@ -21,7 +22,6 @@ __all__ = [
     "download_avatar",
     "generate_avatar_bytestr",
     "upload_avatar",
-    "DeleteUser_Error",
     "delete_user",
     "user_is_allowed_direct_signon",
 ]
@@ -29,85 +29,122 @@ __all__ = [
 import asyncio
 import base64
 import os
-from typing import List
+from typing import List, Optional, Union
 
 import httpx
 
-from ..client import DomoAuth as dmda
-from ..client import DomoError as de
-from ..client import ResponseGetData as rgd
+from ..client.auth import DomoAuth
+from ..client.exceptions import RouteError
 from ..client import get_data as gd
-from ..client.DomoEntity import DomoEnum
-from ..utils import Image as uimg
+from ..client import response as rgd
 from ..utils import chunk_execution as ce
+from ..utils import Image as uimg
+from ..client.entities import DomoEnum
 from ..utils.convert import test_valid_email
 
 
-class User_CrudError(de.RouteError):
+class User_GET_Error(RouteError):
+    """Raised when user retrieval operations fail."""
+
+    def __init__(self, user_id: Optional[str] = None, response_data=None, **kwargs):
+        super().__init__(
+            message="User retrieval failed",
+            entity_id=user_id,
+            response_data=response_data,
+            **kwargs,
+        )
+
+
+class User_CRUD_Error(RouteError):
+    """Raised when user create, update, or delete operations fail."""
+
     def __init__(
         self,
-        res: rgd.ResponseGetData,
-        entity_id: str = None,
-        message: str = None,
+        operation: str,
+        user_id: Optional[str] = None,
+        response_data=None,
+        **kwargs,
     ):
+        message = f"User {operation} operation failed"
         super().__init__(
-            res=res,
-            entity_id=entity_id,
-            message=message,
+            message=message, entity_id=user_id, response_data=response_data, **kwargs
         )
 
 
-class GetUser_Error(de.RouteError):
-    def __init__(self, res: rgd.ResponseGetData, message: str = None):
+class SearchUser_NotFound(RouteError):
+    """Raised when user search operations return no results."""
+
+    def __init__(self, search_criteria: str, response_data=None, **kwargs):
+        message = f"No users found matching: {search_criteria}"
         super().__init__(
             message=message,
-            res=res,
+            response_data=response_data,
+            additional_context={"search_criteria": search_criteria},
+            **kwargs,
         )
 
 
-class ResetPassword_PasswordUsed(de.RouteError):
+class UserSharing_Error(RouteError):
+    """Raised when user sharing operations fail."""
+
     def __init__(
         self,
-        res=rgd.ResponseGetData,
-        message="Password used previously",
+        operation: str,
+        user_id: Optional[str] = None,
+        response_data=None,
+        **kwargs,
     ):
+        message = f"User sharing {operation} failed"
         super().__init__(
-            message=message,
-            res=res,
+            message=message, entity_id=user_id, response_data=response_data, **kwargs
         )
 
 
-class SearchUser_NoResults(de.RouteError):
-    def __init__(
-        self,
-        res: rgd.ResponseGetData,
-        search_criteria=None,
-    ):
-        search_str = f"- {search_criteria}" if search_criteria else ""
+class ResetPassword_PasswordUsed(RouteError):
+    """Raised when attempting to reset password to a previously used password."""
 
+    def __init__(self, user_id: Optional[str] = None, response_data=None, **kwargs):
         super().__init__(
-            message=f"query {search_str} returned no users",
-            res=res,
+            message="Password has been used previously",
+            entity_id=user_id,
+            response_data=response_data,
+            **kwargs,
         )
 
 
-class DownloadAvatar_Error(de.RouteError):
-    def __init__(self, user_id, res=rgd.ResponseGetData, response: str = None):
+class DownloadAvatar_Error(RouteError):
+    """Raised when user avatar download operations fail."""
+
+    def __init__(self, user_id: str, response_data=None, **kwargs):
+        message = f"Unable to download avatar for user {user_id}"
         super().__init__(
-            res=res,
-            message=f"unable to download {user_id} - {response}",
+            message=message, entity_id=user_id, response_data=response_data, **kwargs
         )
 
 
 @gd.route_function
 async def get_all_users(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class=None,
-    session: httpx.AsyncClient = None,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
 ) -> rgd.ResponseGetData:
-    """retrieves all users from Domo"""
+    """Retrieve all users from Domo instance.
+
+    Args:
+        auth: Authentication object
+        session: HTTP client session (optional)
+        debug_api: Enable API debugging
+        debug_num_stacks_to_drop: Stack frames to drop for debugging
+        parent_class: Name of calling class for debugging
+
+    Returns:
+        ResponseGetData object containing all users
+
+    Raises:
+        User_GET_Error: If user retrieval fails
+    """
     url = f"https://{auth.domo_instance}.domo.com/api/content/v2/users"
 
     res = await gd.get_data(
@@ -121,7 +158,7 @@ async def get_all_users(
     )
 
     if not res.is_success:
-        raise GetUser_Error(res=res)
+        raise User_GET_Error(response_data=res)
 
     return res
 

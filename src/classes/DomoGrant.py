@@ -1,11 +1,11 @@
 __all__ = ["DomoGrant", "DomoGrants"]
 
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Optional
 
 import httpx
 
-from ..client import DomoAuth as dmda
+from ..client.auth import DomoAuth as dmda
 from ..routes import grant as grant_routes
 from ..utils import DictDot as util_dd
 
@@ -13,11 +13,11 @@ from ..utils import DictDot as util_dd
 @dataclass
 class DomoGrant:
     id: str
-    display_group: str = None
-    title: str = None
-    depends_on_ls: list[str] = None
-    description: str = None
-    role_membership_ls: list[str] = field(default=None)
+    display_group: Optional[str] = None
+    title: Optional[str] = None
+    depends_on_ls: Optional[List[str]] = None
+    description: Optional[str] = None
+    role_membership_ls: Optional[List[str]] = field(default=None)
 
     def __post_init__(self):
         self.id = str(self.id)
@@ -46,9 +46,9 @@ class DomoGrant:
 
 @dataclass
 class DomoGrants:
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: dmda = field(repr=False)
 
-    grants: List[DomoGrant] = field(default=None)
+    grants: Optional[List[DomoGrant]] = field(default=None)
 
     async def get(
         self,

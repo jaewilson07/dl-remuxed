@@ -4,11 +4,11 @@ from typing import Dict, List, Optional, TypedDict, Union
 
 import httpx
 
-from ..client import DomoAuth as dmda
+from ..client import auth as dmda
 from ..client import DomoError as de
-from ..client import ResponseGetData as rgd
 from ..client import get_data as gd
-from ..client.DomoEntity import DomoEnum
+from ..client import response as rgd
+from ..client.entities import DomoEnum
 
 __all__ = [
     "Datacenter_Enum",

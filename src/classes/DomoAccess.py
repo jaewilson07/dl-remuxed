@@ -11,10 +11,11 @@ from typing import Any, List
 
 import httpx
 
-from ..client import DomoAuth as dmda
+from ..client import auth as dmda
 from ..client import DomoError as dmde
-from ..client.DomoEntity import DomoSubEntity, Entity_Relation
 from ..routes import account as account_routes
+from ..utils import chunk_execution as dmce
+from ..client.entities import DomoSubEntity, Entity_Relation
 from ..routes.account import (
     ShareAccount,
     ShareAccount_AccessLevel,

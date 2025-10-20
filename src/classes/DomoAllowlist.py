@@ -6,7 +6,7 @@ from typing import List
 
 import httpx
 
-from ..client import DomoAuth as dmda
+from ..client import auth as dmda
 from ..routes import instance_config as instance_config_routes
 
 

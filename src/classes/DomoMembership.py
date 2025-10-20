@@ -11,6 +11,7 @@ from ..client import DomoError as dmde
 from ..client.DomoEntity import DomoSubEntity, Entity_Relation
 from ..routes import group as group_routes
 from ..utils import chunk_execution as dmce
+from ..client.entities import DomoSubEntity, Entity_Relation
 
 __all__ = ["UpdateMembership", "Membership_Entity", "Membership", "GroupMembership"]
 

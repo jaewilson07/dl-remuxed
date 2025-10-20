@@ -14,9 +14,9 @@ from enum import Enum
 from typing import List
 
 import httpx
-from nbdev.showdoc import patch_to
 
-from ..client import DomoAuth as dmda
+from . import DomoUser as dmdu
+from ..client import auth as dmda
 from ..client import DomoError as dmde
 from ..routes import codeengine as codeengine_routes
 from ..utils import files as dmuf
@@ -259,32 +259,32 @@ class DomoCodeEngine_PackageVersion:
 
         dmuf.upsert_file(file_path, content=self.code, replace_folder=replace_folder)
 
+    def export(
+        self,
+        file_name: str = None,
+        output_folder: str = "EXPORT/code_engine/",
+        debug_prn: bool = False,
+    ):
+        output_folder = (
+            f"{output_folder}/" if not output_folder.endswith("/") else output_folder
+        )
 
-@patch_to(DomoCodeEngine_PackageVersion)
-def export(
-    self,
-    file_name: str = None,
-    output_folder: str = "EXPORT/code_engine/",
-    debug_prn: bool = False,
-):
-    output_folder = (
-        f"{output_folder}/" if not output_folder.endswith("/") else output_folder
-    )
+        dmuf.upsert_folder(output_folder)
 
-    dmuf.upsert_folder(output_folder)
+        file_name = file_name or self.package_id
+        file_name = dmuf.change_extension(
+            file_name, ExportExtension[self.language].value
+        )
 
-    file_name = file_name or self.package_id
-    file_name = dmuf.change_extension(file_name, ExportExtension[self.language].value)
+        file_path = os.path.join(output_folder, file_name)
 
-    file_path = os.path.join(output_folder, file_name)
+        if debug_prn:
+            print(output_folder, file_name)
 
-    if debug_prn:
-        print(output_folder, file_name)
+        with builtins.open(file_path, "w+", newline="\n", encoding="utf-8") as f:
+            f.write(self.code)
 
-    with builtins.open(file_path, "w+", newline="\n", encoding="utf-8") as f:
-        f.write(self.code)
-
-    return file_path
+        return file_path
 
 
 @dataclass
@@ -374,42 +374,41 @@ class DomoCodeEngine_Package:
 
         return True
 
-
-@patch_to(DomoCodeEngine_Package, cls_method=True)
-async def get_current_version_by_id(
-    cls,
-    auth: dmda.DomoAuth,
-    package_id,
-    debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-    debug_num_stacks_to_drop=2,
-):
-    domo_package = await cls.get_by_id(
-        package_id=package_id,
-        auth=auth,
-        debug_api=debug_api,
-        session=session,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-    )
-
-    current_version = domo_package.current_version
-
-    if not domo_package.current_version:
-        raise DomoCodeEngine_ConfigError(
+    @classmethod
+    async def get_current_version_by_id(
+        cls,
+        auth: dmda.DomoAuth,
+        package_id,
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+        debug_num_stacks_to_drop=2,
+    ):
+        domo_package = await cls.get_by_id(
             package_id=package_id,
-            version=None,
-            message="No current version found for the package",
-            domo_instance=auth.domo_instance,
+            auth=auth,
+            debug_api=debug_api,
+            session=session,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         )
 
-    domo_version = await DomoCodeEngine_PackageVersion.get_by_id_and_version(
-        package_id=package_id,
-        version=current_version,
-        auth=auth,
-        language=domo_package.language,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        session=session,
-    )
+        current_version = domo_package.current_version
 
-    return domo_version
+        if not domo_package.current_version:
+            raise DomoCodeEngine_ConfigError(
+                package_id=package_id,
+                version=None,
+                message="No current version found for the package",
+                domo_instance=auth.domo_instance,
+            )
+
+        domo_version = await DomoCodeEngine_PackageVersion.get_by_id_and_version(
+            package_id=package_id,
+            version=current_version,
+            auth=auth,
+            language=domo_package.language,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            session=session,
+        )
+
+        return domo_version

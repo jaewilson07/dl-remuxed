@@ -27,6 +27,14 @@ from . import DomoInstanceConfig_SSO as dicsso
 from . import DomoInstanceConfig_UserAttribute as dicua
 from . import DomoPublish as dmpb
 from . import DomoRole as dmrl
+from ..client import auth as dmda
+from ..client import DomoError as dmde
+from ..routes import application as application_routes
+from ..routes import instance_config as instance_config_routes
+from ..routes import sandbox as sandbox_routes
+from ..classes.DomoInstanceConfig_InstanceSwitcher import (
+    DomoInstanceConfig_InstanceSwitcher,
+)
 
 
 @dataclass

@@ -28,8 +28,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Any
 
-
-from ..client import DomoEntity as dmee
+from ..client import entities as dmee
 from ..client import DomoError as dmde
 from ..utils import DictDot as util_dd
 from ..utils import convert as dmcv
@@ -687,12 +686,6 @@ class DomoAccount_Config_SnowflakeKeyPairAuthentication(DomoAccount_Config):
         )
 
 
-@staticmethod
-# Removed leftover marker
-def generate_alt_search_str(raw_value):
-    return raw_value.lower().replace("-", "_")
-
-
 class AccountConfig(dmee.DomoEnum):
     """
     Enum provides appropriate spelling for data_provider_type and config object.
@@ -728,6 +721,10 @@ class AccountConfig(dmee.DomoEnum):
 
     _config_oauth = DomoAccount_NoConfig_OAuth
     _config_notdefined = DomoAccount_NoConfig
+
+    @staticmethod
+    def generate_alt_search_str(raw_value):
+        return raw_value.lower().replace("-", "_")
 
     @classmethod
     def _missing_(cls, value):

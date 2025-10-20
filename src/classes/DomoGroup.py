@@ -1,15 +1,15 @@
 __all__ = ["Group_Class_Error", "DomoGroup", "DomoGroups"]
 
 from dataclasses import dataclass, field
-from typing import List, Union
+from typing import List, Union, TYPE_CHECKING
 
 import httpx
-from nbdev.showdoc import patch_to
 
-from ..client import DomoAuth as dmda
+from . import DomoMembership as dmgm
+from ..client import auth as dmda
 from ..client import DomoError as dmde
-from ..client.DomoEntity import DomoEntity
 from ..routes import group as group_routes
+from ..client.entities import DomoEntity
 from ..routes.group import (
     Group_CRUD_Error,
     GroupType_Enum,
@@ -135,6 +135,106 @@ class DomoGroup(DomoEntity):
         Internal method to get an entity by ID.
         """
         return await cls.get_by_id(auth=cls.auth, group_id=entity_id, **kwargs)
+
+    @classmethod
+    async def create_from_name(
+        cls: "DomoGroup",
+        auth: "dmda.DomoAuth",
+        group_name: str = None,
+        group_type: Union[GroupType_Enum, str] = "open",  # use GroupType_Enum
+        description: str = None,
+        is_include_manage_groups_role: bool = True,
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+    ):
+
+        res = await group_routes.create_group(
+            auth=auth,
+            group_name=group_name,
+            group_type=group_type,
+            description=description,
+            debug_api=debug_api,
+            session=session,
+            parent_class=cls.__name__,
+        )
+
+        domo_group = cls._from_dict(auth=auth, json_obj=res.response)
+
+        if is_include_manage_groups_role:
+            await domo_group.Membership.add_owner_manage_all_groups_role(
+                debug_api=debug_api, session=session
+            )
+
+        return domo_group
+
+    async def update_metadata(
+        self: "DomoGroup",
+        auth: "dmda.DomoAuth" = None,
+        group_name: str = None,
+        group_type: str = None,  # use GroupType_Enum
+        description: str = None,
+        additional_params: dict = None,
+        debug_api: bool = False,
+        return_raw: bool = False,
+        session: httpx.AsyncClient = None,
+    ):
+        auth = auth or self.auth
+
+        res = None
+        try:
+            res = await group_routes.update_group(
+                auth=auth,
+                group_id=self.id,
+                group_name=group_name,
+                group_type=group_type,
+                description=description,
+                additional_params=additional_params,
+                debug_api=debug_api,
+                session=session,
+            )
+
+            if return_raw:
+                return res
+
+            updated_group = await DomoGroup.get_by_id(auth=auth, group_id=self.id)
+
+            self.name = updated_group.name or self.name
+            self.description = updated_group.description or self.description
+            self.type = updated_group.type or self.type
+
+        except Group_CRUD_Error as e:
+
+            if group_type != self.type:
+                raise Group_Class_Error(
+                    cls_instance=self,
+                    entity_name=self.name,
+                    entity_id=self.id,
+                    message=f"probably cannot change group_type to '{group_type}' from current type '{self.type}' consider passing `addtional_parameters`",
+                ) from e
+
+            else:
+                raise e from e
+
+        return self
+
+    async def delete(
+        self: "DomoGroup",
+        debug_api: bool = False,
+        debug_num_stacks_to_drop=2,
+        session: httpx.AsyncClient = None,
+    ):
+        res = await group_routes.delete_groups(
+            auth=self.auth,
+            group_ids=[str(self.id)],
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=self.__class__.__name__,
+            session=session,
+        )
+
+        res.parent_class = self.__class__.__name__
+
+        return res
 
 
 @patch_to(DomoGroup, cls_method=True)
@@ -302,6 +402,139 @@ class DomoGroups:
         self.is_hide_system_groups = not res.response["value"]
 
         return self.is_hide_system_groups
+
+    async def get(
+        self,
+        is_hide_system_groups: bool = True,
+        return_raw: bool = False,
+        debug_api: bool = False,
+        debug_num_stacks_to_drop: bool = False,
+        session: httpx.AsyncClient = None,
+    ):
+
+        await self.toggle_show_system_groups(
+            is_hide_system_groups=is_hide_system_groups,
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
+        )
+
+        res = await group_routes.get_all_groups(
+            auth=self.auth,
+            debug_api=debug_api,
+            session=session,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=self.__class__.__name__,
+        )
+
+        if return_raw:
+            return res
+
+        if len(res.response):
+            self.groups = self._groups_to_domo_group(
+                json_list=res.response, auth=self.auth
+            )
+
+        else:
+            self.groups = []
+
+        return self.groups
+
+    async def search_by_name(
+        self,
+        group_name: List[str],
+        is_hide_system_groups: bool = None,
+        only_allow_one: bool = True,
+        return_raw: bool = False,
+        debug_api: bool = False,
+        debug_num_stacks_to_drop: bool = False,
+        session: httpx.AsyncClient = None,
+    ) -> Union[
+        "DomoGroup", List["DomoGroup"]
+    ]:  # by default returns one DomoGroup, but can return a list of DomoGroups
+
+        domo_groups = await self.get(
+            is_hide_system_groups=is_hide_system_groups,
+            debug_api=debug_api,
+            session=session,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
+            return_raw=return_raw,
+        )
+
+        if return_raw:
+            return domo_groups
+
+        filter_groups = None
+        if isinstance(group_name, str):
+            filter_groups = [
+                dg for dg in domo_groups if dg.name.lower() == group_name.lower()
+            ]
+
+        if isinstance(group_name, list):
+            filter_groups = [
+                dg
+                for dg in domo_groups
+                if dg.name.lower() in [gname.lower() for gname in group_name]
+            ]
+
+        if not filter_groups:
+            raise Group_Class_Error(
+                cls_instance=self,
+                entity_id=self.auth.domo_instance,
+                message=f"{len(domo_groups)} retrieved.  unable to find a group matching {group_name}",
+            )
+
+        if only_allow_one:
+            return filter_groups[0]
+
+        return filter_groups
+
+    async def upsert(
+        self: "DomoGroups",
+        group_name: str,
+        group_type: str = None,  # if create_group, use routes.class.GroupType_Enum
+        description: str = None,
+        debug_api: bool = False,
+        additional_params: dict = None,
+        session: httpx.AsyncClient = None,
+    ):
+        domo_group = None
+        try:
+            domo_group = await self.search_by_name(
+                group_name=group_name, only_allow_one=True, session=session
+            )
+
+        except Group_Class_Error:
+            return await DomoGroup.create_from_name(
+                auth=self.auth,
+                group_name=group_name,
+                group_type=group_type,
+                description=description,
+                debug_api=debug_api,
+                session=session,
+            )
+
+        try:
+            await domo_group.update_metadata(
+                group_type=group_type,
+                description=description,
+                debug_api=debug_api,
+                session=session,
+            )
+
+        except dmde.DomoError:
+            await group_routes.update_group(
+                auth=self.auth,
+                group_id=domo_group.id,
+                group_name=group_name,
+                # group_type=group_type,
+                description=description,
+                additional_params=additional_params,
+                debug_api=debug_api,
+                session=session,
+            )
+
+        return domo_group
 
 
 @patch_to(DomoGroups)

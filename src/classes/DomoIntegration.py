@@ -12,8 +12,8 @@ from typing import Any, Dict, List
 import httpx
 
 from ..client import DomoAuth as dmda
-from ..client.DomoEntity import DomoEntity
 from ..routes import cloud_amplifier as cloud_amplifier_routes
+from ..client.entities import DomoEntity
 
 
 @dataclass

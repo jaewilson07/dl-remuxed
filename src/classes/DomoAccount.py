@@ -7,6 +7,13 @@ from typing import List
 
 import httpx
 
+from ..client import auth as dmda
+from ..client import entities as dmee
+from ..client import DomoError as dmde
+from ..routes import account as account_routes
+from ..routes import datacenter as datacenter_routes
+
+from ..utils import chunk_execution as dmce
 from ..classes.DomoAccount_Config import (
     AccountConfig,
 )
@@ -176,153 +183,133 @@ class DomoAccounts(dmee.DomoManager):
 
         return self.accounts
 
-    # Removed leftover marker
-
-
-async def get_oauths(
-    self,
-    debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-    return_raw: bool = False,
-    debug_num_stacks_to_drop: int = 2,
-):
-    res = await account_routes.get_oauth_accounts(
-        auth=self.auth,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=self.__class__.__name__,
-        session=session,
-    )
-
-    if return_raw:
-        return res
-
-    self.oauths = [
-        DomoAccount_OAuth._from_dict(
-            obj=obj, auth=self.auth, is_use_default_account_class=True
-        )
-        for obj in res.response
-    ]
-
-    return self.oauths
-
-    # Removed leftover marker
-
-
-async def upsert_account(
-    cls: DomoAccounts,
-    auth: dmda.DomoAuth,
-    account_id: str = None,
-    account_name: str = None,
-    account_config: AccountConfig = None,
-    data_provider_type: str = None,
-    debug_api: bool = False,
-    debug_prn: bool = False,
-    return_raw: bool = False,
-    return_search: bool = False,
-    is_use_default_account_class: bool = True,
-    session: httpx.AsyncClient = None,
-    **kwargs,
-):
-    """search for an account and upsert it"""
-
-    if not account_name and not account_id:
-        raise UpsertAccount_MatchCriteria(domo_instance=auth.domo_instance)
-
-    data_provider_type = (
-        data_provider_type or account_config and account_config.data_provider_type
-    )
-    acc = None
-
-    if account_id:
-        try:
-            acc = await DomoAccount.get_by_id(
-                auth=auth,
-                session=session,
-                debug_api=debug_api,
-                account_id=account_id,
-                is_use_default_account_class=is_use_default_account_class,
-                **kwargs,
-            )
-        except dmde.DomoError:
-            pass
-
-    if account_name and not acc:
-        try:
-            domo_accounts = DomoAccounts(auth=auth)
-            await domo_accounts.get(
-                debug_api=debug_api,
-                session=session,
-                is_use_default_account_class=is_use_default_account_class,
-                **kwargs,
-            )
-
-            for da in domo_accounts.accounts:
-                if da.name and da.name.lower() != account_name.lower():
-                    continue
-
-                if data_provider_type and data_provider_type != da.data_provider_type:
-                    continue
-
-                acc = da
-
-        except dmde.DomoError:
-            pass
-
-    if return_search:
-        return acc
-
-    if not isinstance(acc, (DomoAccount_Default, DomoAccount, DomoAccount_Credential)):
-        if debug_prn:
-            print(f"creating {account_name} in {auth.domo_instance}")
-
-        return await DomoAccount.create_account(
-            account_name=account_name,
-            config=account_config,
-            auth=auth,
+    async def get_oauths(
+        self,
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+        return_raw: bool = False,
+        debug_num_stacks_to_drop: int = 2,
+    ):
+        res = await account_routes.get_oauth_accounts(
+            auth=self.auth,
             debug_api=debug_api,
-            return_raw=return_raw,
-        )
-
-    if account_name and account_id:
-        if debug_prn:
-            print(f"upsert-ing {acc.id} - {acc.name} in {auth.domo_instance}")
-
-        await acc.update_name(
-            account_name=account_name,
-            debug_api=debug_api,
-            return_raw=return_raw,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=self.__class__.__name__,
             session=session,
         )
 
-    if account_config:  # upsert account
-        acc.Config = account_config
+        if return_raw:
+            return res
 
-        if debug_prn:
-            print(f"upsertting {acc.id}:  updating config")
+        self.oauths = [
+            DomoAccount_OAuth._from_dict(
+                obj=obj, auth=self.auth, is_use_default_account_class=True
+            )
+            for obj in res.response
+        ]
 
-        await acc.update_config(
-            debug_api=debug_api, return_raw=return_raw, session=session
+        return self.oauths
+
+    @classmethod
+    async def upsert_account(
+        cls,
+        auth: dmda.DomoAuth,
+        account_id: str = None,
+        account_name: str = None,
+        account_config: AccountConfig = None,
+        data_provider_type: str = None,
+        debug_api: bool = False,
+        debug_prn: bool = False,
+        return_raw: bool = False,
+        return_search: bool = False,
+        is_use_default_account_class: bool = True,
+        session: httpx.AsyncClient = None,
+        **kwargs,
+    ):
+        """search for an account and upsert it"""
+
+        if not account_name and not account_id:
+            raise UpsertAccount_MatchCriteria(domo_instance=auth.domo_instance)
+
+        data_provider_type = (
+            data_provider_type or account_config and account_config.data_provider_type
         )
+        acc = None
 
-    return acc
+        if account_id:
+            try:
+                acc = await DomoAccount.get_by_id(
+                    auth=auth,
+                    session=session,
+                    debug_api=debug_api,
+                    account_id=account_id,
+                    is_use_default_account_class=is_use_default_account_class,
+                    **kwargs,
+                )
+            except dmde.DomoError:
+                pass
 
-    # Removed leftover marker
+        if account_name and not acc:
+            try:
+                domo_accounts = DomoAccounts(auth=auth)
+                await domo_accounts.get(
+                    debug_api=debug_api,
+                    session=session,
+                    is_use_default_account_class=is_use_default_account_class,
+                    **kwargs,
+                )
 
+                for da in domo_accounts.accounts:
+                    if da.name and da.name.lower() != account_name.lower():
+                        continue
 
-async def upsert_target_account(
-    self,
-    target_auth: dmda.DomoAuth,  # valid auth for target destination
-    account_name: str = None,  # defaults to self.name
-    debug_api: bool = False,
-):
-    """
-    upsert an account in a target instance with self.Config
-    """
+                    if (
+                        data_provider_type
+                        and data_provider_type != da.data_provider_type
+                    ):
+                        continue
 
-    return await DomoAccounts.upsert_account(
-        auth=target_auth,
-        account_name=account_name or self.name,
-        account_config=deepcopy(self.Config),
-        debug_api=debug_api,
-    )
+                    acc = da
+
+            except dmde.DomoError:
+                pass
+
+        if return_search:
+            return acc
+
+        if not isinstance(
+            acc, (DomoAccount_Default, DomoAccount, DomoAccount_Credential)
+        ):
+            if debug_prn:
+                print(f"creating {account_name} in {auth.domo_instance}")
+
+            return await DomoAccount.create_account(
+                account_name=account_name,
+                config=account_config,
+                auth=auth,
+                debug_api=debug_api,
+                return_raw=return_raw,
+            )
+
+        if account_name and account_id:
+            if debug_prn:
+                print(f"upsert-ing {acc.id} - {acc.name} in {auth.domo_instance}")
+
+            await acc.update_name(
+                account_name=account_name,
+                debug_api=debug_api,
+                return_raw=return_raw,
+                session=session,
+            )
+
+        if account_config:  # upsert account
+            acc.Config = account_config
+
+            if debug_prn:
+                print(f"upsertting {acc.id}:  updating config")
+
+            await acc.update_config(
+                debug_api=debug_api, return_raw=return_raw, session=session
+            )
+
+        return acc

@@ -10,14 +10,16 @@ __all__ = [
 
 import asyncio
 from dataclasses import dataclass, field
-from typing import Any, List
+from typing import Any, List, Optional
 
 import httpx
 from nbdev.showdoc import patch_to
 
-from ..client import DomoAuth as dmda
-from ..client import DomoEntity as dmee
-from ..client import DomoError as dmde
+from . import DomoGrant as dmgt
+from . import DomoUser as dmdu
+from ..client.auth import DomoAuth
+from ..client.entities import DomoEntity
+from ..client.exceptions import DomoError
 from ..routes import role as role_routes
 from . import DomoGrant as dmgt
 from . import DomoUser as dmdu

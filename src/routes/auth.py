@@ -1,3 +1,10 @@
+"""Authentication routes and error handling for Domo API access.
+
+This module provides authentication functions and custom exception classes
+for various Domo authentication methods including username/password,
+developer tokens, and access tokens.
+"""
+
 __all__ = [
     "AuthError",
     "InvalidCredentialsError",
@@ -15,31 +22,56 @@ from typing import Any, List, Optional
 
 import httpx
 
-from ..client import DomoError as dmde
-from ..client import ResponseGetData as rgd
-
-
-class AuthError(dmde.RouteError):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+from ..client.exceptions import AuthError
+from ..client import response as rgd
 
 
 class InvalidCredentialsError(AuthError):
-    """return invalid credentials sent to API"""
+    """Raised when invalid credentials are provided to the API."""
 
-    def __init__(self, res, **kwargs):
-        super().__init__(res=res, **kwargs)
+    def __init__(self, res=None, domo_instance: Optional[str] = None, **kwargs):
+        # Extract domo_instance from response if not provided
+        if (
+            not domo_instance
+            and res
+            and hasattr(res, "auth")
+            and hasattr(res.auth, "domo_instance")
+        ):
+            domo_instance = res.auth.domo_instance
+
+        super().__init__(
+            message="Invalid credentials provided",
+            response_data=res,
+            domo_instance=domo_instance,
+            status=401,
+            **kwargs,
+        )
 
 
 class AccountLockedError(AuthError):
-    """return invalid credentials sent to API"""
+    """Raised when the user account is locked."""
 
-    def __init__(self, res, **kwargs):
-        super().__init__(res=res, **kwargs)
+    def __init__(self, res=None, domo_instance: Optional[str] = None, **kwargs):
+        # Extract domo_instance from response if not provided
+        if (
+            not domo_instance
+            and res
+            and hasattr(res, "auth")
+            and hasattr(res.auth, "domo_instance")
+        ):
+            domo_instance = res.auth.domo_instance
+
+        super().__init__(
+            message="User account is locked",
+            response_data=res,
+            domo_instance=domo_instance,
+            status=403,
+            **kwargs,
+        )
 
 
 class InvalidAuthTypeError(AuthError):
-    """return invalid Auth type sent to API"""
+    """Raised when an invalid authentication type is used for an API call."""
 
     def __init__(
         self,
@@ -49,41 +81,122 @@ class InvalidAuthTypeError(AuthError):
         domo_instance: Optional[str] = None,
         **kwargs,
     ):
-        message = f"This API rquires {required_auth_type.__name__ if required_auth_type else ', '.join([auth_type.__name__ for auth_type in required_auth_type_ls])}"
+        # Convert class types to strings
+        if required_auth_type:
+            required_types = [required_auth_type.__name__]
+        elif required_auth_type_ls:
+            required_types = [auth_type.__name__ for auth_type in required_auth_type_ls]
+        else:
+            required_types = ["Unknown"]
 
+        # Use the convenience method from base AuthError
+        error = AuthError.for_invalid_auth_type(
+            required_auth_types=required_types,
+            response_data=res,
+            domo_instance=domo_instance,
+            **kwargs,
+        )
+
+        # Copy the constructed error's attributes
         super().__init__(
-            message=message, res=res, domo_instance=domo_instance, **kwargs
+            message=error.message,
+            response_data=res,
+            domo_instance=domo_instance,
+            auth_type=error.auth_type,
+            required_auth_types=error.required_auth_types,
+            status=error.status,
+            **kwargs,
         )
 
 
 class InvalidInstanceError(AuthError):
-    """return if invalid domo_instance sent to API"""
+    """Raised when an invalid Domo instance is provided."""
 
-    def __init__(self, res, **kwargs):
-        super().__init__(res=res, **kwargs)
+    def __init__(self, res=None, domo_instance: Optional[str] = None, **kwargs):
+        # Extract domo_instance from response if not provided
+        if (
+            not domo_instance
+            and res
+            and hasattr(res, "auth")
+            and hasattr(res.auth, "domo_instance")
+        ):
+            domo_instance = res.auth.domo_instance
+
+        super().__init__(
+            message=(
+                f"Invalid Domo instance: {domo_instance}"
+                if domo_instance
+                else "Invalid Domo instance"
+            ),
+            response_data=res,
+            domo_instance=domo_instance,
+            status=403,
+            **kwargs,
+        )
 
 
 class NoAccessTokenReturned(AuthError):
-    def __init__(self, res, **kwargs):
-        super().__init__(res=res, **kwargs)
+    """Raised when no access token is returned from the authentication API."""
+
+    def __init__(self, res=None, domo_instance: Optional[str] = None, **kwargs):
+        # Extract domo_instance from response if not provided
+        if (
+            not domo_instance
+            and res
+            and hasattr(res, "auth")
+            and hasattr(res.auth, "domo_instance")
+        ):
+            domo_instance = res.auth.domo_instance
+
+        super().__init__(
+            message="No access token returned from authentication API",
+            response_data=res,
+            domo_instance=domo_instance,
+            status=401,
+            **kwargs,
+        )
 
 
 async def get_full_auth(
     domo_instance: str,  # domo_instance.domo.com
     domo_username: str,  # email address
     domo_password: str,
-    auth: Any = None,
+    auth: Optional[Any] = None,
     session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
-    parent_class: str = None,
-    debug_num_stacks_to_drop=1,
+    parent_class: Optional[str] = None,
+    debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
-    """uses username and password authentication to retrieve a full_auth access token"""
+    """Authenticate using username and password to retrieve a full_auth access token.
+
+    This function uses Domo's standard username/password authentication to obtain
+    a session token that can be used for subsequent API calls.
+
+    Args:
+        domo_instance (str): The Domo instance identifier
+        domo_username (str): User's email address
+        domo_password (str): User's password
+        auth (Optional[Any]): Existing auth object (optional)
+        session (Optional[httpx.AsyncClient]): HTTP client session to use
+        debug_api (bool): Whether to enable API debugging
+        parent_class (Optional[str]): Name of calling class for debugging
+        debug_num_stacks_to_drop (int): Number of stack frames to drop for debugging
+        return_raw (bool): Whether to return raw response without processing
+
+    Returns:
+        rgd.ResponseGetData: Response containing session token or error information
+
+    Raises:
+        InvalidInstanceError: If the Domo instance is invalid
+        InvalidCredentialsError: If credentials are invalid or missing session token
+        AccountLockedError: If the user account is locked
+        NoAccessTokenReturned: If no access token is returned from the API
+    """
 
     from ..client import get_data as gd
 
-    domo_instance = domo_instance or auth.domo_instance
+    domo_instance = domo_instance or (auth.domo_instance if auth else "")
 
     url = f"https://{domo_instance}.domo.com/api/content/v2/authentication"
 
@@ -106,30 +219,36 @@ async def get_full_auth(
     )
 
     if return_raw:
-        return res
+        # Type assertion for raw return
+        return res  # type: ignore
 
+    # Validate response type
+    if not isinstance(res, rgd.ResponseGetData):
+        raise TypeError(f"Expected ResponseGetData, got {type(res)}")
+
+    # Handle specific error cases
     if res.status == 403 and res.response == "Forbidden":
         raise InvalidInstanceError(res=res, domo_instance=domo_instance)
 
     if res.is_success and isinstance(res.response, dict):
-        if res.response.get("reason") == "INVALID_CREDENTIALS":
-            res.is_success = False
+        reason = res.response.get("reason")
 
+        if reason == "INVALID_CREDENTIALS":
+            res.is_success = False
             raise InvalidCredentialsError(domo_instance=domo_instance, res=res)
 
-        if res.response.get("reason") == "ACCOUNT_LOCKED":
+        if reason == "ACCOUNT_LOCKED":
             res.is_success = False
-
             raise AccountLockedError(domo_instance=domo_instance, res=res)
 
-        if res.response == {} or res.response == "":  # no access token
+        # Check for empty response
+        if res.response == {} or res.response == "":
             res.is_success = False
-
             raise NoAccessTokenReturned(domo_instance=domo_instance, res=res)
 
-    if not res.response.get("sessionToken"):
-        res.is_success = True
-
+    # Validate session token presence
+    if isinstance(res.response, dict) and not res.response.get("sessionToken"):
+        res.is_success = False
         raise InvalidCredentialsError(domo_instance=domo_instance, res=res)
 
     return res
@@ -138,25 +257,44 @@ async def get_full_auth(
 async def get_developer_auth(
     domo_client_id: str,
     domo_client_secret: str,
-    auth: Any = None,
+    auth: Optional[Any] = None,
     session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
-    parent_class: str = None,
-    debug_num_stacks_to_drop=1,
+    parent_class: Optional[str] = None,
+    debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
-    """
-    only use for authenticating against apis documented under developer.domo.com
+    """Authenticate using OAuth2 client credentials for developer APIs.
+
+    This function is specifically for authenticating against APIs documented
+    under developer.domo.com using OAuth2 client credentials flow.
+
+    Args:
+        domo_client_id (str): OAuth2 client ID from developer app registration
+        domo_client_secret (str): OAuth2 client secret
+        auth (Optional[Any]): Existing auth object (optional)
+        session (Optional[httpx.AsyncClient]): HTTP client session to use
+        debug_api (bool): Whether to enable API debugging
+        parent_class (Optional[str]): Name of calling class for debugging
+        debug_num_stacks_to_drop (int): Number of stack frames to drop for debugging
+        return_raw (bool): Whether to return raw response without processing
+
+    Returns:
+        rgd.ResponseGetData: Response containing access token or error information
+
+    Raises:
+        InvalidCredentialsError: If the client credentials are invalid
     """
 
     from ..client import get_data as gd
 
     url = "https://api.domo.com/oauth/token?grant_type=client_credentials"
 
-    # add basic auth to the session
-    session = session or httpx.AsyncClient(
-        auth=httpx.BasicAuth(domo_client_id, domo_client_secret)
-    )
+    # Create session with basic auth if not provided
+    if session is None:
+        session = httpx.AsyncClient(
+            auth=httpx.BasicAuth(domo_client_id, domo_client_secret)
+        )
 
     res = await gd.get_data(
         method="GET",
@@ -170,28 +308,48 @@ async def get_developer_auth(
     )
 
     if return_raw:
-        return res
+        # Type assertion for raw return
+        return res  # type: ignore
 
+    # Validate response type
+    if not isinstance(res, rgd.ResponseGetData):
+        raise TypeError(f"Expected ResponseGetData, got {type(res)}")
+
+    # Handle authentication errors
     if res.status == 401 and res.response == "Unauthorized":
         res.is_success = False
-        raise InvalidCredentialsError(
-            res=res,
-        )
+        raise InvalidCredentialsError(res=res)
 
     return res
 
 
 async def who_am_i(
     auth: Any,
-    session: httpx.AsyncClient = None,
-    parent_class: str = None,
-    debug_num_stacks_to_drop=0,
+    session: Optional[httpx.AsyncClient] = None,
+    parent_class: Optional[str] = None,
+    debug_num_stacks_to_drop: int = 0,
     debug_api: bool = False,
     return_raw: bool = False,
-):
-    """
-    will attempt to validate against the 'me' API.
+) -> rgd.ResponseGetData:
+    """Validate authentication against the 'me' API endpoint.
+
+    This function validates the authentication token by calling Domo's user 'me' API.
     This is the same authentication test the Domo Java CLI uses.
+
+    Args:
+        auth (Any): Authentication object containing domo_instance and auth tokens
+        session (Optional[httpx.AsyncClient]): HTTP client session to use
+        parent_class (Optional[str]): Name of calling class for debugging
+        debug_num_stacks_to_drop (int): Number of stack frames to drop for debugging
+        debug_api (bool): Whether to enable API debugging
+        return_raw (bool): Whether to return raw response without processing
+
+    Returns:
+        rgd.ResponseGetData: Response containing user information or error details
+
+    Raises:
+        InvalidInstanceError: If the Domo instance is invalid (403 Forbidden)
+        InvalidCredentialsError: If the authentication token is invalid
     """
 
     from ..client import get_data as gd
@@ -210,33 +368,58 @@ async def who_am_i(
     )
 
     if return_raw:
-        return res
+        # Type assertion for raw return
+        return res  # type: ignore
 
+    # Validate response type
+    if not isinstance(res, rgd.ResponseGetData):
+        raise TypeError(f"Expected ResponseGetData, got {type(res)}")
+
+    # Handle specific error cases
     if res.status == 403 and res.response == "Forbidden":
         raise InvalidInstanceError(res=res)
 
     if res.status == 401 and res.response == "Unauthorized":
-        res.is_sucess = False
+        res.is_success = False  # Fix typo: was is_sucess
 
     if not res.is_success:
-        raise InvalidCredentialsError(
-            res=res,
-        )
+        raise InvalidCredentialsError(res=res)
 
     return res
 
 
 async def elevate_user_otp(
-    auth,
+    auth: Any,
     one_time_password: str,
-    user_id: str = None,
+    user_id: Optional[str] = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    session: httpx.AsyncClient = None,
-    parent_class: str = None,
-):
+    debug_num_stacks_to_drop: int = 1,
+    session: Optional[httpx.AsyncClient] = None,
+    parent_class: Optional[str] = None,
+) -> rgd.ResponseGetData:
+    """Elevate authentication using a one-time password (OTP).
+
+    This function is used when multi-factor authentication is enabled and
+    an additional OTP verification step is required.
+
+    Args:
+        auth (Any): Authentication object containing domo_instance and tokens
+        one_time_password (str): The OTP code for authentication elevation
+        user_id (Optional[str]): User ID (will be retrieved from auth if not provided)
+        debug_api (bool): Whether to enable API debugging
+        debug_num_stacks_to_drop (int): Number of stack frames to drop for debugging
+        session (Optional[httpx.AsyncClient]): HTTP client session to use
+        parent_class (Optional[str]): Name of calling class for debugging
+
+    Returns:
+        rgd.ResponseGetData: Response from the OTP elevation request
+
+    Raises:
+        InvalidCredentialsError: If the OTP is invalid or elevation fails
+    """
     from ..client import get_data as gd
 
+    # Get user_id from auth if not provided
     if not auth.user_id and not user_id:
         await auth.who_am_i()
 
@@ -256,6 +439,10 @@ async def elevate_user_otp(
         parent_class=parent_class,
         session=session,
     )
+
+    # Validate response type
+    if not isinstance(res, rgd.ResponseGetData):
+        raise TypeError(f"Expected ResponseGetData, got {type(res)}")
 
     if not res.is_success:
         raise InvalidCredentialsError(res=res)

@@ -40,6 +40,22 @@ from . import DomoDataset_Stream as dmdst
 from . import DomoLineage as dmdl
 from . import DomoPDP as dmpdp
 from . import DomoTag as dmtg
+from ..client import auth as dmda
+from ..client import DomoError as dmde
+from ..routes import dataset as dataset_routes
+
+from ..utils import chunk_execution as dmce
+from ..utils import convert as dmcv
+from ..client.entities import (
+    DomoEntity_w_Lineage,
+    DomoFederatedEntity,
+    DomoPublishedEntity,
+)
+from ..routes.dataset import (
+    DatasetNotFoundError,
+    QueryRequestError,
+    ShareDataset_AccessLevelEnum,
+)
 
 
 @dataclass

@@ -8,7 +8,7 @@ from typing import Optional
 
 import httpx
 
-from ..client import DomoAuth as dmda
+from ..client import auth as dmda
 from ..routes import activity_log as activity_log_routes
 from ..utils import convert as convert
 

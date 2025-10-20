@@ -20,11 +20,12 @@ import httpx
 from aenum import Enum as DomoEnum
 from aenum import NoAlias
 
-from ..client import DomoAuth as dmda
+from ..client import auth as dmda
 from ..client import DomoError as dmde
 from ..client.DomoEntity import DomoEntity
 from ..routes import datacenter as datacenter_routes
 from ..utils import chunk_execution as dmce
+from ..client.entities import DomoEntity
 
 
 @dataclass

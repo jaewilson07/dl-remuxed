@@ -7,9 +7,8 @@ from dataclasses import dataclass, field
 from typing import Any, List, Optional
 
 import httpx
-from nbdev.showdoc import patch_to
 
-from ..client import DomoAuth as dmda
+from ..client import auth as dmda
 from ..client import DomoError as dmde
 from ..routes import dataset as dataset_routes
 
@@ -93,42 +92,38 @@ class DomoTags:
 
         return self.tag_ls
 
+    async def add(
+        self,
+        add_tag_ls: List[str],
+        debug_api: bool = False,
+        session: Optional[httpx.AsyncClient] = None,
+    ) -> List[str]:  # returns a list of tags
+        """appends tags to the list of existing dataset_tags"""
 
-@patch_to(DomoTags)
-async def add(
-    self: DomoTags,
-    add_tag_ls: List[str],
-    debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
-) -> List[str]:  # returns a list of tags
-    """appends tags to the list of existing dataset_tags"""
+        existing_tag_ls = await self.get()
 
-    existing_tag_ls = await self.get()
+        add_tag_ls += existing_tag_ls
 
-    add_tag_ls += existing_tag_ls
+        return await self.set(
+            tag_ls=list(set(add_tag_ls)),
+            debug_api=debug_api,
+            session=session,
+        )
 
-    return await self.set(
-        tag_ls=list(set(add_tag_ls)),
-        debug_api=debug_api,
-        session=session,
-    )
+    async def remove(
+        self,
+        remove_tag_ls: List[str],
+        debug_api: bool = False,
+        session: Optional[httpx.AsyncClient] = None,
+    ) -> List[str]:  # returns a list of tags
+        """removes tags from the existing list of dataset_tags"""
 
+        existing_tag_ls = await self.get()
 
-@patch_to(DomoTags)
-async def remove(
-    self: DomoTags,
-    remove_tag_ls: List[str],
-    debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
-) -> List[str]:  # returns a list of tags
-    """removes tags from the existing list of dataset_tags"""
+        existing_tag_ls = [ex for ex in existing_tag_ls if ex not in remove_tag_ls]
 
-    existing_tag_ls = await self.get()
-
-    existing_tag_ls = [ex for ex in existing_tag_ls if ex not in remove_tag_ls]
-
-    return await self.set(
-        tag_ls=list(set(existing_tag_ls)),
-        debug_api=debug_api,
-        session=session,
-    )
+        return await self.set(
+            tag_ls=list(set(existing_tag_ls)),
+            debug_api=debug_api,
+            session=session,
+        )

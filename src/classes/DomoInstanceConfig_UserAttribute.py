@@ -5,11 +5,10 @@ from dataclasses import dataclass, field
 from typing import List
 
 import httpx
-from nbdev.showdoc import patch_to
 
-from ..client import DomoAuth as dmda
-from ..client.DomoEntity import DomoEntity, DomoManager
+from ..client import auth as dmda
 from ..routes import user_attributes as user_attribute_routes
+from ..client.entities import DomoEntity, DomoManager
 from ..routes.user_attributes import (
     UserAttributes_CRUD_Error,
     UserAttributes_GET_Error,
@@ -83,6 +82,37 @@ class UserAttribute(DomoEntity):
             return res
         return cls._from_dict(obj=res.response, auth=auth)
 
+    async def update(
+        self,
+        name=None,
+        description=None,
+        issuer_type: UserAttributes_IssuerType = None,
+        data_type: str = None,
+        security_voter=None,
+        session: httpx.AsyncClient = None,
+        debug_api: bool = False,
+        debug_num_stacks_to_drop=2,
+    ):
+        await user_attribute_routes.update_user_attribute(
+            auth=self.auth,
+            attribute_id=self.id,
+            name=name,
+            description=description,
+            issuer_type=issuer_type,
+            data_type=data_type,
+            security_voter=security_voter,
+            session=session,
+            debug_api=debug_api,
+            parent_class=self.__class__.__name__,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        )
+
+        new = await UserAttribute.get_by_id(attribute_id=self.id, auth=self.auth)
+
+        [setattr(self, key, value) for key, value in new.__dict__.items()]
+
+        return self
+
 
 @patch_to(UserAttribute)
 async def update(
@@ -151,6 +181,44 @@ class UserAttributes(DomoManager):
             UserAttribute._from_dict(obj=obj, auth=auth) for obj in res.response
         ]
         return self.attributes
+
+    async def create(
+        self,
+        attribute_id: str,
+        name=None,
+        description=f"updated via domolibrary {dt.datetime.now().strftime('%Y-%m-%d - %H:%M')}",
+        data_type: str = "ANY_VALUE",
+        security_voter="FULL_VIS_ADMIN_IDP",
+        issuer_type: UserAttributes_IssuerType = UserAttributes_IssuerType.CUSTOM,
+        session: httpx.AsyncClient = None,
+        debug_api: bool = False,
+        debug_num_stacks_to_drop=2,
+        return_raw: bool = False,
+    ):
+
+        auth = self.auth
+        attribute_id = user_attribute_routes.clean_attribute_id(attribute_id)
+
+        res = await user_attribute_routes.create_user_attribute(
+            auth=auth,
+            session=session,
+            issuer_type=issuer_type,
+            name=name,
+            attribute_id=attribute_id,
+            description=description,
+            data_type=data_type,
+            security_voter=security_voter,
+            debug_api=debug_api,
+            parent_class=self.__class__.__name__,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        )
+
+        await self.get()
+
+        if return_raw:
+            return res
+
+        return await UserAttribute.get_by_id(auth=auth, attribute_id=attribute_id)
 
 
 @patch_to(UserAttributes)
