@@ -1,5 +1,5 @@
 __all__ = [
-    "Bootstrap_RetrievalError",
+    "Bootstrap_GET_Error",
     "get_bootstrap",
     "get_bootstrap_customerid",
     "get_bootstrap_features",
@@ -7,28 +7,41 @@ __all__ = [
     "get_bootstrap_pages",
 ]
 
+from typing import Optional
+
 import httpx
 
-from ..client import auth as dmda
-from ..client import exceptions as dmde
+from ..client.auth import DomoAuth, DomoFullAuth
+from ..client.exceptions import RouteError
 from ..client import get_data as gd
 from ..client import response as rgd
 
 
-class Bootstrap_RetrievalError(dmde.RouteError):
-    def __init__(self, res, response: str = None):
-        super().__init__(res=res, message=response)
+class Bootstrap_GET_Error(RouteError):
+    """Raised when bootstrap retrieval operations fail."""
+
+    def __init__(
+        self, message: Optional[str] = None, response_data=None, **kwargs
+    ):
+        super().__init__(
+            message=message or "Bootstrap retrieval failed",
+            response_data=response_data,
+            **kwargs,
+        )
 
 
 @gd.route_function
 async def get_bootstrap(
-    auth: dmda.DomoFullAuth,  ## only works with DomoFullAuth authentication, do not use TokenAuth
+    auth: DomoFullAuth,  ## only works with DomoFullAuth authentication, do not use TokenAuth
     debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-    parent_class=None,
-    debug_num_stacks_to_drop=1,
+    session: Optional[httpx.AsyncClient] = None,
+    parent_class: Optional[str] = None,
+    debug_num_stacks_to_drop: int = 1,
 ) -> rgd.ResponseGetData:
     """get bootstrap data"""
+
+    # Import here to avoid circular imports
+    from ..client import auth as dmda
 
     dmda.test_is_full_auth(auth, num_stacks_to_drop=2)
 
@@ -49,11 +62,12 @@ async def get_bootstrap(
     )
 
     if not res.is_success:
-        raise Bootstrap_RetrievalError(res=res)
+        raise Bootstrap_GET_Error(response_data=res)
 
     if res.response == "":
-        raise Bootstrap_RetrievalError(
-            response="BSR_Features:  no features returned - is there a VPN?", res=res
+        raise Bootstrap_GET_Error(
+            message="BSR_Features:  no features returned - is there a VPN?",
+            response_data=res,
         )
 
     return res
@@ -61,12 +75,14 @@ async def get_bootstrap(
 
 @gd.route_function
 async def get_bootstrap_customerid(
-    auth: dmda.DomoFullAuth,  # this function requires the DomoFullAuth object to authenticate the bootstrap
-    session: httpx.AsyncClient = None,  # optional parameter to improve same instance query performance
+    auth: DomoFullAuth,  # this function requires the DomoFullAuth object to authenticate the bootstrap
+    session: Optional[
+        httpx.AsyncClient
+    ] = None,  # optional parameter to improve same instance query performance
     debug_api: bool = False,  # pass True to see the parameters sent to the Domo API
     return_raw: bool = False,  # pass True to return the raw API response
-    debug_num_stacks_to_drop=2,  # number frames to drop off the stacktrace.  retrieved from `res.traceback_details`
-    parent_class: str = None,  # Optional parent class that calls the route function
+    debug_num_stacks_to_drop: int = 2,  # number frames to drop off the stacktrace.  retrieved from `res.traceback_details`
+    parent_class: Optional[str] = None,  # Optional parent class that calls the route function
 ) -> (
     rgd.ResponseGetData
 ):  # the response contains the string representation of the customer_id
@@ -89,12 +105,12 @@ async def get_bootstrap_customerid(
 
 @gd.route_function
 async def get_bootstrap_features(
-    auth: dmda.DomoFullAuth,
-    session: httpx.AsyncClient = None,
+    auth: DomoFullAuth,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     return_raw: bool = False,
-    debug_num_stacks_to_drop=2,
-    parent_class=None,
+    debug_num_stacks_to_drop: int = 2,
+    parent_class: Optional[str] = None,
 ) -> rgd.ResponseGetData:
     res = await get_bootstrap(
         auth=auth,
@@ -113,12 +129,12 @@ async def get_bootstrap_features(
 
 @gd.route_function
 async def get_bootstrap_features_is_accountsv2_enabled(
-    auth: dmda.DomoAuth,
-    session: httpx.AsyncClient = None,
+    auth: DomoAuth,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     return_raw: bool = False,
-    debug_num_stacks_to_drop=2,
-    parent_class=None,
+    debug_num_stacks_to_drop: int = 2,
+    parent_class: Optional[str] = None,
 ) -> rgd.ResponseGetData:
     res = await get_bootstrap_features(
         auth=auth,
@@ -147,12 +163,12 @@ async def get_bootstrap_features_is_accountsv2_enabled(
 
 @gd.route_function
 async def get_bootstrap_pages(
-    auth: dmda.DomoFullAuth,
-    session: httpx.AsyncClient = None,
+    auth: DomoFullAuth,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     return_raw: bool = False,
-    debug_num_stacks_to_drop=2,
-    parent_class=None,
+    debug_num_stacks_to_drop: int = 2,
+    parent_class: Optional[str] = None,
 ) -> rgd.ResponseGetData:
     """this API will return the downstream (children) hierarchy of a page"""
     res = await get_bootstrap(
