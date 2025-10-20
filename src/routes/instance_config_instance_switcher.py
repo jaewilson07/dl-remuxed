@@ -1,39 +1,57 @@
 __all__ = [
     "InstanceSwitcherMapping_GET_Error",
-    "get_instance_switcher_mapping",
     "InstanceSwitcherMapping_CRUD_Error",
+    "get_instance_switcher_mapping",
     "set_instance_switcher_mapping",
 ]
 
-from typing import List
+from typing import List, Optional
 
 import httpx
 
-from ..client import auth as dmda
-from ..client import DomoError as de
+from ..client.auth import DomoAuth
+from ..client.exceptions import RouteError
 from ..client import get_data as gd
 from ..client import response as rgd
 
 
-class InstanceSwitcherMapping_GET_Error(de.RouteError):
+class InstanceSwitcherMapping_GET_Error(RouteError):
+    """Raised when instance switcher mapping retrieval operations fail."""
+
     def __init__(
-        self,
-        res: rgd.ResponseGetData,
-        message=None,
+        self, message: Optional[str] = None, response_data=None, **kwargs
     ):
         super().__init__(
-            res=res,
-            message=message or res.response,
+            message=message or "Instance switcher mapping retrieval failed",
+            response_data=response_data,
+            **kwargs,
+        )
+
+
+class InstanceSwitcherMapping_CRUD_Error(RouteError):
+    """Raised when instance switcher mapping create, update, or delete operations fail."""
+
+    def __init__(
+        self,
+        operation: str = "update",
+        message: Optional[str] = None,
+        response_data=None,
+        **kwargs,
+    ):
+        super().__init__(
+            message=message or f"Instance switcher mapping {operation} operation failed",
+            response_data=response_data,
+            **kwargs,
         )
 
 
 # gets existing instance switcher mapping, response = list[dict]
 @gd.route_function
 async def get_instance_switcher_mapping(
-    auth: dmda.DomoAuth,
-    session: httpx.AsyncClient = None,
+    auth: DomoAuth,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
-    parent_class: str = None,
+    parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
     timeout: int = 20,
 ) -> rgd.ResponseGetData:
@@ -52,33 +70,21 @@ async def get_instance_switcher_mapping(
 
     if not res.is_success:
         raise InstanceSwitcherMapping_GET_Error(
-            res=res,
             message=f"failed to retrieve instance switcher mapping - {res.response}",
+            response_data=res,
         )
 
     return res
 
 
-class InstanceSwitcherMapping_CRUD_Error(de.RouteError):
-    def __init__(
-        self,
-        res,
-        message=None,
-    ):
-        super().__init__(
-            res=res,
-            message=message or res.response,
-        )
-
-
 # update the instance switcher mappings
 @gd.route_function
 async def set_instance_switcher_mapping(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     mapping_payloads: List[dict],
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
-    parent_class: str = None,
+    parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
     timeout: int = 60,
 ) -> rgd.ResponseGetData:
@@ -104,8 +110,9 @@ async def set_instance_switcher_mapping(
 
     if not res.is_success:
         raise InstanceSwitcherMapping_CRUD_Error(
-            res=res,
+            operation="update",
             message=f"failed to update instance switcher mappings - {res.response}",
+            response_data=res,
         )
 
     res.response = "success: updated instance switcher mappings"
