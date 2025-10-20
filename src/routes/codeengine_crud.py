@@ -14,14 +14,16 @@ __all__ = [
 #     CodeEnginePackageBuilder
 # )
 
+from typing import Optional
+
 import httpx
 
-from ..client import auth as dmda
-from ..client import exceptions as dmde
+from ..client.auth import DomoAuth
+from ..client.exceptions import RouteError
 from ..client import get_data as gd
 from ..client import response as rgd
 from . import codeengine as codeengine_routes
-from .codeengine import CodeEngine_API_Error
+from .codeengine import CodeEngine_GET_Error, CodeEngine_CRUD_Error
 
 
 class CodeEnginePackageBuilder:
@@ -31,13 +33,13 @@ class CodeEnginePackageBuilder:
 
 @gd.route_function
 async def deploy_code_engine_package(
-    package_id,
-    version,
-    auth: dmda.DomoAuth,
+    package_id: str,
+    version: str,
+    auth: DomoAuth,
     debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-    parent_class: str = None,
-    debug_num_stacks_to_drop=1,
+    session: Optional[httpx.AsyncClient] = None,
+    parent_class: Optional[str] = None,
+    debug_num_stacks_to_drop: int = 1,
 ) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/codeengine/v2/packages/{package_id}/versions/{version}/release"
 
@@ -52,25 +54,25 @@ async def deploy_code_engine_package(
     )
 
     if not res.is_success:
-        raise CodeEngine_API_Error(res=res)
+        raise CodeEngine_CRUD_Error(operation="deploy", codeengine_id=f"{package_id}/{version}", response_data=res)
 
     return res
 
 
-class CodeEngine_InvalidPackage(dmde.DomoError):
-    def __init__(self, message: str, auth: dmda.DomoAuth):
+class CodeEngine_InvalidPackage(RouteError):
+    def __init__(self, message: str, auth: DomoAuth):
         super().__init__(message=message, domo_instance=auth.domo_instance)
 
 
 @gd.route_function
 async def create_code_engine_package(
     payload: dict,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     debug_api: bool = False,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     return_raw: bool = False,
-    parent_class: str = None,
-    debug_num_stacks_to_drop=1,
+    parent_class: Optional[str] = None,
+    debug_num_stacks_to_drop: int = 1,
 ) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/codeengine/v2/packages"
 
@@ -89,7 +91,7 @@ async def create_code_engine_package(
         return res
 
     if not res.is_success:
-        raise CodeEngine_API_Error(res=res)
+        raise CodeEngine_CRUD_Error(operation="create", codeengine_id=payload.get("id"), response_data=res)
 
     return res
 
@@ -111,13 +113,13 @@ def increment_version(version: str) -> str:
 
 @gd.route_function
 async def upsert_code_engine_package_version(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     payload: dict,
-    version: str = None,
+    version: Optional[str] = None,
     auto_increment_version: bool = True,
-    session: httpx.AsyncClient = None,
-    parent_class: str = None,
-    debug_num_stacks_to_drop=1,
+    session: Optional[httpx.AsyncClient] = None,
+    parent_class: Optional[str] = None,
+    debug_num_stacks_to_drop: int = 1,
     debug_api: bool = False,
     debug_prn: bool = False,
 ) -> rgd.ResponseGetData:
@@ -153,7 +155,7 @@ async def upsert_code_engine_package_version(
                 print(f"Package {package_id} v{version} is identical; skipping update.")
             return existing_pkg
 
-    except CodeEngine_API_Error:
+    except CodeEngine_GET_Error:
         pass  # Not found, continue to create
 
     return await create_code_engine_package(
@@ -169,13 +171,13 @@ async def upsert_code_engine_package_version(
 @gd.route_function
 async def upsert_package(
     payload: dict,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     check_different: bool = True,
     create_new_version: bool = False,
-    session: httpx.AsyncClient = None,
-    parent_class: str = None,
+    session: Optional[httpx.AsyncClient] = None,
+    parent_class: Optional[str] = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
+    debug_num_stacks_to_drop: int = 1,
     debug_prn: bool = False,
 ) -> rgd.ResponseGetData:
     package_id = payload.get("id")
@@ -202,7 +204,7 @@ async def upsert_package(
             parent_class=parent_class,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         )
-    except CodeEngine_API_Error:
+    except CodeEngine_GET_Error:
         return await create_code_engine_package(
             payload,
             auth=auth,
