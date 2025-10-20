@@ -8,7 +8,6 @@ __all__ = [
 ]
 
 import asyncio
-
 import datetime as dt
 from dataclasses import dataclass, field
 from typing import Any, List, Optional, Union
@@ -19,19 +18,18 @@ from nbdev.showdoc import patch_to
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
 from ..client import Logger as lc
+from ..client.ResponseGetData import ResponseGetData
 from ..routes import instance_config_sso as sso_routes
 from ..routes import user as user_routes
-from ..utils import DictDot as util_dd
 from ..routes.user import (
     SearchUser_NoResults,
     UserProperty,
 )
+from ..utils import DictDot as util_dd
 from ..utils.convert import (
     convert_epoch_millisecond_to_datetime,
     test_valid_email,
 )
-
-from ..client.ResponseGetData import ResponseGetData
 from ..utils.Image import Image, are_same_image
 
 
@@ -348,7 +346,6 @@ async def delete(
     debug_num_stacks_to_drop=2,
     parent_class=None,
 ):
-
     res = await user_routes.delete_user(
         auth=self.auth,
         user_id=self.id,
@@ -455,7 +452,6 @@ async def upsert_avatar(
 
     res = "images are the same"
     if not are_same_image(domo_default_img, avatar):
-
         res = await user_routes.upload_avatar(
             auth=self.auth,
             user_id=self.id,
@@ -482,7 +478,6 @@ async def toggle_direct_signon_access(
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 2,
 ):
-
     res = await sso_routes.toggle_user_direct_signon_access(
         auth=self.auth,
         user_id_ls=[self.id],
@@ -699,7 +694,6 @@ async def search_by_email(
     suppress_no_results_error: bool = False,
     session: httpx.AsyncClient = None,
 ) -> list:
-
     emails = [email] if isinstance(email, str) else email
 
     try:
@@ -732,7 +726,7 @@ async def search_by_email(
     if not domo_users:
         raise DomoUser_NoSearch(
             cls_instance=self,
-            message=f'unable to find {",".join(emails)}',
+            message=f"unable to find {','.join(emails)}",
             domo_instance=self.auth.domo_instance,
         )
 
@@ -751,7 +745,6 @@ async def by_email(
     suppress_no_results_error: bool = False,
     session: httpx.AsyncClient = None,
 ) -> list:
-
     try:
         res = await user_routes.search_users_by_email(
             user_email_ls=email_ls,
@@ -781,7 +774,7 @@ async def by_email(
     if not domo_users:
         raise DomoUser_NoSearch(
             cls=cls,
-            message=f'unable to find {",".join(email_ls)}',
+            message=f"unable to find {','.join(email_ls)}",
             domo_instance=auth.domo_instance,
         )
 
@@ -800,7 +793,6 @@ async def by_id(
     return_raw: bool = False,
     session: httpx.AsyncClient = None,
 ) -> Union[List[DomoUser], DomoUser, ResponseGetData, bool]:
-
     res = None
 
     try:
@@ -942,7 +934,6 @@ async def upsert(
         return await DomoUser.get_by_id(auth=self.auth, user_id=domo_user.id)
 
     except (SearchUser_NoResults, DomoUser_NoSearch) as e:
-
         if not role_id:
             raise CreateUser_MissingRole(
                 domo_instance=self.auth.domo_instance, email_address=email_address

@@ -18,7 +18,6 @@ from ..client import DomoError as dmde
 
 
 def upsert_folder(folder_path: str, debug_prn: bool = False, replace_folder=False):
-
     folder_path = os.path.dirname(folder_path)
 
     if replace_folder and os.path.exists(folder_path) and os.path.isdir(folder_path):
@@ -46,7 +45,6 @@ def upsert_file(
     debug_prn: bool = False,
     replace_folder: bool = False,
 ) -> bool:
-
     upsert_folder(
         folder_path=file_path, debug_prn=debug_prn, replace_folder=replace_folder
     )

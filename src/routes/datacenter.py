@@ -6,8 +6,8 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as de
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
+from ..client import get_data as gd
 from ..client.DomoEntity import DomoEnum
 
 __all__ = [
@@ -447,6 +447,6 @@ async def share_resource(
         )
 
     if res.is_success:
-        res.response = f"{resource_type.value} {','.join([resource['id'] for resource in  resource_ls])} successfully shared with {', '.join([recipient['id'] for recipient in recipient_ls])}"
+        res.response = f"{resource_type.value} {','.join([resource['id'] for resource in resource_ls])} successfully shared with {', '.join([recipient['id'] for recipient in recipient_ls])}"
 
     return res

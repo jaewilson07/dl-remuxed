@@ -18,8 +18,8 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as de
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
+from ..client import get_data as gd
 
 
 class Role_NotRetrieved(de.DomoError):
@@ -335,7 +335,6 @@ async def set_default_role(
     debug_num_stacks_to_drop: int = 1,
     parent_class=None,
 ) -> rgd.ResponseGetData:
-
     # url = f"https://{auth.domo_instance}.domo.com/api/content/v1/customer-states/user.roleid.default"
     # body = {"name": "user.roleid.default", "value": role_id}
 

@@ -8,9 +8,9 @@ import httpx
 from nbdev.showdoc import patch_to
 
 from ..client import DomoError as dmde
+from ..client.DomoEntity import DomoSubEntity, Entity_Relation
 from ..routes import group as group_routes
 from ..utils import chunk_execution as dmce
-from ..client.DomoEntity import DomoSubEntity, Entity_Relation
 
 __all__ = ["UpdateMembership", "Membership_Entity", "Membership", "GroupMembership"]
 
@@ -26,7 +26,6 @@ class UpdateMembership(dmde.ClassError):
 
 @dataclass
 class Membership_Entity(Entity_Relation):
-
     def to_dict(self):
         from . import DomoGroup as dmdg
         from . import DomoUser as dmdu
@@ -42,7 +41,6 @@ class Membership_Entity(Entity_Relation):
 
 @dataclass
 class Membership(DomoSubEntity):
-
     owners: List[str] = field(default_factory=lambda: [])
     members: List[str] = field(default_factory=lambda: [])
 
@@ -65,12 +63,10 @@ class Membership(DomoSubEntity):
         pass
 
     def _add_to_list(self, member, list_to_update, relation_type):
-
         if not isinstance(
             member,
             Membership_Entity,
         ):
-
             member = Membership_Entity(
                 entity=member, relation_type=relation_type, auth=member.auth
             )
@@ -179,7 +175,6 @@ class Membership(DomoSubEntity):
 
 @dataclass
 class GroupMembership(Membership):
-
     async def get_owners(
         self,
         return_raw: bool = False,
@@ -187,7 +182,6 @@ class GroupMembership(Membership):
         session: httpx.AsyncClient = None,
         debug_num_stacks_to_drop: int = 2,
     ):
-
         res = await group_routes.get_group_owners(
             group_id=self.parent_id,
             auth=self.auth,
@@ -240,7 +234,6 @@ class GroupMembership(Membership):
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
     ):
-
         res = await group_routes.get_group_membership(
             group_id=self.parent_id,
             auth=self.auth,
@@ -452,7 +445,6 @@ async def set_owners(
         self._add_owner(domo_entity)
 
     for oe in membership:
-
         # open accounts must have themselves as an owner
         if (
             self.parent

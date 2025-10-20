@@ -11,8 +11,8 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as de
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
+from ..client import get_data as gd
 
 
 class InstanceSwitcherMapping_GET_Error(de.RouteError):
@@ -21,7 +21,6 @@ class InstanceSwitcherMapping_GET_Error(de.RouteError):
         res: rgd.ResponseGetData,
         message=None,
     ):
-
         super().__init__(
             res=res,
             message=message or res.response,
@@ -38,7 +37,6 @@ async def get_instance_switcher_mapping(
     debug_num_stacks_to_drop: int = 1,
     timeout: int = 20,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/everywhere/admin/userattributeinstances"
 
     res = await gd.get_data(

@@ -1,6 +1,5 @@
 """preferred response class for all API requests"""
 
-
 __all__ = [
     "DomoBase",
     "DomoEntity",
@@ -22,15 +21,13 @@ from typing import Any, Callable
 
 import httpx
 
-from . import DomoAuth as dmda
 from ..utils.convert import convert_snake_to_pascal
+from . import DomoAuth as dmda
 
 
 class DomoEnum(Enum):
-
     @classmethod
     def get(cls, value):
-
         for member in cls:
             if member.name.lower() == value.lower():
                 return member
@@ -97,7 +94,6 @@ class DomoEntity(DomoBase):
 
 @dataclass
 class DomoEntity_w_Lineage(DomoEntity):
-
     Lineage: Any = field(repr=False)
 
     def __post_init__(self):
@@ -117,7 +113,6 @@ class DomoEntity_w_Lineage(DomoEntity):
 
 @dataclass
 class DomoFederatedEntity(DomoEntity_w_Lineage):
-
     @abc.abstractmethod
     async def get_federated_parent(
         self, parent_auth=None, parent_auth_retrieval_fn: Callable = None
@@ -132,7 +127,6 @@ class DomoPublishedEntity(DomoFederatedEntity):
 
     @abc.abstractmethod
     async def get_subscription(self):
-
         # self.subscription = ... ## should return one subscirption
         raise NotImplementedError("This method should be implemented by subclasses.")
 
@@ -140,7 +134,6 @@ class DomoPublishedEntity(DomoFederatedEntity):
     async def get_parent_publication(
         self, parent_auth=None, parent_auth_retreival_fn=None
     ):
-
         # if not self.subscription:
         #     await get_subscription()
 
@@ -216,7 +209,6 @@ class Entity_Relation:
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
     ):
-
         # if entity_type == "USER":
         from ..classes import DomoUser as dmdu
 
@@ -240,7 +232,6 @@ class Entity_Relation:
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
     ):
-
         from ..classes import DomoGroup as dmdg
 
         domo_group = await dmdg.DomoGroup.get_by_id(

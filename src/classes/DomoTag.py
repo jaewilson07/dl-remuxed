@@ -1,6 +1,5 @@
 """a class based approach for interacting with Domo Datasets"""
 
-
 __all__ = ["DomoTags_SetTagsError", "DomoTags"]
 
 import json

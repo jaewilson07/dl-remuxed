@@ -18,15 +18,14 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
+from ..client import get_data as gd
 from ..client.DomoEntity import DomoEnum
 
 
 def generate_chat_body(
     text_input: str, model="domo.domo_ai.domogpt-chat-medium-v1.1:anthropic"
 ):
-
     return {
         "input": text_input,
         "promptTemplate": {"template": "${input}"},
@@ -45,7 +44,6 @@ async def llm_generate_text(
     return_raw: bool = False,
     session: httpx.AsyncClient = None,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/ai/v1/text/generation"
 
     body = chat_body or generate_chat_body(text_input=text_input)
@@ -159,7 +157,6 @@ async def get_dataset_ai_readiness(
     session: httpx.AsyncClient = None,
     parent_class: str = None,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/api/ai/readiness/v1/data-dictionary/dataset/{dataset_id}"
 
     res = await gd.get_data(

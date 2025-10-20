@@ -16,10 +16,10 @@ from typing import Any, Callable, Union
 import httpx
 from nbdev.showdoc import patch_to
 
-from . import DomoAccount as dmac
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
 from ..utils import xkcd_password as dmxkcd
+from . import DomoAccount as dmac
 
 
 class DJW_PermissionToAccountDenied(dmde.DomoError):
@@ -133,7 +133,6 @@ class DomoJupyter_Account:
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
     ):
-
         account_id = obj["account_id"]
         alias = obj["alias"]
 
@@ -158,7 +157,6 @@ class DomoJupyter_Account:
         is_suppress_errors: bool = False,
         session: httpx.AsyncClient = None,
     ):
-
         da = cls(
             dj_workspace=dj_workspace,
             account_id=domo_account.id,

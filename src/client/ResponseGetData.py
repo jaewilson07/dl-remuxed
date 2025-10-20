@@ -1,6 +1,5 @@
 """preferred response class for all API requests"""
 
-
 __all__ = ["STREAM_FILE_PATH", "BlockedByVPN", "ResponseGetData", "find_ip"]
 
 import re
@@ -47,7 +46,8 @@ class ResponseGetData:
 
 @patch_to(ResponseGetData, cls_method=True)
 def _from_requests_response(
-    cls, res: requests.Response  # requests response object
+    cls,
+    res: requests.Response,  # requests response object
 ) -> ResponseGetData:
     """returns ResponseGetData"""
 
@@ -169,7 +169,9 @@ async def _read_stream(file_name: str):
 
 @patch_to(ResponseGetData, cls_method=True)
 async def _from_looper(
-    cls: ResponseGetData, res: ResponseGetData, array: list  # requests response object
+    cls: ResponseGetData,
+    res: ResponseGetData,
+    array: list,  # requests response object
 ) -> ResponseGetData:
     """async method returns ResponseGetData"""
 

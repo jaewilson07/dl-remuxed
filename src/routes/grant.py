@@ -4,8 +4,8 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as de
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
+from ..client import get_data as gd
 
 
 class GetGrants_Error(de.RouteError):
@@ -16,7 +16,6 @@ class GetGrants_Error(de.RouteError):
 async def get_grants(
     auth: dmda.DomoAuth, debug_api: bool = False, session: httpx.AsyncClient = None
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/authorization/v1/authorities"
 
     res = await gd.get_data(

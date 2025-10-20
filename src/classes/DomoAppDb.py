@@ -33,7 +33,6 @@ def to_dict(value):
 
 @dataclass
 class AppDbDocument:
-
     auth: dmda.DomoAuth = field(repr=False)
     _collection_id: str
 
@@ -57,7 +56,6 @@ class AppDbDocument:
 
         else:
             for key, value in self.__dict__.items():
-
                 if key.startswith("_") or key in ["auth"]:
                     continue
 
@@ -90,7 +88,6 @@ class AppDbDocument:
         created_on_dt=None,
         updated_on_dt=None,
     ):
-
         if metadata:
             collection_id = metadata.pop("collectionId")
 
@@ -253,7 +250,6 @@ class AppDbCollection:
 
     @classmethod
     def _from_dict(cls, auth, obj):
-
         return cls(
             auth=auth,
             id=obj["id"],
@@ -273,7 +269,6 @@ class AppDbCollection:
         debug_num_stacks_to_drop=2,
         return_raw: bool = False,
     ):
-
         res = await appdb_routes.get_collection_by_id(
             auth=auth,
             collection_id=collection_id,
@@ -329,7 +324,6 @@ async def query_documents(
     debug_num_stacks_to_drop: int = 2,
     session: httpx.AsyncClient = None,
 ):
-
     documents = []
     loop_retry = 0
     while loop_retry <= 1 and not documents:
@@ -414,7 +408,6 @@ async def upsert(
 
 @dataclass
 class AppDbCollections:
-
     @classmethod
     async def get_collections(
         cls,
@@ -425,7 +418,6 @@ class AppDbCollections:
         debug_num_stacks_to_drop=1,
         return_raw: bool = False,
     ):
-
         res = await appdb_routes.get_collections(
             auth=auth,
             datastore_id=datastore_id,

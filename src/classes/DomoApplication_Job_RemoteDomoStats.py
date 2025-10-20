@@ -11,13 +11,13 @@ from typing import List, Optional
 import httpx
 from nbdev.showdoc import patch_to
 
-from ..client import DomoAuth as dmda
-from ..routes import application as application_routes
 from ..classes.DomoApplication_Job_Base import (
     DomoJob_Base,
     DomoTrigger,
     DomoTrigger_Schedule,
 )
+from ..client import DomoAuth as dmda
+from ..routes import application as application_routes
 
 
 @dataclass
@@ -79,7 +79,6 @@ class DomoJob_RemoteDomoStats(DomoJob_Base):
 
     @classmethod
     def _from_dict(cls, obj, auth):
-
         return cls(
             **cls._convert_API_res_to_DomoJob_base_obj(obj),
             remote_instance=cls._format_remote_instance(
@@ -105,7 +104,6 @@ class DomoJob_RemoteDomoStats(DomoJob_Base):
         debug_num_stacks_to_drop=2,
         return_raw: bool = False,
     ):
-
         return await cls._get_by_id(
             application_id=application_id,
             job_id=job_id,
@@ -119,7 +117,6 @@ class DomoJob_RemoteDomoStats(DomoJob_Base):
         )
 
     def to_dict(self):
-
         s = self._generate_to_dict()
 
         s["executionPayload"].update(
@@ -151,7 +148,6 @@ async def create(
     debug_num_stacks_to_drop=2,
     session: Optional[httpx.AsyncClient] = None,
 ):
-
     triggers_ls = []
     if triggers is not None and len(triggers) > 0:
         triggers_ls = [

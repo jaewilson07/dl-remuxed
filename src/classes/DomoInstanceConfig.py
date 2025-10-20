@@ -8,6 +8,14 @@ import httpx
 import pandas as pd
 from nbdev.showdoc import patch_to
 
+from ..classes.DomoInstanceConfig_InstanceSwitcher import (
+    DomoInstanceConfig_InstanceSwitcher,
+)
+from ..client import DomoAuth as dmda
+from ..client import DomoError as dmde
+from ..routes import application as application_routes
+from ..routes import instance_config as instance_config_routes
+from ..routes import sandbox as sandbox_routes
 from . import DomoAccessToken as dmat
 from . import DomoAccount as dmac
 from . import DomoAllowlist as dmal
@@ -19,14 +27,6 @@ from . import DomoInstanceConfig_SSO as dicsso
 from . import DomoInstanceConfig_UserAttribute as dicua
 from . import DomoPublish as dmpb
 from . import DomoRole as dmrl
-from ..client import DomoAuth as dmda
-from ..client import DomoError as dmde
-from ..routes import application as application_routes
-from ..routes import instance_config as instance_config_routes
-from ..routes import sandbox as sandbox_routes
-from ..classes.DomoInstanceConfig_InstanceSwitcher import (
-    DomoInstanceConfig_InstanceSwitcher,
-)
 
 
 @dataclass
@@ -109,7 +109,6 @@ async def generate_applications_report(
     return_raw: bool = False,
     debug_num_stacks_to_drop=2,
 ):
-
     domo_apps = await self.get_applications(
         debug_api=debug_api,
         session=session,
@@ -164,7 +163,6 @@ async def set_authorized_domains(
     debug_num_stacks_to_drop=1,
     session: httpx.AsyncClient = None,
 ):
-
     res = await instance_config_routes.set_authorized_domains(
         auth=self.auth,
         authorized_domain_ls=authorized_domains,
@@ -185,7 +183,6 @@ async def upsert_authorized_domains(
     session: httpx.AsyncClient = None,
     debug_num_stacks_to_drop=2,
 ):
-
     existing_domains = await self.get_authorized_domains(
         debug_api=debug_api,
         session=session,
@@ -210,7 +207,6 @@ async def get_authorized_custom_app_domains(
     return_raw: bool = False,
     debug_num_stacks_to_drop=2,
 ) -> List[str]:
-
     res = await instance_config_routes.get_authorized_custom_app_domains(
         auth=self.auth,
         debug_api=debug_api,
@@ -279,7 +275,6 @@ async def get_sandbox_is_same_instance_promotion_enabled(
     return_raw: bool = False,
     debug_num_stacks_to_drop=2,
 ):
-
     res = await sandbox_routes.get_is_allow_same_instance_promotion_enabled(
         auth=self.auth,
         session=session,
@@ -365,7 +360,6 @@ async def toggle_is_user_invite_notification_enabled(
     res_is_enabled = await self.get_is_user_invite_notification_enabled()
 
     if is_enabled == self.is_user_invite_notification_enabled:
-
         return res_is_enabled
 
     res = await instance_config_routes.toggle_is_user_invite_enabled(

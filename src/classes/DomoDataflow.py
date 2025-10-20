@@ -6,19 +6,18 @@ from typing import List
 import httpx
 from nbdev.showdoc import patch_to
 
-from . import DomoJupyter as dmdj
-from . import DomoLineage as dmdl
 from ..client import DomoAuth as dmda
+from ..client.DomoEntity import DomoEntity_w_Lineage
 from ..routes import dataflow as dataflow_routes
 from ..utils import chunk_execution as dmce
-from ..client.DomoEntity import DomoEntity_w_Lineage
+from . import DomoJupyter as dmdj
+from . import DomoLineage as dmdl
 
 __all__ = ["DomoDataflow", "DomoDataflows"]
 
 from ..classes.DomoDataflow_History import (
     DomoDataflow_History,
 )
-
 from .DomoDataflow_Action import DomoDataflow_Action
 
 
@@ -52,7 +51,6 @@ class DomoDataflow(DomoEntity_w_Lineage):
 
     @classmethod
     def _from_dict(cls, obj, auth, version_id=None, version_number=None):
-
         domo_dataflow = cls(
             auth=auth,
             id=obj.get("id"),

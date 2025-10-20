@@ -23,8 +23,8 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as de
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
+from ..client import get_data as gd
 
 
 class GET_Publish_Error(de.RouteError):
@@ -50,7 +50,6 @@ async def search_publications(
     parent_class: str = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/publish/v2/publication/summaries"
 
     offset_params = {"limit": "limit", "offset": "offset"}
@@ -99,7 +98,6 @@ async def get_publication_by_id(
     parent_class: str = None,
     timeout=10,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/publish/v2/publication/{publication_id}"
 
     res = await gd.get_data(
@@ -190,7 +188,6 @@ async def update_publish_job(
     debug_num_stacks_to_drop=1,
     parent_class: str = None,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/publish/v2/publication/{publication_id}"
 
     res = await gd.get_data(

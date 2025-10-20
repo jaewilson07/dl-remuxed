@@ -35,11 +35,11 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as de
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
-from ..utils import chunk_execution as ce
-from ..utils import Image as uimg
+from ..client import get_data as gd
 from ..client.DomoEntity import DomoEnum
+from ..utils import Image as uimg
+from ..utils import chunk_execution as ce
 from ..utils.convert import test_valid_email
 
 
@@ -108,7 +108,7 @@ async def get_all_users(
     session: httpx.AsyncClient = None,
 ) -> rgd.ResponseGetData:
     """retrieves all users from Domo"""
-    url = f"https://{ auth.domo_instance}.domo.com/api/content/v2/users"
+    url = f"https://{auth.domo_instance}.domo.com/api/content/v2/users"
 
     res = await gd.get_data(
         url=url,
@@ -435,7 +435,6 @@ async def get_by_id(
     parent_class=None,
     is_v2: bool = True,
 ):
-
     if not is_v2:
         return await _get_by_id(
             user_id=user_id,
@@ -898,7 +897,6 @@ async def user_is_allowed_direct_signon(
     parent_class: str = None,
     session: httpx.AsyncClient = None,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/content/v3/users/directSignOn"
     params = {"value": is_allow_dso}
 

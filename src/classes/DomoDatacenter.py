@@ -7,13 +7,12 @@ import httpx
 from nbdev.showdoc import patch_to
 
 from ..client import DomoAuth as dmda
+from ..client.DomoError import DomoError
 from ..routes import datacenter as datacenter_routes
-from ..utils import chunk_execution as dmce
 from ..routes.datacenter import (
     generate_search_datacenter_filter,
 )
-
-from ..client.DomoError import DomoError
+from ..utils import chunk_execution as dmce
 
 
 @dataclass
@@ -36,7 +35,6 @@ async def search_datacenter(
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
 ) -> List[Any]:
-
     res = await datacenter_routes.search_datacenter(
         auth=self.auth,
         maximum=maximum,
@@ -161,7 +159,6 @@ async def search_cards(
     session: httpx.AsyncClient = None,
     is_suppress_errors: bool = False,
 ) -> List[Any]:
-
     from . import DomoCard as dmc
 
     json_list = await self.search_datacenter(
@@ -210,8 +207,8 @@ async def get_cards_admin_summary(
 ) -> List[Any]:
     """search Domo Datacenter card api."""
 
-    from . import DomoCard as dmc
     from ..routes import card as card_routes
+    from . import DomoCard as dmc
 
     search_body = card_routes.generate_body_search_cards_admin_summary(
         page_ids=page_ids,
@@ -254,7 +251,6 @@ async def search_codeengine(
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
 ) -> List[Any]:
-
     from . import DomoCodeEngine as dmceg
 
     res = await self.search_datacenter(
@@ -271,7 +267,6 @@ async def search_codeengine(
         return res
 
     async def _get_current_version(auth, package_id):
-
         try:
             return await dmceg.DomoCodeEngine_Package.get_current_version_by_id(
                 auth=auth,

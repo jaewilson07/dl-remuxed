@@ -1,7 +1,6 @@
 __all__ = ["UserAttribute", "UserAttributes"]
 
 import datetime as dt
-
 from dataclasses import dataclass, field
 from typing import List
 
@@ -9,8 +8,8 @@ import httpx
 from nbdev.showdoc import patch_to
 
 from ..client import DomoAuth as dmda
-from ..routes import user_attributes as user_attribute_routes
 from ..client.DomoEntity import DomoEntity, DomoManager
+from ..routes import user_attributes as user_attribute_routes
 from ..routes.user_attributes import (
     UserAttributes_CRUD_Error,
     UserAttributes_GET_Error,
@@ -168,7 +167,6 @@ async def create(
     debug_num_stacks_to_drop=2,
     return_raw: bool = False,
 ):
-
     auth = self.auth
     attribute_id = user_attribute_routes.clean_attribute_id(attribute_id)
 
@@ -208,7 +206,6 @@ async def upsert(
     debug_num_stacks_to_drop=2,
     debug_prn: bool = False,
 ):
-
     auth = self.auth
     attribute_id = user_attribute_routes.clean_attribute_id(attribute_id)
 
@@ -269,7 +266,6 @@ async def delete(
     debug_num_stacks_to_drop=2,
     return_raw: bool = False,
 ):
-
     auth = self.auth
 
     res = await user_attribute_routes.delete_user_attribute(

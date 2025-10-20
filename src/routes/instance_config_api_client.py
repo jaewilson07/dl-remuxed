@@ -16,14 +16,13 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
+from ..client import get_data as gd
 from ..client.DomoEntity import DomoEnum
 
 
 class ApiClient_GET_Error(dmde.RouteError):
     def __init__(self, res: rgd.ResponseGetData, message=None):
-
         super().__init__(res=res, message=message)
 
 
@@ -36,7 +35,6 @@ async def get_api_clients(
     session: httpx.AsyncClient = None,
     # return_raw: bool = False,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/identity/v1/developer-tokens"
 
     res = await gd.get_data(
@@ -70,7 +68,6 @@ async def get_client_by_id(
     session: httpx.AsyncClient = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
-
     res = await get_api_clients(
         auth=auth,
         debug_api=debug_api,
@@ -148,7 +145,6 @@ async def create_api_client(
     parent_class=None,
     session: httpx.AsyncClient = None,
 ) -> rgd.ResponseGetData:
-
     if not isinstance(auth, dmda.DomoFullAuth):
         raise dmda.InvalidAuthTypeError(required_auth_type=dmda.DomoFullAuth)
 
@@ -209,7 +205,6 @@ async def revoke_api_client(
     parent_class=None,
     session: httpx.AsyncClient = None,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/api/identity/v1/developer-tokens/{client_id}"
 
     res = await gd.get_data(

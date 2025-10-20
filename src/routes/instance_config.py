@@ -31,10 +31,10 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
-from . import user as user_routes
+from ..client import get_data as gd
 from ..utils.convert import convert_string_to_bool
+from . import user as user_routes
 
 
 class ToggleSocialUsers_Error(dmde.RouteError):
@@ -54,7 +54,6 @@ async def get_is_invite_social_users_enabled(
     return_raw: bool = False,
     debug_num_stacks_to_drop=1,
 ) -> rgd.ResponseGetData:
-
     # must pass the customer as the short form API endpoint (without customer_id) does not support a GET request
     # url = f"https://{auth.domo_instance}.domo.com/api/content/v3/customers/features/free-invite"
 
@@ -92,7 +91,6 @@ async def get_is_user_invite_notifications_enabled(
     debug_num_stacks_to_drop=1,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/api/customer/v1/properties/user.invite.email.enabled"
 
     res = await gd.get_data(
@@ -184,7 +182,6 @@ async def get_allowlist(
     parent_class=None,
     debug_num_stacks_to_drop=1,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/admin/companysettings/whitelist"
 
     res = await gd.get_data(
@@ -378,7 +375,6 @@ async def get_authorized_domains(
     parent_class=None,
     debug_num_stacks_to_drop=1,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/customer-states/authorized-domains"
 
     res = await gd.get_data(
@@ -424,7 +420,6 @@ async def set_authorized_domains(
     parent_class=None,
     debug_num_stacks_to_drop=1,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/customer-states/authorized-domains"
 
     body = {"name": "authorized-domains", "value": ",".join(authorized_domain_ls)}

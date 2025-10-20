@@ -49,7 +49,6 @@ class InvalidAuthTypeError(AuthError):
         domo_instance: Optional[str] = None,
         **kwargs,
     ):
-
         message = f"This API rquires {required_auth_type.__name__ if required_auth_type else ', '.join([auth_type.__name__ for auth_type in required_auth_type_ls])}"
 
         super().__init__(
@@ -113,7 +112,6 @@ async def get_full_auth(
         raise InvalidInstanceError(res=res, domo_instance=domo_instance)
 
     if res.is_success and isinstance(res.response, dict):
-
         if res.response.get("reason") == "INVALID_CREDENTIALS":
             res.is_success = False
 

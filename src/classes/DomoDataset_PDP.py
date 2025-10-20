@@ -8,8 +8,8 @@ from nbdev.showdoc import patch_to
 from ..client import DomoAuth as dmda
 from ..client import DomoError as de
 from ..routes import pdp as pdp_routes
-from ..utils import chunk_execution as ce
 from ..utils import DictDot as util_dd
+from ..utils import chunk_execution as ce
 
 
 @dataclass
@@ -32,7 +32,6 @@ class PDP_Parameter:
 
 @patch_to(PDP_Parameter)
 def generate_parameter_simple(obj):
-
     return pdp_routes.generate_policy_parameter_simple(
         column_name=obj.name,
         type=obj.type,
@@ -44,7 +43,6 @@ def generate_parameter_simple(obj):
 
 @patch_to(PDP_Parameter)
 def generate_body_from_parameter(self):
-
     return pdp_routes.generate_policy_parameter_simple(
         column_name=self.column_name,
         type=self.type,
@@ -113,7 +111,6 @@ class PDP_Policy:
         debug_api: bool = False,
         debug_prn: bool = False,
     ):
-
         # print(policy_definition)
         policy_id = policy_definition.get("filterGroupId")
         if policy_id:
@@ -164,7 +161,6 @@ def generate_body_from_policy(
 
 @dataclass
 class Dataset_PDP_Policies:
-
     dataset = None  # domo dataset class
     policies: list[PDP_Policy] = None
     auth = None
@@ -183,7 +179,6 @@ async def get_policies(
     return_raw: bool = False,
     debug_api: bool = False,
 ):
-
     dataset_id = dataset_id or self.dataset.id
     auth = auth or self.dataset.auth
 
@@ -213,7 +208,6 @@ class SearchPDP_NotFound(de.DomoError):
     def __init__(
         self, domo_instance, dataset_id, message="not found", function_name="search_pdp"
     ):
-
         super().__init__(
             domo_instance=domo_instance,
             entity_id=dataset_id,
@@ -234,7 +228,6 @@ async def search_pdp_policies(
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
 ):
-
     all_pdp_policies = await Dataset_PDP_Policies(cls).get_policies(
         auth=auth, dataset_id=dataset_id, debug_api=debug_api
     )
@@ -295,7 +288,6 @@ async def delete_policy(
     dataset_id: str = None,
     debug_api: bool = False,
 ):
-
     dataset_id = dataset_id or self.dataset_id
     policy_id = policy_id or self.filter_group_id
 

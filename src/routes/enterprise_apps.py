@@ -17,8 +17,8 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
+from ..client import get_data as gd
 from ..utils import files as dmfi
 
 
@@ -38,7 +38,6 @@ async def get_all_designs(
     session: httpx.AsyncClient = None,
     parent_class: str = None,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/api/apps/v1/designs"
 
     params = {
@@ -92,7 +91,6 @@ async def get_design_by_id(
     parent_class: str = None,
     session: httpx.AsyncClient = None,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/api/apps/v1/designs/{design_id}"
 
     res = await gd.get_data(
@@ -121,7 +119,6 @@ async def get_design_versions(
     parent_class: str = None,
     session: httpx.AsyncClient = None,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/domoapps/designs/{design_id}/versions"
 
     res = await gd.get_data(
@@ -159,7 +156,6 @@ async def get_design_source_code_by_version(
     is_unpack_archive=True,
     return_raw: bool = False,
 ):
-
     url = f"http://{auth.domo_instance}.domo.com/domoapps/designs/{design_id}/versions/{version}/assets"
 
     res = await gd.get_data_stream(
@@ -209,7 +205,6 @@ async def get_design_permissions(
     session: httpx.AsyncClient = None,
     parent_class: str = None,
 ):
-
     res = await get_design_by_id(
         auth=auth,
         design_id=design_id,

@@ -11,12 +11,12 @@ from typing import Any
 import httpx
 from nbdev.showdoc import patch_to
 
-from . import DomoAccess as dmacc
-from . import DomoAccount_Config as dmacnfg
-from . import DomoAccount_Default as dmacb
 from ..client import DomoAuth as dmda
 from ..client import DomoEntity as dmee
 from ..routes import account as account_routes
+from . import DomoAccess as dmacc
+from . import DomoAccount_Config as dmacnfg
+from . import DomoAccount_Default as dmacb
 
 
 @staticmethod

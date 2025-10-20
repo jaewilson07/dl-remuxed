@@ -12,9 +12,7 @@ from ..routes import instance_config_mfa as mfa_routes
 
 
 class MFAConfig_InstantiationError(dmde.ClassError):
-
     def __init__(self, message, auth: dmda.DomoAuth, cls):
-
         super().__init__(domo_instance=auth.domo_instance, message=message, cls=cls)
 
 
@@ -27,7 +25,6 @@ class MFA_Config:
 
     @classmethod
     def _from_dict(cls, auth: dmda.DomoAuth, obj: List[dict]):
-
         return cls(
             auth=auth,
             is_multifactor_required=obj.get("is_multifactor_required"),
@@ -270,7 +267,6 @@ async def update(
     debug_num_stacks_to_drop: int = 2,
     debug_prn: bool = False,
 ):
-
     await self.toggle_mfa(
         is_enable_MFA=is_enable_MFA,
         session=session,

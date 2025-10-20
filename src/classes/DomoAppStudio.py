@@ -7,12 +7,12 @@ from typing import List
 import httpx
 from nbdev.showdoc import patch_to
 
-from ..client import DomoAuth as dmda
-from ..routes import appstudio as appstudio_routes
-from ..utils import chunk_execution as ce
-from ..utils import DictDot as util_dd
 from ..classes.DomoLineage import DomoLineage
+from ..client import DomoAuth as dmda
 from ..client.DomoEntity import DomoEntity_w_Lineage
+from ..routes import appstudio as appstudio_routes
+from ..utils import DictDot as util_dd
+from ..utils import chunk_execution as ce
 
 
 @dataclass
@@ -31,7 +31,6 @@ class DomoAppStudio(DomoEntity_w_Lineage):
 
     @classmethod
     async def _from_content_stacks_v3(cls, page_obj, auth: dmda.DomoAuth = None):
-
         dd = page_obj
         if isinstance(page_obj, dict):
             dd = util_dd.DictDot(page_obj)
@@ -59,7 +58,6 @@ class DomoAppStudio(DomoEntity_w_Lineage):
         session: httpx.AsyncClient = None,
         debug_num_stacks_to_drop: int = 2,
     ):
-
         res = await appstudio_routes.get_apstudio_by_id(
             auth=auth,
             appstudio_id=appstudio_id,
@@ -75,7 +73,6 @@ class DomoAppStudio(DomoEntity_w_Lineage):
 
     @classmethod
     async def _get_entity_by_id(cls, entity_id: str, **kwargs):
-
         return await cls.get_by_id(auth=auth, appstudio_id=entity_id, **kwargs)
 
     def display_url(self):
@@ -130,7 +127,6 @@ class DomoAppStudio(DomoEntity_w_Lineage):
 
 @patch_to(DomoAppStudio, cls_method=True)
 async def _from_adminsummary(cls, appstudio_obj, auth: dmda.DomoAuth):
-
     dd = appstudio_obj
 
     if isinstance(appstudio_obj, dict):
@@ -152,7 +148,6 @@ async def _from_adminsummary(cls, appstudio_obj, auth: dmda.DomoAuth):
 
 @dataclass
 class DomoAppStudios:
-
     @classmethod
     async def get_appstudios(
         cls,
@@ -261,7 +256,6 @@ async def share(
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
 ):
-
     if domo_groups:
         domo_groups = domo_groups if isinstance(domo_groups, list) else [domo_groups]
     if domo_users:

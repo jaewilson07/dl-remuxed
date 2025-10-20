@@ -1,6 +1,5 @@
 """Fill in a module description here"""
 
-
 __all__ = ["share_domo_account_with_domo_group"]
 
 from typing import List
@@ -20,7 +19,6 @@ async def share_domo_account_with_domo_group(
     group_type: dmdg.GroupType_Enum = dmdg.GroupType_Enum["CLOSED"].value,
     is_search_system_accounts: bool = True,  # will default to True if no group_owner_name
 ):
-
     try:
         domo_groups = await dmdg.DomoGroups.by_name(
             auth=auth,

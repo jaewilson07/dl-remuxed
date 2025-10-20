@@ -3,11 +3,11 @@
 Script to analyze Python files and identify functions missing type hints.
 """
 
+import argparse
 import ast
 import os
 from pathlib import Path
-from typing import List, Tuple, Dict, Optional
-import argparse
+from typing import Dict, List
 
 
 class TypeHintChecker(ast.NodeVisitor):
@@ -74,7 +74,7 @@ class TypeHintChecker(ast.NodeVisitor):
 def analyze_file(file_path: Path) -> List[Dict]:
     """Analyze a single Python file for type hint issues"""
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         tree = ast.parse(content)
@@ -144,8 +144,8 @@ def main():
 
     # Generate report
     report_lines = []
-    report_lines.append(f"Type Hint Analysis Report")
-    report_lines.append(f"=" * 50)
+    report_lines.append("Type Hint Analysis Report")
+    report_lines.append("=" * 50)
     report_lines.append(f"Files analyzed: {len(python_files)}")
     report_lines.append(f"Files with issues: {files_with_issues}")
     report_lines.append(f"Total functions needing type hints: {len(all_issues)}")

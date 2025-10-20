@@ -40,7 +40,6 @@ class DomoDataflow_History_Execution:
 
     @classmethod
     def _from_dict(cls, de_obj, auth: dmda.DomoAuth):
-
         action_results = None
         if de_obj.get("actionResults"):
             action_results = [

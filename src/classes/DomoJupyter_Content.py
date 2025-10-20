@@ -74,7 +74,6 @@ class DomoJupyter_Content:
 
         content_str = self.content
         if isinstance(self.content, dict):
-
             content_str = json.dumps(self.content)
 
         output_path = os.path.join(output_folder, file_name)
@@ -95,7 +94,6 @@ class DomoJupyter_Content:
         debug_num_stacks_to_drop: int = 2,
         session: httpx.AsyncClient = None,
     ):
-
         res = await jupyter_routes.create_jupyter_obj(
             auth=auth,
             new_content=new_content,
@@ -155,7 +153,6 @@ class DomoJupyter_Content:
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
     ):
-
         content_path = self.folder + "/" if self.folder else ""
         content_path += self.name
 

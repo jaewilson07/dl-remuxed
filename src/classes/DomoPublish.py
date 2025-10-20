@@ -9,13 +9,13 @@ import httpx
 import pandas as pd
 from nbdev.showdoc import patch_to
 
-from . import DomoLineage as dmdl
 from ..client import DomoAuth as dmda
 from ..client import DomoEntity as dmen
 from ..client import DomoError as dmde
+from ..client.DomoEntity import DomoEntity_w_Lineage, DomoEnum
 from ..routes import publish as publish_routes
 from ..utils import chunk_execution as dmce
-from ..client.DomoEntity import DomoEntity_w_Lineage, DomoEnum
+from . import DomoLineage as dmdl
 
 __all__ = [
     "DomoPublication_Content_Enum",
@@ -65,7 +65,6 @@ class DomoPublication_Content:
 
     @classmethod
     def _from_dict(cls, obj: dict, auth: dmda.DomoAuth, parent: Any = None):
-
         entity_type = obj.get("content").get("type")
         return cls(
             auth=auth,
@@ -124,7 +123,6 @@ class DomoPublication_UnexpectedContentType(dmde.ClassError):
 
 @dataclass
 class DomoPublication(DomoEntity_w_Lineage):
-
     name: str
     description: str
     is_v2: bool
@@ -259,7 +257,6 @@ class DomoPublication(DomoEntity_w_Lineage):
         debug_num_stacks_to_drop: int = 2,
         is_suppress_errors: bool = False,
     ) -> Union[DomoCard, DomoDataset, DomoPage, None]:
-
         res = await self.get_content_details(
             subscriber_domain=subscriber_domain,
             debug_api=debug_api,
@@ -297,7 +294,6 @@ async def create_publication(
     description: str = None,
     debug_api: bool = False,
 ):
-
     if not isinstance(subscription_ls, list):
         subscription_ls = [subscription_ls]
 
@@ -340,7 +336,6 @@ async def update_publication(
     description: str = "",
     debug_api: bool = False,
 ):
-
     if not isinstance(subscription_ls, list):
         subscription_ls = [subscription_ls]
 
@@ -395,7 +390,6 @@ class DomoSubscription(dmen.DomoEntity):
 
     @classmethod
     def _from_dict(cls, obj, auth: dmda.DomoAuth, parent_publication: Any = None):
-
         return cls(
             auth=auth,
             id=obj.get("id") or obj.get("subscriptionId"),
@@ -443,7 +437,6 @@ class DomoSubscription(dmen.DomoEntity):
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
     ):
-
         if not parent_auth and parent_auth_retrieval_fn:
             parent_auth = parent_auth_retrieval_fn(self)
 
@@ -467,7 +460,6 @@ class DomoSubscription(dmen.DomoEntity):
         debug_num_stacks_to_drop=2,
         session: httpx.AsyncClient = None,
     ):
-
         if not self.parent_publication:
             await self.get_parent_publication(
                 parent_auth=parent_auth,
@@ -559,7 +551,6 @@ class DomoEverywhere:
         return_raw: bool = False,
         debug_num_stacks_to_drop=2,
     ):
-
         res = await publish_routes.search_publications(
             auth=self.auth,
             debug_api=debug_api,
@@ -589,7 +580,6 @@ class DomoEverywhere:
         return_raw: bool = False,
         debug_num_stacks_to_drop=2,
     ):
-
         res = await self.get_publications(
             search_term=search_term,
             session=session,
@@ -629,7 +619,6 @@ class DomoEverywhere:
     async def get_subscription_invitations(
         self, debug_api: bool = False, session: httpx.AsyncClient = None
     ):
-
         res = await publish_routes.get_subscription_invitations(
             auth=auth,
             debug_api=debug_api,
@@ -647,7 +636,6 @@ class DomoEverywhere:
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
     ):
-
         res = await publish_routes.accept_invite_by_id(
             auth=self.auth,
             subscription_id=subscription_id,
@@ -663,7 +651,6 @@ class DomoEverywhere:
 
 @patch_to(DomoPublication)
 async def report_content_as_dataframe(self, return_raw: bool = False):
-
     if return_raw:
         return await self.get_content()
 
@@ -685,7 +672,6 @@ async def report_content_as_dataframe(self, return_raw: bool = False):
 
 @patch_to(DomoPublication)
 def report_lineage_as_dataframe(self, return_raw: bool = False):
-
     flat_lineage_ls = self.Lineage._flatten_lineage()
 
     output_ls = [

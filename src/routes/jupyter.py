@@ -29,10 +29,10 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
-from ..utils import chunk_execution as dmce
+from ..client import get_data as gd
 from ..client.DomoEntity import DomoEnum
+from ..utils import chunk_execution as dmce
 
 
 class JupyterAPI_Error(dmde.RouteError):
@@ -207,7 +207,6 @@ async def get_jupyter_content(
     parent_class: str = None,
     session: httpx.AsyncClient = None,
 ):
-
     dmda.test_is_jupyter_auth(auth)
 
     url = f"https://{auth.domo_instance}.{auth.service_location}{auth.service_prefix}api/contents/{content_path}"
@@ -260,7 +259,6 @@ def generate_update_jupyter_body__text(body, content_path=None):
 
 
 def generate_update_jupyter_body__ipynb(body, content_path=None):
-
     body.update(
         {
             "format": "json",
@@ -272,7 +270,6 @@ def generate_update_jupyter_body__ipynb(body, content_path=None):
 
 
 def generate_update_jupyter_body__directory(content_path, body):
-
     body.update(
         {
             "path": generate_update_jupyter_body__new_content_path(content_path),
@@ -291,7 +288,8 @@ class generate_update_jupyter_body_factory(DomoEnum):
 
 
 def generate_update_jupyter_body(
-    new_content, content_path: str  # my_folder/datatypes.ipynb
+    new_content,
+    content_path: str,  # my_folder/datatypes.ipynb
 ):
     """factory to construct properly formed body"""
 
@@ -612,7 +610,6 @@ async def update_jupyter_workspace_config(
     debug_api: bool = False,
     debug_num_stacks_to_drop=2,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/api/datascience/v1/workspaces/{workspace_id}"
 
     res = await gd.get_data(

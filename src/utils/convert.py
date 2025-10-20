@@ -54,7 +54,6 @@ def convert_python_to_ast_module(
     """
 
     if not python_str and python_file_path:
-
         with open(python_file_path) as source:
             python_str = source.read()
 
@@ -137,7 +136,6 @@ def convert_str_to_snake_case(
 
 class InvalidEmail(Exception):
     def __init__(self, email):
-
         super().__init__(f'invalid email: "{email}" provided')
 
 

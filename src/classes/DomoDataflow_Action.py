@@ -6,9 +6,9 @@ from typing import List
 
 from nbdev.showdoc import patch_to
 
-from ..utils import convert as ct
-from ..utils import DictDot as util_dd
 from ..client.DomoEntity import DomoEnum
+from ..utils import DictDot as util_dd
+from ..utils import convert as ct
 
 __all__ = [
     "DomoDataflow_Action_Type",

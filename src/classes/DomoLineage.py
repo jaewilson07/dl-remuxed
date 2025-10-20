@@ -22,9 +22,9 @@ from aenum import NoAlias
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
+from ..client.DomoEntity import DomoEntity
 from ..routes import datacenter as datacenter_routes
 from ..utils import chunk_execution as dmce
-from ..client.DomoEntity import DomoEntity
 
 
 @dataclass
@@ -108,7 +108,6 @@ class DomoLineageLink_Dataflow(DomoLineage_Link):
 
     @classmethod
     async def get_from_dict(cls, obj, auth):
-
         entity = await cls.get_entity(entity_id=obj["id"], auth=auth)
 
         return cls(
@@ -128,7 +127,6 @@ class DomoLineageLink_Dataflow(DomoLineage_Link):
 
 @dataclass
 class DomoLineageLink_Publication(DomoLineage_Link):
-
     def __eq__(self, other):
         return super().__eq__(self, other)
 
@@ -166,7 +164,6 @@ class DomoLineageLink_Publication(DomoLineage_Link):
 
 @dataclass
 class DomoLineageLink_Card(DomoLineage_Link):
-
     @staticmethod
     async def get_entity(
         entity_id, auth, debug_api: bool = False, session: httpx.AsyncClient = None
@@ -315,7 +312,6 @@ class DomoLineage:
         debug_api: bool = False,
         return_raw: bool = False,
     ):
-
         parent_type = (
             self.parent_type.value
             if isinstance(self.parent_type, DomoLineage_ParentTypeEnum)
@@ -364,7 +360,6 @@ class DomoLineage:
         parent_auth_retreival_fn: Callable = None,
         debug_num_stacks_to_drop=3,
     ):
-
         if not self.parent and (not self.parent_id or not self.parent_type):
             raise dmde.DomoError(
                 "Parent ID and type must be set to get the parent entity."
@@ -411,7 +406,6 @@ class DomoLineage:
         self.lineage = []  # reset lineage
 
         if self.parent.__class__.__name__ == "FederatedDomoDataset":
-
             return await self._get_federated_lineage(
                 parent_auth=parent_auth,
                 parent_auth_retreival_fn=parent_auth_retreival_fn,
@@ -466,7 +460,6 @@ class DomoLineage_Page(DomoLineage):
         debug_api: bool = False,
         return_raw: bool = False,
     ):
-
         await self.get_cards(
             debug_api=debug_api,
             session=session,
@@ -517,7 +510,6 @@ class DomoLineage_Publication(DomoLineage):
         session: httpx.AsyncClient = None,
         debug_api: bool = False,
     ):
-
         async def _get_lineage(
             pc: DomoEntity,
             session: httpx.AsyncClient = None,

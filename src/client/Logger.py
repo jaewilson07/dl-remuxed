@@ -1,6 +1,5 @@
 """A basic logging class"""
 
-
 __all__ = ["TracebackDetails", "get_traceback", "Logger"]
 
 import datetime as dt

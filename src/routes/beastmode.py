@@ -16,10 +16,10 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
-from ..utils import chunk_execution as dmce
+from ..client import get_data as gd
 from ..client.DomoEntity import DomoEnum
+from ..utils import chunk_execution as dmce
 
 
 class BeastModes_API_Error(dmde.RouteError):
@@ -63,7 +63,6 @@ async def search_beastmodes(
     parent_class=None,
     return_raw: bool = False,
 ):
-
     offset_params = {
         "offset": "offset",
         "limit": "limit",
@@ -108,7 +107,6 @@ async def lock_beastmode(
     debug_num_stacks_to_drop=1,
     parent_class: str = None,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/functions/template/{beastmode_id}"
 
     body = {"locked": is_locked}
@@ -139,7 +137,6 @@ async def get_beastmode_by_id(
     debug_num_stacks_to_drop=1,
     parent_class: str = None,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/functions/template/{beastmode_id}"
 
     res = await gd.get_data(
@@ -166,7 +163,6 @@ async def get_card_beastmodes(
     debug_num_stacks_to_drop=2,
     return_raw: bool = False,
 ):
-
     res = await search_beastmodes(
         auth=auth,
         debug_api=debug_api,
@@ -213,7 +209,6 @@ async def get_dataset_beastmodes(
     debug_num_stacks_to_drop=2,
     return_raw: bool = False,
 ):
-
     all_bms = (
         await search_beastmodes(
             auth=auth,

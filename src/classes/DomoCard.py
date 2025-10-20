@@ -8,15 +8,15 @@ from typing import Any, List
 import httpx
 from nbdev.showdoc import patch_to
 
-from . import DomoLineage as dmdl
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
+from ..client.DomoEntity import DomoEntity_w_Lineage
 from ..routes import card as card_routes
+from ..utils import DictDot as util_dd
 from ..utils import chunk_execution as dmce
 from ..utils import convert as dmut
-from ..utils import DictDot as util_dd
 from ..utils import files as dmfi
-from ..client.DomoEntity import DomoEntity_w_Lineage
+from . import DomoLineage as dmdl
 
 
 @dataclass
@@ -108,7 +108,6 @@ class DomoCard(DomoEntity_w_Lineage):
         return_raw: bool = False,
         is_suppress_errors: bool = False,
     ):
-
         res = await card_routes.get_card_metadata(
             auth=auth,
             card_id=card_id,
@@ -149,7 +148,6 @@ async def get_datasets(
     session: httpx.AsyncClient = None,
     return_raw: bool = False,
 ):
-
     res = await card_routes.get_card_metadata(
         auth=self.auth,
         card_id=self.id,
@@ -245,7 +243,6 @@ async def get_collections(
 
 @patch_to(DomoCard)
 async def get_source_code(self, debug_api: bool = False, try_auto_share: bool = False):
-
     await self.get_collections(debug_api=debug_api)
 
     collection_name = "ddx_app_client_code"

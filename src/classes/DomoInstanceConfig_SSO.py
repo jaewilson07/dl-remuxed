@@ -20,14 +20,13 @@ import httpx
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
 from ..client import ResponseGetData as rgd
+from ..client.DomoEntity import DomoEntity
 from ..routes import instance_config_sso as sso_routes
 from ..utils import convert as dmcv
-from ..client.DomoEntity import DomoEntity
 
 
 class SSOConfig_InstantiationError(dmde.ClassError):
     def __init__(self, message, auth, cls_instance=None):
-
         super().__init__(auth=auth, message=message, cls_instance=cls_instance)
 
 
@@ -54,7 +53,6 @@ class SSO_Config(DomoEntity):
         return f"https://{self.auth.domo_instance}.domo.com/admin/security/sso?tab=configuration"
 
     def set_attribute(self, **kwargs):
-
         for key, value in kwargs.items():
             if not hasattr(self, key):
                 raise SSOConfig_InstantiationError(
@@ -131,7 +129,6 @@ class SSO_Config(DomoEntity):
         return {key: dmcv.convert_snake_to_pascal(value) for key, value in obj.items()}
 
     def to_dict(self, is_include_undefined: bool = False):
-
         return self._to_dict(is_include_undefined=is_include_undefined)
 
     async def _update(
@@ -144,7 +141,6 @@ class SSO_Config(DomoEntity):
         return_raw: bool = False,
         **kwargs,
     ):
-
         self.set_attribute(**kwargs)
 
         body_sso = self.to_dict()
@@ -198,7 +194,6 @@ class SSO_Config(DomoEntity):
 
 @dataclass
 class SSO_OIDC_Config(SSO_Config):
-
     login_enabled: bool
     import_groups: bool
     require_invitation: bool
@@ -215,7 +210,6 @@ class SSO_OIDC_Config(SSO_Config):
 
     @classmethod
     def _from_dict(cls, auth: dmda.DomoAuth, obj: dict, debug_prn: bool = False):
-
         raw = deepcopy(obj)
 
         override_sso = obj.pop("overrideSSO")

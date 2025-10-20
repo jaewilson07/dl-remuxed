@@ -56,7 +56,6 @@ async def get_datastores(
     session: httpx.AsyncClient = None,
     debug_num_stacks_to_drop=1,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/api/datastores/v1/"
 
     res = await gd.get_data(
@@ -86,7 +85,6 @@ async def get_datastore_by_id(
     session: httpx.AsyncClient = None,
     debug_num_stacks_to_drop=1,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/api/datastores/v1/{datastore_id}"
 
     res = await gd.get_data(
@@ -116,7 +114,6 @@ async def get_collections_from_datastore(
     session: httpx.AsyncClient = None,
     debug_num_stacks_to_drop=1,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/api/datastores/v1/{datastore_id}/collections"
 
     res = await gd.get_data(
@@ -144,7 +141,6 @@ async def create_datastore(
     session: httpx.AsyncClient = None,
     debug_num_stacks_to_drop=1,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/api/datastores/v1/"
 
     body = {"name": datastore_name}
@@ -176,7 +172,6 @@ async def create_collection(
     session: httpx.AsyncClient = None,
     debug_num_stacks_to_drop=1,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/api/datastores/v1/{datastore_id}/collections"
 
     body = {"name": collection_name}
@@ -243,7 +238,6 @@ async def get_collections(
     session: httpx.AsyncClient = None,
     debug_num_stacks_to_drop=1,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/api/datastores/v1/collections/"
 
     res = await gd.get_data(
@@ -278,7 +272,6 @@ async def get_collection_by_id(
     session: httpx.AsyncClient = None,
     debug_num_stacks_to_drop=1,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/api/datastores/v1/collections/{collection_id}"
 
     res = await gd.get_data(
@@ -350,7 +343,6 @@ async def modify_collection_permissions(
     session: httpx.AsyncClient = None,
     debug_num_stacks_to_drop=1,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/api/datastores/v1/collections/{collection_id}/permission/{'USER' if user_id else {'GROUP'}}/{user_id or group_id}"
 
     params = {
@@ -398,7 +390,6 @@ async def get_collection_document_by_id(
     session: httpx.AsyncClient = None,
     debug_num_stacks_to_drop=1,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/api/datastores/v1/collections/{collection_id}/documents/{document_id}"
 
     res = await gd.get_data(

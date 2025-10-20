@@ -4,11 +4,9 @@ Analyze @patch_to usage and generate refactoring plan
 """
 
 import ast
-import os
-import re
-from pathlib import Path
-from typing import Dict, List, Set, Tuple
 from collections import defaultdict
+from pathlib import Path
+from typing import Dict
 
 
 class PatchToAnalyzer(ast.NodeVisitor):
@@ -98,7 +96,7 @@ class PatchToAnalyzer(ast.NodeVisitor):
 def analyze_file(file_path: Path) -> PatchToAnalyzer:
     """Analyze a single Python file for @patch_to usage"""
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         tree = ast.parse(content)
@@ -335,11 +333,11 @@ def main():
     create_refactoring_guide(plan, "patch-to-refactoring-guide.md")
 
     summary = plan["summary"]
-    print(f"\n📋 Analysis complete!")
+    print("\n📋 Analysis complete!")
     print(f"📊 Files to refactor: {summary['files_with_patches']}")
     print(f"🔧 Methods to move: {summary['total_patch_methods']}")
     print(f"🏗️  Classes affected: {summary['affected_classes']}")
-    print(f"📖 See patch-to-refactoring-guide.md for detailed implementation plan")
+    print("📖 See patch-to-refactoring-guide.md for detailed implementation plan")
 
     return 0
 

@@ -69,7 +69,6 @@ def chunk_list(
     obj_ls: list[any],  # list of entities to split into n chunks
     chunk_size: int,  # entities per sub list
 ) -> list[list[dict]]:  # returns a list of chunk_size lists of objects
-
     return [
         obj_ls[i * chunk_size : (i + 1) * chunk_size]
         for i in range((len(obj_ls) + chunk_size - 1) // chunk_size)

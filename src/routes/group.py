@@ -26,10 +26,10 @@ import httpx
 
 from ..client import DomoAuth as dmda
 from ..client import DomoError as dmde
-from ..client import get_data as gd
 from ..client import ResponseGetData as rgd
-from ..utils import convert as dmcv
+from ..client import get_data as gd
 from ..client.DomoEntity import DomoEnum
+from ..utils import convert as dmcv
 
 
 class Group_GET_Error(dmde.RouteError):
@@ -187,7 +187,6 @@ async def is_system_groups_visible(
     parent_class: str = None,
     return_raw: bool = False,
 ):
-
     url = f"https://{auth.domo_instance}.domo.com/api/customer/v1/properties/groups.system.enabled"
 
     res = await gd.get_data(
@@ -224,7 +223,7 @@ async def toggle_system_group_visibility(
 ):
     if debug_prn:
         print(
-            f"toggling group visiblity in {auth.domo_instance} { 'hiding system groups' if is_hide_system_groups else 'show system groups'}"
+            f"toggling group visiblity in {auth.domo_instance} {'hiding system groups' if is_hide_system_groups else 'show system groups'}"
         )
 
     url = f"https://{auth.domo_instance}.domo.com/api/content/v2/groups/setVisibility"
@@ -340,7 +339,6 @@ async def update_group(
     debug_num_stacks_to_drop=1,
     parent_class: str = None,
 ) -> rgd.ResponseGetData:
-
     if isinstance(group_type, GroupType_Enum):
         group_type = group_type.value
 
@@ -398,7 +396,6 @@ async def delete_groups(
     parent_class: str = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
-
     group_ids = group_ids if isinstance(group_ids, list) else [str(group_ids)]
 
     url = f"https://{auth.domo_instance}.domo.com/api/content/v2/groups"
@@ -440,7 +437,6 @@ async def get_group_owners(
     # skip: int = 0,
     # debug_loop: bool = False,
 ) -> rgd.ResponseGetData:
-
     # url = f"https://{auth.domo_instance}.domo.com/api/content/v2/groups/access"
     # url = f"https://{auth.domo_instance}.domo.com/api/content/v2/groups/users?group={group_id}"
     url = f"https://{auth.domo_instance}.domo.com/api/content/v2/groups/permissions?checkOwnership=true&includeUsers=false"
@@ -506,7 +502,6 @@ async def get_group_membership(
     debug_num_stacks_to_drop: int = 1,
     debug_loop: bool = False,
 ) -> rgd.ResponseGetData:
-
     # url = f"https://{auth.domo_instance}.domo.com/api/content/v2/groups/access"
     url = f"https://{auth.domo_instance}.domo.com/api/content/v2/groups/users"
 

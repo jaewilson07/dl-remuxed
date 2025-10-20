@@ -45,7 +45,6 @@ class DomoJupyter_DataSource:
 
     @classmethod
     async def _from_dict(cls, obj, dj_workspace):
-
         dataset_id = obj["dataSourceId"]
 
         ds = cls(
