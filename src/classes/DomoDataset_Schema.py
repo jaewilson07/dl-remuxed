@@ -156,7 +156,12 @@ class DatasetSchema_InvalidSchema(dmde.DomoError):
         await self.get()
 
         if len(self.columns) != len(df.columns):
-            raise Exception("")
+            raise Exception(
+                f"Column count mismatch: schema has {len(self.columns)} columns, "
+                f"but DataFrame has {len(df.columns)} columns. "
+                f"Schema columns: {[col.name for col in self.columns]}, "
+                f"DataFrame columns: {list(df.columns)}"
+            )
 
         for index, col in enumerate(self.schema.columns):
             col.order = col.order if col.order > 0 else index
