@@ -27,7 +27,6 @@ from ..classes.DomoApplication_Job_Base import (
     DomoTrigger_Schedule,
 )
 from ..client import DomoAuth as dmda
-from ..routes import application as application_routes
 
 
 @dataclass
