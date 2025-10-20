@@ -729,10 +729,10 @@ class FederatedDomoDataset(DomoDataset_Default, DomoFederatedEntity):
 @dataclass
 class DomoPublishDataset(FederatedDomoDataset, DomoPublishedEntity):
     async def get_subscription(self):
-        super().get_subscription()
+        return await super().get_subscription()
 
     async def get_parent_publication(self):
-        super().get_parent_publication()
+        return await super().get_parent_publication()
 
 
 @dataclass
