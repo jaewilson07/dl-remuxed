@@ -1,4 +1,6 @@
 __all__ = [
+    "Fileset_GET_Error",
+    "Fileset_CRUD_Error",
     "EmbedData_Type",
     "create_filesets_index",
     "embed_image",
@@ -11,22 +13,59 @@ from typing import Literal, Optional
 
 import httpx
 
-from ..client import auth as dmda
-from ..client import exceptions as dmde
+from ..client.auth import DomoAuth
+from ..client.exceptions import RouteError
 from ..client import get_data as gd
 from ..client import response as rgd
 
 
+class Fileset_GET_Error(RouteError):
+    """Raised when fileset retrieval operations fail."""
+
+    def __init__(
+        self,
+        fileset_id: Optional[str] = None,
+        message: Optional[str] = None,
+        response_data=None,
+        **kwargs,
+    ):
+        super().__init__(
+            message=message or "Fileset retrieval failed",
+            entity_id=fileset_id,
+            response_data=response_data,
+            **kwargs,
+        )
+
+
+class Fileset_CRUD_Error(RouteError):
+    """Raised when fileset create, update, or delete operations fail."""
+
+    def __init__(
+        self,
+        operation: str,
+        fileset_id: Optional[str] = None,
+        message: Optional[str] = None,
+        response_data=None,
+        **kwargs,
+    ):
+        super().__init__(
+            message=message or f"Fileset {operation} operation failed",
+            entity_id=fileset_id,
+            response_data=response_data,
+            **kwargs,
+        )
+
+
 @gd.route_function
 async def create_filesets_index(
-    auth: dmda.DomoAuth,
-    index_id,
+    auth: DomoAuth,
+    index_id: str,
     embedding_model: str = "domo.domo_ai.domo-embed-text-multilingual-v1:cohere",
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    session: httpx.AsyncClient = None,
-    parent_class: str = None,
-):
+    session: Optional[httpx.AsyncClient] = None,
+    parent_class: Optional[str] = None,
+) -> rgd.ResponseGetData:
     """Creates a new vectorDB index."""
 
     url = f"{auth.domo_instance}.domo.com/api/recall/v1/indexes"
@@ -47,7 +86,7 @@ async def create_filesets_index(
     )
 
     if not res.is_success:
-        raise dmde.RouteError(res=res)
+        raise Fileset_CRUD_Error(operation="create index", response_data=res)
 
     return res
 
@@ -57,15 +96,15 @@ EmbedData_Type = Literal["base64"]
 
 @gd.route_function
 async def embed_image(
-    auth: dmda.DomoAuth,
-    body: dict = None,
-    image_data: str = None,
-    media_type: str = None,
+    auth: DomoAuth,
+    body: Optional[dict] = None,
+    image_data: Optional[str] = None,
+    media_type: Optional[str] = None,
     data_type: EmbedData_Type = "base64",
     model: str = "domo.domo_ai",
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: str = None,
+    parent_class: Optional[str] = None,
     session: Optional[httpx.AsyncClient] = None,
 ) -> rgd.ResponseGetData:
     """
@@ -103,20 +142,20 @@ async def embed_image(
         parent_class=parent_class,
     )
     if not res.is_success:
-        raise dmde.RouteError(res=res)
+        raise Fileset_CRUD_Error(operation="embed image", response_data=res)
 
     return res
 
 
 @gd.route_function
 async def get_fileset_by_id(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     fileset_id: str,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class: str = None,
-    session: httpx.AsyncClient = None,
-):
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+    session: Optional[httpx.AsyncClient] = None,
+) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/files/v1/filesets/{fileset_id}"
     res = await gd.get_data(
         auth=auth,
@@ -129,21 +168,21 @@ async def get_fileset_by_id(
     )
 
     if not res.is_success:
-        raise dmde.RouteError(res=res, debug_api=debug_api)
+        raise Fileset_GET_Error(fileset_id=fileset_id, response_data=res)
 
     return res
 
 
 @gd.route_function
 async def search_fileset_files(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     domo_fileset_id: str,
-    body: dict = None,
+    body: Optional[dict] = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class: str = None,
-    session: httpx.AsyncClient = None,
-):
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+    session: Optional[httpx.AsyncClient] = None,
+) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/files/v1/filesets/{domo_fileset_id}/files/search?directoryPath=&immediateChildren=true"
 
     if not body:
@@ -165,25 +204,25 @@ async def search_fileset_files(
         session=session,
     )
     if not res.is_success:
-        raise dmde.RouteError(res=res)
+        raise Fileset_GET_Error(fileset_id=domo_fileset_id, response_data=res)
 
     return res
 
 
 @gd.route_function
 async def get_data_file_by_id(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     file_id: str,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: str = None,
+    parent_class: Optional[str] = None,
     session: Optional[httpx.AsyncClient] = None,
 ) -> rgd.ResponseGetData:
     """
     Retrieves the content of a data file from Domo.
     """
     url = f"https://{auth.domo_instance}.domo.com/data/v1/data-files/{file_id}"
-    res = gd.get_data(
+    res = await gd.get_data(
         auth=auth,
         url=url,
         method="GET",
@@ -193,5 +232,5 @@ async def get_data_file_by_id(
         parent_class=parent_class,
     )
     if not res.is_success:
-        raise dmde.RouteError(res=res)
+        raise Fileset_GET_Error(fileset_id=file_id, response_data=res)
     return res
