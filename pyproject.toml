@@ -1,6 +1,6 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "domolibrary2"
@@ -55,18 +55,6 @@ dev = [
     "mypy",
     "pytest",
     "pytest-cov",
-    "pre-commit"]
-<<<<<<< HEAD
-
-[dependency-groups]
-dev = [
-    "pylint",
-    "ruff", 
-    "black",
-    "isort",
-    "mypy",
-    "pytest",
-    "pytest-cov",
     "pre-commit",
 ]
 
@@ -95,9 +83,3 @@ ignore_missing_imports = true
 
 [tool.setuptools.packages.find]
 where = ["src"]
-
-[tool.hatch.build.targets.wheel]
-packages = ["src"]
-
-[tool.hatch.build.targets.wheel.sources]
-"src" = "domolibrary2"
