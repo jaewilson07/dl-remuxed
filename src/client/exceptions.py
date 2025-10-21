@@ -6,45 +6,37 @@ from dataclasses import dataclass
 from typing import Any, Optional, Union
 
 
-class _DomoError(Exception):
-    """Base exception for all Domo-related errors with exception chaining support."""
+@dataclass
+class DomoError(Exception):
+    """Base exception for all Domo-related errors.
 
-    def __init__(
-        self,
-        message: str = "An error occurred",
-        entity_id: Optional[str] = None,
-        entity_name: Optional[str] = None,
-        function_name: Optional[str] = None,
-        parent_class: Optional[str] = None,
-        status: Optional[int] = None,
-        domo_instance: Optional[str] = None,
-        is_warning: bool = False,
-        exception: Optional[Exception] = None,
-    ):
-        """Initialize with custom message and optional original exception.
+    This exception stores all relevant context as attributes and provides
+    a clean string representation for logging and debugging.
 
-        Args:
-            message: Custom error message
-            exception: The original exception that caused this error
-        """
-        self.message = message
-        self.entity_id = entity_id
-        self.entity_name = entity_name
-        self.function_name = function_name
-        self.parent_class = parent_class
-        self.status = status
-        self.domo_instance = domo_instance
-        self.is_warning = is_warning
-        self.exception = exception
+    """
+
+    message: Optional[str] = None
+    exception: Optional[Exception] = None
+    entity_id: Optional[str] = None
+    entity_name: Optional[str] = None
+    function_name: Optional[str] = None
+    parent_class: Optional[str] = None
+    status: Optional[int] = None
+    domo_instance: Optional[str] = None
+    is_warning: bool = False
+
+    def __post_init__(self):
+        if not self.message and not self.exception:
+            raise ValueError("Either 'message' or 'exception' must be provided.")
 
         # Use exception chaining if we have an original exception
-        if exception:
+        if self.exception:
             # This preserves the full traceback chain
             super().__init__(
-                f"{self._generate_default_message} (caused by: {type(exception).__name__}: {exception})"
+                f"{self._generate_default_message} (caused by: {type(self.exception).__name__}: {self.exception})"
             )
             # Explicitly set the cause for proper exception chaining
-            self.__cause__ = exception
+            self.__cause__ = self.exception
         else:
             super().__init__(self._generate_default_message)
 
@@ -59,13 +51,13 @@ class _DomoError(Exception):
 
         if self.status == 404:
             return f"Resource not found (HTTP {self.status})"
-        elif self.status == 401:
+        if self.status == 401:
             return f"Authentication required (HTTP {self.status})"
-        elif self.status == 403:
+        if self.status == 403:
             return f"Access forbidden (HTTP {self.status})"
-        elif self.status >= 500:
+        if self.status >= 500:
             return f"Server error (HTTP {self.status})"
-        elif self.status >= 400:
+        if self.status >= 400:
             return f"Client error (HTTP {self.status})"
 
         return f"Request failed (HTTP {self.status})"
@@ -114,55 +106,17 @@ class _DomoError(Exception):
 
 
 @dataclass
-class DomoError(_DomoError):
-    """Base exception for all Domo-related errors.
-
-    This exception stores all relevant context as attributes and provides
-    a clean string representation for logging and debugging.
-
-    """
-
-    message: str = "An error occurred"
-    entity_id: Optional[str] = None
-    entity_name: Optional[str] = None
-    function_name: Optional[str] = None
-    parent_class: Optional[str] = None
-    status: Optional[int] = None
-    domo_instance: Optional[str] = None
-    is_warning: bool = False
-    exception: Optional[Exception] = None
-
-    def __post_init__(self):
-        super().__init__(
-            message=self.message,
-            entity_id=self.entity_id,
-            entity_name=self.entity_name,
-            function_name=self.function_name,
-            parent_class=self.parent_class,
-            status=self.status,
-            domo_instance=self.domo_instance,
-            is_warning=self.is_warning,
-            exception=self.exception,
-        )
-
-
-@dataclass
-class RouteError(_DomoError):
+class RouteError(DomoError):
     """Exception for API route/endpoint errors."""
 
-    res: Any  # Should be ResponseGetData but avoiding circular import
-    message: Optional[str] = None
-    entity_id: Optional[str] = None
-    entity_name: Optional[str] = None
-    function_name: Optional[str] = None
-    is_warning: bool = False
+    res: Optional[Any] = None  # Should be ResponseGetData but avoiding circular import
 
     def __post_init__(self):
         """Extract route-specific information from response."""
 
         super().__init__(
             is_warning=self.is_warning,
-            message=self.message or "API request failed",
+            message=self.message or getattr(self.res, "response", None),
             entity_id=self.entity_id,
             entity_name=self.entity_name,
             parent_class=getattr(self.res, "parent_class", None),
@@ -175,18 +129,8 @@ class RouteError(_DomoError):
 
 
 @dataclass
-class AuthError(_DomoError):
+class AuthError(DomoError):
     """Exception for authentication-related errors."""
-
-    message: str = "An error occurred"
-    entity_id: Optional[str] = None
-    entity_name: Optional[str] = None
-    function_name: Optional[str] = None
-    parent_class: Optional[str] = None
-    status: Optional[int] = None
-    domo_instance: Optional[str] = None
-    is_warning: bool = False
-    exception: Optional[Exception] = None
 
     def __post_init__(self):
         super().__init__(
@@ -203,25 +147,19 @@ class AuthError(_DomoError):
 
 
 @dataclass
-class ClassError(_DomoError):
+class ClassError(DomoError):
     """Exception for class-specific errors."""
 
     cls: Any = None
     cls_instance: Any = None
 
-    message: str = "An error occurred"
-
-    entity_name: Optional[str] = None
     entity_id_col: Optional[str] = "id"
-    function_name: Optional[str] = None
-    parent_class: Optional[str] = None
-    status: Optional[int] = None
-    domo_instance: Optional[str] = None
-    is_warning: bool = False
-    exception: Optional[Exception] = None
 
     @property
     def entity_id_str(self) -> Union[str, None]:
+        if self.entity_id:
+            return self.entity_id
+
         if not self.entity_id_col or not self.cls_instance:
             return None
 
