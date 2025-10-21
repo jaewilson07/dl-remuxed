@@ -313,7 +313,7 @@ class DomoStream:
     configuration_query: str = None
 
     @classmethod
-    def _from_parent(cls, parent):
+    def from_parent(cls, parent):
         st = cls(
             auth=parent.auth, id=parent.stream_id, dataset_id=parent.id, parent=parent
         )

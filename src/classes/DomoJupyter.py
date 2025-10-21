@@ -395,7 +395,7 @@ class DomoJupyterWorkspaces(DomoManager):
     parent: Any = None
 
     @classmethod
-    def _from_parent(cls, parent):
+    def from_parent(cls, parent):
         return cls(parent=parent, auth=parent.auth)
 
     async def get(

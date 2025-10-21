@@ -69,7 +69,7 @@ class DomoPage(DomoEntity_w_Lineage):
     datasets: List["DomoDataset"] = None
 
     def __post_init__(self):
-        self.Lineage = dmdl.DomoLineage_Page._from_parent(parent=self)
+        self.Lineage = dmdl.DomoLineage_Page.from_parent(parent=self)
 
     def display_url(self):
         return f"https://{self.auth.domo_instance}.domo.com/page/{self.id}"

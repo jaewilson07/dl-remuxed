@@ -51,7 +51,7 @@ class DomoGroup(DomoEntity):
     Membership: dmgm.GroupMembership = field(repr=False, default=None)
 
     def __post_init__(self):
-        self.Membership = dmgm.GroupMembership._from_parent(parent=self)
+        self.Membership = dmgm.GroupMembership.from_parent(parent=self)
 
         self.is_system = True if self.type == "system" else False
 

@@ -86,7 +86,7 @@ class DomoAccount_OAuth(dmacb.DomoAccount_Default):
     Access: dmacc.DomoAccess_OAuth = field(repr=False, default=None)
 
     def __post_init__(self):
-        self.Access = dmacc.DomoAccess_OAuth._from_parent(parent=self)
+        self.Access = dmacc.DomoAccess_OAuth.from_parent(parent=self)
 
     async def _get_config(
         self,

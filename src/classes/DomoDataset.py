@@ -93,18 +93,18 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
     parent_auth: dmda.DomoAuth = None
 
     def __post_init__(self):
-        self.Lineage = dmdl.DomoLineage._from_parent(auth=self.auth, parent=self)
+        self.Lineage = dmdl.DomoLineage.from_parent(auth=self.auth, parent=self)
 
-        self.Schema = dmdsc.DomoDataset_Schema._from_parent(parent=self)
+        self.Schema = dmdsc.DomoDataset_Schema.from_parent(parent=self)
 
-        self.Tags = dmtg.DomoTags._from_parent(parent=self)
+        self.Tags = dmtg.DomoTags.from_parent(parent=self)
 
-        self.Stream = dmdst.DomoStream._from_parent(parent=self)
+        self.Stream = dmdst.DomoStream.from_parent(parent=self)
 
         self.PDP = dmpdp.Dataset_PDP_Policies(dataset=self)
 
         if self.raw.get("certification"):
-            self.Certification = dmdc.DomoCertification._from_parent(parent=self)
+            self.Certification = dmdc.DomoCertification.from_parent(parent=self)
 
     def display_url(self):
         return f"https://{self.auth.domo_instance}.domo.com/datasources/{self.id}/details/overview"

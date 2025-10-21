@@ -142,7 +142,7 @@ class DomoPublication(DomoEntity_w_Lineage):
     # content_data_app_id_ls: List[str] = field(default_factory=list)
 
     def __post_init__(self):
-        self.Lineage = dmdl.DomoLineage_Publication._from_parent(
+        self.Lineage = dmdl.DomoLineage_Publication.from_parent(
             parent=self, auth=self.auth
         )
 

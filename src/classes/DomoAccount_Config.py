@@ -64,7 +64,7 @@ class DomoAccount_Config(dmee.DomoBase, ABC):
         return self.allow_external_use
 
     @classmethod
-    def _from_parent(cls, parent, **kwargs):
+    def from_parent(cls, parent, **kwargs):
         return cls(parent=parent, **kwargs)
 
     @classmethod
@@ -101,7 +101,7 @@ class DomoAccount_NoConfig_OAuth(DomoAccount_Config):
     def from_dict(
         cls, obj: dict, data_provider_type: str, parent: Any = None, **kwargs
     ):
-        return cls._from_parent(
+        return cls.from_parent(
             data_provider_type=data_provider_type,
             raw=obj,
             parent=parent,
@@ -126,7 +126,7 @@ class DomoAccount_NoConfig(DomoAccount_Config):
     def from_dict(
         cls, data_provider_type: str, obj: dict, parent: Any = None, **kwargs
     ):
-        return cls._from_parent(
+        return cls.from_parent(
             data_provider_type=data_provider_type, parent=parent, raw=obj
         )
 
@@ -144,7 +144,7 @@ class DomoAccount_Config_AbstractCredential(DomoAccount_Config):
 
     @classmethod
     def from_dict(cls, obj, parent=None, **kwargs):
-        return cls._from_parent(
+        return cls.from_parent(
             parent=parent,
             raw=obj,
             credentials=obj["credentials"],

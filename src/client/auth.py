@@ -19,12 +19,7 @@ import httpx
 
 from . import Logger as lg
 from .response import ResponseGetData
-from ..routes import auth as auth_routes
-from ..routes.auth import (
-    InvalidAuthTypeError,
-    InvalidCredentialsError,
-    InvalidInstanceError,
-)
+from .exceptions import AuthError
 
 
 class _DomoAuth_Required(ABC):
@@ -47,9 +42,8 @@ class _DomoAuth_Required(ABC):
             InvalidInstanceError: If domo_instance is empty or None
         """
         if not domo_instance:
-            raise InvalidInstanceError(
-                "Domo instance is required. Example: 'mycompany.domo.com' or 'mycompany'"
-            )
+            raise AuthError(message="Domo instance is required. Example: 'mycompany'")
+
         self.domo_instance = domo_instance
 
     @property
@@ -105,8 +99,8 @@ class _DomoAuth_Optional(ABC):
         self._set_token_name()
 
         if not self.domo_instance:
-            raise InvalidInstanceError(
-                "Domo instance is required. Example: 'mycompany.domo.com' or 'mycompany'"
+            raise AuthError(
+                message="Domo instance is required. Example: 'mycompany.domo.com' or 'mycompany'"
             )
 
     def _set_token_name(self):
@@ -150,32 +144,9 @@ class _DomoAuth_Optional(ABC):
             TypeError: If the response is not of expected ResponseGetData type
         """
         # Create session if not provided
-        if session is None:
-            async with httpx.AsyncClient() as client_session:
-                return await self._who_am_i_impl(
-                    client_session, debug_api, debug_num_stacks_to_drop
-                )
-        else:
-            return await self._who_am_i_impl(
-                session, debug_api, debug_num_stacks_to_drop
-            )
 
-    async def _who_am_i_impl(
-        self, session: httpx.AsyncClient, debug_api: bool, debug_num_stacks_to_drop: int
-    ) -> ResponseGetData:
-        """Internal implementation of who_am_i with guaranteed non-None session.
+        from ..routes import auth as auth_routes
 
-        Args:
-            session (httpx.AsyncClient): HTTP client session (guaranteed non-None)
-            debug_api (bool): Whether to enable API debugging
-            debug_num_stacks_to_drop (int): Number of stack frames to drop for debugging
-
-        Returns:
-            ResponseGetData: Response containing user information
-
-        Raises:
-            TypeError: If the response is not of expected ResponseGetData type
-        """
         res = await auth_routes.who_am_i(
             auth=self,
             parent_class=self.__class__.__name__,
@@ -185,17 +156,13 @@ class _DomoAuth_Optional(ABC):
         )
 
         # Type assertion for proper typing
-        if isinstance(res, ResponseGetData):
-            if res.is_success:
-                self.is_valid_token = True
+        if res.is_success:
+            self.is_valid_token = True
 
-            if res.response and isinstance(res.response, dict):
-                self.user_id = res.response.get("id")
+        if res.response and isinstance(res.response, dict):
+            self.user_id = res.response.get("id")
 
-            return res
-
-        # Fallback for unexpected return types
-        raise TypeError(f"Expected ResponseGetData, got {type(res)}")
+        return res
 
     async def elevate_otp(
         self,
@@ -221,6 +188,8 @@ class _DomoAuth_Optional(ABC):
         # Create session if not provided
         if session is None:
             async with httpx.AsyncClient() as client_session:
+                from ..routes import auth as auth_routes
+
                 return await auth_routes.elevate_user_otp(
                     auth=self,
                     debug_api=debug_api,
@@ -229,6 +198,8 @@ class _DomoAuth_Optional(ABC):
                     debug_num_stacks_to_drop=debug_num_stacks_to_drop,
                 )
         else:
+            from ..routes import auth as auth_routes
+
             return await auth_routes.elevate_user_otp(
                 auth=self,
                 debug_api=debug_api,
@@ -348,12 +319,12 @@ class _DomoFullAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):
             InvalidInstanceError: If domo_instance is empty
         """
         if not domo_username:
-            raise InvalidCredentialsError("Domo username is required.")
+            raise AuthError(message="Domo username is required.")
         if not domo_password:
-            raise InvalidCredentialsError("Domo password is required.")
+            raise AuthError(message="Domo password is required.")
 
         if not domo_instance:
-            raise InvalidInstanceError("Domo instance is required.")
+            raise AuthError(message="Domo instance is required.")
 
         self.domo_username = domo_username
         self.domo_password = domo_password
@@ -399,6 +370,8 @@ class _DomoFullAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):
         Raises:
             InvalidCredentialsError: If authentication fails or no token is returned
         """
+        from ..routes import auth as auth_routes
+
         res = await auth_routes.get_full_auth(
             auth=None,
             domo_instance=self.domo_instance,
@@ -413,14 +386,17 @@ class _DomoFullAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):
         if return_raw:
             return res
 
-        if isinstance(res, ResponseGetData) and res.is_success and res.response:
+        if res.is_success and res.response:
             self.is_valid_token = True
+
             token = str(res.response.get("sessionToken", ""))
             self.token = token
             self.token_name = self.token_name or "full_auth"
-            return token
 
-        raise InvalidCredentialsError("Failed to retrieve authentication token")
+        if not self.token:
+            raise AuthError("Failed to retrieve authentication token")
+
+        return self.token
 
 
 @dataclass
@@ -495,10 +471,8 @@ def test_is_full_auth(
     function_name = function_name or tb.function_name
 
     if auth.__class__.__name__ != "DomoFullAuth":
-        raise InvalidAuthTypeError(
-            function_name=function_name,
-            domo_instance=auth.domo_instance,
-            required_auth_type=DomoFullAuth,
+        raise AuthError(
+            message=f"{function_name} requires DomoFullAuth authentication."
         )
 
 
@@ -536,7 +510,7 @@ class _DomoTokenAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):
             InvalidCredentialsError: If domo_access_token is empty
         """
         if not domo_access_token:
-            raise InvalidCredentialsError("Domo access token is required.")
+            raise AuthError(message="Domo access token is required.")
         self.domo_access_token = domo_access_token
 
         # Initialize base classes
@@ -631,7 +605,7 @@ class DomoTokenAuth(_DomoTokenAuth_Required):
         self.token = self.domo_access_token
 
         if not self.token:
-            raise InvalidCredentialsError("Domo access token is required.")
+            raise AuthError(message="Domo access token is required.")
 
         _DomoTokenAuth_Required.__init__(
             self,
@@ -728,6 +702,8 @@ class DomoDeveloperAuth(_DomoAuth_Optional, _DomoAuth_Required):
             InvalidCredentialsError: If authentication fails or no token is returned
         """
 
+        from ..routes import auth as auth_routes
+
         res = await auth_routes.get_developer_auth(
             auth=None,
             domo_client_id=self.domo_client_id,
@@ -746,7 +722,7 @@ class DomoDeveloperAuth(_DomoAuth_Optional, _DomoAuth_Required):
             self.token_name = self.token_name or "developer_auth"
             return self.token
 
-        raise InvalidCredentialsError("Failed to retrieve developer token")
+        raise AuthError(message="Failed to retrieve developer token")
 
 
 class _DomoJupyter_Required:
@@ -1076,8 +1052,8 @@ def test_is_jupyter_auth(
     if auth.__class__.__name__ not in [
         auth_type.__name__ for auth_type in required_auth_type_ls
     ]:
-        raise InvalidAuthTypeError(
+        raise AuthError(
+            message=f"{tb.function_name} requires {[auth_type.__name__ for auth_type in required_auth_type_ls]} authentication, got {auth.__class__.__name__}",
             function_name=tb.function_name,
             domo_instance=auth.domo_instance,
-            required_auth_type_ls=required_auth_type_ls,
         )

@@ -21,7 +21,7 @@ class DomoCertification(DomoSubEntity):
     certification_name: str
 
     @classmethod
-    def _from_parent(cls, parent):
+    def from_parent(cls, parent):
         certification = parent.raw["certification"]
 
         cert_state = None

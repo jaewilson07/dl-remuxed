@@ -46,7 +46,7 @@ class DomoDataflow(DomoEntity_w_Lineage):
             dataflow=self, dataflow_id=self.id, auth=self.auth
         )
 
-        self.Lineage = dmdl.DomoLineage._from_parent(auth=self.auth, parent=self)
+        self.Lineage = dmdl.DomoLineage.from_parent(auth=self.auth, parent=self)
 
     @classmethod
     def from_dict(cls, obj, auth, version_id=None, version_number=None):
