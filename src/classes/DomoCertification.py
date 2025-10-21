@@ -1,13 +1,14 @@
 __all__ = ["DomoCertificationState", "DomoCertification"]
 
+from enum import Enum
 import datetime as dt
 from dataclasses import dataclass
 
 from ..utils import convert as cd
-from ..client.entities import DomoEnum, DomoSubEntity
+from ..client.entities import DomoEnumMixin, DomoSubEntity
 
 
-class DomoCertificationState(DomoEnum):
+class DomoCertificationState(DomoEnumMixin, Enum):
     CERTIFIED = "certified"
     PENDING = "PENDING"
     EXPIRED = "EXPIRED"

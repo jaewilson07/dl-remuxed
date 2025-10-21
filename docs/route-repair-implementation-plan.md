@@ -108,7 +108,7 @@ from ..client import response as rgd
 
 # 3. Exception classes
 class {Module}_GET_Error(RouteError):
-    def __init__(self, entity_id: Optional[str] = None, response_data=None, **kwargs):
+    def __init__(self, entity_id: Optional[str] = None, res=None, **kwargs):
         # Standard constructor pattern
 
 # 4. Route functions
@@ -131,7 +131,7 @@ async def function_name(
         return res
         
     if not res.is_success:
-        raise CustomError(response_data=res)
+        raise CustomError(res=res)
     
     return res
 ```
@@ -262,7 +262,7 @@ async def get_account_by_id(
         return res
         
     if not res.is_success:
-        raise Account_GET_Error(response_data=res)
+        raise Account_GET_Error(res=res)
     
     return res
 ```

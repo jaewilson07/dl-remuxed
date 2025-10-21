@@ -53,7 +53,7 @@ class DomoInstanceConfig_InstanceSwitcher_Mapping:
 
 @dataclass
 class DomoInstanceConfig_InstanceSwitcher:
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
     domo_instance_switcher_mapping: List[
         DomoInstanceConfig_InstanceSwitcher_Mapping
     ] = field(default_factory=list)

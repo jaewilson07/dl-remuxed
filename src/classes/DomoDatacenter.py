@@ -18,7 +18,7 @@ from ..utils import chunk_execution as dmce
 class DomoDatacenter:
     "class for quering entities in the datacenter"
 
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
 
     async def search_datacenter(
         self,
@@ -184,7 +184,7 @@ class DomoDatacenter:
 
     async def get_cards_admin_summary(
         self,
-        auth=dmda.DomoAuth,
+        auth=DomoAuth,
         page_ids: List[str] = None,
         card_search_text: str = None,
         page_search_text: str = None,

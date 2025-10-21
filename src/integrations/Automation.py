@@ -22,7 +22,7 @@ from ..client import exceptions as dmde
 
 
 async def search_domo_groups_by_name(
-    auth: dmda.DomoAuth, group_names: List[str], is_hide_system_groups: bool = True
+    auth: DomoAuth, group_names: List[str], is_hide_system_groups: bool = True
 ) -> List[dmdg.DomoGroup]:
     domo_groups = dmdg.DomoGroups(auth=auth)
 
@@ -32,7 +32,7 @@ async def search_domo_groups_by_name(
 
 
 async def upsert_domo_group(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     group_name: str,
     description: str = f"updated via {dt.date.today()}",
     group_owner_names: List[str] = None,  # ["Role: Admin"]
@@ -77,7 +77,7 @@ async def search_or_upsert_domo_group(
         )
         return domo_groups[0]
 
-    except dmde.DomoError as e:
+    except DomoError as e:
         if upsert_if_not_exist:
             return await upsert_domo_group(
                 auth=auth,
@@ -97,7 +97,7 @@ class DJW_NoAccount(dmde.ClassError):
 
 
 async def search_domo_account_by_name(
-    auth: dmda.DomoAuth, account_name: str
+    auth: DomoAuth, account_name: str
 ) -> dmacc.DomoAccount:
     domo_accounts = dmacc.DomoAccounts(auth=auth)
 
@@ -119,7 +119,7 @@ async def search_domo_account_by_name(
 
 
 async def share_domo_account_with_domo_group(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     account_name: str,
     group_name: str,
     upsert_group_if_no_exist: bool = True,
@@ -147,7 +147,7 @@ async def share_domo_account_with_domo_group(
 
 
 async def remove_partition_by_x_days(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataset_id: str,
     x_last_days: int = 0,
     separator: str = None,
@@ -185,7 +185,7 @@ async def remove_partition_by_x_days(
 
 
 async def get_company_domains(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataset_id: str,
     handle_err_fn: callable,
     sql: str = "select domain from table",

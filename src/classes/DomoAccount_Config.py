@@ -23,6 +23,7 @@ __all__ = [
     "AccountConfig",
 ]
 
+from enum import Enum
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from dataclasses import dataclass, field
@@ -85,7 +86,7 @@ class DomoAccount_Config(dmee.DomoBase, ABC):
         return {key: getattr(self, key) for key in keys}
 
 
-class AccountConfig_UsesOauth(dmde.DomoError):
+class AccountConfig_UsesOauth(DomoError):
     def __init__(self, data_provider_type):
         super().__init__(
             message=f"data provider type {data_provider_type} uses OAuth and therefore wouldn't return a Config object"
@@ -111,7 +112,7 @@ class DomoAccount_NoConfig_OAuth(DomoAccount_Config):
         raise AccountConfig_UsesOauth(data_provider_type=self.data_provider_type)
 
 
-class AccountConfig_ProviderTypeNotDefined(dmde.DomoError):
+class AccountConfig_ProviderTypeNotDefined(DomoError):
     def __init__(self, data_provider_type):
         super().__init__(
             message=f"data provider type {data_provider_type} not defined yet. Extend the AccountConfig class"
@@ -686,7 +687,7 @@ class DomoAccount_Config_SnowflakeKeyPairAuthentication(DomoAccount_Config):
         )
 
 
-class AccountConfig(dmee.DomoEnum):
+class AccountConfig(dmee.DomoEnumMixin, Enum):
     """
     Enum provides appropriate spelling for data_provider_type and config object.
     The name of the enum should correspond with the data_provider_type with hyphens replaced with underscores.

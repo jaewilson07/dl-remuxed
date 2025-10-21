@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from enum import Enum
 from typing import Dict, List, Optional, TypedDict, Union
 
 import httpx
@@ -8,7 +9,7 @@ from ..client import auth as dmda
 from ..client import exceptions as de
 from ..client import get_data as gd
 from ..client import response as rgd
-from ..client.entities import DomoEnum
+from ..client.entities import DomoEnumMixin
 
 __all__ = [
     "Datacenter_Enum",
@@ -31,7 +32,7 @@ __all__ = [
 ]
 
 
-class Datacenter_Enum(DomoEnum):
+class Datacenter_Enum(DomoEnumMixin, Enum):
     ACCOUNT = "ACCOUNT"
     CARD = "CARD"
     DATAFLOW = "DATAFLOW"
@@ -42,9 +43,10 @@ class Datacenter_Enum(DomoEnum):
     CONNECTOR = "CONNECTOR"
     PACKAGE = "PACKAGE"
     DATA_APP = "DATA_APP"
+    default = "UNKNOWN"
 
 
-class Dataflow_Type_Filter_Enum(DomoEnum):
+class Dataflow_Type_Filter_Enum(DomoEnumMixin, Enum):
     ADR = {
         "filterType": "term",
         "field": "data_flow_type",
@@ -86,15 +88,24 @@ class Dataflow_Type_Filter_Enum(DomoEnum):
     }
 
 
-class Datacenter_Filter_Field_Enum(DomoEnum):
+class Datacenter_Filter_Field_Enum(DomoEnumMixin, Enum):
     DATAPROVIDER = "dataprovidername_facet"
     CERTIFICATION = "certification.state"
 
 
-class Datacenter_Filter_Field_Certification_Enum(DomoEnum):
+class Datacenter_Filter_Field_Certification_Enum(DomoEnumMixin, Enum):
     CERTIFIED = "CERTIFIED"
     PENDING = "PENDING"
     REQUESTED = "REQUESTED"
+
+
+def generate_search_datacenter_filter(
+    field: Union[str, Enum],  # use Datacenter_Filter_Field_Enum
+    value: Union[str, Enum],
+):
+    # if the field or value are enums, convert to string for submit
+    field = field.value if isinstance(field, Enum) else field
+    value = value.value if isinstance(value, Enum) else value
     EXPIRED = "EXPIRED"
 
 
@@ -197,7 +208,7 @@ class SearchDatacenter_GET_Error(de.RouteError):
 
 @gd.route_function
 async def search_datacenter(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     maximum: int = None,
     body: dict = None,  # either pass a body or generate a body in the function using search_text, entity_type, and additional_filters parameters
     search_text=None,
@@ -261,7 +272,7 @@ async def search_datacenter(
 
 @gd.route_function
 async def get_connectors(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     search_text: str = None,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
@@ -315,7 +326,7 @@ class LineageNode(TypedDict):
 
 @gd.route_function
 async def get_lineage_upstream(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     entity_type: str,
     entity_id: str,
     session: httpx.AsyncClient = None,
@@ -360,14 +371,14 @@ class ShareResource_Error(de.DomoError):
         )
 
 
-class ShareResource_Enum(DomoEnum):
+class ShareResource_Enum(DomoEnumMixin, Enum):
     PAGE = "page"
     CARD = "badge"
 
 
 @gd.route_function
 async def share_resource(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     resource_ids: list,
     resource_type: ShareResource_Enum,
     group_ids: list = None,

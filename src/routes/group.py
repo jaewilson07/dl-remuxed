@@ -20,6 +20,7 @@ __all__ = [
     "update_group_owners",
 ]
 
+from enum import Enum
 from typing import List, Union
 
 import httpx
@@ -29,7 +30,7 @@ from ..client import exceptions as dmde
 from ..client import get_data as gd
 from ..client import response as rgd
 from ..utils import convert as dmcv
-from ..client.entities import DomoEnum
+from ..client.entities import DomoEnumMixin
 
 
 class Group_GET_Error(dmde.RouteError):
@@ -52,7 +53,7 @@ class SearchGroups_Error(dmde.RouteError):
 
 @gd.route_function
 async def search_groups_by_name(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     search_name: str,
     is_exact_match: bool = True,
     debug_api: bool = False,
@@ -96,7 +97,7 @@ async def search_groups_by_name(
 
 @gd.route_function
 async def get_all_groups(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     debug_loop: bool = False,
@@ -140,7 +141,7 @@ async def get_all_groups(
 
 @gd.route_function
 async def get_group_by_id(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     group_id: str,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
@@ -180,7 +181,7 @@ class Group_CRUD_Error(dmde.RouteError):
 
 @gd.route_function
 async def is_system_groups_visible(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     session: httpx.AsyncClient,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
@@ -251,7 +252,7 @@ async def toggle_system_group_visibility(
     )
 
 
-class GroupType_Enum(DomoEnum):
+class GroupType_Enum(DomoEnumMixin, Enum):
     OPEN = "open"
     ADHOC = "adHoc"
     CLOSED = "closed"
@@ -271,7 +272,7 @@ def generate_body_create_group(
 
 @gd.route_function
 async def create_group(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     group_name: str,
     group_type: Union[GroupType_Enum, str] = "open",
     description: str = "",
@@ -328,7 +329,7 @@ async def create_group(
 
 @gd.route_function
 async def update_group(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     group_id: int,
     group_name: str = None,
     group_type: str = None,
@@ -388,7 +389,7 @@ async def update_group(
 
 @gd.route_function
 async def delete_groups(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     group_ids: List[str],  # list of group_ids
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
@@ -426,7 +427,7 @@ async def delete_groups(
 
 @gd.route_function
 async def get_group_owners(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     group_id: str,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
@@ -492,7 +493,7 @@ async def get_group_owners(
 
 @gd.route_function
 async def get_group_membership(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     group_id: str,
     return_raw: bool = False,
     debug_api: bool = False,
@@ -582,7 +583,7 @@ def generate_body_update_group_membership(
 
 @gd.route_function
 async def update_group_membership(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     group_id: str,
     update_payload: dict = None,
     add_member_arr: list[dict] = None,
@@ -627,7 +628,7 @@ async def update_group_membership(
 
 @gd.route_function
 async def update_group_members(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     group_id: str,
     add_member_arr: list[dict] = None,
     remove_member_arr: list[dict] = None,
@@ -667,7 +668,7 @@ async def update_group_members(
 
 @gd.route_function
 async def update_group_owners(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     group_id: str,
     add_owner_arr: list[dict] = None,
     remove_owner_arr: list[dict] = None,

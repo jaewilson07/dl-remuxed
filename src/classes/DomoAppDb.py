@@ -73,7 +73,7 @@ class AppDbDocument:
     @classmethod
     def from_dict(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         content,
         new_cls,
         identity_columns,
@@ -106,7 +106,7 @@ class AppDbDocument:
         cls,
         content: dict,
         collection_id: str,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         session: httpx.AsyncClient,
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
@@ -158,7 +158,7 @@ class AppDbDocument:
     @classmethod
     async def upsert(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         collection_id,
         content: dict,
         identity_columns: List[str],
@@ -212,7 +212,7 @@ class AppDbDocument:
     @classmethod
     def _from_api(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         obj,
         identity_columns: List[str] = None,
     ):
@@ -229,7 +229,7 @@ class AppDbDocument:
     @classmethod
     def from_json(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         collection_id: str,
         content: dict,
         identity_columns: List[str] = None,
@@ -255,7 +255,7 @@ class AppDbDocument:
         cls,
         collection_id: str,
         document_id: str,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         identity_columns=None,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
@@ -283,12 +283,11 @@ class AppDbDocument:
 
 
 @dataclass
-@patch_to(AppDbDocument, cls_method=True)
 async def create_document(
     cls,
     content: dict,
     collection_id: str,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     session: httpx.AsyncClient,
     debug_api: bool = False,
     debug_num_stacks_to_drop=2,
@@ -312,7 +311,6 @@ async def create_document(
     )
 
 
-@patch_to(AppDbDocument)
 async def update_document(
     self,
     content: dict = None,
@@ -340,7 +338,7 @@ async def update_document(
 
 @dataclass
 class AppDbCollection:
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
     id: str
     name: str
 
@@ -365,7 +363,7 @@ class AppDbCollection:
     @classmethod
     async def get_by_id(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         collection_id,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
@@ -465,7 +463,6 @@ class AppDbCollection:
             return self.domo_documents
 
 
-@patch_to(AppDbCollection)
 async def share_collection(
     self,
     domo_user=None,
@@ -489,7 +486,6 @@ async def share_collection(
     )
 
 
-@patch_to(AppDbCollection)
 async def query_documents(
     self,
     query: dict = None,
@@ -540,10 +536,9 @@ async def query_documents(
         return self.domo_documents
 
 
-@patch_to(AppDbDocument, cls_method=True)
 async def upsert(
     cls,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     collection_id,
     content: dict,
     identity_columns: List[str],
@@ -584,7 +579,7 @@ class AppDbCollections:
     @classmethod
     async def get_collections(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         datastore_id: str = None,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,

@@ -21,12 +21,12 @@ from ..utils import xkcd_password as dmxkcd
 from . import DomoAccount as dmac
 
 
-class DJW_PermissionToAccountDenied(dmde.DomoError):
+class DJW_PermissionToAccountDenied(DomoError):
     def __init__(self, message, account_name):
         super().__init__(message=message, entity_id=account_name)
 
 
-class DJW_AccountInvalid_NotAddedToWorkspace(dmde.DomoError):
+class DJW_AccountInvalid_NotAddedToWorkspace(DomoError):
     def __init__(self, message, account_name):
         super().__init__(message=message, entity_id=account_name)
 
@@ -115,7 +115,7 @@ class DomoJupyter_Account:
 
             return self.domo_account
 
-        except (dmac.Account_NoMatch, dmde.DomoError) as e:
+        except (dmac.Account_NoMatch, DomoError) as e:
             self.is_exists = False
             print(f"{e} - account does not exist.  is it shared with you?")
 
@@ -249,7 +249,7 @@ class DomoJupyter_Account:
         debug_prn: bool = False,
         new_password: str = None,  # only used if current password does not validate will autogenerate if no passwordd provided
         target_account_name: str = None,
-        target_auth: dmda.DomoAuth = None,
+        target_auth: DomoAuth = None,
         is_deploy_account_to_target_instance: bool = True,
         is_force_reset: bool = False,
     ) -> dmac.DomoAccount:
@@ -312,7 +312,7 @@ class DomoJupyter_Account:
         debug_api: bool = False,
         debug_prn: bool = False,
         target_account_name: str = None,
-        target_auth: dmda.DomoAuth = None,
+        target_auth: DomoAuth = None,
         is_deploy_account_to_target_instance: bool = True,
         is_force_reset: bool = False,
     ) -> dict:

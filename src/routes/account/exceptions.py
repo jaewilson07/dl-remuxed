@@ -21,11 +21,11 @@ from ...client.exceptions import RouteError
 class Account_GET_Error(RouteError):
     """Raised when account retrieval operations fail."""
 
-    def __init__(self, account_id: Optional[str] = None, response_data=None, **kwargs):
+    def __init__(self, account_id: Optional[str] = None, res=None, **kwargs):
         super().__init__(
             message="Account retrieval failed",
             entity_id=account_id,
-            response_data=response_data,
+            res=res,
             **kwargs,
         )
 
@@ -33,11 +33,11 @@ class Account_GET_Error(RouteError):
 class SearchAccount_NotFound(RouteError):
     """Raised when account search operations return no results."""
 
-    def __init__(self, search_criteria: str, response_data=None, **kwargs):
+    def __init__(self, search_criteria: str, res=None, **kwargs):
         message = f"No accounts found matching: {search_criteria}"
         super().__init__(
             message=message,
-            response_data=response_data,
+            res=res,
             additional_context={"search_criteria": search_criteria},
             **kwargs,
         )
@@ -50,15 +50,13 @@ class Account_CRUD_Error(RouteError):
         self,
         operation: str = "CRUD",
         account_id: Optional[str] = None,
-        response_data=None,
+        res=None,
         message: Optional[str] = None,
         **kwargs,
     ):
         if not message:
             message = f"Account {operation} operation failed"
-        super().__init__(
-            message=message, entity_id=account_id, response_data=response_data, **kwargs
-        )
+        super().__init__(message=message, entity_id=account_id, res=res, **kwargs)
 
 
 class AccountSharing_Error(RouteError):
@@ -68,13 +66,11 @@ class AccountSharing_Error(RouteError):
         self,
         operation: str,
         account_id: Optional[str] = None,
-        response_data=None,
+        res=None,
         **kwargs,
     ):
         message = f"Account sharing {operation} failed"
-        super().__init__(
-            message=message, entity_id=account_id, response_data=response_data, **kwargs
-        )
+        super().__init__(message=message, entity_id=account_id, res=res, **kwargs)
 
 
 class Account_Config_Error(RouteError):
@@ -83,15 +79,13 @@ class Account_Config_Error(RouteError):
     def __init__(
         self,
         account_id: Optional[str] = None,
-        response_data=None,
+        res=None,
         message: Optional[str] = None,
         **kwargs,
     ):
         if not message:
             message = "Account configuration operation failed"
-        super().__init__(
-            message=message, entity_id=account_id, response_data=response_data, **kwargs
-        )
+        super().__init__(message=message, entity_id=account_id, res=res, **kwargs)
 
 
 class Account_NoMatch(RouteError):
@@ -100,13 +94,11 @@ class Account_NoMatch(RouteError):
     def __init__(
         self,
         account_id: Optional[str] = None,
-        response_data=None,
+        res=None,
         message: str = "Account not found -- has it been shared with the user?",
         **kwargs,
     ):
-        super().__init__(
-            message=message, entity_id=account_id, response_data=response_data, **kwargs
-        )
+        super().__init__(message=message, entity_id=account_id, res=res, **kwargs)
 
 
 class Account_CreateParams_Error(RouteError):

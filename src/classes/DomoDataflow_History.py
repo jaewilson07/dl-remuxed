@@ -18,7 +18,7 @@ from .DomoDataflow_Action import DomoDataflow_ActionResult
 
 @dataclass
 class DomoDataflow_History_Execution:
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
     id: str
     dataflow_id: str
     dataflow_execution_id: str
@@ -38,7 +38,7 @@ class DomoDataflow_History_Execution:
     action_results: List[DomoDataflow_ActionResult] = None
 
     @classmethod
-    def from_dict(cls, de_obj, auth: dmda.DomoAuth):
+    def from_dict(cls, de_obj, auth: DomoAuth):
         action_results = None
         if de_obj.get("actionResults"):
             action_results = [
@@ -77,7 +77,7 @@ class DomoDataflow_History_Execution:
     @classmethod
     async def get_by_id(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         dataflow_id: int,
         execution_id: int,
         debug_api: bool = False,
@@ -135,10 +135,9 @@ class DomoDataflow_History_Execution:
         return self.action_results
 
 
-@patch_to(DomoDataflow_History_Execution, cls_method=True)
 async def get_by_id(
     cls,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataflow_id: int,
     execution_id: int,
     debug_api: bool = False,
@@ -164,7 +163,6 @@ async def get_by_id(
     return cls.from_dict(auth=auth, de_obj=res.response)
 
 
-@patch_to(DomoDataflow_History_Execution)
 async def get_actions(
     self: DomoDataflow_History_Execution,
     debug_api: bool = False,
@@ -200,7 +198,7 @@ async def get_actions(
 
 @dataclass
 class DomoDataflow_History:
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
     dataflow_id: int = field(repr=False)
 
     dataflow: None = field(repr=False, default=None)
@@ -209,7 +207,7 @@ class DomoDataflow_History:
 
     async def get_execution_history(
         self,
-        auth: dmda.DomoAuth = None,
+        auth: DomoAuth = None,
         maximum=10,  # maximum number of execution histories to retrieve
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
@@ -248,10 +246,9 @@ class DomoDataflow_History:
         return self.execution_history
 
 
-@patch_to(DomoDataflow_History)
 async def get_execution_history(
     self: DomoDataflow_History,
-    auth: dmda.DomoAuth = None,
+    auth: DomoAuth = None,
     maximum=10,  # maximum number of execution histories to retrieve
     debug_api: bool = False,
     debug_num_stacks_to_drop=2,

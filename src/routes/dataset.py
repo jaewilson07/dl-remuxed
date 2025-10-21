@@ -34,6 +34,7 @@ __all__ = [
     "get_permissions",
 ]
 
+from enum import Enum
 import io
 from typing import List, Optional
 
@@ -44,7 +45,7 @@ from ..client import auth as dmda
 from ..client import exceptions as de
 from ..client import get_data as gd
 from ..client import response as rgd
-from ..client.entities import DomoEnum
+from ..client.entities import DomoEnumMixin
 
 
 class DatasetNotFoundError(de.RouteError):
@@ -125,7 +126,7 @@ gd.route_function
 
 
 async def query_dataset_private(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataset_id: str,
     sql: str,
     loop_until_end: bool = False,  # retrieve all available rows
@@ -216,7 +217,7 @@ async def query_dataset_private(
 @gd.route_function
 async def get_dataset_by_id(
     dataset_id: str,  # dataset id from URL
-    auth: Optional[dmda.DomoAuth] = None,  # requires full authentication
+    auth: Optional[DomoAuth] = None,  # requires full authentication
     debug_api: bool = False,  # for troubleshooting API request
     session: Optional[httpx.AsyncClient] = None,
     parent_class: str = None,
@@ -247,7 +248,7 @@ async def get_dataset_by_id(
 
 @gd.route_function
 async def get_schema(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataset_id: str,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
@@ -276,7 +277,7 @@ async def get_schema(
 
 @gd.route_function
 async def alter_schema(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     schema_obj: dict,
     dataset_id: str,
     debug_api: bool = False,
@@ -307,7 +308,7 @@ async def alter_schema(
 
 @gd.route_function
 async def alter_schema_descriptions(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     schema_obj: dict,
     dataset_id: str,
     debug_api: bool = False,
@@ -338,7 +339,7 @@ async def alter_schema_descriptions(
 
 @gd.route_function
 async def set_dataset_tags(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     tag_ls: List[str],  # complete list of tags for dataset
     dataset_id: str,
     return_raw: bool = False,
@@ -394,7 +395,7 @@ class UploadDataError(de.RouteError):
 
 @gd.route_function
 async def upload_dataset_stage_1(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataset_id: str,
     #  restate_data_tag: str = None, # deprecated
     partition_tag: str = None,  # synonymous with data_tag
@@ -453,7 +454,7 @@ async def upload_dataset_stage_1(
 
 @gd.route_function
 async def upload_dataset_stage_2_file(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataset_id: str,
     upload_id: str,  # must originate from  a stage_1 upload response
     data_file: Optional[io.TextIOWrapper] = None,
@@ -492,7 +493,7 @@ async def upload_dataset_stage_2_file(
 
 @gd.route_function
 async def upload_dataset_stage_2_df(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataset_id: str,
     upload_id: str,  # must originate from  a stage_1 upload response
     upload_df: pd.DataFrame,
@@ -533,7 +534,7 @@ async def upload_dataset_stage_2_df(
 
 @gd.route_function
 async def upload_dataset_stage_3(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataset_id: str,
     upload_id: str,  # must originate from  a stage_1 upload response
     update_method: str = "REPLACE",  # accepts REPLACE or APPEND
@@ -587,7 +588,7 @@ async def upload_dataset_stage_3(
 
 @gd.route_function
 async def index_dataset(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataset_id: str,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
@@ -619,7 +620,7 @@ async def index_dataset(
 
 @gd.route_function
 async def index_status(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataset_id: str,
     index_id: str,
     session: httpx.AsyncClient = None,
@@ -665,7 +666,7 @@ gd.route_function
 
 
 async def list_partitions(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataset_id: str,
     body: dict = None,
     session: httpx.AsyncClient = None,
@@ -730,7 +731,7 @@ def generate_create_dataset_body(
 
 @gd.route_function
 async def create(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataset_name: str,
     dataset_type: str = "api",
     schema: dict = None,
@@ -787,7 +788,7 @@ def generate_remote_domostats_body(
 
 @gd.route_function
 async def create_dataset_enterprise_tookit(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     payload: dict,  # call generate_enterprise_toolkit_body
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
@@ -815,7 +816,7 @@ async def create_dataset_enterprise_tookit(
 
 @gd.route_function
 async def delete_partition_stage_1(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataset_id: str,
     dataset_partition_id: str,
     debug_api: bool = False,
@@ -849,7 +850,7 @@ async def delete_partition_stage_1(
 
 @gd.route_function
 async def delete_partition_stage_2(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataset_id: str,
     dataset_partition_id: str,
     debug_api: bool = False,
@@ -882,7 +883,7 @@ async def delete_partition_stage_2(
 
 @gd.route_function
 async def delete(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataset_id: str,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
@@ -907,7 +908,7 @@ async def delete(
     return res
 
 
-class ShareDataset_AccessLevelEnum(DomoEnum):
+class ShareDataset_AccessLevelEnum(DomoEnumMixin, Enum):
     CO_OWNER = "CO_OWNER"
     CAN_EDIT = "CAN_EDIT"
     CAN_SHARE = "CAN_SHARE"
@@ -936,7 +937,7 @@ class ShareDataset_Error(de.DomoError):
 
 @gd.route_function
 async def share_dataset(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataset_id: str,
     body: dict,
     debug_api: bool = False,
@@ -970,7 +971,7 @@ async def share_dataset(
 
 @gd.route_function
 async def get_permissions(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataset_id: str,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,

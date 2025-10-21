@@ -84,10 +84,10 @@ async def get_account_config(
     if not res.is_success and (
         res.response == "Forbidden" or res.response == "Not Found"
     ):
-        raise Account_NoMatch(account_id=str(account_id), response_data=res)
+        raise Account_NoMatch(account_id=str(account_id), res=res)
 
     if not res.is_success:
-        raise Account_Config_Error(account_id=str(account_id), response_data=res)
+        raise Account_Config_Error(account_id=str(account_id), res=res)
 
     res.response.update(
         {
@@ -150,10 +150,10 @@ async def get_oauth_account_config(
     if not res.is_success and (
         res.response == "Forbidden" or res.response == "Not Found"
     ):
-        raise Account_NoMatch(account_id=str(account_id), response_data=res)
+        raise Account_NoMatch(account_id=str(account_id), res=res)
 
     if not res.is_success:
-        raise Account_Config_Error(account_id=str(account_id), response_data=res)
+        raise Account_Config_Error(account_id=str(account_id), res=res)
 
     res.response.update(
         {
@@ -229,12 +229,12 @@ async def update_account_config(
     if res.status == 400 and res.response == "Bad Request":
         raise Account_Config_Error(
             account_id=str(account_id),
-            response_data=res,
+            res=res,
             message=f"Error updating config | use debug_api = True - {res.response}",
         )
 
     if not res.is_success:
-        raise Account_Config_Error(account_id=str(account_id), response_data=res)
+        raise Account_Config_Error(account_id=str(account_id), res=res)
 
     return res
 
@@ -300,11 +300,11 @@ async def update_oauth_account_config(
     if res.status == 400 and res.response == "Bad Request":
         raise Account_Config_Error(
             account_id=str(account_id),
-            response_data=res,
+            res=res,
             message=f"Error updating OAuth config | use debug_api = True - {res.response}",
         )
 
     if not res.is_success:
-        raise Account_Config_Error(account_id=str(account_id), response_data=res)
+        raise Account_Config_Error(account_id=str(account_id), res=res)
 
     return res

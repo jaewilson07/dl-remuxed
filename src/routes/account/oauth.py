@@ -59,7 +59,7 @@ async def get_oauth_accounts(
         return res
 
     if not res.is_success:
-        raise Account_GET_Error(response_data=res)
+        raise Account_GET_Error(res=res)
     return res
 
 
@@ -111,6 +111,6 @@ async def get_oauth_account_by_id(
     res.response = next((obj for obj in res.response if obj["id"] == target_id), None)
 
     if not res.response:
-        raise Account_NoMatch(account_id=str(account_id), response_data=res)
+        raise Account_NoMatch(account_id=str(account_id), res=res)
 
     return res

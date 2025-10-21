@@ -37,8 +37,8 @@ class DomoBootstrap_Feature:
 
 
 @dataclass
-class DomoBootstrap(dmee.DomoManager):
-    auth: dmda.DomoAuth = field(repr=False)
+class DomoBootstrap(DomoManager):
+    auth: DomoAuth = field(repr=False)
 
     customer_id: str = None
     page_ls: list[dmpg.DomoPage] = field(default=None)

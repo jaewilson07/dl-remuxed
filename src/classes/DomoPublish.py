@@ -1,3 +1,4 @@
+from enum import Enum
 from __future__ import annotations
 
 import datetime as dt
@@ -32,7 +33,7 @@ __all__ = [
 ]
 
 
-class DomoPublication_Content_Enum(DomoEnum):
+class DomoPublication_Content_Enum(DomoEnumMixin, Enum):
     from . import DomoAppStudio as dmas
     from . import DomoCard as dmac
     from . import DomoDataset as dmdc
@@ -46,7 +47,7 @@ class DomoPublication_Content_Enum(DomoEnum):
 
 @dataclass
 class DomoPublication_Content:
-    auth: dmda.DomoAuth
+    auth: DomoAuth
 
     content_id: str
     entity_type: str
@@ -67,7 +68,7 @@ class DomoPublication_Content:
     """the publication content is the content from the publisher instance that is being distributed to subscribers"""
 
     @classmethod
-    def from_dict(cls, obj: dict, auth: dmda.DomoAuth, parent: Any = None):
+    def from_dict(cls, obj: dict, auth: DomoAuth, parent: Any = None):
         entity_type = obj.get("content").get("type")
         return cls(
             auth=auth,
@@ -161,7 +162,7 @@ class DomoPublication(DomoEntity_w_Lineage):
         return self.content
 
     @classmethod
-    def from_dict(cls, obj, auth: dmda.DomoAuth):
+    def from_dict(cls, obj, auth: DomoAuth):
         domo_pub = cls(
             id=obj["id"],
             name=obj["name"],
@@ -200,7 +201,7 @@ class DomoPublication(DomoEntity_w_Lineage):
     async def get_by_id(
         cls,
         publication_id,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         return_raw: bool = False,
         timeout=10,
         debug_api: bool = False,
@@ -276,7 +277,7 @@ class DomoPublication(DomoEntity_w_Lineage):
         if not obj:
             if not is_suppress_errors:
                 pass
-                # raise dmde.DomoError(
+                # raise DomoError(
                 #         =self,
                 #         message=f"get_publication_entity_by_subscriber_entity: No matching publication content found for subscriber id {subscriber.id} in publication id {self.id}",
                 #     )
@@ -289,7 +290,7 @@ class DomoPublication(DomoEntity_w_Lineage):
     @classmethod
     async def create_publication(
         cls,
-        auth: "dmda.DomoAuth",
+        auth: "DomoAuth",
         name: str,
         content_ls: List["DomoPublication_Content"],
         subscription_ls: List["DomoSubscription"],
@@ -362,7 +363,7 @@ class DomoPublication(DomoEntity_w_Lineage):
 
     async def revoke_subscription_auth(
         self,
-        auth: "dmda.DomoAuth" = None,
+        auth: "DomoAuth" = None,
         subscription_id: str = None,
         subscription: "DomoSubscription" = None,
         debug_api: bool = False,
@@ -380,7 +381,7 @@ class DomoPublication(DomoEntity_w_Lineage):
 
     async def update_publication(
         self,
-        auth: "dmda.DomoAuth" = None,
+        auth: "DomoAuth" = None,
         content_ls: List["DomoPublication_Content"] = None,
         description: str = None,
         name: str = None,
@@ -454,7 +455,7 @@ class DomoSubscription(dmen.DomoEntity):
     created_dt: Optional[dt.datetime] = None
 
     @classmethod
-    def from_dict(cls, obj, auth: dmda.DomoAuth, parent_publication: Any = None):
+    def from_dict(cls, obj, auth: DomoAuth, parent_publication: Any = None):
         return cls(
             auth=auth,
             id=obj.get("id") or obj.get("subscriptionId"),
@@ -476,7 +477,7 @@ class DomoSubscription(dmen.DomoEntity):
     @classmethod
     async def get_by_id(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         subscription_id: str,
         return_raw: bool = False,
         debug_api: bool = False,
@@ -497,7 +498,7 @@ class DomoSubscription(dmen.DomoEntity):
 
     async def get_parent_publication(
         self,
-        parent_auth: dmda.DomoAuth = None,
+        parent_auth: DomoAuth = None,
         parent_auth_retrieval_fn: Callable = None,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
@@ -519,7 +520,7 @@ class DomoSubscription(dmen.DomoEntity):
 
     async def get_content_details(
         self,
-        parent_auth: dmda.DomoAuth = None,
+        parent_auth: DomoAuth = None,
         parent_auth_retrieval_fn: Callable = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
@@ -569,7 +570,7 @@ class DomoSubscription(dmen.DomoEntity):
 
 @dataclass
 class DomoEverywhere:
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
 
     publications: List[DomoPublication] = field(default=None)
 

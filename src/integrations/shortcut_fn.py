@@ -10,7 +10,7 @@ from ..client import auth as dmda
 
 
 async def share_domo_account_with_domo_group(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     account_name: str,
     group_name: str,
     is_upsert_group: bool = False,  # will not attempt to upsert group

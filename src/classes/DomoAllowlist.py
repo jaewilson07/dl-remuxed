@@ -25,7 +25,7 @@ def validate_ip_or_cidr(ip: str):
 
 @dataclass
 class DomoAllowlist:
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
     allowlist: List[str] = None
 
     is_filter_all_traffic_enabled: bool = None

@@ -47,7 +47,7 @@ class DomoCodeEngine_ConfigError(dmde.ClassError):
 
 @dataclass
 class DomoCodeEngine_PackageVersion:
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
     package_id: str
     version: str
     language: str
@@ -139,7 +139,7 @@ class DomoCodeEngine_PackageVersion:
         cls,
         obj: dict,
         package_id,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         language: str,
         is_supress_error: bool = True,
     ):
@@ -183,7 +183,7 @@ class DomoCodeEngine_PackageVersion:
         cls,
         package_id,
         version,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         language: str = None,
         params: dict = None,  # {"parts": "functions,code"}
         debug_api: bool = False,
@@ -289,7 +289,7 @@ class DomoCodeEngine_PackageVersion:
 
 @dataclass
 class DomoCodeEngine_Package:
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
     id: str
     name: str
     description: str
@@ -344,7 +344,7 @@ class DomoCodeEngine_Package:
     @classmethod
     async def get_by_id(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         package_id,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
@@ -377,7 +377,7 @@ class DomoCodeEngine_Package:
     @classmethod
     async def get_current_version_by_id(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         package_id,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,

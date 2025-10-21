@@ -13,12 +13,10 @@ from ..client import response as rgd
 class Grant_GET_Error(RouteError):
     """Raised when grant retrieval operations fail."""
 
-    def __init__(
-        self, message: Optional[str] = None, response_data=None, **kwargs
-    ):
+    def __init__(self, message: Optional[str] = None, res=None, **kwargs):
         super().__init__(
             message=message or "Grant retrieval failed",
-            response_data=response_data,
+            res=res,
             **kwargs,
         )
 
@@ -44,12 +42,12 @@ async def get_grants(
     )
 
     if not res.is_success:
-        raise Grant_GET_Error(response_data=res)
+        raise Grant_GET_Error(res=res)
 
     if len(res.response) == 0:
         raise Grant_GET_Error(
             message=f"{len(res.response)} grants returned",
-            response_data=res,
+            res=res,
         )
 
     return res

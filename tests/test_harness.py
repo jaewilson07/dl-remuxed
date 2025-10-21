@@ -94,15 +94,15 @@ class RouteTestHarness:
     def create_response_get_data(
         self,
         status: int = 200,
-        response_data: Any = None,
+        res: Any = None,
         is_success: bool = True,
         url: str = None,
         auth: DomoAuth = None,
     ) -> ResponseGetData:
         """Create a ResponseGetData object for testing."""
 
-        if response_data is None:
-            response_data = {"success": True, "data": []}
+        if res is None:
+            res = {"success": True, "data": []}
 
         # Create request metadata
         request_metadata = RequestMetadata(
@@ -114,7 +114,7 @@ class RouteTestHarness:
 
         return ResponseGetData(
             status=status,
-            response=response_data,
+            response=res,
             is_success=is_success,
             request_metadata=request_metadata,
         )
@@ -126,7 +126,7 @@ class RouteTestHarness:
 
         return self.create_response_get_data(
             status=mock_response.status_code,
-            response_data=mock_response.json_data or mock_response.text_data,
+            res=mock_response.json_data or mock_response.text_data,
             is_success=mock_response.is_success,
             url=kwargs.get("url"),
             auth=kwargs.get("auth"),
@@ -243,7 +243,7 @@ class RouteTestBuilder:
         self,
         name: str,
         description: str,
-        response_data: Any = None,
+        res: Any = None,
         status_code: int = 200,
         **kwargs,
     ) -> "RouteTestBuilder":
@@ -251,7 +251,7 @@ class RouteTestBuilder:
 
         mock_response = MockResponse(
             status_code=status_code,
-            json_data=response_data or {"success": True},
+            json_data=res or {"success": True},
             is_success=True,
         )
 
@@ -347,13 +347,13 @@ def create_standard_route_tests(
     builder.add_success_scenario(
         f"get_{entity_name}_success",
         f"Successfully retrieve {entity_name}",
-        response_data=sample_data,
+        res=sample_data,
     )
 
     builder.add_success_scenario(
         f"get_{entity_name}_empty_list",
         f"Successfully retrieve empty {entity_name} list",
-        response_data=[],
+        res=[],
     )
 
     # Error scenarios

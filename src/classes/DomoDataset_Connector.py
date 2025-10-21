@@ -47,7 +47,7 @@ class DomoConnector:
 
 @dataclass
 class DomoConnectors:
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
 
     domo_connectors: List[DomoConnector] = field(default=None)
 
