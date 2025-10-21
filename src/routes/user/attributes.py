@@ -34,18 +34,17 @@ __all__ = [
     "delete_user_attribute",
 ]
 
-from enum import Enum
 import datetime as dt
 import re
+from enum import Enum
 from typing import List, Optional
 
 import httpx
 
-from ...client.auth import DomoAuth
-from ...client.exceptions import RouteError
 from ...client import get_data as gd
-from ...client import response as rgd
+from ...client.auth import DomoAuth
 from ...client.entities import DomoEnumMixin
+from ...client.exceptions import RouteError
 
 
 class UserAttributes_IssuerType(DomoEnumMixin, Enum):
@@ -57,7 +56,7 @@ class UserAttributes_IssuerType(DomoEnumMixin, Enum):
 
 class UserAttributes_GET_Error(RouteError):
     """Raised when user attributes retrieval operations fail."""
-    
+
     def __init__(
         self,
         attribute_id: Optional[str] = None,
@@ -75,7 +74,7 @@ class UserAttributes_GET_Error(RouteError):
 
 class UserAttributes_CRUD_Error(RouteError):
     """Raised when user attributes create, update, or delete operations fail."""
-    
+
     def __init__(
         self,
         operation: str,
@@ -239,7 +238,7 @@ async def get_user_attribute_by_id(
     """
 
     res = await get_user_attributes(
-        auth=auth, 
+        auth=auth,
         session=session,
         debug_api=debug_api,
         parent_class=parent_class,
@@ -408,7 +407,7 @@ async def update_user_attribute(
     )
 
     res = await get_user_attribute_by_id(
-        attribute_id=attribute_id, 
+        attribute_id=attribute_id,
         auth=auth,
         session=session,
         debug_api=debug_api,
