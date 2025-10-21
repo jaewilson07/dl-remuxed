@@ -550,13 +550,13 @@ async def _get_by_id(
         raise User_GET_Error(res=res_v2)
 
     if res_v3.status == 404 and res_v3.response == "Not Found":
+    if res_v3.status == 404 and res_v3.response == "Not Found":
         raise SearchUser_NotFound(
             res=res_v3,
             search_criteria=f"user_id {user_id} not found",
         )
     if (
         not res_v3.status == 404 and not res_v3.response == "Not Found"
-    ) and not res_v3.is_success:
         raise User_GET_Error(res=res_v3)
 
     detail = {
