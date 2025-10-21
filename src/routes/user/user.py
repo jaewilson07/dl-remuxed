@@ -189,8 +189,16 @@ async def get_all_users(
     parent_class: Optional[str] = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
-    """Retrieve all users from Domo instance.
+    """
+    Retrieve all users from Domo instance.
 
+    This function returns all users as provided by the Domo API endpoint
+    `/api/content/v2/users`. By default, this typically includes active users
+    and may exclude deleted users and Domo support accounts. The exact
+    filtering behavior (e.g., inclusion of deleted or support users) depends
+    on the API's implementation and may change over time. If you require
+    information about deleted or support users, consult the Domo API
+    documentation or inspect the raw response using `return_raw=True`.
     Args:
         auth: Authentication object
         session: HTTP client session (optional)
