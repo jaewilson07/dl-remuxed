@@ -43,7 +43,7 @@ Exception Classes:
 
 __all__ = [
     "{Module}_GET_Error",
-    "Search{Module}_NotFound", 
+    "Search{Module}_NotFound",
     "{Module}_CRUD_Error",
     "{Module}Sharing_Error",  # If applicable
     "get_{module}s",
@@ -207,7 +207,7 @@ Apply access_token.py template directly with minimal customization:
    - Needed: `BeastMode_GET_Error`, `BeastMode_CRUD_Error`
 
 2. **codeengine.py** (243 lines)
-   - Current: `CodeEngine_API_Error` 
+   - Current: `CodeEngine_API_Error`
    - Needed: `CodeEngine_GET_Error`, `CodeEngine_CRUD_Error`
 
 3. **enterprise_apps.py** (263 lines)
@@ -328,17 +328,17 @@ from ..client import response as rgd
 @gd.route_function
 async def function_name(..., return_raw: bool = False) -> rgd.ResponseGetData:
     res = await gd.get_data(...)
-    
+
     # CRITICAL: Immediate return_raw check
     if return_raw:
         return res
-        
+
     # Error handling only after return_raw check
     if not res.is_success:
         if res.status == 404:
             raise Search{Module}_NotFound(search_criteria="...", res=res)
         raise {Module}_GET_Error(entity_id=entity_id, res=res)
-    
+
     return res
 ```
 

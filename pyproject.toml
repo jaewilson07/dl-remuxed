@@ -50,7 +50,7 @@ dev = [
 [dependency-groups]
 dev = [
     "pylint",
-    "ruff", 
+    "ruff",
     "black",
     "isort",
     "mypy",
@@ -93,5 +93,7 @@ mypy_path = "src"
 module = "domolibrary2.*"
 ignore_missing_imports = true
 
-[tool.setuptools.packages.find]
-where = ["src"]
+
+[tool.setuptools]
+packages = ["domolibrary2"]
+package-dir = {"domolibrary2" = "src"}

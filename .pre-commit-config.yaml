@@ -30,7 +30,7 @@ repos:
               - "--force-grid-wrap=0"
             files: ^src/
 
-    # Linting and import fixes
+    # Linting (Fast - Ruff only)
     - repo: https://github.com/astral-sh/ruff-pre-commit
       rev: v0.6.9
       hooks:
@@ -40,17 +40,31 @@ repos:
           - id: ruff-format
             files: ^src/
 
-    # Custom import cleanup scripts
-    - repo: local
+    # Security scanning
+    - repo: https://github.com/PyCQA/bandit
+      rev: 1.7.10
       hooks:
-          - id: fix-self-imports
-            name: Fix self-referential imports
-            entry: powershell.exe -ExecutionPolicy Bypass -File scripts/fix-self-imports.ps1
-            language: system
-            files: ^src/.*\.py$
-            pass_filenames: false
+          - id: bandit
+            args: ["-c", "pyproject.toml"]
+            files: ^src/
+            additional_dependencies: ["bandit[toml]"]
 
-    # # Type checking
+    # Documentation linting (Uncomment for documentation linting checks)
+    # - repo: https://github.com/pycqa/pydocstyle
+    #   rev: 6.3.0
+    #   hooks:
+    #       - id: pydocstyle
+    #         files: ^src/
+    #         args: ["--convention=google"]
+
+    # Conventional commits
+    - repo: https://github.com/compilerla/conventional-pre-commit
+      rev: v3.4.0
+      hooks:
+          - id: conventional-pre-commit
+            stages: [commit-msg]
+
+    # Type checking (commented out due to import issues)
     # - repo: https://github.com/pre-commit/mirrors-mypy
     #   rev: v1.11.2
     #   hooks:
