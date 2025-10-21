@@ -14,6 +14,7 @@ from pprint import pprint
 from typing import Any, Callable, Optional, Tuple, Union
 
 import httpx
+import json
 
 from . import auth as dmda
 from .exceptions import DomoError
@@ -28,7 +29,9 @@ class GetData_Error(DomoError):
 
 
 def create_headers(
-    auth: dmda.DomoAuth,  # The authentication object containing the Domo API token.
+    auth: Optional[
+        "dmda.DomoAuth"
+    ],  # The authentication object containing the Domo API token.
     content_type: Optional[
         str
     ] = None,  # The content type for the request. Defaults to None.
@@ -78,10 +81,10 @@ def create_httpx_session(
 async def get_data(
     url: str,
     method: str,
-    auth: dmda.DomoAuth,
+    auth: Optional["dmda.DomoAuth"] = None,
     content_type: Optional[str] = None,
     headers: Optional[dict] = None,
-    body: Union[dict, str, None] = None,
+    body: Union[dict, list, str, None] = None,
     params: Optional[dict] = None,
     debug_api: bool = False,
     session: Optional[httpx.AsyncClient] = None,
@@ -105,12 +108,14 @@ async def get_data(
     session, is_close_session = create_httpx_session(
         session=session, is_verify=is_verify
     )
+    if not isinstance(body, str):
+        body = json.dumps(body)
 
     # Create request metadata
     request_metadata = rgd.RequestMetadata(
         url=url,
         headers=headers,
-        body=body if isinstance(body, str) else (str(body) if body else None),
+        body=body,
         params=params,
     )
 
