@@ -56,19 +56,6 @@ dev = [
     "pytest",
     "pytest-cov",
     "pre-commit"]
-<<<<<<< HEAD
-
-[dependency-groups]
-dev = [
-    "pylint",
-    "ruff", 
-    "black",
-    "isort",
-    "mypy",
-    "pytest",
-    "pytest-cov",
-    "pre-commit",
-]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP"]

@@ -33,11 +33,9 @@ Exception Classes:
 
 __all__ = [
     "User_GET_Error",
-    "User_CRUD_Error", 
+    "User_CRUD_Error",
     "SearchUser_NotFound",
     "UserSharing_Error",
-    "ResetPassword_PasswordUsed",
-    "DownloadAvatar_Error",
     "DeleteUser_Error",
     "get_all_users",
     "search_users",
@@ -46,30 +44,23 @@ __all__ = [
     "get_by_id",
     "search_virtual_user_by_subscriber_instance",
     "create_user",
-    "set_user_landing_page",
-    "reset_password",
-    "request_password_reset",
     "delete_user",
-    "user_is_allowed_direct_signon",
-    "download_avatar",
-    "generate_avatar_bytestr",
-    "upload_avatar",
     "process_v1_search_users",
 ]
 
 import asyncio
 import base64
 import os
-from typing import List, Optional
+from typing import Optional
 
 import httpx
 
-from ...client.auth import DomoAuth
-from ...client.exceptions import RouteError
 from ...client import get_data as gd
 from ...client import response as rgd
-from ...utils import chunk_execution as ce
+from ...client.auth import DomoAuth
+from ...client.exceptions import RouteError
 from ...utils import Image as uimg
+from ...utils import chunk_execution as ce
 from ...utils.convert import test_valid_email
 
 
@@ -500,7 +491,7 @@ async def _get_by_id(
     parent_class=None,
 ):
     """Internal function to get user by ID using v2 and v3 APIs.
-    
+
     This function combines data from both v2 and v3 endpoints to provide
     comprehensive user information.
     """
@@ -558,13 +549,14 @@ async def _get_by_id(
         raise User_GET_Error(res=res_v2)
 
     if res_v3.status == 404 and res_v3.response == "Not Found":
-    if res_v3.status == 404 and res_v3.response == "Not Found":
         raise SearchUser_NotFound(
             res=res_v3,
             search_criteria=f"user_id {user_id} not found",
         )
+
     if (
         not res_v3.status == 404 and not res_v3.response == "Not Found"
+    ) and not res_v3.is_success:
         raise User_GET_Error(res=res_v3)
 
     detail = {
@@ -1167,7 +1159,7 @@ async def delete_user(
 @gd.route_function
 async def user_is_allowed_direct_signon(
     auth: DomoAuth,
-    user_ids: List[str],
+    user_ids: list[str],
     is_allow_dso: bool = True,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
@@ -1215,9 +1207,6 @@ async def user_is_allowed_direct_signon(
         return res
 
     if not res.is_success:
-        raise User_CRUD_Error(
-            operation="update_direct_signon",
-            res=res
-        )
+        raise User_CRUD_Error(operation="update_direct_signon", res=res)
 
     return res
