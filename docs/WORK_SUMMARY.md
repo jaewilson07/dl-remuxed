@@ -41,7 +41,7 @@ Refactor each route in the `src/routes/` directory (except `account` and `access
 
 8. **instance_config_instance_switcher.py** ✅ (Refactored)
    - Uses: InstanceSwitcherMapping_GET_Error, InstanceSwitcherMapping_CRUD_Error
-   - Already well-named, updated to use response_data pattern
+   - Already well-named, updated to use res pattern
 
 9. **sandbox.py** ✅ (Refactored)
    - Changed from: Sandbox_ToggleSameInstancePromotion_Error
@@ -77,9 +77,9 @@ from ..client import response as rgd
 class {Module}_GET_Error(RouteError):
     """Raised when {module} retrieval operations fail."""
     def __init__(self, {entity}_id: Optional[str] = None, message: Optional[str] = None, 
-                 response_data=None, **kwargs):
+                 res=None, **kwargs):
         super().__init__(message=message or "{Module} retrieval failed",
-                        entity_id={entity}_id, response_data=response_data, **kwargs)
+                        entity_id={entity}_id, res=res, **kwargs)
 ```
 
 3. **Function Signature Pattern:**
@@ -97,7 +97,7 @@ async def func_name(
 4. **Error Raising Pattern:**
 ```python
 if not res.is_success:
-    raise {Module}_GET_Error(entity_id=entity_id, response_data=res)
+    raise {Module}_GET_Error(entity_id=entity_id, res=res)
 ```
 
 ## Documentation Created
@@ -163,8 +163,8 @@ These may need modular restructuring:
 1. **Consistency**: All refactored routes follow the same error handling pattern
 2. **Type Safety**: Added Optional and proper type hints throughout
 3. **Better Debugging**: entity_id tracking in errors for easier troubleshooting
-4. **Cleaner Code**: Replaced old patterns (res= parameter) with new (response_data=)
-5. **Documentation**: response_data preserves full API context automatically
+4. **Cleaner Code**: Replaced old patterns (res= parameter) with new (res=)
+5. **Documentation**: res preserves full API context automatically
 
 ## Next Steps
 

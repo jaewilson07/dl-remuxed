@@ -13,44 +13,300 @@ from dataclasses import dataclass, field
 from typing import Any, List, Optional
 
 import httpx
-from nbdev.showdoc import patch_to
 
-from . import DomoGrant as dmgt
-from . import DomoUser as dmdu
+from ..client.auth import DomoAuth
+from ..client.entities import DomoEntity, DomoManager
+from ..client.exceptions import DomoError, ClassError
+from ..client import exceptions as dmde
+from ..routes import role as role_routes
+
+
+def _lazy_import_grant():
+    """Lazy import for DomoGrant to avoid circular imports."""
+    from . import DomoGrant as dmgt
+
+    return dmgt
+
+
+def _lazy_import_user():
+    """Lazy import for DomoUser to avoid circular imports."""
+    from . import DomoUser as dmdu
+
+    return dmdu
+
+
+import asyncio
+from dataclasses import dataclass, field
+from typing import Any, List, Optional, Union
+
+import httpx
+
 from ..client.auth import DomoAuth
 from ..client.entities import DomoEntity
-from ..client.exceptions import DomoError
+from ..client.exceptions import DomoError, ClassError
 from ..routes import role as role_routes
-from . import DomoGrant as dmgt
-from . import DomoUser as dmdu
+
+
+def _lazy_import_grant():
+    """Lazy import for DomoGrant to avoid circular imports."""
+    from . import DomoGrant as dmgt
+
+    return dmgt
+
+
+def _lazy_import_user():
+    """Lazy import for DomoUser to avoid circular imports."""
+    from . import DomoUser as dmdu
+
+    return dmdu
 
 
 @dataclass
-class DomoRole(dmee.DomoEntity):
+class DomoRole(DomoEntity):
     id: str
-    name: str = None
-    description: str = None
+    name: Optional[str] = None
+    description: Optional[str] = None
     is_system_role: bool = False
     is_default_role: bool = False
 
-    grants: List[dmgt.DomoGrant] = field(default_factory=list)
+    grants: List[Any] = field(default_factory=list)  # Will be DomoGrant objects
     membership_ls: list = field(default_factory=list)
 
     def __post_init__(self):
-        self.is_system_role = True if self.id <= 5 else 0
+        self.is_system_role = True if int(self.id or 0) <= 5 else False
 
         if self.grants:
             self.grants = self._valid_grants(self.grants)
 
-    @staticmethod
-    def _valid_grants(grants) -> List[dmgt.DomoGrant]:
+    def _valid_grants(self, grants) -> List[Any]:
+        """Convert grant strings or objects to DomoGrant objects."""
+        dmgt = _lazy_import_grant()
+
+        if not grants:
+            return []
+
         if isinstance(grants[0], str):
+            dmgt = _lazy_import_grant()
             return [dmgt.DomoGrant(grant_str) for grant_str in grants]
-
-        elif isinstance(grants[0], dmgt.DomoGrant):
+        elif (
+            hasattr(grants[0], "__class__")
+            and grants[0].__class__.__name__ == "DomoGrant"
+        ):
             return grants
+        else:
+            return []
 
-    # @classmethod
+    @classmethod
+    def from_dict(
+        cls, obj: dict, auth: DomoAuth = None, is_default_role: Optional[bool] = None
+    ):
+        return cls(
+            id=obj.get("id", ""),
+            name=obj.get("name"),
+            description=obj.get("description"),
+            is_system_role=obj.get("is_system_role", False),
+            is_default_role=is_default_role,
+            grants=obj.get("grants", []),
+        )
+
+    @classmethod
+    async def get_by_id(
+        cls,
+        role_id: str,
+        auth: DomoAuth,
+        session: Optional[httpx.AsyncClient] = None,
+    ):
+        res = await role_routes.get_role_by_id(
+            auth=auth,
+            role_id=role_id,
+            session=session,
+        )
+
+        return cls.from_dict(obj=res.response, auth=auth)
+
+    async def get_grants(
+        self,
+        auth: DomoAuth = None,
+        role_id: Optional[str] = None,
+        debug_api: bool = False,
+        session: Optional[httpx.AsyncClient] = None,
+    ) -> List[Any]:  # Returns List[DomoGrant]
+        dmgt = _lazy_import_grant()
+
+        res = await role_routes.get_role_grants(
+            auth=auth,
+            role_id=role_id or self.id,
+            debug_api=debug_api,
+            session=session,
+        )
+
+        dmgt = _lazy_import_grant()
+        self.grants = [dmgt.DomoGrant(obj) for obj in res.response]
+
+        return self.grants
+
+
+class SetRoleGrants_MissingGrants(ClassError):
+    def __init__(
+        self,
+        role: DomoRole,
+        grants: List[Any],  # List[DomoGrant]
+        is_success=False,
+        debug_api: bool = False,
+        debug_num_stacks_to_drop: int = 2,
+        session: Optional[httpx.AsyncClient] = None,
+    ):
+        dmgt = _lazy_import_grant()
+
+        # validate if grants is a list of DomoGrant objects
+        if not isinstance(grants[0], dmgt.DomoGrant):
+            message = f"grants must be a list of DomoGrant objects.  provided grants are {type(grants[0])}"
+            super().__init__(message)
+
+        missing_grants = []
+
+        role_grants = [g.grant for g in role.grants]
+
+        for grant in grants:
+            if grant.grant not in role_grants:
+                missing_grants.append(grant.grant)
+
+        if missing_grants:
+            message = (
+                f"role {role.name} is missing the following grants: {missing_grants}"
+            )
+        super().__init__(message)
+
+    async def set_grants(
+        self,
+        auth: DomoAuth,
+        role_id: str = None,
+        grants: list = None,
+        is_replace: bool = True,
+        session: Optional[httpx.AsyncClient] = None,
+    ):
+        dmgt = _lazy_import_grant()
+
+        all_grants = await self.get_grants(
+            role_id=role_id or self.id,
+            auth=auth,
+            session=session,
+        )
+
+        all_grants_str = [g.grant for g in all_grants]
+
+        dmgt = _lazy_import_grant()
+        if isinstance(grants[0], dmgt.DomoGrant):
+            grants_str = [g.grant for g in grants]
+
+        elif isinstance(grants[0], str):
+            grants_str = grants
+
+        missing_grants = [g for g in grants_str if g not in all_grants_str]
+
+        if missing_grants:
+            raise SetRoleGrants_MissingGrants(role=self, grants=grants)
+
+        res = await role_routes.set_role_grants(
+            auth=auth,
+            role_id=role_id or self.id,
+            grants=grants_str,
+            is_replace=is_replace,
+            session=session,
+        )
+
+        return res
+
+    async def add_user(
+        self,
+        auth: DomoAuth,
+        user_id: str = None,
+        user: "DomoUser" = None,
+        session: Optional[httpx.AsyncClient] = None,
+    ):
+        dmdu = _lazy_import_user()
+
+        if user_id is None:
+            if isinstance(user, dmdu.DomoUser):
+                user_id = user.id
+            else:
+                raise AddUser_Error(user=user)
+
+        res = await role_routes.add_user_to_role(
+            auth=auth,
+            role_id=self.id,
+            user_id=user_id,
+            session=session,
+        )
+
+        self.membership_ls.append(user_id)
+
+        return res
+
+    async def delete(
+        self,
+        auth: DomoAuth = None,
+        role_id: str = None,
+        debug_api: bool = False,
+        session: Optional[httpx.AsyncClient] = None,
+    ):
+        res = await role_routes.delete_role(
+            auth=auth,
+            role_id=role_id or self.id,
+            debug_api=debug_api,
+            session=session,
+        )
+
+        return res
+
+
+class AddUser_Error(ClassError):
+    def __init__(self, user):
+        message = f"user must either be a DomoUser object or provide user_id. received user: {user}, {type(user)}"
+        super().__init__(message)
+
+
+class DeleteRole_Error(ClassError):
+    def __init__(self, role: DomoRole = None, message: str = "failure to delete role"):
+        super().__init__(message)
+
+
+class SearchRole_NotFound(ClassError):
+    def __init__(self, role_name: str = ""):
+        message = f"role {role_name} not found"
+        super().__init__(message)
+
+
+class DomoRoles:
+    def __init__(self, auth: DomoAuth):
+        self.auth = auth
+
+    @classmethod
+    async def get_all(
+        cls,
+        auth: DomoAuth,
+        session: Optional[httpx.AsyncClient] = None,
+    ) -> List[DomoRole]:
+        res = await role_routes.get_all_roles(auth=auth, session=session)
+
+        return [DomoRole.from_dict(obj=obj, auth=auth) for obj in res.response]
+
+    @classmethod
+    async def search_by_name(
+        cls,
+        auth: DomoAuth,
+        name_query: str,
+        session: Optional[httpx.AsyncClient] = None,
+    ) -> DomoRole:
+        all_roles = await cls.get_all(auth=auth, session=session)
+
+        role_obj = next((r for r in all_roles if r.name == name_query), None)
+
+        if not role_obj:
+            raise SearchRole_NotFound(role_name=name_query)
+
+        return role_obj
+
     # def _from_str(cls, id, name, description=None, auth: DomoAuth = None):
 
     #     return cls(id=id,
@@ -60,7 +316,7 @@ class DomoRole(dmee.DomoEntity):
     #             )
 
     @classmethod
-    def from_dict(cls, obj: dict, auth=dmda.DomoAuth, is_default_role=None):
+    def from_dict(cls, obj: dict, auth=DomoAuth, is_default_role=None):
         return cls(
             id=obj.get("id"),
             name=obj.get("name"),
@@ -77,7 +333,7 @@ class DomoRole(dmee.DomoEntity):
     async def get_by_id(
         cls,
         role_id: int,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         session: httpx.AsyncClient = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
@@ -98,16 +354,15 @@ class DomoRole(dmee.DomoEntity):
         return cls.from_dict(obj=res.response, auth=auth)
 
 
-@patch_to(DomoRole)
 async def get_grants(
     self: DomoRole,
-    auth: dmda.DomoAuth = None,
+    auth: DomoAuth = None,
     role_id: str = None,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
     return_raw: bool = False,
     debug_num_stacks_to_drop=2,
-) -> List[dmgt.DomoGrant]:
+) -> List["DomoGrant"]:
     auth = auth or self.auth
     role_id = role_id or self.id
 
@@ -123,6 +378,7 @@ async def get_grants(
     if return_raw:
         return res
 
+    dmgt = _lazy_import_grant()
     self.grants = [dmgt.DomoGrant(obj) for obj in res.response]
 
     return self.grants
@@ -136,10 +392,9 @@ class SetRoleGrants_MissingGrants(dmde.ClassError):
         )
 
 
-@patch_to(DomoRole)
 async def set_grants(
     self: DomoRole,
-    grants: List[dmgt.DomoGrant],
+    grants: List["DomoGrant"],
     debug_api: bool = False,
     debug_num_stacks_to_drop: bool = 2,
     session: httpx.AsyncClient = None,
@@ -181,10 +436,9 @@ async def set_grants(
     return self.grants
 
 
-@patch_to(DomoRole, cls_method=True)
 async def create(
     cls,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     name: str,
     description,
     grants: List[Any],  # DomoGrants
@@ -214,11 +468,10 @@ async def create(
     return domo_role
 
 
-@patch_to(DomoRole)
 async def get_membership(
     self,
     role_id=None,
-    auth: dmda.DomoAuth = None,
+    auth: DomoAuth = None,
     return_raw: bool = False,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
@@ -238,6 +491,7 @@ async def get_membership(
     if return_raw:
         return res.response
 
+    dmdu = _lazy_import_user()
     membership_ls = [
         dmdu.DomoUser._from_search_json(user_obj=obj, auth=auth) for obj in res.response
     ]
@@ -256,12 +510,11 @@ class AddUser_Error(dmde.ClassError):
         )
 
 
-@patch_to(DomoRole)
 async def add_user(
     self,
-    user: dmdu.DomoUser,
+    user: "DomoUser",
     role_id: str = None,
-    auth: dmda.DomoAuth = None,
+    auth: DomoAuth = None,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
     debug_num_stacks_to_drop: int = 2,
@@ -296,12 +549,11 @@ async def add_user(
     return domo_members
 
 
-@patch_to(DomoRole)
 async def update(
     self: DomoRole,
     name=None,
     description: str = None,
-    grants: List[dmgt.DomoGrant] = None,
+    grants: List["DomoGrant"] = None,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
     return_raw: bool = False,
@@ -332,14 +584,13 @@ async def update(
     return self
 
 
-class DeleteRole_Error(dmde.DomoError):
+class DeleteRole_Error(DomoError):
     def __init__(self, cls_instance):
         super().__init__(
             cls_instance=cls_instance, message="role not deleted -- does it exist?"
         )
 
 
-@patch_to(DomoRole)
 async def delete(
     self: DomoRole,
     debug_api: bool = False,
@@ -356,11 +607,10 @@ async def delete(
     )
 
 
-@patch_to(DomoRole, cls_method=True)
 async def delete_role(
     cls: DomoRole,
     role_id: int,
-    auth: dmda.DomoAuth = None,
+    auth: DomoAuth = None,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
     debug_num_stacks_to_drop=2,
@@ -396,7 +646,7 @@ class SearchRole_NotFound(dmde.ClassError):
 
 
 @dataclass
-class DomoRoles(dmee.DomoManager):
+class DomoRoles(DomoManager):
     roles: List[DomoRole] = field(default=None)
 
     default_role: DomoRole = field(default=None)
@@ -488,11 +738,10 @@ class DomoRoles(dmee.DomoManager):
         return domo_role
 
 
-@patch_to(DomoRoles)
 async def create(
     self: DomoRoles,
     name: str,
-    grants: List[dmgt.DomoGrant] = None,
+    grants: List["DomoGrant"] = None,
     description: str = None,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
@@ -512,12 +761,11 @@ async def create(
     return domo_role
 
 
-@patch_to(DomoRoles)
 async def upsert(
     self: DomoRoles,
     name: str,
     description: str = None,
-    grants: List[dmgt.DomoGrant] = None,
+    grants: List["DomoGrant"] = None,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     debug_prn: bool = False,
@@ -566,7 +814,6 @@ async def upsert(
     return domo_role
 
 
-@patch_to(DomoRole)
 async def set_as_default_role(
     self: DomoRole,
     debug_api: bool = False,

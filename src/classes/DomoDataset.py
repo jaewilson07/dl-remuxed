@@ -17,8 +17,6 @@ from typing import Callable, List, Optional
 
 import httpx
 import pandas as pd
-from nbdev.showdoc import patch_to
-
 from ..client import DomoAuth as dmda
 from ..client import exceptions as dmde
 from ..client.DomoEntity import (
@@ -63,7 +61,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
     "interacts with domo datasets"
 
     id: str
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
 
     display_type: str = ""
     data_provider_type: str = ""
@@ -90,21 +88,21 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
     Certification: dmdc.DomoCertification = field(default=None)
     # Lineage: dmdl.DomoLineage = field(default=None, repr=False)
 
-    parent_auth: dmda.DomoAuth = None
+    parent_auth: DomoAuth = None
 
     def __post_init__(self):
-        self.Lineage = dmdl.DomoLineage._from_parent(auth=self.auth, parent=self)
+        self.Lineage = dmdl.DomoLineage.from_parent(auth=self.auth, parent=self)
 
-        self.Schema = dmdsc.DomoDataset_Schema._from_parent(parent=self)
+        self.Schema = dmdsc.DomoDataset_Schema.from_parent(parent=self)
 
-        self.Tags = dmtg.DomoTags._from_parent(parent=self)
+        self.Tags = dmtg.DomoTags.from_parent(parent=self)
 
-        self.Stream = dmdst.DomoStream._from_parent(parent=self)
+        self.Stream = dmdst.DomoStream.from_parent(parent=self)
 
         self.PDP = dmpdp.Dataset_PDP_Policies(dataset=self)
 
         if self.raw.get("certification"):
-            self.Certification = dmdc.DomoCertification._from_parent(parent=self)
+            self.Certification = dmdc.DomoCertification.from_parent(parent=self)
 
     def display_url(self):
         return f"https://{self.auth.domo_instance}.domo.com/datasources/{self.id}/details/overview"
@@ -113,7 +111,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
     def from_dict(
         cls,
         obj: dict,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         is_use_default_dataset_class: bool = True,
         new_cls=None,
         **kwargs,
@@ -163,7 +161,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
     async def get_by_id(
         cls,
         dataset_id: str,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         debug_api: bool = False,
         return_raw: bool = False,
         session: httpx.AsyncClient = None,
@@ -195,11 +193,10 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
         )
 
     @classmethod
-    async def _get_entity_by_id(cls, entity_id: str, auth: dmda.DomoAuth, **kwargs):
+    async def _get_entity_by_id(cls, entity_id: str, auth: DomoAuth, **kwargs):
         return await cls.get_by_id(dataset_id=entity_id, auth=auth, **kwargs)
 
 
-@patch_to(DomoDataset_Default)
 async def query_dataset_private(
     self: DomoDataset_Default,
     sql: str,
@@ -241,7 +238,7 @@ async def query_dataset_private(
                 parent_class=self.__class__.__name__,
             )
 
-        except dmde.DomoError as e:
+        except DomoError as e:
             if isinstance(e, (DatasetNotFoundError, QueryRequestError)):
                 raise e from e
 
@@ -261,11 +258,10 @@ async def query_dataset_private(
     return pd.DataFrame(res.response)
 
 
-@patch_to(DomoDataset_Default)
 async def delete(
     self: DomoDataset_Default,
     dataset_id=None,
-    auth: dmda.DomoAuth = None,
+    auth: DomoAuth = None,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
 ):
@@ -279,11 +275,10 @@ async def delete(
     return res
 
 
-@patch_to(DomoDataset_Default)
 async def share(
     self: DomoDataset_Default,
     member,  # DomoUser or DomoGroup
-    auth: dmda.DomoAuth = None,
+    auth: DomoAuth = None,
     share_type: ShareDataset_AccessLevelEnum = ShareDataset_AccessLevelEnum.CAN_SHARE,
     is_send_email=False,
     debug_api: bool = False,
@@ -308,10 +303,9 @@ async def share(
     return res
 
 
-@patch_to(DomoDataset_Default)
 async def index_dataset(
     self: DomoDataset_Default,
-    auth: dmda.DomoAuth = None,
+    auth: DomoAuth = None,
     dataset_id: str = None,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
@@ -323,7 +317,6 @@ async def index_dataset(
     )
 
 
-@patch_to(DomoDataset_Default)
 async def upload_data(
     self: DomoDataset_Default,
     upload_df: pd.DataFrame = None,
@@ -450,10 +443,9 @@ async def upload_data(
     return res
 
 
-@patch_to(DomoDataset_Default)
 async def list_partitions(
     self: DomoDataset_Default,
-    auth: dmda.DomoAuth = None,
+    auth: DomoAuth = None,
     dataset_id: str = None,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
@@ -470,13 +462,12 @@ async def list_partitions(
     return res.response
 
 
-@patch_to(DomoDataset_Default, cls_method=True)
 async def create(
     cls: DomoDataset_Default,
     dataset_name: str,
     dataset_type="api",
     schema=None,
-    auth: dmda.DomoAuth = None,
+    auth: DomoAuth = None,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
     return_raw: bool = False,
@@ -505,13 +496,12 @@ async def create(
     return await cls.get_by_id(dataset_id=dataset_id, auth=auth)
 
 
-@patch_to(DomoDataset_Default)
 async def delete_partition(
     self: DomoDataset_Default,
     dataset_partition_id: str,
     dataset_id: str = None,
     empty_df: pd.DataFrame = None,
-    auth: dmda.DomoAuth = None,
+    auth: DomoAuth = None,
     is_index: bool = True,
     debug_api: bool = False,
     debug_prn: bool = False,
@@ -575,7 +565,6 @@ async def delete_partition(
     return res.response
 
 
-@patch_to(DomoDataset_Default)
 async def reset_dataset(
     self: DomoDataset_Default,
     is_index: bool = True,
@@ -634,11 +623,10 @@ async def reset_dataset(
     return res
 
 
-@patch_to(DomoDataset_Default)
 async def upsert_connector(
     self,
     cnfg_body,
-    auth: dmda.DomoAuth = None,
+    auth: DomoAuth = None,
     session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
 ):
@@ -658,7 +646,6 @@ async def upsert_connector(
 
 
 @staticmethod
-@patch_to(DomoDataset_Default)
 def _is_federated_dataset_obj(obj: dict) -> bool:
     """Heuristic: decide if a dataset JSON represents a federated (proxy) dataset."""
 
@@ -685,7 +672,7 @@ class FederatedDomoDataset(DomoDataset_Default, DomoFederatedEntity):
 
     async def get_federated_parent(
         self,
-        parent_auth: dmda.DomoAuth = None,
+        parent_auth: DomoAuth = None,
         parent_auth_retrieval_fn: Callable = None,
     ):
         raise NotImplementedError("To Do")
@@ -694,7 +681,7 @@ class FederatedDomoDataset(DomoDataset_Default, DomoFederatedEntity):
     async def get_by_id(
         cls,
         dataset_id: str,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         debug_api: bool = False,
         return_raw: bool = False,
         session: httpx.AsyncClient = None,
@@ -745,7 +732,7 @@ class DomoDataset(DomoDataset_Default):
         cls,
         obj: dict,
         # is_admin_summary: bool = True,
-        auth: dmda.DomoAuth = None,
+        auth: DomoAuth = None,
         is_use_default_dataset_class=False,
         new_cls=None,
         **kwargs,

@@ -20,7 +20,7 @@ from ..routes.user_attributes import (
 class UserAttribute(DomoEntity):
     """utility class that absorbs many of the domo instance configuration methods"""
 
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
     id: str
     name: str
     description: str
@@ -62,7 +62,7 @@ class UserAttribute(DomoEntity):
     @classmethod
     async def get_by_id(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         attribute_id: str,
         session: httpx.AsyncClient = None,
         debug_api: bool = False,
@@ -114,7 +114,6 @@ class UserAttribute(DomoEntity):
         return self
 
 
-@patch_to(UserAttribute)
 async def update(
     self: UserAttribute,
     name=None,
@@ -149,7 +148,7 @@ async def update(
 
 @dataclass
 class UserAttributes(DomoManager):
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
 
     attributes: List[UserAttribute] = field(default=None)
 
@@ -221,7 +220,6 @@ class UserAttributes(DomoManager):
         return await UserAttribute.get_by_id(auth=auth, attribute_id=attribute_id)
 
 
-@patch_to(UserAttributes)
 async def create(
     self: UserAttributes,
     attribute_id: str,
@@ -260,7 +258,6 @@ async def create(
     return await UserAttribute.get_by_id(auth=auth, attribute_id=attribute_id)
 
 
-@patch_to(UserAttributes)
 async def upsert(
     self: UserAttributes,
     attribute_id,
@@ -325,7 +322,6 @@ async def upsert(
         await self.get()
 
 
-@patch_to(UserAttributes)
 async def delete(
     self: UserAttributes,
     attribute_id: str,

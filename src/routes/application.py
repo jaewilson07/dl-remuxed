@@ -33,7 +33,7 @@ class Application_GET_Error(dmde.RouteError):
         super().__init__(res=res, message=message)
 
 
-class ApplicationError_NoneRetrieved(dmde.DomoError):
+class ApplicationError_NoneRetrieved(DomoError):
     def __init__(
         self,
         domo_instance,
@@ -66,7 +66,7 @@ class ApplicationError_NoneRetrieved(dmde.DomoError):
 
 @gd.route_function
 async def get_applications(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     session: Union[httpx.AsyncClient, httpx.AsyncClient, None] = None,
     debug_api: bool = False,
     parent_class: str = None,
@@ -98,7 +98,7 @@ async def get_applications(
 
 @gd.route_function
 async def get_application_by_id(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     application_id: str,
     session: Union[httpx.AsyncClient, httpx.AsyncClient, None] = None,
     debug_api: bool = False,
@@ -131,7 +131,7 @@ async def get_application_by_id(
     return res
 
 
-class ApplicationError_NoJobRetrieved(dmde.DomoError):
+class ApplicationError_NoJobRetrieved(DomoError):
     def __init__(
         self,
         domo_instance,
@@ -153,7 +153,7 @@ gd.route_function
 
 
 async def get_application_jobs(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     application_id: str,
     parent_class: str = None,
     debug_api: bool = False,
@@ -192,7 +192,7 @@ async def get_application_jobs(
 
 @gd.route_function
 async def get_application_job_by_id(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     application_id: str,
     job_id: str,
     parent_class: str = None,
@@ -289,7 +289,7 @@ def generate_body_watchdog_generic(
     return body
 
 
-class CRUD_ApplicationJob_Error(dmde.DomoError):
+class CRUD_ApplicationJob_Error(DomoError):
     def __init__(
         self, domo_instance, application_id, message, parent_class, function_name
     ):
@@ -308,7 +308,7 @@ class CRUD_ApplicationJob_Error(dmde.DomoError):
 
 @gd.route_function
 async def create_application_job(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     body: dict,
     application_id: str,
     debug_api: bool = False,
@@ -347,7 +347,7 @@ async def create_application_job(
 # update the job
 @gd.route_function
 async def update_application_job(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     body: dict,
     job_id: str,
     application_id: str,
@@ -386,7 +386,7 @@ async def update_application_job(
 
 @gd.route_function
 async def update_application_job_trigger(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     body: dict,
     job_id: str,
     trigger_id: str,
@@ -423,7 +423,7 @@ async def update_application_job_trigger(
 
 @gd.route_function
 async def execute_application_job(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     application_id,
     job_id,
     debug_api: bool = False,
@@ -458,7 +458,7 @@ async def execute_application_job(
 
 @gd.route_function
 async def get_available_rds_reports_step1(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     application_id,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
@@ -488,7 +488,7 @@ async def get_available_rds_reports_step1(
 
 @gd.route_function
 async def get_available_rds_reports_step2(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     application_id,
     job_id,
     execution_id,

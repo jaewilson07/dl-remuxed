@@ -137,7 +137,7 @@ class DomoIntegration(DomoEntity):
     @classmethod
     async def get_by_id(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         integration_id: str,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,

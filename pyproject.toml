@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "domolibrary2"
-version = "4.5.29"
+version = "0.0.1-alpha"
 description = "A Python library for interacting with Domo APIs"
 authors = [
     { name = "Jae Wilson", email = "jaewilson07@gmail.com" }
@@ -12,7 +12,7 @@ authors = [
 license = { text = "Apache-2.0" }
 readme = "README.md"
 requires-python = ">=3.9"
-keywords = ["nbdev", "jupyter", "notebook", "python", "domo", "api"]
+keywords = ["jupyter", "notebook", "python", "domo", "api"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -21,10 +21,8 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-]
+    "Programming Language :: Python :: 3.12"]
 dependencies = [
-    "nbdev",
     "pandas",
     "aiohttp",
     "requests",
@@ -41,14 +39,23 @@ dependencies = [
     "pillow",
     "xkcdpass",
     "sql_metadata",
-    "beautifulsoup4",
-]
+    "beautifulsoup4"]
 
 [project.optional-dependencies]
 dev = [
     "pytest",
-    "pre-commit",
-]
+    "pre-commit"]
+
+[dependency-groups]
+dev = [
+    "pylint",
+    "ruff", 
+    "black",
+    "isort",
+    "mypy",
+    "pytest",
+    "pytest-cov",
+    "pre-commit"]
 
 [dependency-groups]
 dev = [
