@@ -20,12 +20,12 @@ Before merging a PR to `main`, add appropriate labels:
 
 #### Release Stage Labels (optional):
 
-| Label      | Suffix      | Example                   | Use Case                        |
-| ---------- | ----------- | ------------------------- | ------------------------------- |
-| `alpha`    | `-alpha`    | 0.1.0-alpha               | Early development, unstable     |
-| `beta`     | `-beta`     | 0.1.0-beta                | Feature complete, testing phase |
-| `stable`   | (none)      | 0.1.0                     | Production-ready release        |
-| (no label) | (preserved) | Current suffix maintained | Continue in current stage       |
+| Label      | Suffix      | Example                   | Use Case                        | Published to PyPI? |
+| ---------- | ----------- | ------------------------- | ------------------------------- | ------------------ |
+| `alpha`    | `-alpha`    | 0.1.0-alpha               | Early development, unstable     | ❌ No              |
+| `beta`     | `-beta`     | 0.1.0-beta                | Feature complete, testing phase | ✅ Yes             |
+| `stable`   | (none)      | 0.1.0                     | Production-ready release        | ✅ Yes             |
+| (no label) | (preserved) | Current suffix maintained | Continue in current stage       | Depends on suffix  |
 
 ### 2. Merge the PR
 
@@ -37,7 +37,7 @@ When you merge the PR to `main`, the workflow automatically:
 4. ✅ Commits the version bump
 5. ✅ Creates a git tag (e.g., `v0.1.0-alpha`)
 6. ✅ Creates a GitHub Release
-7. ✅ Triggers the PyPI publish workflow (for non-alpha releases)
+7. ✅ Publishes to PyPI (only for `beta` and `stable` releases, **alpha is skipped**)
 
 ## Examples
 
@@ -87,10 +87,11 @@ When you merge the PR to `main`, the workflow automatically:
 
 ### 🏷️ Label Guidelines
 
-1. **Always add a version bump label** (`major`, `feat`, `fix`/`patch`) to PRs
+1. **Always add a version bump label** (`major`, `feat`, `fix`/`patch`/`refactor`) to PRs
 2. **Add stage label when changing release stage** (e.g., moving from `alpha` to `beta`)
 3. **Omit stage label** when staying in the current stage
 4. **Use `stable` label** only when ready for production release
+5. **Alpha releases are NOT published to PyPI** - only beta and stable releases are published
 
 ### 📝 Workflow
 
