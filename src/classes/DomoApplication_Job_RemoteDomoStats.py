@@ -99,7 +99,7 @@ class DomoJob_RemoteDomoStats(DomoJob_Base):
         cls,
         application_id,
         job_id,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         debug_api: bool = False,
         session: Optional[httpx.AsyncClient] = None,
         debug_num_stacks_to_drop=2,
@@ -133,7 +133,7 @@ class DomoJob_RemoteDomoStats(DomoJob_Base):
     @classmethod
     async def create(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         name: str,
         config: RemoteDomoStats_Config,
         application_id: str,

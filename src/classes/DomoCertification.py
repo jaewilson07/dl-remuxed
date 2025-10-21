@@ -1,13 +1,14 @@
 __all__ = ["DomoCertificationState", "DomoCertification"]
 
+from enum import Enum
 import datetime as dt
 from dataclasses import dataclass
 
 from ..utils import convert as cd
-from ..client.entities import DomoEnum, DomoSubEntity
+from ..client.entities import DomoEnumMixin, DomoSubEntity
 
 
-class DomoCertificationState(DomoEnum):
+class DomoCertificationState(DomoEnumMixin, Enum):
     CERTIFIED = "certified"
     PENDING = "PENDING"
     EXPIRED = "EXPIRED"
@@ -21,7 +22,7 @@ class DomoCertification(DomoSubEntity):
     certification_name: str
 
     @classmethod
-    def _from_parent(cls, parent):
+    def from_parent(cls, parent):
         certification = parent.raw["certification"]
 
         cert_state = None

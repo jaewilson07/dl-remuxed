@@ -3,8 +3,6 @@ __all__ = ["PDP_Parameter", "PDP_Policy", "Dataset_PDP_Policies", "SearchPDP_Not
 from dataclasses import dataclass
 
 import httpx
-from nbdev.showdoc import patch_to
-
 from ..client import auth as dmda
 from ..client import DomoError as de
 from ..routes import pdp as pdp_routes
@@ -30,7 +28,6 @@ class PDP_Parameter:
     )  # column sets parameter on data vs dynamic creates on Domo Trusted Attribute
 
 
-@patch_to(PDP_Parameter)
 def generate_parameter_simple(obj):
     return pdp_routes.generate_policy_parameter_simple(
         column_name=obj.name,
@@ -41,7 +38,6 @@ def generate_parameter_simple(obj):
     )
 
 
-@patch_to(PDP_Parameter)
 def generate_body_from_parameter(self):
     return pdp_routes.generate_policy_parameter_simple(
         column_name=self.column_name,
@@ -64,7 +60,7 @@ class PDP_Policy:
     virtual_user_ls: list[str]
 
     @classmethod
-    async def from_dict(cls, obj, auth: dmda.DomoAuth):
+    async def from_dict(cls, obj, auth: DomoAuth):
         dd = util_dd.DictDot(obj)
 
         from . import DomoGroup as dmg
@@ -104,7 +100,7 @@ class PDP_Policy:
     @classmethod
     async def upsert_policy(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         dataset_id: str,
         # body sent to the API (uses camelCase instead of snake_case)
         policy_definition: dict,
@@ -136,7 +132,6 @@ class PDP_Policy:
             return res
 
 
-@patch_to(PDP_Policy)
 def generate_body_from_policy(
     self: PDP_Policy,
     # params: list[dict] = ''
@@ -170,11 +165,10 @@ class Dataset_PDP_Policies:
         self.policies = []
 
 
-@patch_to(Dataset_PDP_Policies)
 async def get_policies(
     self: Dataset_PDP_Policies,
     include_all_rows: bool = True,
-    auth: dmda.DomoAuth = None,
+    auth: DomoAuth = None,
     dataset_id: str = None,
     return_raw: bool = False,
     debug_api: bool = False,
@@ -216,10 +210,9 @@ class SearchPDP_NotFound(de.DomoError):
         )
 
 
-@patch_to(Dataset_PDP_Policies, cls_method=True)
 async def search_pdp_policies(
     cls: Dataset_PDP_Policies,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     search: str,
     dataset_id: str = None,
     search_method: str = "id" or "name",
@@ -280,10 +273,9 @@ async def search_pdp_policies(
     return policy_search
 
 
-@patch_to(PDP_Policy)
 async def delete_policy(
     self: PDP_Policy,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     policy_id: str = None,
     dataset_id: str = None,
     debug_api: bool = False,
@@ -298,10 +290,9 @@ async def delete_policy(
     return res
 
 
-@patch_to(Dataset_PDP_Policies)
 async def toggle_dataset_pdp(
     self: Dataset_PDP_Policies,
-    auth: dmda.DomoAuth = None,
+    auth: DomoAuth = None,
     dataset_id: str = None,
     is_enable: bool = True,  # True will enable pdp, False will disable pdp
     debug_api: bool = False,

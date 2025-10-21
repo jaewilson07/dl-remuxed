@@ -34,7 +34,7 @@ class DomoAccount(DomoAccount_Default):
         cls,
         obj: dict,
         is_admin_summary: bool = True,
-        auth: dmda.DomoAuth = None,
+        auth: DomoAuth = None,
         is_use_default_account_class=False,
         **kwargs,
     ):
@@ -61,7 +61,7 @@ class DomoAccounts_NoAccount(dmde.ClassError):
 
 
 @dataclass
-class DomoAccounts(dmee.DomoManager):
+class DomoAccounts(DomoManager):
     accounts: List[DomoAccount] = None
     oauths: List[DomoAccount_OAuth] = None
 
@@ -207,7 +207,7 @@ class DomoAccounts(dmee.DomoManager):
     @classmethod
     async def upsert_account(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         account_id: str = None,
         account_name: str = None,
         account_config: AccountConfig = None,
@@ -240,7 +240,7 @@ class DomoAccounts(dmee.DomoManager):
                     is_use_default_account_class=is_use_default_account_class,
                     **kwargs,
                 )
-            except dmde.DomoError:
+            except DomoError:
                 pass
 
         if account_name and not acc:
@@ -265,7 +265,7 @@ class DomoAccounts(dmee.DomoManager):
 
                     acc = da
 
-            except dmde.DomoError:
+            except DomoError:
                 pass
 
         if return_search:

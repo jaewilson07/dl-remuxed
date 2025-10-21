@@ -15,7 +15,7 @@ __all__ = [
 import httpx
 
 from ..client import auth as dmda
-from ..client import DomoError as de
+from ..client import exceptions as de
 from ..client import get_data as gd
 from ..client import response as rgd
 
@@ -39,7 +39,7 @@ class PDP_NotRetrieved(de.DomoError):
 
 
 async def get_pdp_policies(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataset_id: str,
     debug_api: bool = False,
     include_all_rows: bool = True,
@@ -178,7 +178,7 @@ class CreatePolicy_Error(de.RouteError):
 
 
 async def create_policy(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataset_id: str,
     body: dict,  # generated using generate_policy_parameter_simple & generate_policy_body
     session: httpx.AsyncClient = None,
@@ -229,7 +229,7 @@ async def create_policy(
 
 
 async def update_policy(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataset_id: str,
     policy_id: str,
     body: dict,  # generated using generate_policy_parameter_simple & generate_policy_body
@@ -254,7 +254,7 @@ async def update_policy(
 
 
 async def delete_policy(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataset_id: str = None,
     policy_id: str = None,
     session: httpx.AsyncClient = None,
@@ -277,7 +277,7 @@ async def delete_policy(
 
 
 async def toggle_pdp(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataset_id: str,
     is_enable: bool = True,
     debug_api: bool = False,

@@ -31,7 +31,7 @@ class Group_Class_Error(dmde.ClassError):
 
 @dataclass
 class DomoGroup(DomoEntity):
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
     id: str
 
     name: str = None
@@ -51,7 +51,7 @@ class DomoGroup(DomoEntity):
     Membership: dmgm.GroupMembership = field(repr=False, default=None)
 
     def __post_init__(self):
-        self.Membership = dmgm.GroupMembership._from_parent(parent=self)
+        self.Membership = dmgm.GroupMembership.from_parent(parent=self)
 
         self.is_system = True if self.type == "system" else False
 
@@ -62,7 +62,7 @@ class DomoGroup(DomoEntity):
         return self.id == other.id
 
     @classmethod
-    def from_dict(cls, auth: dmda.DomoAuth, json_obj: dict):
+    def from_dict(cls, auth: DomoAuth, json_obj: dict):
         # from group API
 
         return cls(
@@ -77,7 +77,7 @@ class DomoGroup(DomoEntity):
         )
 
     @classmethod
-    def _from_grouplist_json(cls, auth: dmda.DomoAuth, json_obj: dict):
+    def _from_grouplist_json(cls, auth: DomoAuth, json_obj: dict):
         return cls(
             auth=auth,
             id=json_obj.get("groupId"),
@@ -91,7 +91,7 @@ class DomoGroup(DomoEntity):
         )
 
     @staticmethod
-    def _groups_to_domo_group(json_list, auth: dmda.DomoAuth) -> List[dict]:
+    def _groups_to_domo_group(json_list, auth: DomoAuth) -> List[dict]:
         domo_groups = [
             DomoGroup.from_dict(auth=auth, json_obj=json_obj) for json_obj in json_list
         ]
@@ -104,7 +104,7 @@ class DomoGroup(DomoEntity):
     @classmethod
     async def get_by_id(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         group_id: str,
         return_raw: bool = False,
         debug_api: bool = False,
@@ -139,7 +139,7 @@ class DomoGroup(DomoEntity):
     @classmethod
     async def create_from_name(
         cls: "DomoGroup",
-        auth: "dmda.DomoAuth",
+        auth: "DomoAuth",
         group_name: str = None,
         group_type: Union[GroupType_Enum, str] = "open",  # use GroupType_Enum
         description: str = None,
@@ -169,7 +169,7 @@ class DomoGroup(DomoEntity):
 
     async def update_metadata(
         self: "DomoGroup",
-        auth: "dmda.DomoAuth" = None,
+        auth: "DomoAuth" = None,
         group_name: str = None,
         group_type: str = None,  # use GroupType_Enum
         description: str = None,
@@ -237,10 +237,9 @@ class DomoGroup(DomoEntity):
         return res
 
 
-@patch_to(DomoGroup, cls_method=True)
 async def create_from_name(
     cls: DomoGroup,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     group_name: str = None,
     group_type: Union[GroupType_Enum, str] = "open",  # use GroupType_Enum
     description: str = None,
@@ -268,10 +267,9 @@ async def create_from_name(
     return domo_group
 
 
-@patch_to(DomoGroup)
 async def update_metadata(
     self: DomoGroup,
-    auth: dmda.DomoAuth = None,
+    auth: DomoAuth = None,
     group_name: str = None,
     group_type: str = None,  # use GroupType_Enum
     description: str = None,
@@ -319,7 +317,6 @@ async def update_metadata(
     return self
 
 
-@patch_to(DomoGroup)
 async def delete(
     self: DomoGroup,
     debug_api: bool = False,
@@ -342,14 +339,14 @@ async def delete(
 
 @dataclass
 class DomoGroups:
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
 
     is_hide_system_groups: bool = None
 
     groups: List[DomoGroup] = None
 
     @staticmethod
-    def _groups_to_domo_group(json_list, auth: dmda.DomoAuth):
+    def _groups_to_domo_group(json_list, auth: DomoAuth):
         return [
             DomoGroup.from_dict(auth=auth, json_obj=json_obj) for json_obj in json_list
         ]
@@ -522,7 +519,7 @@ class DomoGroups:
                 session=session,
             )
 
-        except dmde.DomoError:
+        except DomoError:
             await group_routes.update_group(
                 auth=self.auth,
                 group_id=domo_group.id,
@@ -537,7 +534,6 @@ class DomoGroups:
         return domo_group
 
 
-@patch_to(DomoGroups)
 async def get(
     self,
     is_hide_system_groups: bool = True,
@@ -573,7 +569,6 @@ async def get(
     return self.groups
 
 
-@patch_to(DomoGroups)
 async def search_by_name(
     self,
     group_name: List[str],
@@ -623,7 +618,6 @@ async def search_by_name(
     return filter_groups
 
 
-@patch_to(DomoGroups)
 async def upsert(
     self: DomoGroups,
     group_name: str,
@@ -657,7 +651,7 @@ async def upsert(
             session=session,
         )
 
-    except dmde.DomoError:
+    except DomoError:
         await group_routes.update_group(
             auth=self.auth,
             group_id=domo_group.id,

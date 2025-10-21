@@ -24,13 +24,13 @@ class Sandbox_GET_Error(RouteError):
         self,
         repository_id: Optional[str] = None,
         message: Optional[str] = None,
-        response_data=None,
+        res=None,
         **kwargs,
     ):
         super().__init__(
             message=message or "Sandbox retrieval failed",
             entity_id=repository_id,
-            response_data=response_data,
+            res=res,
             **kwargs,
         )
 
@@ -43,13 +43,13 @@ class Sandbox_CRUD_Error(RouteError):
         operation: str,
         repository_id: Optional[str] = None,
         message: Optional[str] = None,
-        response_data=None,
+        res=None,
         **kwargs,
     ):
         super().__init__(
             message=message or f"Sandbox {operation} operation failed",
             entity_id=repository_id,
-            response_data=response_data,
+            res=res,
             **kwargs,
         )
 
@@ -79,7 +79,7 @@ async def get_is_allow_same_instance_promotion_enabled(
         return res
 
     if not res.is_success:
-        raise Sandbox_GET_Error(response_data=res)
+        raise Sandbox_GET_Error(res=res)
 
     res.response = {
         "name": "allow_same_instance_promotion",
@@ -114,9 +114,7 @@ async def toggle_allow_same_instance_promotion(
     )
 
     if not res.is_success:
-        raise Sandbox_CRUD_Error(
-            operation="toggle same instance promotion", response_data=res
-        )
+        raise Sandbox_CRUD_Error(operation="toggle same instance promotion", res=res)
 
     return res
 
@@ -174,7 +172,7 @@ async def get_shared_repos(
         return res
 
     if not res.is_success:
-        raise Sandbox_GET_Error(response_data=res)
+        raise Sandbox_GET_Error(res=res)
 
     return res
 
@@ -201,6 +199,6 @@ async def get_repo_from_id(
     )
 
     if not res.is_success:
-        raise Sandbox_GET_Error(repository_id=repository_id, response_data=res)
+        raise Sandbox_GET_Error(repository_id=repository_id, res=res)
 
     return res

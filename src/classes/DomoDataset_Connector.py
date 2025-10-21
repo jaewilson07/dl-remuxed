@@ -9,6 +9,7 @@ import httpx
 from ..client import auth as dmda
 from ..utils import convert as cd
 from ..utils import DictDot as util_dd
+from ..utils import convert as cd
 
 
 @dataclass
@@ -46,7 +47,7 @@ class DomoConnector:
 
 @dataclass
 class DomoConnectors:
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
 
     domo_connectors: List[DomoConnector] = field(default=None)
 

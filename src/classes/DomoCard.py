@@ -21,7 +21,7 @@ from ..utils import files as dmfi
 
 @dataclass
 class DomoCard(DomoEntity_w_Lineage):
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
     id: str
     Lineage: "dmdl.DomoLineage" = field(repr=False)
 
@@ -44,14 +44,14 @@ class DomoCard(DomoEntity_w_Lineage):
 
     def __post_init__(self):
         # self.Definition = CardDefinition(self)
-        self.Lineage = dmdl.DomoLineage._from_parent(auth=self.auth, parent=self)
+        self.Lineage = dmdl.DomoLineage.from_parent(auth=self.auth, parent=self)
 
     def display_url(self) -> str:
         return f"https://{self.auth.domo_instance}.domo.com/kpis/details/{self.id}"
 
     @classmethod
     async def from_dict(
-        cls, card_obj, auth: dmda.DomoAuth, is_suppress_errors: bool = False
+        cls, card_obj, auth: DomoAuth, is_suppress_errors: bool = False
     ):
         from . import DomoGroup as dmgr
         from . import DomoUser as dmdu
@@ -82,7 +82,7 @@ class DomoCard(DomoEntity_w_Lineage):
                 if user.type == "GROUP":
                     tasks.append(dmgr.DomoGroup.get_by_id(group_id=user.id, auth=auth))
 
-            except dmde.DomoError as e:
+            except DomoError as e:
                 if not is_suppress_errors:
                     raise e from e
                 else:
@@ -101,7 +101,7 @@ class DomoCard(DomoEntity_w_Lineage):
     async def get_by_id(
         cls,
         card_id: str,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         optional_parts: str = "certification,datasources,drillPath,owners,properties,domoapp",
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
@@ -129,7 +129,7 @@ class DomoCard(DomoEntity_w_Lineage):
     async def _get_entity_by_id(
         cls,
         entity_id: str,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         is_suppress_errors: bool = False,
         **kwargs,
     ):
@@ -177,7 +177,7 @@ class DomoCard(DomoEntity_w_Lineage):
 
     async def share(
         self: "DomoCard",
-        auth: "dmda.DomoAuth" = None,
+        auth: "DomoAuth" = None,
         domo_users: list = None,  # DomoUsers to share card with,
         domo_groups: list = None,  # DomoGroups to share card with
         message: str = None,  # message for automated email
@@ -321,6 +321,6 @@ class DomoCard(DomoEntity_w_Lineage):
         return doc
 
 
-class Card_DownloadSourceCode(dmde.DomoError):
+class Card_DownloadSourceCode(DomoError):
     def __init__(self, cls, auth, message):
         super().__init__(cls=cls, auth=auth, message=message)

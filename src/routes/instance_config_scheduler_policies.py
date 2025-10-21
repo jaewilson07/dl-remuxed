@@ -26,7 +26,7 @@ class Scheduler_Policies_Error(dmde.RouteError):
 
 @gd.route_function
 async def get_scheduler_policies(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -64,7 +64,7 @@ async def get_scheduler_policies(
 
 @gd.route_function
 async def get_scheduler_policy_by_id(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     policy_id: str,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -102,7 +102,7 @@ async def get_scheduler_policy_by_id(
 
 @gd.route_function
 async def create_scheduler_policy(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     create_body: dict[str, Any],
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -163,7 +163,7 @@ async def create_scheduler_policy(
 
 @gd.route_function
 async def update_scheduler_policy(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     policy_id: str,
     update_body: dict[str, Any],
     return_raw: bool = False,
@@ -201,7 +201,7 @@ async def update_scheduler_policy(
 
 @gd.route_function
 async def delete_policy(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     policy_id: str,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,

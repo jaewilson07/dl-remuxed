@@ -18,8 +18,6 @@ from enum import Enum
 from typing import List, Optional
 
 import httpx
-from nbdev.showdoc import patch_to
-
 from ..client import auth as dmda
 from ..routes import application as application_routes
 from ..classes.DomoApplication_Job_Base import (
@@ -203,7 +201,7 @@ class DomoJob_Watchdog(DomoJob_Base):
         cls,
         application_id,
         job_id,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         debug_api: bool = False,
         session: Optional[httpx.AsyncClient] = None,
         debug_num_stacks_to_drop=2,
@@ -238,7 +236,7 @@ class DomoJob_Watchdog(DomoJob_Base):
     @classmethod
     async def create(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         name: str,
         application_id: str,
         config: Watchdog_Config,
@@ -292,7 +290,6 @@ class DomoJob_Watchdog(DomoJob_Base):
         return cls.from_dict(res.response, auth=auth)
 
 
-@patch_to(DomoJob_Base)
 async def update(
     self: DomoJob_Base,
     debug_api: bool = False,
@@ -313,7 +310,6 @@ async def update(
     return res
 
 
-@patch_to(DomoJob_Base)
 async def execute(
     self,
     debug_api: bool = False,

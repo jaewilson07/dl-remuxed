@@ -81,7 +81,7 @@ class Cloud_Amplifier_Error(dmde.RouteError):
 
 @gd.route_function
 async def get_integrations(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     integration_engine: Optional[ENGINES] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -120,7 +120,7 @@ async def get_integrations(
 
 @gd.route_function
 async def get_integration_by_id(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     integration_id: str,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -149,7 +149,7 @@ async def get_integration_by_id(
 
 @gd.route_function
 async def get_integration_permissions(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     user_id: str = None,
     integration_ids: list[str] = [],
     debug_api: bool = False,
@@ -188,7 +188,7 @@ async def get_integration_permissions(
 
 @gd.route_function
 async def check_for_colliding_datasources(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataset_id: str,
     return_raw: bool = False,
     debug_api: bool = False,
@@ -230,7 +230,7 @@ async def check_for_colliding_datasources(
 
 @gd.route_function
 async def get_federated_source_metadata(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataset_id: str,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -268,7 +268,7 @@ async def get_federated_source_metadata(
 
 @gd.route_function
 async def get_integration_warehouses(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     integration_id: str,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -304,7 +304,7 @@ async def get_integration_warehouses(
 
 @gd.route_function
 async def get_databases(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     integration_id: str,
     page: int = 0,
     rows: int = 5000,
@@ -340,7 +340,7 @@ async def get_databases(
 
 @gd.route_function
 async def get_schemas(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     integration_id: str,
     database: str,
     page: int = 0,
@@ -377,7 +377,7 @@ async def get_schemas(
 
 @gd.route_function
 async def get_tables(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     integration_id: str,
     database: str,
     schema: str,
@@ -415,7 +415,7 @@ async def get_tables(
 
 @gd.route_function
 async def convert_federated_to_cloud_amplifier(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     federated_dataset_id: str,
     cloud_amplifier_integration_id: str,
     return_raw: bool = False,
@@ -455,7 +455,7 @@ async def convert_federated_to_cloud_amplifier(
 
 @gd.route_function
 async def create_integration(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     engine: ENGINES,
     friendly_name: str,
     service_account_id: str,
@@ -504,7 +504,7 @@ async def create_integration(
 
 @gd.route_function
 async def update_integration_warehouses(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     integration_id: str,
     warehouses: list[dict[str, Any]],
     debug_api: bool = False,
@@ -538,7 +538,7 @@ async def update_integration_warehouses(
 
 @gd.route_function
 async def update_integration(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     integration_id: str,
     update_body: dict[str, Any],
     return_raw: bool = False,
@@ -574,7 +574,7 @@ async def update_integration(
 
 @gd.route_function
 async def delete_integration(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     integration_id: str,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,

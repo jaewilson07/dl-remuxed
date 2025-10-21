@@ -35,7 +35,6 @@ from ..client import get_data as gd
 from ..client import response as rgd
 from . import user as user_routes
 from ..utils.convert import convert_string_to_bool
-from . import user as user_routes
 
 
 class ToggleSocialUsers_Error(dmde.RouteError):
@@ -47,7 +46,7 @@ class ToggleSocialUsers_Error(dmde.RouteError):
 
 @gd.route_function
 async def get_is_invite_social_users_enabled(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     customer_id: str,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
@@ -176,7 +175,7 @@ class Config_GET_Error(dmde.RouteError):
 
 @gd.route_function
 async def get_allowlist(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     session: httpx.AsyncClient = None,
     return_raw: bool = False,
     debug_api: bool = False,
@@ -223,7 +222,7 @@ class Allowlist_UnableToUpdate(dmde.RouteError):
 
 @gd.route_function
 async def set_allowlist(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     ip_address_ls: list[str],
     debug_api: bool = False,
     return_raw: bool = False,
@@ -272,7 +271,7 @@ async def set_allowlist(
 
 @gd.route_function
 async def get_allowlist_is_filter_all_traffic_enabled(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     return_raw: bool = False,
@@ -369,7 +368,7 @@ class GetDomains_NotFound(dmde.RouteError):
 
 @gd.route_function
 async def get_authorized_domains(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     return_raw: bool = False,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
@@ -414,7 +413,7 @@ async def get_authorized_domains(
 
 @gd.route_function
 async def set_authorized_domains(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     authorized_domain_ls: List[str],
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
@@ -455,7 +454,7 @@ class InstanceConfig_Error(dmde.RouteError):
 
 @gd.route_function
 async def get_is_weekly_digest_enabled(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     return_raw: bool = False,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
@@ -493,7 +492,7 @@ async def get_is_weekly_digest_enabled(
 
 @gd.route_function
 async def toggle_is_weekly_digest_enabled(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     return_raw: bool = False,
     debug_api: bool = False,
     is_enabled: bool = True,
@@ -531,14 +530,14 @@ async def toggle_is_weekly_digest_enabled(
     )
 
 
-class GetAppDomains_NotFound(dmde.DomoError):
+class GetAppDomains_NotFound(DomoError):
     def __init__(self, res: rgd.ResponseGetData, message: str = None):
         super().__init__(res=res, message=message)
 
 
 @gd.route_function
 async def get_authorized_custom_app_domains(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     return_raw: bool = False,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
@@ -583,7 +582,7 @@ async def get_authorized_custom_app_domains(
 
 @gd.route_function
 async def set_authorized_custom_app_domains(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     authorized_custom_app_domain_ls: List[str],
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
@@ -622,7 +621,7 @@ async def set_authorized_custom_app_domains(
 
 @gd.route_function
 async def get_is_left_nav_enabled_v1(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     return_raw: bool = False,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
@@ -661,7 +660,7 @@ async def get_is_left_nav_enabled_v1(
 
 @gd.route_function
 async def get_is_left_nav_enabled(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     return_raw: bool = False,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
@@ -700,7 +699,7 @@ async def get_is_left_nav_enabled(
 
 @gd.route_function
 async def toggle_is_left_nav_enabled_v1(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     is_use_left_nav: bool = True,
     return_raw: bool = False,
     debug_api: bool = False,
@@ -743,7 +742,7 @@ async def toggle_is_left_nav_enabled_v1(
 
 @gd.route_function
 async def toggle_is_left_nav_enabled(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     is_use_left_nav: bool = True,
     return_raw: bool = False,
     debug_api: bool = False,
