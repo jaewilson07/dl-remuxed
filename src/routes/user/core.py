@@ -579,7 +579,7 @@ async def get_by_id(
     debug_num_stacks_to_drop=1,
     parent_class=None,
     is_v2: bool = True,
-):
+) -> rgd.ResponseGetData:
     """Retrieve a specific user by ID.
 
     Args:
@@ -765,7 +765,7 @@ async def set_user_landing_page(
     debug_num_stacks_to_drop=1,
     session: httpx.AsyncClient = None,
     return_raw: bool = False,
-):
+) -> rgd.ResponseGetData:
     """Set a user's landing page.
 
     Args:
@@ -890,7 +890,7 @@ async def request_password_reset(
     parent_class: str = None,
     debug_num_stacks_to_drop=1,
     return_raw: bool = False,
-):
+) -> rgd.ResponseGetData:
     """Request a password reset for a user via email.
 
     Args:
@@ -941,15 +941,15 @@ async def download_avatar(
     user_id,
     auth: DomoAuth,
     pixels: int = 300,
-    folder_path="./images",
-    img_name=None,
+    folder_path: Optional[str] = "./images",
+    img_name: Optional[str] = None,
     is_download_image: bool = True,
     debug_api: bool = False,
     return_raw: bool = False,
-    parent_class: str = None,
-    debug_num_stacks_to_drop=1,
-    session: httpx.AsyncClient = None,
-):
+    parent_class: Optional[str] = None,
+    debug_num_stacks_to_drop: int = 1,
+    session: Optional[httpx.AsyncClient] = None,
+) -> rgd.ResponseGetData:
     """Download a user's avatar image.
 
     Args:
@@ -1049,7 +1049,7 @@ async def upload_avatar(
     session: httpx.AsyncClient = None,
     parent_class: str = None,
     return_raw: bool = False,
-):
+) -> rgd.ResponseGetData:
     """Upload an avatar image for a user.
 
     Args:
@@ -1089,7 +1089,7 @@ async def upload_avatar(
         debug_api=debug_api,
         num_stacks_to_drop=debug_num_stacks_to_drop,
         auth=auth,
-        parent_class=None,
+        parent_class=parent_class,
     )
 
     if return_raw:
