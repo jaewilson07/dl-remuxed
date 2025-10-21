@@ -494,9 +494,8 @@ async def _get_by_id(
     """Internal function to get user by ID using v2 and v3 APIs.
     
     This function combines data from both v2 and v3 endpoints to provide
-    comprehensive user information. Does not include role_id from v2 endpoint.
+    comprehensive user information.
     """
-    # does not include role_id
     v2_url = f"https://{auth.domo_instance}.domo.com/api/content/v2/users/{user_id}"
 
     v3_url = f"https://{auth.domo_instance}.domo.com/api/content/v3/users/{user_id}"
