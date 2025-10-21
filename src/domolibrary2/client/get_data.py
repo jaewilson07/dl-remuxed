@@ -21,16 +21,13 @@ from . import Logger as dl
 from . import auth as dmda
 from . import response as rgd
 from .exceptions import DomoError
-<<<<<<< HEAD
-=======
 
-import dc_logger
+# import dc_logger
 from dc_logger.client.base import get_global_logger, Logger
 from dc_logger.client.decorators import log_call
 
 logger: Logger = get_global_logger()
-assert logger, "A global logger must be set before using get_data functions."
->>>>>>> 43-add-logging-to-access_token_routes
+# assert logger, "A global logger must be set before using get_data functions."
 
 
 class GetData_Error(DomoError):
@@ -106,6 +103,7 @@ async def get_data(
     num_stacks_to_drop: int = 2,  # noqa: ARG001
     debug_traceback: bool = False,  # noqa: ARG001
     is_verify: bool = False,
+    logger: Logger = None,
 ) -> rgd.ResponseGetData:
     """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint."""
 
@@ -442,13 +440,11 @@ async def looper(
             except Exception as e:
                 await session.aclose()
 
-                message = "processing body_fn", message=str(e)
+                message = f"processing body_fn {str(e)}"
 
                 logger.error(message)
 
-                raise LooperError(
-                    loop_stage=message
-                ) from e
+                raise LooperError(loop_stage=message) from e
 
         if debug_loop:
             print(f"\n🚀 Retrieving records {skip} through {skip + limit} via {url}")
@@ -507,7 +503,7 @@ async def looper(
             isLoop = False
 
         message = f"🐛 Looper iteration complete: {{'all_rows': {len(allRows)}, 'new_records': {len(newRecords)}, 'skip': {skip}, 'limit': {limit}}}"
-        
+
         if debug_loop:
             print(message)
 
@@ -520,8 +516,8 @@ async def looper(
         time.sleep(wait_sleep)
 
     if debug_loop:
-        message =  f"\n🎉 Success - {len(allRows)} records retrieved from {url} in query looper\n"
-    
+        message = f"\n🎉 Success - {len(allRows)} records retrieved from {url} in query looper\n"
+
     logger.info(message=message)
 
     if is_close_session:

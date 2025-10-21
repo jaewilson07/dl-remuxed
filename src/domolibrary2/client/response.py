@@ -4,11 +4,7 @@ __all__ = ["STREAM_FILE_PATH", "ResponseGetData", "find_ip"]
 
 import re
 from dataclasses import dataclass, field
-<<<<<<< HEAD
-from typing import Any, Optional
-=======
 from typing import Any, Optional, List
->>>>>>> 43-add-logging-to-access_token_routes
 
 import httpx
 import requests

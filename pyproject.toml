@@ -44,7 +44,8 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest",
-    "pre-commit"]
+    "pre-commit",
+    "isort"]
 
 [dependency-groups]
 dev = [
@@ -81,7 +82,5 @@ mypy_path = "src"
 module = "domolibrary2.*"
 ignore_missing_imports = true
 
-
-[tool.setuptools]
-packages = ["domolibrary2"]
-package-dir = {"domolibrary2" = "src"}
+[tool.setuptools.packages.find]
+where = ["src"]
