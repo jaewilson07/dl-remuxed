@@ -17,23 +17,38 @@ repos:
           - id: black
             files: ^src/
 
-    # Import sorting
+    # Import sorting and cleanup
     - repo: https://github.com/pycqa/isort
       rev: 7.0.0
       hooks:
           - id: isort
-            args: ["--profile", "black"]
+            args: 
+              - "--profile=black"
+              - "--multi-line=3"
+              - "--combine-as"
+              - "--remove-redundant-aliases"
+              - "--force-grid-wrap=0"
             files: ^src/
 
-    # Linting
+    # Linting and import fixes
     - repo: https://github.com/astral-sh/ruff-pre-commit
       rev: v0.6.9
       hooks:
           - id: ruff
-            args: [--fix]
+            args: [--fix, --select=I,F401,F811]
             files: ^src/
           - id: ruff-format
             files: ^src/
+
+    # Custom import cleanup scripts
+    - repo: local
+      hooks:
+          - id: fix-self-imports
+            name: Fix self-referential imports
+            entry: powershell.exe -ExecutionPolicy Bypass -File scripts/fix-self-imports.ps1
+            language: system
+            files: ^src/.*\.py$
+            pass_filenames: false
 
     # # Type checking
     # - repo: https://github.com/pre-commit/mirrors-mypy

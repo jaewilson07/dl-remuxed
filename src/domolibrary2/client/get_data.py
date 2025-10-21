@@ -23,7 +23,7 @@ from . import response as rgd
 from .exceptions import DomoError
 
 # import dc_logger
-from dc_logger.client.base import get_global_logger, Logger
+from dc_logger.client.base import Logger, get_global_logger
 from dc_logger.client.decorators import log_call
 
 logger: Logger = get_global_logger()

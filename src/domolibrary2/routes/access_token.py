@@ -39,11 +39,8 @@ from ..client import get_data as gd
 from ..client import response as rgd
 from ..client.auth import DomoAuth
 from ..client.exceptions import RouteError
-<<<<<<< HEAD
-=======
 
 from dc_logger.client.base import Logger
->>>>>>> 43-add-logging-to-access_token_routes
 
 
 class AccessToken_GET_Error(RouteError):
