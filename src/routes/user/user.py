@@ -164,7 +164,7 @@ class DeleteUser_Error(RouteError):
 def process_v1_search_users(
     v1_user_ls: list[dict],  # list of users from v1_users_search API
 ) -> list[dict]:  # sanitized list of users.
-    """sanitizes the response from v1_users_search API and removes unecessary attributes"""
+    """sanitizes the response from v1_users_search API and removes unnecessary attributes"""
 
     clean_users = []
 
