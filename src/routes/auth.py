@@ -22,55 +22,33 @@ from typing import Any, List, Optional
 
 import httpx
 
-from ..client.exceptions import AuthError
+from ..client.exceptions import AuthError, RouteError
 from ..client import response as rgd
 
 
-class InvalidCredentialsError(AuthError):
+class InvalidCredentialsError(RouteError):
     """Raised when invalid credentials are provided to the API."""
 
-    def __init__(self, res=None, domo_instance: Optional[str] = None, **kwargs):
-        # Extract domo_instance from response if not provided
-        if (
-            not domo_instance
-            and res
-            and hasattr(res, "auth")
-            and hasattr(res.auth, "domo_instance")
-        ):
-            domo_instance = res.auth.domo_instance
-
+    def __init__(self, res=None, **kwargs):
         super().__init__(
+            res=res,
             message="Invalid credentials provided",
-            response_data=res,
-            domo_instance=domo_instance,
-            status=401,
             **kwargs,
         )
 
 
-class AccountLockedError(AuthError):
+class AccountLockedError(RouteError):
     """Raised when the user account is locked."""
 
-    def __init__(self, res=None, domo_instance: Optional[str] = None, **kwargs):
-        # Extract domo_instance from response if not provided
-        if (
-            not domo_instance
-            and res
-            and hasattr(res, "auth")
-            and hasattr(res.auth, "domo_instance")
-        ):
-            domo_instance = res.auth.domo_instance
-
+    def __init__(self, res=None, **kwargs):
         super().__init__(
+            res=res,
             message="User account is locked",
-            response_data=res,
-            domo_instance=domo_instance,
-            status=403,
             **kwargs,
         )
 
 
-class InvalidAuthTypeError(AuthError):
+class InvalidAuthTypeError(RouteError):
     """Raised when an invalid authentication type is used for an API call."""
 
     def __init__(
@@ -78,7 +56,6 @@ class InvalidAuthTypeError(AuthError):
         res=None,
         required_auth_type: Optional[Any] = None,
         required_auth_type_ls: Optional[List[Any]] = None,
-        domo_instance: Optional[str] = None,
         **kwargs,
     ):
         # Convert class types to strings
@@ -89,70 +66,41 @@ class InvalidAuthTypeError(AuthError):
         else:
             required_types = ["Unknown"]
 
-        # Use the convenience method from base AuthError
-        error = AuthError.for_invalid_auth_type(
-            required_auth_types=required_types,
-            response_data=res,
-            domo_instance=domo_instance,
-            **kwargs,
-        )
+        # Build message
+        auth_list = ", ".join(required_types)
+        message = f"This API requires: {auth_list}"
 
-        # Copy the constructed error's attributes
         super().__init__(
-            message=error.message,
-            response_data=res,
-            domo_instance=domo_instance,
-            auth_type=error.auth_type,
-            required_auth_types=error.required_auth_types,
-            status=error.status,
+            res=res,
+            message=message,
             **kwargs,
         )
 
 
-class InvalidInstanceError(AuthError):
+class InvalidInstanceError(RouteError):
     """Raised when an invalid Domo instance is provided."""
 
     def __init__(self, res=None, domo_instance: Optional[str] = None, **kwargs):
-        # Extract domo_instance from response if not provided
-        if (
-            not domo_instance
-            and res
-            and hasattr(res, "auth")
-            and hasattr(res.auth, "domo_instance")
-        ):
-            domo_instance = res.auth.domo_instance
+        message = (
+            f"Invalid Domo instance: {domo_instance}"
+            if domo_instance
+            else "Invalid Domo instance"
+        )
 
         super().__init__(
-            message=(
-                f"Invalid Domo instance: {domo_instance}"
-                if domo_instance
-                else "Invalid Domo instance"
-            ),
-            response_data=res,
-            domo_instance=domo_instance,
-            status=403,
+            res=res,
+            message=message,
             **kwargs,
         )
 
 
-class NoAccessTokenReturned(AuthError):
+class NoAccessTokenReturned(RouteError):
     """Raised when no access token is returned from the authentication API."""
 
-    def __init__(self, res=None, domo_instance: Optional[str] = None, **kwargs):
-        # Extract domo_instance from response if not provided
-        if (
-            not domo_instance
-            and res
-            and hasattr(res, "auth")
-            and hasattr(res.auth, "domo_instance")
-        ):
-            domo_instance = res.auth.domo_instance
-
+    def __init__(self, res=None, **kwargs):
         super().__init__(
+            res=res,
             message="No access token returned from authentication API",
-            response_data=res,
-            domo_instance=domo_instance,
-            status=401,
             **kwargs,
         )
 
@@ -207,7 +155,7 @@ async def get_full_auth(
     }
 
     res = await gd.get_data(
-        auth=auth,
+        auth=auth,  # type: ignore  # Auth can be None for authentication endpoints
         method="POST",
         url=url,
         body=body,
@@ -235,21 +183,21 @@ async def get_full_auth(
 
         if reason == "INVALID_CREDENTIALS":
             res.is_success = False
-            raise InvalidCredentialsError(domo_instance=domo_instance, res=res)
+            raise InvalidCredentialsError(res=res)
 
         if reason == "ACCOUNT_LOCKED":
             res.is_success = False
-            raise AccountLockedError(domo_instance=domo_instance, res=res)
+            raise AccountLockedError(res=res)
 
         # Check for empty response
         if res.response == {} or res.response == "":
             res.is_success = False
-            raise NoAccessTokenReturned(domo_instance=domo_instance, res=res)
+            raise NoAccessTokenReturned(res=res)
 
     # Validate session token presence
     if isinstance(res.response, dict) and not res.response.get("sessionToken"):
         res.is_success = False
-        raise InvalidCredentialsError(domo_instance=domo_instance, res=res)
+        raise InvalidCredentialsError(res=res)
 
     return res
 
@@ -301,7 +249,7 @@ async def get_developer_auth(
         url=url,
         session=session,
         debug_api=debug_api,
-        auth=auth,
+        auth=auth,  # type: ignore  # Auth can be None for authentication endpoints
         num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         return_raw=return_raw,

@@ -16,14 +16,13 @@ import httpx
 
 from ..client.exceptions import DomoError, ClassError
 from ..client.auth import DomoAuth
+from ..client.Logger import Logger
 from ..utils import DictDot
-from nbdev.showdoc import patch_to
-
 from ..routes import instance_config_sso as sso_routes
 from ..routes import user as user_routes
 
 from ..routes.user import (
-    SearchUser_NoResults,
+    SearchUser_NotFound,
     UserProperty,
 )
 from ..utils import DictDot as util_dd
@@ -38,7 +37,7 @@ from ..client.entities import DomoManager
 from ..client.exceptions import DomoError
 
 
-class CreateUser_MissingRole(dmde_DomoError):
+class CreateUser_MissingRole(DomoError):
     def __init__(self, domo_instance, email_address):
         super().__init__(
             domo_instance=domo_instance,
@@ -46,7 +45,7 @@ class CreateUser_MissingRole(dmde_DomoError):
         )
 
 
-class DownloadAvatar_NoAvatarKey(dmde_DomoError):
+class DownloadAvatar_NoAvatarKey(DomoError):
     def __init__(
         self,
         domo_instance,
@@ -77,7 +76,7 @@ class DomoUser:
     """A class for interacting with a Domo User"""
 
     id: str
-    auth: Optional[dmda_DomoAuth] = field(repr=False, default=None)
+    auth: Optional[DomoAuth] = field(repr=False, default=None)
 
     display_name: Optional[str] = None
     email_address: Optional[str] = None
@@ -119,7 +118,7 @@ class DomoUser:
 
     @classmethod
     def _from_search_json(cls, auth, user_obj):
-        user_dd = util_dd(user_obj.__dict__)
+        user_dd = DictDot(user_obj.__dict__)
 
         return cls(
             auth=auth,
@@ -145,7 +144,7 @@ class DomoUser:
 
     @classmethod
     def _from_virtual_json(cls, auth, user_obj):
-        user_dd = util_dd(user_obj.__dict__)
+        user_dd = DictDot(user_obj.__dict__)
 
         return cls(
             id=user_dd.id,
@@ -159,7 +158,7 @@ class DomoUser:
     def _from_bootstrap_json(cls, auth, user_obj):
         dd = user_obj
         if isinstance(user_obj, dict):
-            dd = util_dd(user_obj)
+            dd = DictDot(user_obj)
 
         return cls(id=dd.id, display_name=dd.displayName, auth=auth)
 
@@ -182,7 +181,6 @@ class DomoUser:
         return self.role
 
 
-@patch_to(DomoUser)
 async def get_role(
     self: DomoUser,
     debug_api: bool = False,
@@ -205,7 +203,7 @@ async def get_role(
     async def get_by_id(
         cls,
         user_id,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         return_raw: bool = False,
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
@@ -250,7 +248,7 @@ async def get_role(
         pixels: int = 300,
         folder_path="./images",
         img_name=None,  # will default to user_id
-        auth: dmda.DomoAuth = None,
+        auth: DomoAuth = None,
         is_download_image: bool = True,  # option to prevent downloading the image file
         debug_api: bool = False,
         return_raw: bool = False,
@@ -290,7 +288,7 @@ async def get_role(
             UserProperty
         ],  # use the UserProperty class to define a list of user properties to update, see user route documentation to see a list of UserProperty_Types that can be updated
         return_raw: bool = False,
-        auth: dmda.DomoAuth = None,
+        auth: DomoAuth = None,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
     ):
@@ -314,7 +312,7 @@ async def get_role(
         self,
         page_id: str,
         user_id: str = None,
-        auth: dmda.DomoAuth = None,
+        auth: DomoAuth = None,
         debug_api: bool = False,
     ):
         res = await user_routes.set_user_landing_page(
@@ -329,7 +327,7 @@ async def get_role(
     @classmethod
     async def create(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         display_name,
         email_address,
         role_id,
@@ -588,31 +586,31 @@ class DomoUser_NoSearch(ClassError):
 
 
 @dataclass
-class DomoUsers(dmee_DomoManager):
+class DomoUsers(DomoManager):
     """a class for searching for Users"""
 
-    auth: Optional[dmda.DomoAuth] = field(repr=False, default=None)
+    auth: Optional[DomoAuth] = field(repr=False, default=None)
     users: Optional[List[DomoUser]] = None
     virtual_users: Optional[List[DomoUser]] = None
 
-    logger: Optional[lc_Logger] = None
+    logger: Optional[Logger] = None
 
     @classmethod
-    def _users_to_domo_user(cls, user_ls, auth: dmda.DomoAuth):
+    def _users_to_domo_user(cls, user_ls, auth: DomoAuth):
         return [
             DomoUser._from_search_json(auth=auth, user_obj=user_obj)
             for user_obj in user_ls
         ]
 
     @classmethod
-    def _users_to_virtual_user(cls, user_ls, auth: dmda.DomoAuth):
+    def _users_to_virtual_user(cls, user_ls, auth: DomoAuth):
         return [
             DomoUser._from_virtual_json(auth=auth, user_obj=user_obj)
             for user_obj in user_ls
         ]
 
-    def _generate_logger(self, logger: Optional[lc_Logger] = None):
-        self.logger = logger or self.logger or lc_Logger(app_name="domo_users")
+    def _generate_logger(self, logger: Optional[Logger] = None):
+        self.logger = logger or self.logger or Logger(app_name="domo_users")
 
     @staticmethod
     def _util_match_domo_users_to_emails(
@@ -687,7 +685,7 @@ class DomoUsers(dmee_DomoManager):
                 session=session,
             )
 
-        except SearchUser_NoResults as e:
+        except SearchUser_NotFound as e:
             if suppress_no_results_error:
                 return None
 
@@ -736,7 +734,7 @@ class DomoUsers(dmee_DomoManager):
                 session=session,
             )
 
-        except SearchUser_NoResults as e:
+        except SearchUser_NotFound as e:
             if suppress_no_results_error:
                 print(e)
 
@@ -778,8 +776,8 @@ class DomoUsers(dmee_DomoManager):
         return domo_users
 
     async def create_user(
-        cls: DomoUsers,
-        auth: dmda.DomoAuth,
+        cls: "DomoUsers",
+        auth: DomoAuth,
         display_name,
         email_address,
         role_id,
@@ -815,7 +813,7 @@ class DomoUsers(dmee_DomoManager):
         return domo_user
 
     async def upsert(
-        self: DomoUsers,
+        self: "DomoUsers",
         email_address: str,
         display_name: str = None,
         role_id: str = None,
@@ -859,7 +857,7 @@ class DomoUsers(dmee_DomoManager):
                     )
             return await DomoUser.get_by_id(auth=self.auth, user_id=domo_user.id)
 
-        except (SearchUser_NoResults, DomoUser_NoSearch) as e:
+        except (SearchUser_NotFound, DomoUser_NoSearch) as e:
 
             if not role_id:
                 raise CreateUser_MissingRole(
@@ -886,10 +884,9 @@ class DomoUsers(dmee_DomoManager):
         #         await domo_role.set_grants(grant_ls=grant_ls)
 
 
-@patch_to(DomoUsers, cls_method=True)
 async def upsert_user(
-    cls: DomoUsers,
-    auth: dmda.DomoAuth,
+    cls: "DomoUsers",
+    auth: DomoAuth,
     email_address: str,
     display_name: str = None,
     role_id: str = None,
@@ -932,7 +929,7 @@ async def upsert_user(
                 )
         return await DomoUser.get_by_id(auth=auth, user_id=domo_user.id)
 
-    except (SearchUser_NoResults, DomoUser_NoSearch) as e:
+    except (SearchUser_NotFound, DomoUser_NoSearch) as e:
         if debug_prn:
             print(f"No user match -- creating new user in {auth.domo_instance}")
 

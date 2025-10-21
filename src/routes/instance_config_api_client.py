@@ -9,6 +9,7 @@ __all__ = [
     "revoke_api_client",
 ]
 
+from enum import Enum
 import datetime as dt
 from typing import List
 
@@ -18,7 +19,7 @@ from ..client import auth as dmda
 from ..client import exceptions as dmde
 from ..client import get_data as gd
 from ..client import response as rgd
-from ..client.entities import DomoEnum
+from ..client.entities import DomoEnumMixin
 
 
 class ApiClient_GET_Error(dmde.RouteError):
@@ -28,7 +29,7 @@ class ApiClient_GET_Error(dmde.RouteError):
 
 @gd.route_function
 async def get_api_clients(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
     parent_class=None,
@@ -60,7 +61,7 @@ async def get_api_clients(
 
 @gd.route_function
 async def get_client_by_id(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     client_id: int,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
@@ -88,7 +89,7 @@ async def get_client_by_id(
 
 # @gd.route_function
 # async def get_client_by_id(
-#     auth: dmda.DomoAuth,
+#     auth: DomoAuth,
 #     client_id : str,
 #     debug_api: bool = False,
 #     debug_num_stacks_to_drop=1,
@@ -124,7 +125,7 @@ class ApiClient_CRUD_Error(dmde.RouteError):
         super().__init__(res=res, message=message)
 
 
-class ApiClient_ScopeEnum(DomoEnum):
+class ApiClient_ScopeEnum(DomoEnumMixin, Enum):
     DATA = "data"
     WORKFLOW = "workflow"
     AUDIT = "audit"
@@ -198,7 +199,7 @@ class ApiClient_RevokeError(dmde.RouteError):
 
 @gd.route_function
 async def revoke_api_client(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     client_id: str,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,

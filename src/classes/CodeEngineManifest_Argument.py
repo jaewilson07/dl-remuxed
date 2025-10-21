@@ -9,6 +9,7 @@ __all__ = [
     "CodeEngineManifest_Argument",
 ]
 
+from enum import Enum
 import ast
 import re
 from dataclasses import dataclass, field
@@ -86,7 +87,7 @@ def extract_ast_arg_default_value(arg, ast_fn: ast.FunctionDef) -> Dict[str, boo
     return {"default_value": None, "has_default_value": False}
 
 
-class PythonTypeToSchemaType(dmen.DomoEnum):
+class PythonTypeToSchemaType(dmen.DomoEnumMixin, Enum):
     STR = "str"
     STRING = "string"
     INT = "int"

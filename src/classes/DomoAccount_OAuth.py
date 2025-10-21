@@ -5,6 +5,7 @@ __all__ = [
     "DomoAccount_OAuth",
 ]
 
+from enum import Enum
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -60,7 +61,7 @@ class DomoAccountOAuth_Config_JiraOnPremOauth(dmacnfg.DomoAccount_Config):
         return {"client_id": self.client_id, "client_secret": self.secret}
 
 
-class OAuthConfig(dmee.DomoEnum):
+class OAuthConfig(dmee.DomoEnumMixin, Enum):
     snowflake_oauth_config = DomoAccountOAuth_Config_SnowflakeOauth
 
     jira_on_prem_oauth_config = DomoAccountOAuth_Config_JiraOnPremOauth
@@ -86,7 +87,7 @@ class DomoAccount_OAuth(dmacb.DomoAccount_Default):
     Access: dmacc.DomoAccess_OAuth = field(repr=False, default=None)
 
     def __post_init__(self):
-        self.Access = dmacc.DomoAccess_OAuth._from_parent(parent=self)
+        self.Access = dmacc.DomoAccess_OAuth.from_parent(parent=self)
 
     async def _get_config(
         self,
@@ -150,7 +151,7 @@ class DomoAccount_OAuth(dmacb.DomoAccount_Default):
     @classmethod
     async def get_by_id(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         account_id: int,
         is_suppress_no_config: bool = True,
         session: httpx.AsyncClient = None,
@@ -194,7 +195,7 @@ class DomoAccount_OAuth(dmacb.DomoAccount_Default):
     @classmethod
     async def create(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         account_name: str,
         oauth_config: OAuthConfig,
         origin: str = "OAUTH_CONFIGURATION",

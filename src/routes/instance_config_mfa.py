@@ -16,7 +16,7 @@ from ..client import get_data as gd
 from ..client import response as rgd
 
 
-class MFA_UPDATE_Error(dmde.DomoError):
+class MFA_UPDATE_Error(DomoError):
     def __init__(
         self,
         res: rgd.ResponseGetData,
@@ -30,7 +30,7 @@ class MFA_UPDATE_Error(dmde.DomoError):
         )
 
 
-class MFA_UPDATE_Value_Error(dmde.DomoError):
+class MFA_UPDATE_Value_Error(DomoError):
     def __init__(
         self,
         message,
@@ -42,7 +42,7 @@ class MFA_UPDATE_Value_Error(dmde.DomoError):
 
 @gd.route_function
 async def toggle_enable_mfa(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     is_enable_MFA: bool = False,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
@@ -82,7 +82,7 @@ async def toggle_enable_mfa(
     return res
 
 
-class MFA_GET_Error(dmde.DomoError):
+class MFA_GET_Error(DomoError):
     def __init__(
         self,
         res: rgd.ResponseGetData,
@@ -98,7 +98,7 @@ class MFA_GET_Error(dmde.DomoError):
 
 @gd.route_function
 async def get_mfa_config(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     incl_is_multifactor_required: bool = True,
     incl_num_days_valid: bool = True,  # how long MFA is valid
     incl_max_code_attempts: bool = True,
@@ -170,7 +170,7 @@ async def get_mfa_config(
 
 @gd.route_function
 async def set_mfa_max_code_attempts(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     max_code_attempts: int,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
@@ -221,7 +221,7 @@ async def set_mfa_max_code_attempts(
 
 @gd.route_function
 async def set_mfa_num_days_valid(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     num_days_valid: int,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,

@@ -38,7 +38,7 @@ class CRUD_Dataflow_Error(dmde.RouteError):
 
 @gd.route_function
 async def get_dataflows(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
     parent_class: str = None,
@@ -67,7 +67,7 @@ async def get_dataflows(
 @gd.route_function
 async def get_dataflow_by_id(
     dataflow_id: int,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
     parent_class: str = None,
@@ -95,7 +95,7 @@ async def get_dataflow_by_id(
 
 @gd.route_function
 async def update_dataflow_definition(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataflow_id: int,
     dataflow_definition: dict,
     debug_api: bool = False,
@@ -127,7 +127,7 @@ async def update_dataflow_definition(
 
 @gd.route_function
 async def get_dataflow_tags_by_id(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataflow_id: int,
     debug_api: bool = False,
     debug_num_stacks_to_drop: bool = False,
@@ -161,7 +161,7 @@ def generate_tag_body(dataflow_id, tag_ls) -> dict:
 
 @gd.route_function
 async def put_dataflow_tags_by_id(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataflow_id: int,
     tag_ls: List[str],
     debug_api: bool = False,
@@ -197,7 +197,7 @@ async def put_dataflow_tags_by_id(
 @gd.route_function
 async def get_dataflow_versions(
     dataflow_id: int,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     parent_class: str = None,
     session: httpx.AsyncClient = None,
     debug_num_stacks_to_drop=1,
@@ -225,7 +225,7 @@ async def get_dataflow_versions(
 async def get_dataflow_by_id_and_version(
     dataflow_id: int,
     version_id: int,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     parent_class: str = None,
     session: httpx.AsyncClient = None,
     debug_num_stacks_to_drop=1,
@@ -252,7 +252,7 @@ async def get_dataflow_by_id_and_version(
 @gd.route_function
 async def get_dataflow_execution_history(
     dataflow_id: int,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     maximum: int = None,
     parent_class: str = None,
     session: httpx.AsyncClient = None,
@@ -290,7 +290,7 @@ async def get_dataflow_execution_history(
 
 @gd.route_function
 async def get_dataflow_execution_by_id(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataflow_id: int,
     execution_id: int,
     debug_api: bool = False,
@@ -318,7 +318,7 @@ async def get_dataflow_execution_by_id(
 
 @gd.route_function
 async def execute_dataflow(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataflow_id: int,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
@@ -378,7 +378,7 @@ def generate_search_dataflows_to_jupyter_workspaces_body(
 
 @gd.route_function
 async def search_dataflows_to_jupyter_workspaces(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     dataflow_id: int = None,
     return_raw: bool = False,
     debug_api: bool = False,

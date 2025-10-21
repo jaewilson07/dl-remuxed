@@ -27,7 +27,7 @@ async def test_my_route():
     builder.add_success_scenario(
         "valid_request",
         "Test successful route call",
-        response_data={"id": "123", "name": "Test Entity"}
+        res={"id": "123", "name": "Test Entity"}
     )
     
     scenarios = builder.build()
@@ -36,7 +36,7 @@ async def test_my_route():
     async def my_route_function(auth, entity_id):
         return harness.create_response_get_data(
             status=200,
-            response_data={"id": entity_id, "status": "success"}
+            res={"id": entity_id, "status": "success"}
         )
     
     # Run tests
@@ -79,7 +79,7 @@ def test_user_route_standard():
 builder.add_success_scenario(
     "get_entity_success",
     "Successfully retrieve entity",
-    response_data={"id": "123", "name": "Test"},
+    res={"id": "123", "name": "Test"},
     status_code=200,
     entity_id="123"  # Function parameters
 )

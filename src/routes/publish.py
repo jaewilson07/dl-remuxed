@@ -22,7 +22,7 @@ from typing import List
 import httpx
 
 from ..client import auth as dmda
-from ..client import DomoError as de
+from ..client import exceptions as de
 from ..client import get_data as gd
 from ..client import response as rgd
 
@@ -39,7 +39,7 @@ class CRUD_Publish_Error(de.RouteError):
 
 @gd.route_function
 async def search_publications(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     search_term: str = None,
     limit=100,
     offset=0,
@@ -90,7 +90,7 @@ async def search_publications(
 
 @gd.route_function
 async def get_publication_by_id(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     publication_id: str,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
@@ -151,7 +151,7 @@ def generate_publish_body(
 # Creating publish job for a specific subscriber
 @gd.route_function
 async def create_publish_job(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     body: dict,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
@@ -180,7 +180,7 @@ async def create_publish_job(
 # Updating existing publish job with content
 @gd.route_function
 async def update_publish_job(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     publication_id: str,
     body: dict,
     session: httpx.AsyncClient = None,
@@ -208,7 +208,7 @@ async def update_publish_job(
 
 @gd.route_function
 async def get_publish_subscriptions(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     publish_id: str,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
@@ -237,7 +237,7 @@ async def get_publish_subscriptions(
 
 @gd.route_function
 async def get_subscription_summaries(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
@@ -264,7 +264,7 @@ async def get_subscription_summaries(
 
 @gd.route_function
 async def get_subscriber_content_details(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     publication_id,
     subscriber_instance: str,
     debug_api: bool = False,
@@ -295,7 +295,7 @@ async def get_subscriber_content_details(
 
 @gd.route_function
 async def get_subscription_invitations(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     parent_class: str = None,
@@ -322,7 +322,7 @@ async def get_subscription_invitations(
 
 @gd.route_function
 async def get_subscriber_domains(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     parent_class: str = None,
@@ -349,7 +349,7 @@ async def get_subscriber_domains(
 
 @gd.route_function
 async def add_subscriber_domain(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     domain: str,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
@@ -379,7 +379,7 @@ async def add_subscriber_domain(
 
 @gd.route_function
 async def accept_invite_by_id(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     subscription_id: str,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
@@ -407,7 +407,7 @@ async def accept_invite_by_id(
 
 @gd.route_function
 async def accept_invite_by_id_v2(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     publication_id: str,
     owner_id: str,
     session: httpx.AsyncClient = None,
@@ -447,7 +447,7 @@ async def accept_invite_by_id_v2(
 
 @gd.route_function
 async def refresh_publish_jobs(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     publish_ids: list,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,

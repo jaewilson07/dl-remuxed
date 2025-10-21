@@ -44,7 +44,7 @@ class PageRetrieval_byId_Error(dmde.RouteError):
 
 
 async def get_pages_adminsummary(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     search_title: str = None,
     page_parent_id: str = None,
     body: dict = None,
@@ -99,7 +99,7 @@ async def get_pages_adminsummary(
 
 @gd.route_function
 async def get_page_by_id(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     page_id: str,
     include_layout: bool = False,  # passes parameter to return page layout information
     debug_api: bool = False,
@@ -139,7 +139,7 @@ async def get_page_by_id(
 
 @gd.route_function
 async def get_page_definition(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     page_id: int,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
@@ -264,7 +264,7 @@ class CRUD_Page_Error(dmde.RouteError):
 
 @gd.route_function
 async def update_page_layout(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     layout_id: str,
     body: dict,
     debug_api: bool = False,
@@ -293,7 +293,7 @@ async def update_page_layout(
 
 @gd.route_function
 async def put_writelock(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     layout_id: str,
     user_id: str,
     epoch_time: int,
@@ -331,7 +331,7 @@ async def put_writelock(
 
 @gd.route_function
 async def delete_writelock(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     layout_id: str,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
@@ -360,7 +360,7 @@ async def delete_writelock(
 
 @gd.route_function
 async def add_page_owner(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     page_id_ls: List[int],
     group_id_ls: List[int] = None,
     user_id_ls: List[int] = None,

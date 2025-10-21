@@ -16,7 +16,7 @@ from ..utils import chunk_execution as ce
 
 @dataclass
 class DomoAccessToken(dmee.DomoEntity):
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
     id: int
     name: str
     owner: Any  # DomoUser
@@ -40,7 +40,7 @@ class DomoAccessToken(dmee.DomoEntity):
     @classmethod
     async def from_dict(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         obj: dict,
     ):
         from . import DomoUser as dmu
@@ -60,7 +60,7 @@ class DomoAccessToken(dmee.DomoEntity):
     @classmethod
     async def get_by_id(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         access_token_id: int,
         session: httpx.AsyncClient = None,
         debug_api: bool = False,
@@ -86,7 +86,7 @@ class DomoAccessToken(dmee.DomoEntity):
         cls,
         duration_in_days: int,
         token_name: str,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         owner,  # DomoUser
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
@@ -156,8 +156,8 @@ class DomoAccessToken(dmee.DomoEntity):
 
 
 @dataclass
-class DomoAccessTokens(dmee.DomoManager):
-    auth: dmda.DomoAuth = field(repr=False)
+class DomoAccessTokens(DomoManager):
+    auth: DomoAuth = field(repr=False)
 
     domo_access_tokens: List[DomoAccessToken] = field(default=None)
 

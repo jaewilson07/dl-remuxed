@@ -55,7 +55,7 @@ class AppStudioSharing_Error(dmde.RouteError):
 
 @gd.route_function
 async def get_appstudio_by_id(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     appstudio_id: str,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
@@ -121,7 +121,7 @@ async def get_appstudio_access(
 
 @gd.route_function
 async def get_appstudios_adminsummary(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     limit=35,
     debug_loop: bool = False,
     debug_api: bool = False,
@@ -237,7 +237,7 @@ def generate_body_share_appstudio(
 
 @gd.route_function
 async def add_page_owner(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     appstudio_id_ls: List[int],
     group_id_ls: List[int] = None,
     user_id_ls: List[int] = None,
@@ -283,7 +283,7 @@ async def add_page_owner(
 
 @gd.route_function
 async def share(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     appstudio_ids: List[int],
     group_ids: List[int] = None,
     user_ids: List[int] = None,

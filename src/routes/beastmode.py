@@ -10,6 +10,7 @@ __all__ = [
     "get_page_beastmodes",
 ]
 
+from enum import Enum
 from typing import List
 
 import httpx
@@ -19,7 +20,7 @@ from ..client import exceptions as dmde
 from ..client import get_data as gd
 from ..client import response as rgd
 from ..utils import chunk_execution as dmce
-from ..client.entities import DomoEnum
+from ..client.entities import DomoEnumMixin
 
 
 class BeastModes_API_Error(dmde.RouteError):
@@ -27,7 +28,7 @@ class BeastModes_API_Error(dmde.RouteError):
         super().__init__(res=res, message=message)
 
 
-class Search_BeastModeLink(DomoEnum):
+class Search_BeastModeLink(DomoEnumMixin, Enum):
     CARD = "CARD"
     DATASOURCE = "DATA_SOURCE"
 
@@ -54,7 +55,7 @@ def generate_beastmode_body(
 
 @gd.route_function
 async def search_beastmodes(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     filters: List[dict] = None,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
@@ -101,7 +102,7 @@ async def search_beastmodes(
 async def lock_beastmode(
     beastmode_id,
     is_locked: bool,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
@@ -131,7 +132,7 @@ async def lock_beastmode(
 @gd.route_function
 async def get_beastmode_by_id(
     beastmode_id,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
@@ -157,7 +158,7 @@ async def get_beastmode_by_id(
 
 async def get_card_beastmodes(
     card_id,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
     debug_num_stacks_to_drop=2,
@@ -203,7 +204,7 @@ async def get_card_beastmodes(
 
 async def get_dataset_beastmodes(
     dataset_id,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
     debug_num_stacks_to_drop=2,
@@ -247,7 +248,7 @@ async def get_dataset_beastmodes(
     ]
 
 
-async def get_page_beastmodes(page_id, auth: dmda.DomoAuth):
+async def get_page_beastmodes(page_id, auth: DomoAuth):
     from . import page as page_routes
 
     page_definition = (

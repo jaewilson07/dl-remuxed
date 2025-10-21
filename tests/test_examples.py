@@ -38,7 +38,7 @@ class TestAuthRoutes(PytestRouteTestCase):
         builder.add_success_scenario(
             "valid_credentials",
             "Valid username and password",
-            response_data={
+            res={
                 "sessionToken": "test-session-token-123",
                 "userId": "user-123",
                 "success": True,
@@ -72,7 +72,7 @@ class TestAuthRoutes(PytestRouteTestCase):
         async def mock_get_full_auth(**kwargs):
             # This would be your actual route function
             return harness.create_response_get_data(
-                status=200, response_data={"sessionToken": "test-token"}
+                status=200, res={"sessionToken": "test-token"}
             )
 
         # Run tests
@@ -129,7 +129,7 @@ class TestAuthRoutes(PytestRouteTestCase):
         # Mock route function
         async def mock_who_am_i(**kwargs):
             return harness.create_response_get_data(
-                status=200, response_data={"id": "user-123", "displayName": "Test User"}
+                status=200, res={"id": "user-123", "displayName": "Test User"}
             )
 
         results = harness.run_test_scenarios(mock_who_am_i, scenarios)
@@ -164,7 +164,7 @@ class TestUserRoutes(PytestRouteTestCase):
         # Mock route function
         async def mock_get_all_users(**kwargs):
             return harness.create_response_get_data(
-                status=200, response_data=[{"id": "user-1", "displayName": "User 1"}]
+                status=200, res=[{"id": "user-1", "displayName": "User 1"}]
             )
 
         results = harness.run_test_scenarios(mock_get_all_users, scenarios)
@@ -180,7 +180,7 @@ class TestUserRoutes(PytestRouteTestCase):
         builder.add_success_scenario(
             "valid_user_id",
             "Retrieve user with valid ID",
-            response_data={
+            res={
                 "id": "user-123",
                 "displayName": "John Doe",
                 "emailAddress": "john.doe@example.com",
@@ -210,12 +210,12 @@ class TestUserRoutes(PytestRouteTestCase):
             user_id = kwargs.get("user_id")
             if user_id == "user-123":
                 return harness.create_response_get_data(
-                    status=200, response_data={"id": user_id, "displayName": "John Doe"}
+                    status=200, res={"id": user_id, "displayName": "John Doe"}
                 )
             else:
                 return harness.create_response_get_data(
                     status=404,
-                    response_data={"error": "User not found"},
+                    res={"error": "User not found"},
                     is_success=False,
                 )
 
@@ -297,18 +297,18 @@ class TestDatasetRoutes(PytestRouteTestCase):
             dataset_id = kwargs.get("dataset_id")
             if dataset_id == "dataset-123":
                 return harness.create_response_get_data(
-                    status=200, response_data={"id": dataset_id, "name": "Sales Data"}
+                    status=200, res={"id": dataset_id, "name": "Sales Data"}
                 )
             elif dataset_id == "restricted-dataset":
                 return harness.create_response_get_data(
                     status=403,
-                    response_data={"error": "Access denied"},
+                    res={"error": "Access denied"},
                     is_success=False,
                 )
             else:
                 return harness.create_response_get_data(
                     status=404,
-                    response_data={"error": "Dataset not found"},
+                    res={"error": "Dataset not found"},
                     is_success=False,
                 )
 
@@ -418,9 +418,7 @@ if __name__ == "__main__":
         )
 
         async def mock_route(**kwargs):
-            return harness.create_response_get_data(
-                status=200, response_data={"success": True}
-            )
+            return harness.create_response_get_data(status=200, res={"success": True})
 
         results = harness.run_test_scenarios(mock_route, scenarios)
         print(f"Test results: {results['passed']} passed, {results['failed']} failed")

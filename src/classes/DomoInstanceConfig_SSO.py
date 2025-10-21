@@ -66,7 +66,7 @@ class SSO_Config(DomoEntity):
     @classmethod
     def _parentfrom_dict(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         obj: dict,
         raw: dict,  # raw api response
         debug_prn: bool = False,
@@ -209,7 +209,7 @@ class SSO_OIDC_Config(SSO_Config):
     public_key: str = None
 
     @classmethod
-    def from_dict(cls, auth: dmda.DomoAuth, obj: dict, debug_prn: bool = False):
+    def from_dict(cls, auth: DomoAuth, obj: dict, debug_prn: bool = False):
         raw = deepcopy(obj)
 
         override_sso = obj.pop("overrideSSO")
@@ -236,7 +236,7 @@ class SSO_OIDC_Config(SSO_Config):
     @classmethod
     async def get(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         session: httpx.AsyncClient = None,
         debug_api: bool = False,
         debug_prn: bool = False,
@@ -289,7 +289,7 @@ class SSO_SAML_Config(SSO_Config):
     sign_auth_request: Any = None
 
     @classmethod
-    def from_dict(cls, auth: dmda.DomoAuth, obj: dict, debug_prn: bool = False):
+    def from_dict(cls, auth: DomoAuth, obj: dict, debug_prn: bool = False):
         raw = deepcopy(obj)
 
         is_enabled = obj.pop("enabled")
@@ -323,7 +323,7 @@ class SSO_SAML_Config(SSO_Config):
     @classmethod
     async def get(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         session: httpx.AsyncClient = None,
         debug_api: bool = False,
         debug_prn: bool = False,
@@ -371,7 +371,7 @@ class SSO:
     Includes both OIDC aand SAML
     """
 
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
 
     OIDC: SSO_OIDC_Config = field(default=None)  # OIDDC config class
     SAML: SSO_SAML_Config = field(default=None)  # SAML config class

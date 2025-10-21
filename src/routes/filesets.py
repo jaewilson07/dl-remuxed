@@ -26,13 +26,13 @@ class Fileset_GET_Error(RouteError):
         self,
         fileset_id: Optional[str] = None,
         message: Optional[str] = None,
-        response_data=None,
+        res=None,
         **kwargs,
     ):
         super().__init__(
             message=message or "Fileset retrieval failed",
             entity_id=fileset_id,
-            response_data=response_data,
+            res=res,
             **kwargs,
         )
 
@@ -45,13 +45,13 @@ class Fileset_CRUD_Error(RouteError):
         operation: str,
         fileset_id: Optional[str] = None,
         message: Optional[str] = None,
-        response_data=None,
+        res=None,
         **kwargs,
     ):
         super().__init__(
             message=message or f"Fileset {operation} operation failed",
             entity_id=fileset_id,
-            response_data=response_data,
+            res=res,
             **kwargs,
         )
 
@@ -86,7 +86,7 @@ async def create_filesets_index(
     )
 
     if not res.is_success:
-        raise Fileset_CRUD_Error(operation="create index", response_data=res)
+        raise Fileset_CRUD_Error(operation="create index", res=res)
 
     return res
 
@@ -142,7 +142,7 @@ async def embed_image(
         parent_class=parent_class,
     )
     if not res.is_success:
-        raise Fileset_CRUD_Error(operation="embed image", response_data=res)
+        raise Fileset_CRUD_Error(operation="embed image", res=res)
 
     return res
 
@@ -168,7 +168,7 @@ async def get_fileset_by_id(
     )
 
     if not res.is_success:
-        raise Fileset_GET_Error(fileset_id=fileset_id, response_data=res)
+        raise Fileset_GET_Error(fileset_id=fileset_id, res=res)
 
     return res
 
@@ -204,7 +204,7 @@ async def search_fileset_files(
         session=session,
     )
     if not res.is_success:
-        raise Fileset_GET_Error(fileset_id=domo_fileset_id, response_data=res)
+        raise Fileset_GET_Error(fileset_id=domo_fileset_id, res=res)
 
     return res
 
@@ -232,5 +232,5 @@ async def get_data_file_by_id(
         parent_class=parent_class,
     )
     if not res.is_success:
-        raise Fileset_GET_Error(fileset_id=file_id, response_data=res)
+        raise Fileset_GET_Error(fileset_id=file_id, res=res)
     return res

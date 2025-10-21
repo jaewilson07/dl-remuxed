@@ -12,6 +12,7 @@ __all__ = [
     "DomoLineage_Sandbox",
 ]
 
+from enum import Enum
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Callable, List
@@ -30,7 +31,7 @@ from ..client.entities import DomoEntity
 
 @dataclass
 class DomoLineage_Link(ABC):
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
     type: str
     id: str
 
@@ -234,14 +235,14 @@ class DomoLineageLink_Dataset(DomoLineage_Link):
         )
 
 
-class DomoLineageLinkTypeFactory_Enum(DomoEnum):
+class DomoLineageLinkTypeFactory_Enum(DomoEnumMixin, Enum):
     DATAFLOW = DomoLineageLink_Dataflow
     PUBLICATION = DomoLineageLink_Publication
     DATA_SOURCE = DomoLineageLink_Dataset
     CARD = DomoLineageLink_Card
 
 
-class DomoLineage_ParentTypeEnum(DomoEnum):
+class DomoLineage_ParentTypeEnum(DomoEnumMixin, Enum):
     _settings_ = NoAlias
 
     DomoDataflow = "DATAFLOW"
@@ -257,7 +258,7 @@ class DomoLineage_ParentTypeEnum(DomoEnum):
 
 @dataclass
 class DomoLineage:
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
 
     parent_id: Any = field(repr=False)
     parent_type: DomoLineage_ParentTypeEnum = field(repr=False)
@@ -269,7 +270,7 @@ class DomoLineage:
     # raw_datacenter: dict = field(repr=False, default_factory=dict)
 
     @classmethod
-    def _from_parent(cls, parent, auth: dmda.DomoAuth = None):
+    def from_parent(cls, parent, auth: DomoAuth = None):
         """
         Create a DomoLineage instance from a parent entity.
         The parent can be a DomoDataflow, DomoPublication, or DomoDataset.
@@ -292,7 +293,7 @@ class DomoLineage:
             return self.parent
 
         if not self.parent and (not self.parent_id or not self.parent_type):
-            raise dmde.DomoError(
+            raise DomoError(
                 "Parent ID and type must be set to get the parent entity."
             )
 
@@ -357,12 +358,12 @@ class DomoLineage:
         session: httpx.AsyncClient = None,
         debug_api: bool = False,
         return_raw: bool = False,
-        parent_auth: dmda.DomoAuth = None,
+        parent_auth: DomoAuth = None,
         parent_auth_retreival_fn: Callable = None,
         debug_num_stacks_to_drop=3,
     ):
         if not self.parent and (not self.parent_id or not self.parent_type):
-            raise dmde.DomoError(
+            raise DomoError(
                 "Parent ID and type must be set to get the parent entity."
             )
 
@@ -370,7 +371,7 @@ class DomoLineage:
             parent_auth = parent_auth_retreival_fn(self)
 
         if not parent_auth:
-            raise dmde.DomoError(
+            raise DomoError(
                 "Parent auth must be provided to get the federated parent entity."
             )
 
@@ -401,7 +402,7 @@ class DomoLineage:
         session: httpx.AsyncClient = None,
         debug_api: bool = False,
         return_raw: bool = False,
-        parent_auth: dmda.DomoAuth = None,
+        parent_auth: DomoAuth = None,
         parent_auth_retreival_fn: Callable = None,
     ):
         self.lineage = []  # reset lineage

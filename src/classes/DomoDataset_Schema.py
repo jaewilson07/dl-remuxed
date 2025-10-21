@@ -74,7 +74,7 @@ class DomoDataset_Schema_Column:
 class DomoDataset_Schema(DomoSubEntity):
     """class for interacting with dataset schemas"""
 
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
     parent: Any = field(repr=False)
 
     parent_id: str
@@ -87,7 +87,7 @@ class DomoDataset_Schema(DomoSubEntity):
             self.parent_id = self.parent.id
 
     # @classmethod
-    # def _from_parent(cls, parent):
+    # def from_parent(cls, parent):
     #     schema = cls(
     #         parent = parent,
     #         auth = parent.auth,
@@ -127,7 +127,7 @@ class DomoDataset_Schema(DomoSubEntity):
         self: "DomoDataset_Schema",
         df: pd.DataFrame,
         dataset_id=None,
-        auth: "dmda.DomoAuth" = None,
+        auth: "DomoAuth" = None,
     ):
 
         dataset_id = dataset_id or self.parent.id
@@ -149,7 +149,7 @@ class DomoDataset_Schema(DomoSubEntity):
         return True
 
 
-class DatasetSchema_InvalidSchema(dmde.DomoError):
+class DatasetSchema_InvalidSchema(DomoError):
     async def reset_col_order(self: "DomoDataset_Schema", df: pd.DataFrame):
         from ..routes import dataset as dataset_routes
 
@@ -203,7 +203,7 @@ class DatasetSchema_InvalidSchema(dmde.DomoError):
     async def alter_schema(
         self: "DomoDataset_Schema",
         dataset_id: str = None,
-        auth: "dmda.DomoAuth" = None,
+        auth: "DomoAuth" = None,
         return_raw: bool = False,
         debug_api: bool = False,
     ):
@@ -230,7 +230,7 @@ class DatasetSchema_InvalidSchema(dmde.DomoError):
     async def alter_schema_descriptions(
         self: "DomoDataset_Schema",
         dataset_id: str = None,
-        auth: "dmda.DomoAuth" = None,
+        auth: "DomoAuth" = None,
         return_raw: bool = False,
         debug_api: bool = False,
     ):
@@ -255,12 +255,11 @@ class DatasetSchema_InvalidSchema(dmde.DomoError):
         return res
 
 
-@patch_to(DomoDataset_Schema)
 async def _test_missing_columns(
     self: DomoDataset_Schema,
     df: pd.DataFrame,
     dataset_id=None,
-    auth: dmda.DomoAuth = None,
+    auth: DomoAuth = None,
 ):
     dataset_id = dataset_id or self.parent.id
     auth = auth or self.parent.auth
@@ -281,7 +280,6 @@ async def _test_missing_columns(
     return False
 
 
-@patch_to(DomoDataset_Schema)
 async def reset_col_order(self: DomoDataset_Schema, df: pd.DataFrame):
     from ..routes import dataset as dataset_routes
 
@@ -298,7 +296,6 @@ async def reset_col_order(self: DomoDataset_Schema, df: pd.DataFrame):
     )
 
 
-@patch_to(DomoDataset_Schema)
 def add_col(
     self: DomoDataset_Schema, col: DomoDataset_Schema_Column, debug_prn: bool = False
 ):
@@ -313,7 +310,6 @@ def add_col(
     return self.columns
 
 
-@patch_to(DomoDataset_Schema)
 def remove_col(
     self: DomoDataset_Schema,
     col_to_remove: DomoDataset_Schema_Column,
@@ -328,7 +324,7 @@ def remove_col(
     return self.columns
 
 
-class CRUD_Dataset_Error(dmde.DomoError):
+class CRUD_Dataset_Error(DomoError):
     def __init__(self, auth, res, message):
         super().__init__(
             status=res.status,
@@ -339,11 +335,10 @@ class CRUD_Dataset_Error(dmde.DomoError):
         )
 
 
-@patch_to(DomoDataset_Schema)
 async def alter_schema(
     self: DomoDataset_Schema,
     dataset_id: str = None,
-    auth: dmda.DomoAuth = None,
+    auth: DomoAuth = None,
     return_raw: bool = False,
     debug_api: bool = False,
 ):
@@ -367,11 +362,10 @@ async def alter_schema(
     return res
 
 
-@patch_to(DomoDataset_Schema)
 async def alter_schema_descriptions(
     self: DomoDataset_Schema,
     dataset_id: str = None,
-    auth: dmda.DomoAuth = None,
+    auth: DomoAuth = None,
     return_raw: bool = False,
     debug_api: bool = False,
 ):

@@ -98,7 +98,7 @@ class DomoActivityLog:
     @classmethod
     async def get_activity_log(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         start_time: dt.datetime,
         end_time: dt.datetime,
         object_type: Optional[ActivityLog_ObjectType] = None,

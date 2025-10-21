@@ -58,6 +58,7 @@ from .crud import (
 
 # Import sharing functions and classes
 from .sharing import (
+    ShareAccount,
     ShareAccount_V1_AccessLevel,
     ShareAccount_AccessLevel,
     get_account_accesslist,
@@ -98,6 +99,7 @@ __all__ = [
     "update_account_name",
     "update_oauth_account_name",
     # Sharing functions and classes
+    "ShareAccount",
     "ShareAccount_V1_AccessLevel",
     "ShareAccount_AccessLevel",
     "get_account_accesslist",

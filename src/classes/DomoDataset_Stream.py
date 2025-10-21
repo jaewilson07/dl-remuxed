@@ -292,7 +292,7 @@ class Dataset_Stream_GET_Error(dmde.ClassError):
 
 @dataclass
 class DomoStream:
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
     id: str
     dataset_id: str
 
@@ -313,7 +313,7 @@ class DomoStream:
     configuration_query: str = None
 
     @classmethod
-    def _from_parent(cls, parent):
+    def from_parent(cls, parent):
         st = cls(
             auth=parent.auth, id=parent.stream_id, dataset_id=parent.id, parent=parent
         )
@@ -366,7 +366,7 @@ class DomoStream:
     @classmethod
     async def get_stream_by_id(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         stream_id: str,
         is_suppress_errros: bool = False,
         debug_num_stacks_to_drop=2,
@@ -408,7 +408,7 @@ class DomoStream:
     async def create_stream(
         cls,
         cnfg_body,
-        auth: dmda.DomoAuth = None,
+        auth: DomoAuth = None,
         session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
     ):
@@ -421,7 +421,7 @@ class DomoStream:
         cls,
         cnfg_body,
         stream_id,
-        auth: dmda.DomoAuth = None,
+        auth: DomoAuth = None,
         session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
     ):
@@ -438,7 +438,7 @@ class DomoStream:
         cls,
         cnfg_body,
         match_name=None,
-        auth: dmda.DomoAuth = None,
+        auth: DomoAuth = None,
         session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
     ):

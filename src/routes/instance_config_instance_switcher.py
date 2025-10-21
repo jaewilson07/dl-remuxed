@@ -18,12 +18,10 @@ from ..client import response as rgd
 class InstanceSwitcherMapping_GET_Error(RouteError):
     """Raised when instance switcher mapping retrieval operations fail."""
 
-    def __init__(
-        self, message: Optional[str] = None, response_data=None, **kwargs
-    ):
+    def __init__(self, message: Optional[str] = None, res=None, **kwargs):
         super().__init__(
             message=message or "Instance switcher mapping retrieval failed",
-            response_data=response_data,
+            res=res,
             **kwargs,
         )
 
@@ -35,12 +33,13 @@ class InstanceSwitcherMapping_CRUD_Error(RouteError):
         self,
         operation: str = "update",
         message: Optional[str] = None,
-        response_data=None,
+        res=None,
         **kwargs,
     ):
         super().__init__(
-            message=message or f"Instance switcher mapping {operation} operation failed",
-            response_data=response_data,
+            message=message
+            or f"Instance switcher mapping {operation} operation failed",
+            res=res,
             **kwargs,
         )
 
@@ -71,7 +70,7 @@ async def get_instance_switcher_mapping(
     if not res.is_success:
         raise InstanceSwitcherMapping_GET_Error(
             message=f"failed to retrieve instance switcher mapping - {res.response}",
-            response_data=res,
+            res=res,
         )
 
     return res
@@ -112,7 +111,7 @@ async def set_instance_switcher_mapping(
         raise InstanceSwitcherMapping_CRUD_Error(
             operation="update",
             message=f"failed to update instance switcher mappings - {res.response}",
-            response_data=res,
+            res=res,
         )
 
     res.response = "success: updated instance switcher mappings"

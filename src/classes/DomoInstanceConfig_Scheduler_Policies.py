@@ -7,6 +7,7 @@ __all__ = [
     "DomoScheduler_Policies",
 ]
 
+from enum import Enum
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List, Literal, Optional
@@ -22,7 +23,7 @@ def parse_dt(dt: str) -> datetime:
     return datetime.fromisoformat(dt.replace("Z", "+00:00"))
 
 
-class DomoScheduler_Policy_Restrictions(DomoEnum):
+class DomoScheduler_Policy_Restrictions(DomoEnumMixin, Enum):
     NO_RESTRICTIONS = 0
     FIFTEEN_MINUTES = 15
     THIRTY_MINUTES = 30
@@ -103,7 +104,7 @@ class DomoScheduler_Policy(DomoBase):
 
 @dataclass
 class DomoScheduler_Policies(DomoSubEntity):
-    auth: dmda.DomoAuth
+    auth: DomoAuth
     policies: List[DomoScheduler_Policy] = field(default_factory=list)
 
     async def get(

@@ -17,7 +17,7 @@ from . import DomoLineage as dmdl
 
 @dataclass
 class DomoRepository(dmee.DomoEntity_w_Lineage):
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
     id: str
 
     name: str
@@ -31,16 +31,14 @@ class DomoRepository(dmee.DomoEntity_w_Lineage):
     content_view_id_ls: List[str] = None
 
     def __post_init__(self):
-        self.Lineage = dmdl.DomoLineage_Sandbox._from_parent(
-            parent=self, auth=self.auth
-        )
+        self.Lineage = dmdl.DomoLineage_Sandbox.from_parent(parent=self, auth=self.auth)
 
     @property
     def display_url(self):
         return f"https://{self.auth.domo_instance}.domo.com/admin/sandbox/repositories/{self.id}"
 
     @classmethod
-    def from_dict(cls, auth: dmda.DomoAuth, obj: dict):
+    def from_dict(cls, auth: DomoAuth, obj: dict):
         return cls(
             id=obj["id"],
             auth=auth,
@@ -60,7 +58,7 @@ class DomoRepository(dmee.DomoEntity_w_Lineage):
     async def get_by_id(
         cls,
         repository_id: str,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
         debug_num_stacks_to_drop=2,
@@ -80,7 +78,7 @@ class DomoRepository(dmee.DomoEntity_w_Lineage):
     def _get_entity_by_id(
         cls,
         entity_id: str,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
         debug_num_stacks_to_drop=2,
@@ -116,8 +114,8 @@ class DomoRepository(dmee.DomoEntity_w_Lineage):
 
 
 @dataclass
-class DomoSandbox(dmee.DomoManager):
-    auth: dmda.DomoAuth = field(repr=False)
+class DomoSandbox(DomoManager):
+    auth: DomoAuth = field(repr=False)
 
     repositories: List[DomoRepository] = None
 

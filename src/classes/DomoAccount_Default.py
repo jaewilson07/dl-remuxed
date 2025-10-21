@@ -54,7 +54,7 @@ class DomoAccounConfig_MissingFields(dmde.ClassError):
 @dataclass
 class DomoAccount_Default(DomoEntity):
     id: int
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
 
     name: str = None
     data_provider_type: str = None
@@ -72,7 +72,7 @@ class DomoAccount_Default(DomoEntity):
     def __post_init__(self):
         self.id = int(self.id)
 
-        self.Access = dmas.DomoAccess_Account._from_parent(
+        self.Access = dmas.DomoAccess_Account.from_parent(
             parent=self,
         )
 
@@ -83,7 +83,7 @@ class DomoAccount_Default(DomoEntity):
     @classmethod
     def from_dict(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         obj: dict,
         is_admin_summary: bool = True,
         new_cls: Any = None,
@@ -133,7 +133,7 @@ class DomoAccount_Default(DomoEntity):
         session=None,
         return_raw: bool = False,
         debug_api: bool = None,
-        auth: dmda.DomoAuth = None,
+        auth: DomoAuth = None,
         debug_num_stacks_to_drop=2,
         is_unmask: bool = True,
         is_suppress_no_config: bool = False,  # can be used to suppress cases where the config is not defined, either because the account_config is OAuth, and therefore not stored in Domo OR because the AccountConfig class doesn't cover the data_type
@@ -171,7 +171,7 @@ class DomoAccount_Default(DomoEntity):
                 obj=res.response, data_provider_type=self.data_provider_type
             )
 
-        except dmde.DomoError as e:
+        except DomoError as e:
             if not is_suppress_no_config:
                 raise e from e
             print(e)
@@ -186,7 +186,7 @@ class DomoAccount_Default(DomoEntity):
     @classmethod
     async def get_by_id(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         account_id: int,
         is_suppress_no_config: bool = True,
         session: httpx.AsyncClient = None,
@@ -242,7 +242,7 @@ class DomoAccount_Default(DomoEntity):
         cls,
         account_name: str,
         config: DomoAccount_Config,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         debug_api: bool = False,
         return_raw: bool = False,
         session: httpx.AsyncClient = None,
@@ -270,7 +270,7 @@ class DomoAccount_Default(DomoEntity):
     async def update_name(
         self,
         account_name: str = None,
-        auth: dmda.DomoAuth = None,
+        auth: DomoAuth = None,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
         return_raw: bool = False,
@@ -301,7 +301,7 @@ class DomoAccount_Default(DomoEntity):
 
     async def delete_account(
         self,
-        auth: dmda.DomoAuth = None,
+        auth: DomoAuth = None,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
         debug_num_stacks_to_drop=2,
@@ -327,7 +327,7 @@ class DomoAccount_Default(DomoEntity):
 
     async def update_config(
         self,
-        auth: dmda.DomoAuth = None,
+        auth: DomoAuth = None,
         debug_api: bool = False,
         config: DomoAccount_Config = None,
         is_suppress_no_config=False,
@@ -384,7 +384,7 @@ class DomoAccount_Default(DomoEntity):
 
     async def upsert_target_account(
         self,
-        target_auth: dmda.DomoAuth,  # valid auth for target destination
+        target_auth: DomoAuth,  # valid auth for target destination
         account_name: str = None,  # defaults to self.name
         debug_api: bool = False,
     ):

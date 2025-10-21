@@ -33,7 +33,7 @@ class CodeEnginePackageBuilder:
 async def deploy_code_engine_package(
     package_id,
     version,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
     parent_class: str = None,
@@ -57,15 +57,15 @@ async def deploy_code_engine_package(
     return res
 
 
-class CodeEngine_InvalidPackage(dmde.DomoError):
-    def __init__(self, message: str, auth: dmda.DomoAuth):
+class CodeEngine_InvalidPackage(DomoError):
+    def __init__(self, message: str, auth: DomoAuth):
         super().__init__(message=message, domo_instance=auth.domo_instance)
 
 
 @gd.route_function
 async def create_code_engine_package(
     payload: dict,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
     return_raw: bool = False,
@@ -95,12 +95,12 @@ async def create_code_engine_package(
 
 
 # class CodeEngine_PackageNotFound(dmde.RouteError):
-#     def __init__(self, res, message: str, auth: dmda.DomoAuth):
+#     def __init__(self, res, message: str, auth: DomoAuth):
 #         super().__init__(res = res, message=message, domo_instance=auth.domo_instance)
 
 
-# class CodeEngine_PackageAlreadyDeployed(dmde.DomoError):
-#     def __init__(self, message: str, auth: dmda.DomoAuth):
+# class CodeEngine_PackageAlreadyDeployed(DomoError):
+#     def __init__(self, message: str, auth: DomoAuth):
 #         super().__init__(message=message, domo_instance=auth.domo_instance)
 def increment_version(version: str) -> str:
     parts = version.split(".")
@@ -111,7 +111,7 @@ def increment_version(version: str) -> str:
 
 @gd.route_function
 async def upsert_code_engine_package_version(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     payload: dict,
     version: str = None,
     auto_increment_version: bool = True,
@@ -169,7 +169,7 @@ async def upsert_code_engine_package_version(
 @gd.route_function
 async def upsert_package(
     payload: dict,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     check_different: bool = True,
     create_new_version: bool = False,
     session: httpx.AsyncClient = None,
