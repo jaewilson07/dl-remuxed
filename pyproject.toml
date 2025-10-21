@@ -54,7 +54,8 @@ dev = [
     "mypy",
     "pytest",
     "pytest-cov",
-    "pre-commit"]
+    "pre-commit",
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP"]
