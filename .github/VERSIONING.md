@@ -33,7 +33,7 @@ When you merge the PR to `main`, the workflow automatically:
 
 1. ✅ Detects the PR labels
 2. ✅ Calculates the new version
-3. ✅ Updates `pyproject.toml` and `src/__init__.py`
+3. ✅ Updates `pyproject.toml` and `src/domolibrary2/__init__.py`
 4. ✅ Commits the version bump
 5. ✅ Creates a git tag (e.g., `v0.1.0-alpha`)
 6. ✅ Creates a GitHub Release
@@ -110,7 +110,7 @@ Development Flow:
 
 ### 🚫 What NOT to Do
 
--   ❌ Don't manually edit version in `pyproject.toml` or `src/__init__.py`
+-   ❌ Don't manually edit version in `pyproject.toml` or `src/domolibrary2/__init__.py`
 -   ❌ Don't create tags manually
 -   ❌ Don't skip labels on PRs merged to main
 -   ❌ Don't use multiple bump labels (e.g., major + feat, fix + refactor)
@@ -136,7 +136,7 @@ Development Flow:
 
 If you need to manually set a version:
 
-1. Edit `pyproject.toml` and `src/__init__.py`
+1. Edit `pyproject.toml` and `src/domolibrary2/__init__.py`
 2. Commit: `git commit -m "chore: set version to X.Y.Z"`
 3. Tag: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`
 4. Push: `git push && git push --tags`
