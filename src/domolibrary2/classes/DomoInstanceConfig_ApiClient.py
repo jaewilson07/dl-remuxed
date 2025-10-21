@@ -9,9 +9,7 @@ import httpx
 from ..client import exceptions as dmde
 from ..client.entities import DomoEntity
 from ..routes import instance_config_api_client as client_routes
-from ..routes.instance_config_api_client import (
-    ApiClient_ScopeEnum,
-)
+from ..routes.instance_config_api_client import ApiClient_ScopeEnum
 from ..utils import chunk_execution as dmce
 from . import DomoUser as dmdu
 

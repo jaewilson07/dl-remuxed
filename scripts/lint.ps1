@@ -4,7 +4,7 @@
 Write-Host "Running ruff check and fix..." -ForegroundColor Green
 & C:\Users\jwilson1\.local\bin\uv.exe run ruff check src --fix
 
-Write-Host "Running black formatter..." -ForegroundColor Green  
+Write-Host "Running black formatter..." -ForegroundColor Green
 & C:\Users\jwilson1\.local\bin\uv.exe run black src
 
 Write-Host "Running isort..." -ForegroundColor Green
