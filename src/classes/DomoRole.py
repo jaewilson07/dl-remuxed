@@ -15,7 +15,7 @@ from typing import Any, List, Optional
 import httpx
 
 from ..client.auth import DomoAuth
-from ..client.entities import DomoEntity
+from ..client.entities import DomoEntity, DomoManager
 from ..client.exceptions import DomoError, ClassError
 from ..client import exceptions as dmde
 from ..routes import role as role_routes
