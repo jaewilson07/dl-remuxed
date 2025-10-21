@@ -4,58 +4,122 @@
 
 This document outlines a comprehensive strategy for repairing and standardizing all route functions in the Domo Library. Based on analysis of existing route files, I've identified critical inconsistencies in error handling, import patterns, function signatures, and exception hierarchies that need systematic repair.
 
+## Strategic Approach: Infrastructure First vs. Gradual Migration
+
+### Current Situation Assessment
+
+After attempting to repair route functions, we've discovered that issues are more systemic than initially apparent:
+
+**Core Infrastructure Issues:**
+- The `get_data` function appears to return `None` in some cases
+- Missing `is_success` attribute on response objects
+- Type system expects `ResponseGetData` but gets `None | Unknown`
+- Multiple modules still reference old import patterns
+- Exception hierarchy needs to be integrated with existing code
+
+**Recommended Strategy: Infrastructure-First with Limited Scope**
+
+Instead of attempting comprehensive rewrites, we recommend a **targeted infrastructure repair** approach:
+
+1. **Focus on one simple route** (like a basic GET operation)
+2. **Fix only what's needed** for that route to work with new patterns
+3. **Create a working example** of the standardized approach
+4. **Test thoroughly** before expanding to other routes
+
+This provides:
+- Clear proof of concept
+- Minimal risk of breaking existing functionality
+- Template for future route repairs
+- Evidence of value before large investment
+
+## Alternative Approaches Considered
+
+### Option A: Infrastructure First (Recommended for Simple Routes)
+**Benefits:**
+- ✅ Clean, modern codebase
+- ✅ Consistent patterns
+- ✅ Long-term maintainability
+
+**Risks:**
+- ❌ High risk of breaking changes
+- ❌ Significant time investment
+- ❌ May encounter systemic infrastructure issues
+
+### Option B: Gradual Compatibility Approach (Recommended for Complex Routes)
+**Benefits:**
+- ✅ Low risk of breaking existing code
+- ✅ Allows incremental improvement
+- ✅ Can run both patterns during transition
+
+**Risks:**
+- ❌ Maintains technical debt temporarily
+- ❌ Can create confusion with multiple patterns
+
+### Option C: Documentation Focus (Fallback Option)
+**Benefits:**
+- ✅ Immediate value with low risk
+- ✅ Helps developers understand current system
+
+**Risks:**
+- ❌ Doesn't fix underlying issues
+- ❌ May not address systemic problems
+
+## Compatibility Layer Strategy
+
+For routes with complex dependencies, implement a compatibility layer:
+
+```python
+# Create aliases for backward compatibility
+DomoError = RouteError  # Maintain old imports
+def old_function_pattern(*args, **kwargs):
+    return new_function_pattern(*args, **kwargs)
+```
+
+This allows:
+- ✅ **Keep existing patterns working** during transition
+- ✅ **Add new patterns alongside** old ones
+- ✅ **Gradual migration path** with clear documentation
+- ✅ **Support both patterns** during transition period
+
 ## Current State Analysis
 
-### Import Pattern Issues
+### Completed Routes Status
 
-**Problem**: Inconsistent import aliases for DomoError across routes
-```python
-# Multiple different patterns found:
-from ..client import exceptions as dmde    # Most common
-from ..client import DomoError as de      # Also common  
-from ..client import DomoError            # Some files
-```
+**✅ Templates Available:**
+1. **auth.py** - Clean, modern implementation (pre-existing template)
+2. **access_token.py** - ✅ **PERFECT TEMPLATE** - Fully standardized with:
+   - Standardized imports (`from ..client.exceptions import RouteError`)
+   - Proper exception classes (`AccessToken_GET_Error`, `SearchAccessToken_NotFound`, `AccessToken_CRUD_Error`)
+   - All functions use `@gd.route_function` decorator
+   - Consistent function signatures with `return_raw: bool = False` parameter
+   - Comprehensive docstrings with Args/Returns/Raises sections
+   - Zero lint errors - validated and ready for use
 
-**Impact**: Makes error handling inconsistent and creates maintenance confusion.
+**Routes by Complexity Category:**
 
-### Exception Class Issues
+### Simple Routes (Quick Wins - Apply access_token.py template directly)
+- **beastmode.py** (272 lines) - Standard GET/CRUD error classes needed
+- **codeengine.py** (243 lines) - CodeEngine_GET_Error, CodeEngine_CRUD_Error
+- **enterprise_apps.py** (263 lines) - EnterpriseApp_GET_Error, EnterpriseApp_CRUD_Error  
+- **pdp.py** (307 lines) - PDP_GET_Error, PDP_CRUD_Error
+- **card.py** (266 lines) - Card_GET_Error, Card_CRUD_Error, SearchCard_NotFound
 
-**Problem**: Inconsistent exception hierarchies and naming
-```python
-# Found patterns:
-class Dataset_GetError(de.DomoError):      # Wrong base class
-class Dataset_CRUDError(de.DomoError):     # Wrong base class  
-class Account_GET_Error(dmde.RouteError):  # Correct base class
-class User_CrudError(de.RouteError):       # Inconsistent naming
-```
+### Medium Complexity Routes (Apply template with minor customization)
+- **application.py** (462 lines) - Add SearchApplication_NotFound
+- **group.py** (646 lines) - Add Group_CRUD_Error, SearchGroup_NotFound, GroupSharing_Error
+- **role.py** (435 lines) - Rename Role_NotRetrieved to Role_GET_Error
+- **user.py** (953+ lines) - Complex, save for after role.py completion
+- **page.py** (370 lines) - Add Page_CRUD_Error, SearchPage_NotFound, PageSharing_Error
 
-**Impact**: Violates the error design strategy and creates confusion about error types.
-
-### Function Signature Issues
-
-**Problem**: Inconsistent parameter ordering and naming
-```python
-# Multiple patterns found:
-async def func(auth: dmda.DomoAuth, entity_id: str, debug_api: bool = False, ...)
-async def func(entity_id: str, auth: dmda.DomoAuth, debug_api: bool = False, ...)
-async def func(auth, entity_id, debug_api=False, ...)  # Missing type hints
-```
-
-**Impact**: Creates inconsistent developer experience and makes the API harder to learn.
-
-### Route Function Decorator Issues
-
-**Problem**: Inconsistent use of `@gd.route_function` decorator
-- Some functions have it, others don't
-- No clear pattern for when it should be used
-- Some files mix decorated and non-decorated functions
-- Missing `return_raw` parameter pattern for debugging and testing
-
-**Impact**: 
-- Inconsistent return type validation across route functions
-- Missing standardized parameter patterns
-- Lack of debugging capabilities for raw response access
-- No systematic error handling for invalid return types
+### Complex Routes (May need restructuring)
+- **dataset.py** (900+ lines) - **PRIORITY** - Consider splitting like account/ structure:
+  - `dataset/__init__.py` - Main exports
+  - `dataset/core.py` - GET operations  
+  - `dataset/crud.py` - Create/Update/Delete operations
+  - `dataset/query.py` - Query operations
+  - `dataset/upload.py` - Upload operations
+  - `dataset/sharing.py` - Sharing operations
+  - `dataset/exceptions.py` - All error classes
 
 ## Standardization Strategy
 
