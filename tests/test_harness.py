@@ -13,9 +13,9 @@ import json
 import pytest
 import httpx
 
-from ..src.client.auth import DomoAuth
-from ..src.client.response import ResponseGetData, RequestMetadata
-from ..src.client.exceptions import RouteError, AuthError
+from domolibrary2.client.auth import DomoAuth
+from domolibrary2.client.response import ResponseGetData, RequestMetadata
+from domolibrary2.client.exceptions import RouteError, AuthError
 
 
 @dataclass

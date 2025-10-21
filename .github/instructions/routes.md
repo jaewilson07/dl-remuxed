@@ -1,5 +1,5 @@
 ---
-applyTo: '/src/routes/*'
+applyTo: '/src/domolibrary2/routes/*'
 ---
 # Route Function Standards
 
