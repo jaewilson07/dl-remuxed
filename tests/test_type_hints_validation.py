@@ -5,8 +5,9 @@ This test can be used to validate any module's functions for complete type annot
 """
 
 import inspect
+from typing import get_type_hints
+
 import pytest
-from typing import get_type_hints, Any
 
 
 def validate_function_type_hints(func, function_name: str = None):
@@ -28,7 +29,7 @@ def validate_function_type_hints(func, function_name: str = None):
 
     # Check return type annotation
     if sig.return_annotation == inspect.Signature.empty:
-        issues.append(f"Missing return type annotation")
+        issues.append("Missing return type annotation")
 
     # Check parameter type hints
     try:
@@ -89,7 +90,7 @@ class TestTypeHintsValidation:
 
     def test_user_attributes_type_hints(self):
         """Test that all functions in user.attributes module have proper type hints."""
-        from src.routes.user import attributes
+        from domolibrary2.routes.user import attributes
 
         # Functions that might be excluded (if any)
         exclude_functions = []
@@ -123,13 +124,13 @@ class TestTypeHintsValidation:
 
     def test_specific_function_type_hints(self):
         """Test specific functions have proper type hints."""
-        from src.routes.user.attributes import (
+        from domolibrary2.routes.user.attributes import (
             clean_attribute_id,
+            create_user_attribute,
+            delete_user_attribute,
             generate_create_user_attribute_body,
             get_user_attributes,
-            create_user_attribute,
             update_user_attribute,
-            delete_user_attribute,
         )
 
         functions_to_test = [
@@ -156,7 +157,7 @@ class TestTypeHintsValidation:
 
     def test_return_type_annotations_exist(self):
         """Test that all functions have return type annotations."""
-        from src.routes.user import attributes
+        from domolibrary2.routes.user import attributes
 
         functions = [
             getattr(attributes, name)
@@ -177,11 +178,11 @@ class TestTypeHintsValidation:
                 f"Functions missing return type annotations: {functions_without_return_type}"
             )
 
-        print(f"\n✅ All functions have return type annotations!")
+        print("\n✅ All functions have return type annotations!")
 
     def test_parameter_type_annotations_exist(self):
         """Test that all function parameters have type annotations."""
-        from src.routes.user import attributes
+        from domolibrary2.routes.user import attributes
 
         functions = [
             getattr(attributes, name)
@@ -213,12 +214,12 @@ class TestTypeHintsValidation:
                 error_msg += f"  {func_name}: {params}\n"
             pytest.fail(error_msg)
 
-        print(f"\n✅ All function parameters have type annotations!")
+        print("\n✅ All function parameters have type annotations!")
 
 
 def main():
     """Run validation manually (for development/debugging)."""
-    from src.routes.user import attributes
+    from domolibrary2.routes.user import attributes
 
     print("🔍 Validating type hints in user.attributes module...\n")
 
