@@ -42,6 +42,7 @@ from typing import List, Optional
 import httpx
 
 from ...client import get_data as gd
+from ...client import response as rgd
 from ...client.auth import DomoAuth
 from ...client.entities import DomoEnumMixin
 from ...client.exceptions import RouteError
@@ -49,6 +50,7 @@ from ...client.exceptions import RouteError
 
 class UserAttributes_IssuerType(DomoEnumMixin, Enum):
     """Types of user attribute issuers."""
+
     IDP = "idp"
     SYSTEM = "domo-defined"
     CUSTOM = "customer-defined"
@@ -91,12 +93,12 @@ class UserAttributes_CRUD_Error(RouteError):
         )
 
 
-def clean_attribute_id(text):
+def clean_attribute_id(text: str) -> str:
     """Clean attribute ID by removing non-alphanumeric characters.
-    
+
     Args:
         text: Text to clean
-        
+
     Returns:
         str: Cleaned text with only alphanumeric characters
     """
@@ -110,9 +112,9 @@ def generate_create_user_attribute_body(
     issuer_type: Optional[UserAttributes_IssuerType] = None,
     security_voter: Optional[str] = None,
     data_type: Optional[str] = None,
-):
+) -> dict:
     """Generate request body for creating user attributes.
-    
+
     Args:
         attribute_id: Unique identifier for the attribute
         name: Display name for the attribute
@@ -120,7 +122,7 @@ def generate_create_user_attribute_body(
         issuer_type: Type of issuer for the attribute
         security_voter: Security voter setting
         data_type: Data type validator
-        
+
     Returns:
         dict: Request body for attribute creation
     """
@@ -147,13 +149,15 @@ def generate_create_user_attribute_body(
 @gd.route_function
 async def get_user_attributes(
     auth: DomoAuth,
-    issuer_type_ls: Optional[List[UserAttributes_IssuerType]] = None,  # use `UserAttributes_IssuerType` enum
+    issuer_type_ls: Optional[
+        List[UserAttributes_IssuerType]
+    ] = None,  # use `UserAttributes_IssuerType` enum
     session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
-):
+) -> rgd.ResponseGetData:
     """Retrieve user attributes from Domo instance.
 
     User attributes can be of different types: IDP, domo-defined, or customer-defined.
@@ -218,7 +222,7 @@ async def get_user_attribute_by_id(
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
-):
+) -> rgd.ResponseGetData:
     """Retrieve a specific user attribute by ID.
 
     Args:
@@ -250,10 +254,7 @@ async def get_user_attribute_by_id(
         return res
 
     if not res.is_success:
-        raise UserAttributes_GET_Error(
-            attribute_id=attribute_id,
-            res=res
-        )
+        raise UserAttributes_GET_Error(attribute_id=attribute_id, res=res)
 
     res.response = next(
         (obj for obj in res.response if obj["key"] == attribute_id), None
@@ -263,7 +264,7 @@ async def get_user_attribute_by_id(
         raise UserAttributes_GET_Error(
             attribute_id=attribute_id,
             message=f"attribute {attribute_id} not found",
-            res=res
+            res=res,
         )
 
     return res
@@ -283,7 +284,7 @@ async def create_user_attribute(
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
-):
+) -> rgd.ResponseGetData:
     """Create a new user attribute.
 
     Args:
@@ -346,7 +347,7 @@ async def create_user_attribute(
             operation="create",
             attribute_id=attribute_id,
             message=f"Bad Request - does attribute {attribute_id} already exist?",
-            res=res
+            res=res,
         )
 
     res.response = f"created {attribute_id}"
@@ -368,7 +369,7 @@ async def update_user_attribute(
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
-):
+) -> rgd.ResponseGetData:
     """Update an existing user attribute.
 
     The body must include all attribute parameters. This function will use the
@@ -442,7 +443,7 @@ async def update_user_attribute(
             operation="update",
             attribute_id=attribute_id,
             message=f"Bad Request - error updating {attribute_id}",
-            res=res
+            res=res,
         )
 
     res.response = f"updated {attribute_id}"
@@ -459,7 +460,7 @@ async def delete_user_attribute(
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
-):
+) -> rgd.ResponseGetData:
     """Delete a user attribute.
 
     Args:
@@ -497,7 +498,7 @@ async def delete_user_attribute(
             operation="delete",
             attribute_id=attribute_id,
             message=f"Bad Request - failed to delete {attribute_id}",
-            res=res
+            res=res,
         )
 
     res.response = f"deleted {attribute_id}"
