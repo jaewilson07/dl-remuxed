@@ -29,7 +29,7 @@ class App_API_Exception(dmde.RouteError):
 
 @gd.route_function
 async def get_all_designs(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     parts: str = "owners,creator,thumbnail,versions,cards",
     return_raw: bool = False,
     debug_loop: bool = False,
@@ -83,7 +83,7 @@ async def get_all_designs(
 
 @gd.route_function
 async def get_design_by_id(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     design_id: str,
     parts="owners,cards,versions,creator",
     debug_api: bool = False,
@@ -112,7 +112,7 @@ async def get_design_by_id(
 
 @gd.route_function
 async def get_design_versions(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     design_id,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
@@ -137,7 +137,7 @@ async def get_design_versions(
     return res
 
 
-class Design_GET_Assets(dmde.DomoError):
+class Design_GET_Assets(DomoError):
     def __init__(self, res, design_id, message=None):
         message = message or f"unable to download assets for {design_id}"
         super().__init__(res=res, message=message)
@@ -145,7 +145,7 @@ class Design_GET_Assets(dmde.DomoError):
 
 @gd.route_function
 async def get_design_source_code_by_version(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     design_id,
     version,
     debug_api: bool = False,
@@ -199,7 +199,7 @@ async def get_design_source_code_by_version(
 @gd.route_function
 async def get_design_permissions(
     design_id: str,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     session: httpx.AsyncClient = None,
@@ -221,7 +221,7 @@ async def get_design_permissions(
 
 async def set_design_admins(
     design_id,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     user_ids: List[str],
     debug_api: bool = False,
     return_raw: bool = False,
@@ -248,7 +248,7 @@ async def set_design_admins(
 
 
 async def add_design_admin(
-    design_id: str, auth: dmda.DomoAuth, user_ids: List[int], debug_api: bool = False
+    design_id: str, auth: DomoAuth, user_ids: List[int], debug_api: bool = False
 ):
     user_ids = user_ids if isinstance(user_ids, list) else [user_ids]
 

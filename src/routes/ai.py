@@ -13,6 +13,7 @@ __all__ = [
     "update_dataset_ai_readiness",
 ]
 
+from enum import Enum
 import json
 from typing import List, Optional, TypedDict
 
@@ -22,18 +23,16 @@ from ..client.auth import DomoAuth
 from ..client.exceptions import RouteError
 from ..client import get_data as gd
 from ..client import response as rgd
-from ..client.entities import DomoEnum
+from ..client.entities import DomoEnumMixin
 
 
 class AI_GET_Error(RouteError):
     """Raised when AI service retrieval operations fail."""
 
-    def __init__(
-        self, message: Optional[str] = None, response_data=None, **kwargs
-    ):
+    def __init__(self, message: Optional[str] = None, res=None, **kwargs):
         super().__init__(
             message=message or "AI service retrieval failed",
-            response_data=response_data,
+            res=res,
             **kwargs,
         )
 
@@ -45,12 +44,12 @@ class AI_CRUD_Error(RouteError):
         self,
         operation: str,
         message: Optional[str] = None,
-        response_data=None,
+        res=None,
         **kwargs,
     ):
         super().__init__(
             message=message or f"AI service {operation} operation failed",
-            response_data=response_data,
+            res=res,
             **kwargs,
         )
 
@@ -95,14 +94,14 @@ async def llm_generate_text(
         return res
 
     if not res.is_success:
-        raise AI_CRUD_Error(operation="generate text", response_data=res)
+        raise AI_CRUD_Error(operation="generate text", res=res)
 
     res.response["output"] = res.response["choices"][0]["output"]
 
     return res
 
 
-class OutputStyleEnum(DomoEnum):
+class OutputStyleEnum(DomoEnumMixin, Enum):
     BULLETED = "BULLETED"
     NUMBERED = "Numbered"
     PARAGRAPH = "PARAGRAPH"
@@ -173,7 +172,7 @@ async def llm_summarize_text(
         return res
 
     if not res.is_success:
-        raise AI_CRUD_Error(operation="summarize text", response_data=res)
+        raise AI_CRUD_Error(operation="summarize text", res=res)
 
     res.response["ouptput"] = res.response["choices"][0]["output"]
 
@@ -202,7 +201,7 @@ async def get_dataset_ai_readiness(
     )
 
     if not res.is_success:
-        raise AI_GET_Error(response_data=res, entity_id=dataset_id)
+        raise AI_GET_Error(res=res, entity_id=dataset_id)
 
     return res
 
@@ -250,9 +249,7 @@ async def create_dataset_ai_readiness(
     )
 
     if not res.is_success:
-        raise AI_CRUD_Error(
-            operation="create", response_data=res, entity_id=dataset_id
-        )
+        raise AI_CRUD_Error(operation="create", res=res, entity_id=dataset_id)
 
     return res
 
@@ -303,8 +300,6 @@ async def update_dataset_ai_readiness(
     )
 
     if not res.is_success:
-        raise AI_CRUD_Error(
-            operation="update", response_data=res, entity_id=dataset_id
-        )
+        raise AI_CRUD_Error(operation="update", res=res, entity_id=dataset_id)
 
     return res

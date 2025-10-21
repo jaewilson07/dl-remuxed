@@ -52,7 +52,7 @@ class AccessToken_GET_Error(RouteError):
     def __init__(
         self,
         entity_id: Optional[str] = None,
-        response_data: Optional[rgd.ResponseGetData] = None,
+        res: Optional[rgd.ResponseGetData] = None,
         message: Optional[str] = None,
         **kwargs,
     ):
@@ -62,9 +62,7 @@ class AccessToken_GET_Error(RouteError):
             else:
                 message = "Failed to retrieve access tokens"
 
-        super().__init__(
-            message=message, entity_id=entity_id, response_data=response_data, **kwargs
-        )
+        super().__init__(message=message, entity_id=entity_id, res=res, **kwargs)
 
 
 class SearchAccessToken_NotFound(RouteError):
@@ -78,13 +76,13 @@ class SearchAccessToken_NotFound(RouteError):
     def __init__(
         self,
         search_criteria: str,
-        response_data: Optional[rgd.ResponseGetData] = None,
+        res: Optional[rgd.ResponseGetData] = None,
         **kwargs,
     ):
         message = f"No access tokens found matching: {search_criteria}"
         super().__init__(
             message=message,
-            response_data=response_data,
+            res=res,
             additional_context={"search_criteria": search_criteria},
             **kwargs,
         )
@@ -102,7 +100,7 @@ class AccessToken_CRUD_Error(RouteError):
         self,
         operation: str,
         entity_id: Optional[str] = None,
-        response_data: Optional[rgd.ResponseGetData] = None,
+        res: Optional[rgd.ResponseGetData] = None,
         message: Optional[str] = None,
         **kwargs,
     ):
@@ -115,7 +113,7 @@ class AccessToken_CRUD_Error(RouteError):
         super().__init__(
             message=message,
             entity_id=entity_id,
-            response_data=response_data,
+            res=res,
             additional_context={"operation": operation},
             **kwargs,
         )
@@ -173,7 +171,7 @@ async def get_access_tokens(
 
     if not res.is_success:
         raise AccessToken_GET_Error(
-            response_data=res,
+            res=res,
             message=f"Failed to retrieve access tokens: {res.response}",
         )
 
@@ -242,7 +240,7 @@ async def get_access_token_by_id(
     if not res.response or not isinstance(res.response, list):
         raise AccessToken_GET_Error(
             entity_id=str(access_token_id),
-            response_data=res,
+            res=res,
             message="Invalid response format from access tokens API",
         )
 
@@ -257,7 +255,7 @@ async def get_access_token_by_id(
 
     if not token:
         raise SearchAccessToken_NotFound(
-            search_criteria=f"ID: {access_token_id}", response_data=res
+            search_criteria=f"ID: {access_token_id}", res=res
         )
 
     res.response = token
@@ -365,7 +363,7 @@ async def generate_access_token(
         raise AccessToken_CRUD_Error(
             operation="create",
             entity_id=str(user_id),
-            response_data=res,
+            res=res,
             message=f"Unable to generate access token for user {user_id}. Please verify the user ID is valid.",
         )
 
@@ -373,7 +371,7 @@ async def generate_access_token(
         raise AccessToken_CRUD_Error(
             operation="create",
             entity_id=str(user_id),
-            response_data=res,
+            res=res,
             message=f"Access token generation failed: {res.response}",
         )
 
@@ -382,7 +380,7 @@ async def generate_access_token(
         raise AccessToken_CRUD_Error(
             operation="create",
             entity_id=str(user_id),
-            response_data=res,
+            res=res,
             message="Token generation appeared successful but no token was returned",
         )
 
@@ -443,7 +441,7 @@ async def revoke_access_token(
         raise AccessToken_CRUD_Error(
             operation="revoke",
             entity_id=str(access_token_id),
-            response_data=res,
+            res=res,
             message=f"Failed to revoke access token {access_token_id}: {res.response}",
         )
 

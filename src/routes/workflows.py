@@ -25,13 +25,13 @@ class Workflow_GET_Error(RouteError):
         self,
         workflow_id: Optional[str] = None,
         message: Optional[str] = None,
-        response_data=None,
+        res=None,
         **kwargs,
     ):
         super().__init__(
             message=message or "Workflow retrieval failed",
             entity_id=workflow_id,
-            response_data=response_data,
+            res=res,
             **kwargs,
         )
 
@@ -44,13 +44,13 @@ class Workflow_CRUD_Error(RouteError):
         operation: str,
         workflow_id: Optional[str] = None,
         message: Optional[str] = None,
-        response_data=None,
+        res=None,
         **kwargs,
     ):
         super().__init__(
             message=message or f"Workflow {operation} operation failed",
             entity_id=workflow_id,
-            response_data=response_data,
+            res=res,
             **kwargs,
         )
 
@@ -77,7 +77,7 @@ async def get_workflow(
     )
 
     if not res.is_success:
-        raise Workflow_GET_Error(workflow_id=model_id, response_data=res)
+        raise Workflow_GET_Error(workflow_id=model_id, res=res)
 
     return res
 
@@ -126,9 +126,7 @@ async def trigger_workflow(
     )
 
     if not res.is_success:
-        raise Workflow_CRUD_Error(
-            operation="trigger", workflow_id=model_id, response_data=res
-        )
+        raise Workflow_CRUD_Error(operation="trigger", workflow_id=model_id, res=res)
 
     return res
 
@@ -155,7 +153,7 @@ async def get_workflow_trigger_history(
     )
 
     if not res.is_success:
-        raise Workflow_GET_Error(workflow_id=model_id, response_data=res)
+        raise Workflow_GET_Error(workflow_id=model_id, res=res)
 
     return res
 
@@ -191,6 +189,6 @@ async def get_workflow_executions(
     )
 
     if not res.is_success:
-        raise Workflow_GET_Error(workflow_id=model_id, response_data=res)
+        raise Workflow_GET_Error(workflow_id=model_id, res=res)
 
     return res

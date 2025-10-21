@@ -10,15 +10,16 @@ __all__ = [
     "search_cards_admin_summary",
 ]
 
+from enum import Enum
 from typing import List, Union
 
 import httpx
 
 from ..client import auth as dmda
-from ..client import DomoError as de
+from ..client import exceptions as de
 from ..client import get_data as gd
 from ..client import response as rgd
-from ..client.entities import DomoEnum
+from ..client.entities import DomoEnumMixin
 
 
 class Cards_API_Exception(de.DomoError):
@@ -48,7 +49,7 @@ class CardSearch_NotFoundError(de.DomoError):
 @gd.route_function
 async def get_card_by_id(
     card_id,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     optional_parts="certification,datasources,drillPath,owners,properties,domoapp",
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
@@ -84,7 +85,7 @@ async def get_card_by_id(
 
 @gd.route_function
 async def get_kpi_definition(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     card_id: str,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
@@ -117,7 +118,7 @@ async def get_kpi_definition(
     return res
 
 
-class Card_OptionalParts_Enum(DomoEnum):
+class Card_OptionalParts_Enum(DomoEnumMixin, Enum):
     CERTIFICATION = "certification"
     DATASOURCES = "datasources"
     DOMOAPP = "domoapp"
@@ -131,7 +132,7 @@ class Card_OptionalParts_Enum(DomoEnum):
 
 @gd.route_function
 async def get_card_metadata(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     card_id: str,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
@@ -212,7 +213,7 @@ def generate_body_search_cards_admin_summary(
 
 @gd.route_function
 async def search_cards_admin_summary(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     body: dict,
     maximum: int = None,
     optional_parts: str = "certification,datasources,drillPath,owners,properties,domoapp",

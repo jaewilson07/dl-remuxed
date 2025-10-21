@@ -89,10 +89,10 @@ class DomoAccount_Credential(dmacb.DomoAccount_Default):
     is_valid_full_auth: bool = None
     is_valid_token_auth: bool = None
 
-    _token_auth: dmda.DomoAuth = field(repr=False, default=None)
-    _full_auth: dmda.DomoAuth = field(repr=False, default=None)
+    _token_auth: DomoAuth = field(repr=False, default=None)
+    _full_auth: DomoAuth = field(repr=False, default=None)
 
-    target_auth: dmda.DomoAuth = field(default=None)
+    target_auth: DomoAuth = field(default=None)
     target_user: dmdu.DomoUser = field(default=None)
     target_access_token: dmact.DomoAccessToken = field(default=None)
 
@@ -105,7 +105,7 @@ class DomoAccount_Credential(dmacb.DomoAccount_Default):
         cls,
         obj: dict,
         is_admin_summary: bool = True,
-        auth: dmda.DomoAuth = None,
+        auth: DomoAuth = None,
         **kwargs,
     ):
         return cls._defaultfrom_dict(
@@ -196,7 +196,7 @@ class DomoAccount_Credential(dmacb.DomoAccount_Default):
 
     def _set_target_auth(
         self,
-        valid_backup_auth: dmda.DomoAuth = None,  # validated backup_auth
+        valid_backup_auth: DomoAuth = None,  # validated backup_auth
     ):
         """
         generates an auth object using the best of Token Auth < Full Auth
@@ -223,7 +223,7 @@ class DomoAccount_Credential(dmacb.DomoAccount_Default):
 
     async def test_auths(
         self,
-        backup_auth: dmda.DomoAuth = None,
+        backup_auth: DomoAuth = None,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
     ):
@@ -231,14 +231,14 @@ class DomoAccount_Credential(dmacb.DomoAccount_Default):
         try:
             await self.test_token_auth(debug_api=debug_api, session=session)
 
-        except dmde.DomoError as e:
+        except DomoError as e:
             print(f"testing token: {self.name}: {e}")
 
         ## test full auth
         try:
             await self.test_full_auth(debug_api=debug_api, session=session)
 
-        except dmde.DomoError as e:
+        except DomoError as e:
             print(f"testing full auth: {self.name}: {e}")
 
         ## generate target_auth
@@ -262,7 +262,7 @@ class DomoAccount_Credential(dmacb.DomoAccount_Default):
     async def get_target_user(
         self,
         user_email: str = None,  # defaults to username from the AccountConfig object
-        target_auth: dmda.DomoAuth = None,
+        target_auth: DomoAuth = None,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
     ):
@@ -296,7 +296,7 @@ class DomoAccount_Credential(dmacb.DomoAccount_Default):
         new_password: str,
         user_email: str = None,  # defaults to username from the AccountConfig object
         is_update_account: bool = True,
-        target_auth: dmda.DomoAuth = None,
+        target_auth: DomoAuth = None,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
     ):
@@ -334,7 +334,7 @@ class DomoAccount_Credential(dmacb.DomoAccount_Default):
         self,
         token_name=None,
         user_email: str = None,  # defaults to username from the AccountConfig object
-        target_auth: dmda.DomoAuth = None,
+        target_auth: DomoAuth = None,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
     ):
@@ -381,7 +381,7 @@ class DomoAccount_Credential(dmacb.DomoAccount_Default):
         duration_in_days=90,
         user_email: str = None,  # defaults to username from the AccountConfig object
         is_update_account: bool = True,
-        target_auth: dmda.DomoAuth = None,
+        target_auth: DomoAuth = None,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
     ):

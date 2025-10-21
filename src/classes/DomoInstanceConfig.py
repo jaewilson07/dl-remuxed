@@ -6,8 +6,6 @@ from typing import List
 
 import httpx
 import pandas as pd
-from nbdev.showdoc import patch_to
-
 from ..classes.DomoInstanceConfig_InstanceSwitcher import (
     DomoInstanceConfig_InstanceSwitcher,
 )
@@ -41,7 +39,7 @@ from ..classes.DomoInstanceConfig_InstanceSwitcher import (
 class DomoInstanceConfig:
     """utility class that absorbs many of the domo instance configuration methods"""
 
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
 
     allowlist: list[str] = field(default_factory=list)
 
@@ -83,7 +81,6 @@ class DomoInstanceConfig:
         self.SSO = dicsso.SSO(auth=self.auth)
 
 
-@patch_to(DomoInstanceConfig)
 async def get_applications(
     self,
     debug_api: bool = False,
@@ -109,7 +106,6 @@ async def get_applications(
     ]
 
 
-@patch_to(DomoInstanceConfig)
 async def generate_applications_report(
     self,
     debug_api: bool = False,
@@ -144,7 +140,6 @@ async def generate_applications_report(
     return df.sort_index(axis=1)
 
 
-@patch_to(DomoInstanceConfig)
 async def get_authorized_domains(
     self: DomoInstanceConfig,
     debug_api: bool = False,
@@ -163,7 +158,6 @@ async def get_authorized_domains(
     return res.response
 
 
-@patch_to(DomoInstanceConfig)
 async def set_authorized_domains(
     self: DomoInstanceConfig,
     authorized_domains: List[str],
@@ -183,7 +177,6 @@ async def set_authorized_domains(
     return res
 
 
-@patch_to(DomoInstanceConfig)
 async def upsert_authorized_domains(
     self: DomoInstanceConfig,
     authorized_domains: List[str],
@@ -207,7 +200,6 @@ async def upsert_authorized_domains(
     )
 
 
-@patch_to(DomoInstanceConfig)
 async def get_authorized_custom_app_domains(
     self: DomoInstanceConfig,
     debug_api: bool = False,
@@ -231,7 +223,6 @@ async def get_authorized_custom_app_domains(
 
 
 # | exporti
-@patch_to(DomoInstanceConfig)
 async def set_authorized_custom_app_domains(
     self: DomoInstanceConfig,
     authorized_domains: List[str],
@@ -251,7 +242,6 @@ async def set_authorized_custom_app_domains(
     return res
 
 
-@patch_to(DomoInstanceConfig)
 async def upsert_authorized_custom_app_domains(
     self: DomoInstanceConfig,
     authorized_domains: List[str],
@@ -275,7 +265,6 @@ async def upsert_authorized_custom_app_domains(
     )
 
 
-@patch_to(DomoInstanceConfig)
 async def get_sandbox_is_same_instance_promotion_enabled(
     self: DomoInstanceConfig,
     debug_api: bool = False,
@@ -299,7 +288,6 @@ async def get_sandbox_is_same_instance_promotion_enabled(
     return res.response
 
 
-@patch_to(DomoInstanceConfig)
 async def toggle_sandbox_allow_same_instance_promotion(
     self: DomoInstanceConfig,
     is_enabled: bool,
@@ -327,7 +315,6 @@ async def toggle_sandbox_allow_same_instance_promotion(
     return res_is_enabled
 
 
-@patch_to(DomoInstanceConfig)
 async def get_is_user_invite_notification_enabled(
     self: DomoInstanceConfig,
     debug_api: bool = False,
@@ -356,7 +343,6 @@ async def get_is_user_invite_notification_enabled(
     return res.response
 
 
-@patch_to(DomoInstanceConfig)
 async def toggle_is_user_invite_notification_enabled(
     self: DomoInstanceConfig,
     is_enabled: bool,
@@ -396,7 +382,6 @@ class InstanceConfig_ClassError(dmde.ClassError):
         )
 
 
-@patch_to(DomoInstanceConfig)
 async def get_is_invite_social_users_enabled(
     self: DomoInstanceConfig,
     customer_id: str = None,
@@ -437,7 +422,6 @@ async def get_is_invite_social_users_enabled(
     return res.response
 
 
-@patch_to(DomoInstanceConfig)
 async def toggle_is_invite_social_users_enabled(
     self: DomoInstanceConfig,
     is_enabled: bool,
@@ -470,7 +454,6 @@ async def toggle_is_invite_social_users_enabled(
     return res_is_enabled
 
 
-@patch_to(DomoInstanceConfig)
 async def get_is_weekly_digest_enabled(
     self: DomoInstanceConfig,
     return_raw: bool = False,
@@ -496,7 +479,6 @@ async def get_is_weekly_digest_enabled(
     return res.response
 
 
-@patch_to(DomoInstanceConfig)
 async def toggle_is_weekly_digest_enabled(
     self: DomoInstanceConfig,
     is_enabled: bool,
@@ -539,7 +521,6 @@ async def toggle_is_weekly_digest_enabled(
     return res_is_enabled
 
 
-@patch_to(DomoInstanceConfig)
 async def toggle_is_left_nav_enabled(
     self: DomoInstanceConfig,
     is_use_left_nav: bool = True,
@@ -567,7 +548,6 @@ async def toggle_is_left_nav_enabled(
     return res
 
 
-@patch_to(DomoInstanceConfig)
 async def get_is_left_nav_enabled(
     self: DomoInstanceConfig,
     return_raw: bool = False,
@@ -593,7 +573,6 @@ async def get_is_left_nav_enabled(
     return res
 
 
-@patch_to(DomoInstanceConfig)
 async def toggle_is_left_nav_enabled(
     self: DomoInstanceConfig,
     is_use_left_nav: bool = True,
@@ -621,7 +600,6 @@ async def toggle_is_left_nav_enabled(
     return res
 
 
-@patch_to(DomoInstanceConfig)
 async def get_is_left_nav_enabled(
     self: DomoInstanceConfig,
     return_raw: bool = False,

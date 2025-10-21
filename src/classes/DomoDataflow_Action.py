@@ -1,3 +1,4 @@
+from enum import Enum
 from __future__ import annotations
 
 import datetime as dt
@@ -6,7 +7,7 @@ from typing import List
 
 from ..utils import convert as ct
 from ..utils import DictDot as util_dd
-from ..client.entities import DomoEnum
+from ..client.entities import DomoEnumMixin
 
 __all__ = [
     "DomoDataflow_Action_Type",
@@ -16,7 +17,7 @@ __all__ = [
 ]
 
 
-class DomoDataflow_Action_Type(DomoEnum):
+class DomoDataflow_Action_Type(DomoEnumMixin, Enum):
     LoadFromVault = "LoadFromVault"
     PublishToVault = "PublishToVault"
     GenerateTableAction = "GenerateTableAction"

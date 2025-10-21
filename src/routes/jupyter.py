@@ -20,6 +20,7 @@ __all__ = [
     "update_jupyter_workspace_config",
 ]
 
+from enum import Enum
 import asyncio
 import os
 import urllib
@@ -32,7 +33,7 @@ from ..client import exceptions as dmde
 from ..client import get_data as gd
 from ..client import response as rgd
 from ..utils import chunk_execution as dmce
-from ..client.entities import DomoEnum
+from ..client.entities import DomoEnumMixin
 
 
 class JupyterAPI_Error(dmde.RouteError):
@@ -47,7 +48,7 @@ class JupyterAPI_WorkspaceStarted(dmde.RouteError):
 
 @gd.route_function
 async def get_jupyter_workspaces(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     parent_class: str = None,
     session: httpx.AsyncClient = None,
     debug_num_stacks_to_drop=1,
@@ -155,7 +156,7 @@ async def get_workspace_auth_token_params(workspace_id, auth, return_raw: bool =
 @gd.route_function
 async def start_jupyter_workspace(
     workspace_id,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     parent_class: str = None,
     session: httpx.AsyncClient = None,
     debug_num_stacks_to_drop=1,
@@ -280,7 +281,7 @@ def generate_update_jupyter_body__directory(content_path, body):
     return body
 
 
-class generate_update_jupyter_body_factory(DomoEnum):
+class generate_update_jupyter_body_factory(DomoEnumMixin, Enum):
     IPYNB = partial(generate_update_jupyter_body__ipynb)
     DIRECTORY = partial(generate_update_jupyter_body__directory)
     TEXT = partial(generate_update_jupyter_body__text)
@@ -602,7 +603,7 @@ async def get_content(
 
 @gd.route_function
 async def update_jupyter_workspace_config(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     workspace_id,
     config: dict,
     parent_class: str = None,

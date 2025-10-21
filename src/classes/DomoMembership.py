@@ -5,8 +5,6 @@ from dataclasses import dataclass, field
 from typing import Any, List
 
 import httpx
-from nbdev.showdoc import patch_to
-
 from ..client import exceptions as dmde
 from ..client.DomoEntity import DomoSubEntity, Entity_Relation
 from ..routes import group as group_routes
@@ -258,7 +256,6 @@ class GroupMembership(Membership):
         return self.members
 
 
-@patch_to(GroupMembership)
 async def add_members(
     self: GroupMembership,
     add_user_ls: List[Any],
@@ -288,7 +285,6 @@ async def add_members(
     )
 
 
-@patch_to(GroupMembership)
 async def remove_members(
     self: GroupMembership,
     remove_user_ls: List[Any],
@@ -318,7 +314,6 @@ async def remove_members(
     )
 
 
-@patch_to(GroupMembership)
 async def set_members(
     self: GroupMembership,
     user_ls: List[Any],
@@ -362,7 +357,6 @@ async def set_members(
     )
 
 
-@patch_to(GroupMembership)
 async def add_owners(
     self: GroupMembership,
     add_owner_ls: List[Any],
@@ -392,7 +386,6 @@ async def add_owners(
     )
 
 
-@patch_to(GroupMembership)
 async def remove_owners(
     self: GroupMembership,
     remove_owner_ls: List[Any],
@@ -422,7 +415,6 @@ async def remove_owners(
     )
 
 
-@patch_to(GroupMembership)
 async def set_owners(
     self: GroupMembership,
     owner_ls: List[Any],
@@ -479,7 +471,6 @@ async def set_owners(
     )
 
 
-@patch_to(GroupMembership)
 async def add_owner_manage_all_groups_role(
     self: GroupMembership, debug_api: bool = False, session: httpx.AsyncClient = None
 ):

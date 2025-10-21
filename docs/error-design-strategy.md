@@ -184,10 +184,10 @@ class FeatureNotAvailableError(RouteError):
 #### Standard Route Error
 ```python
 class Dataset_GET_Error(RouteError):
-    def __init__(self, dataset_id: str = None, response_data=None, **kwargs):
+    def __init__(self, dataset_id: str = None, res=None, **kwargs):
         super().__init__(
             entity_id=dataset_id,
-            response_data=response_data,
+            res=res,
             **kwargs
         )
 ```
@@ -195,11 +195,11 @@ class Dataset_GET_Error(RouteError):
 #### Search Not Found with Context
 ```python
 class SearchDataset_NotFound(RouteError):
-    def __init__(self, search_query: str, response_data=None, **kwargs):
+    def __init__(self, search_query: str, res=None, **kwargs):
         message = f"No datasets found matching search criteria: '{search_query}'"
         super().__init__(
             message=message,
-            response_data=response_data,
+            res=res,
             additional_context={"search_query": search_query},
             **kwargs
         )

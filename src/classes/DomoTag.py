@@ -25,7 +25,7 @@ class DomoTags_SetTagsError(dmde.ClassError):
 class DomoTags:
     """class for interacting with dataset tags"""
 
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
     dataset_id: str = field(repr=False)
     parent: Any = field(repr=False, default=None)
 
@@ -37,7 +37,7 @@ class DomoTags:
             self.dataset_id = self.parent.id
 
     @classmethod
-    def _from_parent(cls, parent):
+    def from_parent(cls, parent):
         return cls(
             parent=parent,
             auth=parent.auth,
@@ -46,7 +46,7 @@ class DomoTags:
 
     async def get(
         self,
-        auth: dmda.DomoAuth = None,
+        auth: DomoAuth = None,
         session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
     ) -> List[str]:  # returns a list of tags

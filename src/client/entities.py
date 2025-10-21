@@ -17,6 +17,8 @@ Classes:
 """
 
 __all__ = [
+    "DomoEnum",
+    "DomoEnumMixin",
     "DomoBase",
     "DomoEntity",
     "DomoEntity_w_Lineage",
@@ -35,13 +37,72 @@ from dataclasses import dataclass, field, fields
 from enum import Enum
 from typing import Any, Callable, Optional
 
-import httpx
-
 from . import auth as dmda
 from ..utils.convert import convert_snake_to_pascal
 
 
-class DomoEnum(Enum):
+class DomoEnumMixin:
+    """Enhanced Enum mixin with case-insensitive lookup and default value support.
+
+    This mixin provides case-insensitive string matching and falls back to a default
+    value when no match is found. All subclasses should define a 'default' member.
+
+    Example:
+        >>> class Status(DomoEnumMixin, Enum):
+        ...     ACTIVE = "active"
+        ...     INACTIVE = "inactive"
+        ...     default = "UNKNOWN"
+        >>> Status.get("ACTIVE")  # Case insensitive
+        <Status.ACTIVE: 'active'>
+        >>> Status.get("invalid")
+        <Status.default: 'UNKNOWN'>
+    """
+
+    @classmethod
+    def get(cls, value):
+        """Get enum member by case-insensitive string lookup.
+
+        Args:
+            value: String value to look up (case-insensitive)
+
+        Returns:
+            Enum member if found, otherwise the default member
+        """
+        if not isinstance(value, str):
+            return getattr(cls, "default", None)
+
+        # cls should be an Enum subclass at runtime
+        for member in cls:  # type: ignore
+            if member.name.lower() == value.lower():
+                return member
+
+        return getattr(cls, "default", None)
+
+    @classmethod
+    def _missing_(cls, value):
+        """Handle missing enum values with case-insensitive fallback.
+
+        Args:
+            value: The value that wasn't found
+
+        Returns:
+            Enum member if case-insensitive match found, otherwise default
+        """
+        if isinstance(value, str):
+            value_lower = value.lower()
+            # cls should be an Enum subclass at runtime
+            for member in cls:  # type: ignore
+                if (
+                    hasattr(member, "name")
+                    and isinstance(member.name, str)
+                    and member.name.lower() == value_lower
+                ):
+                    return member
+
+        return getattr(cls, "default", None)
+
+
+class DomoEnum(DomoEnumMixin, Enum):
     """Enhanced Enum class with case-insensitive lookup and default value support.
 
     This enum provides case-insensitive string matching and falls back to a default
@@ -60,47 +121,6 @@ class DomoEnum(Enum):
 
     # Define a default value that all enum subclasses should override
     default = "UNKNOWN"
-
-    @classmethod
-    def get(cls, value):
-        """Get enum member by case-insensitive string lookup.
-
-        Args:
-            value: String value to look up (case-insensitive)
-
-        Returns:
-            Enum member if found, otherwise the default member
-        """
-        if not isinstance(value, str):
-            return getattr(cls, "default", None)
-
-        for member in cls:
-            if member.name.lower() == value.lower():
-                return member
-
-        return getattr(cls, "default", None)
-
-    @classmethod
-    def _missing_(cls, value):
-        """Handle missing enum values with case-insensitive fallback.
-
-        Args:
-            value: The value that wasn't found
-
-        Returns:
-            Enum member if case-insensitive match found, otherwise default
-        """
-        if isinstance(value, str):
-            value_lower = value.lower()
-            for member in cls:
-                if (
-                    hasattr(member, "name")
-                    and isinstance(member.name, str)
-                    and member.name.lower() == value_lower
-                ):
-                    return member
-
-        return getattr(cls, "default", None)
 
 
 @dataclass
@@ -122,7 +142,7 @@ class DomoEntity(DomoBase):
     should inherit from this class or one of its subclasses.
 
     Attributes:
-        auth (dmda.DomoAuth): Authentication object for API requests (not shown in repr)
+        auth (DomoAuth): Authentication object for API requests (not shown in repr)
         id (str): Unique identifier for the entity
         raw (dict): Raw API response data for the entity (not shown in repr)
 
@@ -197,7 +217,7 @@ class DomoEntity(DomoBase):
         retrieval logic from the Domo API.
 
         Args:
-            auth (dmda.DomoAuth): Authentication object for API requests
+            auth (DomoAuth): Authentication object for API requests
             entity_id (str): Unique identifier of the entity to retrieve
 
         Raises:
@@ -240,7 +260,7 @@ class DomoEntity_w_Lineage(DomoEntity):
         from ..classes import DomoLineage as dmdl
 
         # Using protected method until public interface is available
-        self.lineage = dmdl.DomoLineage._from_parent(auth=self.auth, parent=self)
+        self.lineage = dmdl.DomoLineage.from_parent(auth=self.auth, parent=self)
 
     @classmethod
     @abc.abstractmethod
@@ -251,7 +271,7 @@ class DomoEntity_w_Lineage(DomoEntity):
         entity type while ensuring lineage tracking is properly initialized.
 
         Args:
-            auth (dmda.DomoAuth): Authentication object for API requests
+            auth (DomoAuth): Authentication object for API requests
             entity_id (str): Unique identifier of the entity to retrieve
 
         Raises:
@@ -381,7 +401,7 @@ class DomoManager(DomoBase):
     operations on collections of entities (e.g., DatasetManager, CardManager).
 
     Attributes:
-        auth (dmda.DomoAuth): Authentication object for API requests (not shown in repr)
+        auth (DomoAuth): Authentication object for API requests (not shown in repr)
     """
 
     auth: dmda.DomoAuth = field(repr=False)
@@ -412,7 +432,7 @@ class DomoSubEntity(DomoBase):
     inherits authentication and parent references.
 
     Attributes:
-        auth (dmda.DomoAuth): Authentication object (inherited from parent, not shown in repr)
+        auth (DomoAuth): Authentication object (inherited from parent, not shown in repr)
         parent: Reference to the parent entity
         parent_id (str): ID of the parent entity
     """
@@ -428,7 +448,7 @@ class DomoSubEntity(DomoBase):
             self.parent_id = self.parent.id
 
     @classmethod
-    def _from_parent(cls, parent: DomoEntity):
+    def from_parent(cls, parent: DomoEntity):
         """Create a sub-entity instance from a parent entity.
 
         Args:
@@ -448,7 +468,7 @@ class Entity_Relation:
     user-to-group memberships, entity ownership, or other associations.
 
     Attributes:
-        auth (dmda.DomoAuth): Authentication object for API requests (not shown in repr)
+        auth (DomoAuth): Authentication object for API requests (not shown in repr)
         entity: The related entity object
         relation_type (str): Type of relationship (e.g., 'OWNER', 'MEMBER', 'ADMIN')
     """
@@ -489,7 +509,7 @@ class Entity_Relation:
     #     Args:
     #         user_id (str): Unique identifier of the user
     #         relation_type (str): Type of relationship (e.g., 'OWNER', 'MEMBER')
-    #         auth (dmda.DomoAuth): Authentication object for API requests
+    #         auth (DomoAuth): Authentication object for API requests
     #         session (Optional[httpx.AsyncClient]): HTTP client session
     #         debug_api (bool): Enable API debugging
     #         debug_num_stacks_to_drop (int): Stack frames to drop for debugging
@@ -531,7 +551,7 @@ class Entity_Relation:
     #     Args:
     #         group_id (str): Unique identifier of the group
     #         relation_type (str): Type of relationship (e.g., 'MEMBER', 'ADMIN')
-    #         auth (dmda.DomoAuth): Authentication object for API requests
+    #         auth (DomoAuth): Authentication object for API requests
     #         session (Optional[httpx.AsyncClient]): HTTP client session
     #         debug_api (bool): Enable API debugging
     #         debug_num_stacks_to_drop (int): Stack frames to drop for debugging

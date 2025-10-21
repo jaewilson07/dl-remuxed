@@ -60,7 +60,7 @@ async def get_available_data_providers(
         return res
 
     if not res.is_success:
-        raise Account_GET_Error(response_data=res)
+        raise Account_GET_Error(res=res)
 
     return res
 
@@ -108,7 +108,7 @@ async def get_accounts(
         return res
 
     if not res.is_success:
-        raise Account_GET_Error(response_data=res)
+        raise Account_GET_Error(res=res)
     return res
 
 
@@ -162,9 +162,9 @@ async def get_account_by_id(
     if not res.is_success and (
         res.response == "Forbidden" or res.response == "Not Found"
     ):
-        raise Account_NoMatch(account_id=str(account_id), response_data=res)
+        raise Account_NoMatch(account_id=str(account_id), res=res)
 
     if not res.is_success:
-        raise Account_GET_Error(entity_id=str(account_id), response_data=res)
+        raise Account_GET_Error(entity_id=str(account_id), res=res)
 
     return res

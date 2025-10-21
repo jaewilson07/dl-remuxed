@@ -20,12 +20,10 @@ from ..client import response as rgd
 class Bootstrap_GET_Error(RouteError):
     """Raised when bootstrap retrieval operations fail."""
 
-    def __init__(
-        self, message: Optional[str] = None, response_data=None, **kwargs
-    ):
+    def __init__(self, message: Optional[str] = None, res=None, **kwargs):
         super().__init__(
             message=message or "Bootstrap retrieval failed",
-            response_data=response_data,
+            res=res,
             **kwargs,
         )
 
@@ -62,12 +60,12 @@ async def get_bootstrap(
     )
 
     if not res.is_success:
-        raise Bootstrap_GET_Error(response_data=res)
+        raise Bootstrap_GET_Error(res=res)
 
     if res.response == "":
         raise Bootstrap_GET_Error(
             message="BSR_Features:  no features returned - is there a VPN?",
-            response_data=res,
+            res=res,
         )
 
     return res
@@ -82,7 +80,9 @@ async def get_bootstrap_customerid(
     debug_api: bool = False,  # pass True to see the parameters sent to the Domo API
     return_raw: bool = False,  # pass True to return the raw API response
     debug_num_stacks_to_drop: int = 2,  # number frames to drop off the stacktrace.  retrieved from `res.traceback_details`
-    parent_class: Optional[str] = None,  # Optional parent class that calls the route function
+    parent_class: Optional[
+        str
+    ] = None,  # Optional parent class that calls the route function
 ) -> (
     rgd.ResponseGetData
 ):  # the response contains the string representation of the customer_id
