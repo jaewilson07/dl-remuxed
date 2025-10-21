@@ -32,6 +32,7 @@ from ..client import auth as dmda
 from ..client import exceptions as dmde
 from ..client import get_data as gd
 from ..client import response as rgd
+from ..client.auth import DomoAuth
 from ..client.entities import DomoEnumMixin
 from ..utils import chunk_execution as dmce
 
