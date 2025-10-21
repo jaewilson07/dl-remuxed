@@ -19,10 +19,7 @@ from typing import List, Optional
 
 import httpx
 
-from ..classes.DomoApplication_Job_Base import (
-    DomoJob_Base,
-    DomoTrigger_Schedule,
-)
+from ..classes.DomoApplication_Job_Base import DomoJob_Base, DomoTrigger_Schedule
 from ..routes import application as application_routes
 
 

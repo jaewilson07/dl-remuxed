@@ -12,10 +12,10 @@ $fixedFiles = 0
 foreach ($file in $pythonFiles) {
     $content = Get-Content $file.FullName -Raw
     $originalContent = $content
-    
+
     # Get the relative path to determine the correct imports
     $relativePath = $file.DirectoryName.Replace((Get-Location).Path + "\src\", "").Replace("\", "/")
-    
+
     # Fix self-referential imports within the same directory
     # Example: from ..client import Logger -> from . import Logger (when in client/)
     if ($relativePath -eq "client") {
@@ -33,7 +33,7 @@ foreach ($file in $pythonFiles) {
     elseif ($relativePath -eq "integrations") {
         $content = $content -replace 'from \.\.integrations import', 'from . import'
     }
-    
+
     if ($content -ne $originalContent) {
         Set-Content -Path $file.FullName -Value $content -NoNewline
         $fixedFiles++

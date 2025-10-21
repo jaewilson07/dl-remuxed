@@ -14,10 +14,7 @@ from typing import Any, List
 
 import httpx
 
-from ..classes.DomoAccount_Config import (
-    AccountConfig,
-    DomoAccount_Config,
-)
+from ..classes.DomoAccount_Config import AccountConfig, DomoAccount_Config
 from ..client import exceptions as dmde
 from ..client.entities import DomoEntity
 from ..routes import account as account_routes

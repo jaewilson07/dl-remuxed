@@ -13,9 +13,7 @@ from . import DomoLineage as dmdl
 
 __all__ = ["DomoDataflow", "DomoDataflows"]
 
-from ..classes.DomoDataflow_History import (
-    DomoDataflow_History,
-)
+from ..classes.DomoDataflow_History import DomoDataflow_History
 from .DomoDataflow_Action import DomoDataflow_Action
 
 
