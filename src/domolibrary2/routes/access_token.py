@@ -39,6 +39,11 @@ from ..client import get_data as gd
 from ..client import response as rgd
 from ..client.auth import DomoAuth
 from ..client.exceptions import RouteError
+<<<<<<< HEAD
+=======
+
+from dc_logger.client.base import Logger
+>>>>>>> 43-add-logging-to-access_token_routes
 
 
 class AccessToken_GET_Error(RouteError):
@@ -127,6 +132,7 @@ async def get_access_tokens(
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
     return_raw: bool = False,
+    logger: Optional[Logger] = None,
 ) -> rgd.ResponseGetData:
     """
     Retrieve all access tokens for the authenticated instance.
@@ -154,6 +160,8 @@ async def get_access_tokens(
         >>> for token in tokens_response.response:
         ...     print(f"Token: {token['name']}, Expires: {token['expires']}")
     """
+
+    # assert logger
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/accesstokens"
 
     res = await gd.get_data(
@@ -170,9 +178,13 @@ async def get_access_tokens(
         return res
 
     if not res.is_success:
+        message = f"Failed to retrieve access tokens: {res.response}"
+
+        # logger.error(message)
+
         raise AccessToken_GET_Error(
             res=res,
-            message=f"Failed to retrieve access tokens: {res.response}",
+            message=message,
         )
 
     # Convert Unix timestamps to datetime objects for better usability
