@@ -19,7 +19,7 @@ __all__ = [
 import httpx
 
 from ..client import auth as dmda
-from ..client import DomoError as de
+from ..client import exceptions as de
 from ..client import get_data as gd
 from ..client.entities import DomoEnum
 
@@ -46,10 +46,8 @@ class AppDb_CRUD_Exception(de.DomoError):
         )
 
 
-gd.route_function
-
-
-async def get_datastores(
+@gd.route_function
+sync def get_datastores(
     auth: dmda.DomoAuth,
     parent_class: str = None,
     debug_api: bool = False,

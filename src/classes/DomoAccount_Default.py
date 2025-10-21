@@ -72,7 +72,7 @@ class DomoAccount_Default(DomoEntity):
     def __post_init__(self):
         self.id = int(self.id)
 
-        self.Access = dmas.DomoAccess_Account._from_parent(
+        self.Access = dmas.DomoAccess_Account.from_parent(
             parent=self,
         )
 

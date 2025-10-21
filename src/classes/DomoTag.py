@@ -37,7 +37,7 @@ class DomoTags:
             self.dataset_id = self.parent.id
 
     @classmethod
-    def _from_parent(cls, parent):
+    def from_parent(cls, parent):
         return cls(
             parent=parent,
             auth=parent.auth,

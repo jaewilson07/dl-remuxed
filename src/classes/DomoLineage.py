@@ -269,7 +269,7 @@ class DomoLineage:
     # raw_datacenter: dict = field(repr=False, default_factory=dict)
 
     @classmethod
-    def _from_parent(cls, parent, auth: dmda.DomoAuth = None):
+    def from_parent(cls, parent, auth: dmda.DomoAuth = None):
         """
         Create a DomoLineage instance from a parent entity.
         The parent can be a DomoDataflow, DomoPublication, or DomoDataset.

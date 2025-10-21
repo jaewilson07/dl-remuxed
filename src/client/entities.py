@@ -35,8 +35,6 @@ from dataclasses import dataclass, field, fields
 from enum import Enum
 from typing import Any, Callable, Optional
 
-import httpx
-
 from . import auth as dmda
 from ..utils.convert import convert_snake_to_pascal
 
@@ -240,7 +238,7 @@ class DomoEntity_w_Lineage(DomoEntity):
         from ..classes import DomoLineage as dmdl
 
         # Using protected method until public interface is available
-        self.lineage = dmdl.DomoLineage._from_parent(auth=self.auth, parent=self)
+        self.lineage = dmdl.DomoLineage.from_parent(auth=self.auth, parent=self)
 
     @classmethod
     @abc.abstractmethod
@@ -428,7 +426,7 @@ class DomoSubEntity(DomoBase):
             self.parent_id = self.parent.id
 
     @classmethod
-    def _from_parent(cls, parent: DomoEntity):
+    def from_parent(cls, parent: DomoEntity):
         """Create a sub-entity instance from a parent entity.
 
         Args:

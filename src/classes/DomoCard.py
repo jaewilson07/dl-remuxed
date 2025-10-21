@@ -44,7 +44,7 @@ class DomoCard(DomoEntity_w_Lineage):
 
     def __post_init__(self):
         # self.Definition = CardDefinition(self)
-        self.Lineage = dmdl.DomoLineage._from_parent(auth=self.auth, parent=self)
+        self.Lineage = dmdl.DomoLineage.from_parent(auth=self.auth, parent=self)
 
     def display_url(self) -> str:
         return f"https://{self.auth.domo_instance}.domo.com/kpis/details/{self.id}"

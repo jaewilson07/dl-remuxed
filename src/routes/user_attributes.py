@@ -18,7 +18,7 @@ from typing import List
 import httpx
 
 from ..client import auth as dmda
-from ..client import DomoError as de
+from ..client import exceptions as de
 from ..client import get_data as gd
 
 from ..client.entities import DomoEnum

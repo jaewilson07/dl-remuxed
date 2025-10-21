@@ -31,9 +31,7 @@ class DomoRepository(dmee.DomoEntity_w_Lineage):
     content_view_id_ls: List[str] = None
 
     def __post_init__(self):
-        self.Lineage = dmdl.DomoLineage_Sandbox._from_parent(
-            parent=self, auth=self.auth
-        )
+        self.Lineage = dmdl.DomoLineage_Sandbox.from_parent(parent=self, auth=self.auth)
 
     @property
     def display_url(self):

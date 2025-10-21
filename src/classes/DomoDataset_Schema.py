@@ -87,7 +87,7 @@ class DomoDataset_Schema(DomoSubEntity):
             self.parent_id = self.parent.id
 
     # @classmethod
-    # def _from_parent(cls, parent):
+    # def from_parent(cls, parent):
     #     schema = cls(
     #         parent = parent,
     #         auth = parent.auth,
