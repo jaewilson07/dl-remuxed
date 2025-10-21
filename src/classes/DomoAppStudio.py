@@ -17,7 +17,7 @@ from ..client.entities import DomoEntity_w_Lineage
 @dataclass
 class DomoAppStudio(DomoEntity_w_Lineage):
     id: int
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
 
     title: str = None
     is_locked: bool = None
@@ -29,7 +29,7 @@ class DomoAppStudio(DomoEntity_w_Lineage):
     Lineage: DomoLineage = None
 
     @classmethod
-    async def _from_content_stacks_v3(cls, page_obj, auth: dmda.DomoAuth = None):
+    async def _from_content_stacks_v3(cls, page_obj, auth: DomoAuth = None):
         dd = page_obj
         if isinstance(page_obj, dict):
             dd = util_dd.DictDot(page_obj)
@@ -51,7 +51,7 @@ class DomoAppStudio(DomoEntity_w_Lineage):
     async def get_by_id(
         cls,
         appstudio_id: str,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         return_raw: bool = False,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
@@ -124,7 +124,7 @@ class DomoAppStudio(DomoEntity_w_Lineage):
         return res
 
     @classmethod
-    async def _from_adminsummary(cls, appstudio_obj, auth: dmda.DomoAuth):
+    async def _from_adminsummary(cls, appstudio_obj, auth: DomoAuth):
 
         dd = appstudio_obj
 
@@ -146,7 +146,7 @@ class DomoAppStudio(DomoEntity_w_Lineage):
 
     async def get_accesslist(
         self,
-        auth: dmda.DomoAuth = None,
+        auth: DomoAuth = None,
         return_raw: bool = False,
         debug_api: bool = False,
     ):
@@ -202,7 +202,7 @@ class DomoAppStudio(DomoEntity_w_Lineage):
 
     async def share(
         self,
-        auth: dmda.DomoAuth = None,
+        auth: DomoAuth = None,
         domo_users: list = None,  # DomoUsers to share page with,
         domo_groups: list = None,  # DomoGroups to share page with
         message: str = None,  # message for automated email
@@ -232,7 +232,7 @@ class DomoAppStudio(DomoEntity_w_Lineage):
     @classmethod
     async def add_appstudio_owner(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         appstudio_id_ls: List[int],  # AppStudio IDs to be updated by owner,
         group_id_ls: List[int],  # DomoGroup IDs to share page with
         user_id_ls: List[int],  # DomoUser IDs to share page with
@@ -260,7 +260,7 @@ class DomoAppStudios:
     @classmethod
     async def get_appstudios(
         cls,
-        auth=dmda.DomoAuth,
+        auth=DomoAuth,
         return_raw: bool = False,
         debug_api: bool = False,
         debug_loop: bool = False,

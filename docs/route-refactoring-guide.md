@@ -156,13 +156,13 @@ class {Module}_GET_Error(RouteError):
         self,
         {module}_id: Optional[str] = None,
         message: Optional[str] = None,
-        response_data=None,
+        res=None,
         **kwargs,
     ):
         super().__init__(
             message=message or "{Module} retrieval failed",
             entity_id={module}_id,
-            response_data=response_data,
+            res=res,
             **kwargs,
         )
 
@@ -175,13 +175,13 @@ class {Module}_CRUD_Error(RouteError):
         operation: str,
         {module}_id: Optional[str] = None,
         message: Optional[str] = None,
-        response_data=None,
+        res=None,
         **kwargs,
     ):
         super().__init__(
             message=message or f"{Module} {operation} operation failed",
             entity_id={module}_id,
-            response_data=response_data,
+            res=res,
             **kwargs,
         )
 
@@ -193,12 +193,12 @@ class Search{Module}_NotFound(RouteError):
         self,
         search_criteria: str,
         message: Optional[str] = None,
-        response_data=None,
+        res=None,
         **kwargs,
     ):
         super().__init__(
             message=message or f"No {module}s found matching: {search_criteria}",
-            response_data=response_data,
+            res=res,
             additional_context={"search_criteria": search_criteria},
             **kwargs,
         )
@@ -212,13 +212,13 @@ class {Module}Sharing_Error(RouteError):
         operation: str,
         {module}_id: Optional[str] = None,
         message: Optional[str] = None,
-        response_data=None,
+        res=None,
         **kwargs,
     ):
         super().__init__(
             message=message or f"{Module} sharing {operation} failed",
             entity_id={module}_id,
-            response_data=response_data,
+            res=res,
             **kwargs,
         )
 ```
@@ -248,7 +248,7 @@ if not res.is_success:
 
 # NEW
 if not res.is_success:
-    raise {Module}_GET_Error({module}_id={module}_id, response_data=res)
+    raise {Module}_GET_Error({module}_id={module}_id, res=res)
 ```
 
 ### 5. Update __all__ Exports

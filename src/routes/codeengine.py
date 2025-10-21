@@ -10,13 +10,14 @@ __all__ = [
     "test_package_is_identical",
 ]
 
+from enum import Enum
 import httpx
 
 from ..client import auth as dmda
 from ..client import exceptions as dmde
 from ..client import get_data as gd
 from ..client import response as rgd
-from ..client.entities import DomoEnum
+from ..client.entities import DomoEnumMixin
 
 
 class CodeEngine_API_Error(dmde.RouteError):
@@ -26,7 +27,7 @@ class CodeEngine_API_Error(dmde.RouteError):
 
 @gd.route_function
 async def get_packages(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
     session: httpx.AsyncClient = None,
@@ -51,21 +52,21 @@ async def get_packages(
     return res
 
 
-class CodeEngine_Package_Parts(DomoEnum):
+class CodeEngine_Package_Parts(DomoEnumMixin, Enum):
     VERSIONS = "versions"
     FUNCTIONS = "functions"
     CODE = "code"
 
 
-class CodeEngine_FunctionCallError(dmde.DomoError):
-    def __init__(self, message: str, auth: dmda.DomoAuth):
+class CodeEngine_FunctionCallError(DomoError):
+    def __init__(self, message: str, auth: DomoAuth):
         super().__init__(message=message, domo_instance=auth.domo_instance)
 
 
 @gd.route_function
 async def get_codeengine_package_by_id(
     package_id,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     debug_api: bool = False,
     params: dict = None,
     session: httpx.AsyncClient = None,
@@ -103,7 +104,7 @@ async def get_codeengine_package_by_id(
 
 @gd.route_function
 async def get_package_versions(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     package_id,
     debug_api: bool = False,
     parent_class: str = None,
@@ -143,7 +144,7 @@ async def get_package_versions(
 async def get_codeengine_package_by_id_and_version(
     package_id,
     version,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     debug_api: bool = False,
     params: dict = None,
     session: httpx.AsyncClient = None,
@@ -180,7 +181,7 @@ async def get_codeengine_package_by_id_and_version(
 async def test_package_is_released(
     package_id,
     version,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     existing_package=None,
     debug_api: bool = False,
     params: dict = None,
@@ -211,7 +212,7 @@ async def test_package_is_released(
 async def test_package_is_identical(
     package_id,
     version,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     existing_package=None,
     new_package=None,
     new_code=None,

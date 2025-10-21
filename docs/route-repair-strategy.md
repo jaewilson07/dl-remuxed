@@ -122,7 +122,7 @@ async def function_name(
         
     # Error processing only happens if not return_raw
     if not res.is_success:
-        raise CustomError(response_data=res)
+        raise CustomError(res=res)
     
     return res
 ```
@@ -138,44 +138,44 @@ async def function_name(
 ```python
 # GET errors - for retrieval failures
 class {Module}_GET_Error(RouteError):
-    def __init__(self, entity_id: Optional[str] = None, response_data=None, **kwargs):
+    def __init__(self, entity_id: Optional[str] = None, res=None, **kwargs):
         super().__init__(
             message=f"{Module} retrieval failed",
             entity_id=entity_id,
-            response_data=response_data,
+            res=res,
             **kwargs
         )
 
 # Search not found - for empty search results  
 class Search{Module}_NotFound(RouteError):
-    def __init__(self, search_criteria: str, response_data=None, **kwargs):
+    def __init__(self, search_criteria: str, res=None, **kwargs):
         message = f"No {module}s found matching: {search_criteria}"
         super().__init__(
             message=message,
-            response_data=response_data,
+            res=res,
             additional_context={"search_criteria": search_criteria},
             **kwargs
         )
 
 # CRUD errors - for create/update/delete failures
 class {Module}_CRUD_Error(RouteError):
-    def __init__(self, operation: str, entity_id: Optional[str] = None, response_data=None, **kwargs):
+    def __init__(self, operation: str, entity_id: Optional[str] = None, res=None, **kwargs):
         message = f"{Module} {operation} operation failed"
         super().__init__(
             message=message,
             entity_id=entity_id,
-            response_data=response_data,
+            res=res,
             **kwargs
         )
 
 # Sharing errors - for permission/sharing failures  
 class {Module}Sharing_Error(RouteError):
-    def __init__(self, operation: str, entity_id: Optional[str] = None, response_data=None, **kwargs):
+    def __init__(self, operation: str, entity_id: Optional[str] = None, res=None, **kwargs):
         message = f"{Module} sharing {operation} failed"
         super().__init__(
             message=message,
             entity_id=entity_id,
-            response_data=response_data,
+            res=res,
             **kwargs
         )
 ```
@@ -269,12 +269,12 @@ async def get_entity_by_id(
         if res.status == 404:
             raise SearchEntity_NotFound(
                 search_criteria=f"ID: {entity_id}",
-                response_data=res
+                res=res
             )
         else:
             raise Entity_GET_Error(
                 entity_id=entity_id,
-                response_data=res
+                res=res
             )
     
     return res

@@ -6,8 +6,6 @@ from dataclasses import dataclass, field
 from typing import List
 
 import httpx
-from nbdev.showdoc import patch_to
-
 from . import DomoLineage as dmdl
 from . import DomoPage_Content as dmpg_c
 from ..client import auth as dmda
@@ -26,7 +24,7 @@ class DomoPage_GetRecursive(dmde.ClassError):
         self,
         cls,
         entity_id,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         include_recursive_children,
         include_recursive_parents,
     ):
@@ -41,7 +39,7 @@ class DomoPage_GetRecursive(dmde.ClassError):
 @dataclass
 class DomoPage(DomoEntity_w_Lineage):
     id: int
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
     Lineage: dmdl.DomoLineage = field(repr=False)
 
     title: str = None
@@ -141,7 +139,7 @@ class DomoPage(DomoEntity_w_Lineage):
         cls,
         page_obj,
         suppress_no_results_error: bool = True,
-        auth: dmda.DomoAuth = None,
+        auth: DomoAuth = None,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
         debug_num_stacks_to_drop: int = 3,
@@ -180,7 +178,7 @@ class DomoPage(DomoEntity_w_Lineage):
     async def get_by_id(
         cls,
         page_id: str,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         suppress_no_results_error: bool = True,
         return_raw: bool = False,
         debug_api: bool = False,
@@ -227,11 +225,10 @@ class DomoPage(DomoEntity_w_Lineage):
         return await cls._from_content_stacks_v3(**kwargs)
 
 
-@patch_to(DomoPage, cls_method=True)
 async def _from_adminsummary(
     cls,
     page_obj,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
 ):
@@ -279,11 +276,10 @@ async def _from_adminsummary(
     return pg
 
 
-@patch_to(DomoPage, cls_method=True)
 async def _from_bootstrap(
     cls: DomoPage,
     page_obj,
-    auth: dmda.DomoAuth = None,
+    auth: DomoAuth = None,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
 ):
@@ -317,7 +313,7 @@ async def _from_bootstrap(
 
 @dataclass
 class DomoPages:
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
     pages: List[DomoPage] = None
 
     async def get(self, **kwargs):
@@ -360,7 +356,6 @@ class DomoPages:
         return self.pages
 
 
-@patch_to(DomoPage)
 async def get_children(self: DomoPage, is_suppress_errors: bool = False):
     async def _get_children_recur(parent_page, is_suppress_errors: bool = False):
         parent_page.children = parent_page.children or []
@@ -390,7 +385,7 @@ async def get_children(self: DomoPage, is_suppress_errors: bool = False):
 
             return self.children
 
-        except dmde.DomoError as e:
+        except DomoError as e:
             print(
                 f"cannot access child page -- https://{parent_page.auth.domo_instance}.domo.com/page/{page_id} -- is it shared with you?"
             )
@@ -405,7 +400,6 @@ async def get_children(self: DomoPage, is_suppress_errors: bool = False):
     return self.children
 
 
-@patch_to(DomoPage)
 def flatten_children(self: DomoPage, path=None, hierarchy=0, results=None):
     results = results or []
 
@@ -422,7 +416,6 @@ def flatten_children(self: DomoPage, path=None, hierarchy=0, results=None):
     return results
 
 
-@patch_to(DomoPage)
 async def get_parents(self: DomoPage, page=None):
     page = page or self
 
@@ -465,7 +458,7 @@ async def get_parents(self: DomoPage, page=None):
     return self.custom_attributes
 
 
-class Page_NoAccess(dmde.DomoError):
+class Page_NoAccess(DomoError):
     def __init__(self, page_id, page_title, domo_instance, function_name, parent_class):
         super().__init__(
             function_name=function_name,
@@ -475,7 +468,6 @@ class Page_NoAccess(dmde.DomoError):
         )
 
 
-@patch_to(DomoPage)
 async def test_page_access(
     self: DomoPage,
     suppress_no_access_error: bool = False,  # suppresses error if user doesn't have access
@@ -521,10 +513,9 @@ async def test_page_access(
     return res
 
 
-@patch_to(DomoPage)
 async def get_accesslist(
     self,
-    auth: dmda.DomoAuth = None,
+    auth: DomoAuth = None,
     return_raw: bool = False,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
@@ -654,10 +645,9 @@ async def get_accesslist(
     }
 
 
-@patch_to(DomoPage)
 async def share(
     self: DomoPage,
-    auth: dmda.DomoAuth = None,
+    auth: DomoAuth = None,
     domo_users: list = None,  # DomoUsers to share page with,
     domo_groups: list = None,  # DomoGroups to share page with
     message: str = None,  # message for automated email
@@ -685,7 +675,6 @@ async def share(
     return res
 
 
-@patch_to(DomoPage)
 async def get_cards(
     self,
     debug_api: bool = False,
@@ -715,7 +704,6 @@ async def get_cards(
     return self.domo_cards
 
 
-@patch_to(DomoPage)
 async def get_datasets(
     self,
     debug_api: bool = False,
@@ -741,9 +729,8 @@ async def get_datasets(
     return self.datasets
 
 
-@patch_to(DomoPage, cls_method=True)
 async def update_layout(
-    cls, auth: dmda.DomoAuth, body: dict, layout_id: str, debug_api: bool = False
+    cls, auth: DomoAuth, body: dict, layout_id: str, debug_api: bool = False
 ):
     datetime_now = dt.datetime.now()
     start_time_epoch = dmcv.convert_datetime_to_epoch_millisecond(datetime_now)
@@ -774,9 +761,6 @@ async def update_layout(
     return True
 
 
-@patch_to(
-    DomoPage,
-)
 async def add_owner(
     self,
     group_id_ls: List[int],  # DomoGroup IDs to share page with

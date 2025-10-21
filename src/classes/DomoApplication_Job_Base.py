@@ -82,7 +82,7 @@ class DomoJob_Base:
     build Application / Job extensions by creating children of the DomoJob_Base class
     """
 
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
 
     name: str
     application_id: str
@@ -158,7 +158,7 @@ class DomoJob_Base:
         cls,
         application_id,
         job_id,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         debug_api: bool = False,
         session: Optional[httpx.AsyncClient] = None,
         debug_num_stacks_to_drop=2,
@@ -198,7 +198,7 @@ class DomoJob_Base:
         cls,
         application_id,
         job_id,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         debug_api: bool = False,
         session: Optional[httpx.AsyncClient] = None,
         debug_num_stacks_to_drop=2,

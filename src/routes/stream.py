@@ -25,13 +25,13 @@ class Stream_GET_Error(RouteError):
         self,
         stream_id: Optional[str] = None,
         message: Optional[str] = None,
-        response_data=None,
+        res=None,
         **kwargs,
     ):
         super().__init__(
             message=message or "Stream retrieval failed",
             entity_id=stream_id,
-            response_data=response_data,
+            res=res,
             **kwargs,
         )
 
@@ -44,13 +44,13 @@ class Stream_CRUD_Error(RouteError):
         operation: str,
         stream_id: Optional[str] = None,
         message: Optional[str] = None,
-        response_data=None,
+        res=None,
         **kwargs,
     ):
         super().__init__(
             message=message or f"Stream {operation} operation failed",
             entity_id=stream_id,
-            response_data=response_data,
+            res=res,
             **kwargs,
         )
 
@@ -101,7 +101,7 @@ async def get_streams(
         return res
 
     if not res.is_success:
-        raise Stream_GET_Error(response_data=res)
+        raise Stream_GET_Error(res=res)
 
     return res
 
@@ -128,7 +128,7 @@ async def get_stream_by_id(
     )
 
     if not res.is_success:
-        raise Stream_GET_Error(stream_id=stream_id, response_data=res)
+        raise Stream_GET_Error(stream_id=stream_id, res=res)
 
     return res
 
@@ -157,9 +157,7 @@ async def update_stream(
     )
 
     if not res.is_success:
-        raise Stream_CRUD_Error(
-            operation="update", stream_id=stream_id, response_data=res
-        )
+        raise Stream_CRUD_Error(operation="update", stream_id=stream_id, res=res)
 
     return res
 
@@ -187,7 +185,7 @@ async def create_stream(
     )
 
     if not res.is_success:
-        raise Stream_CRUD_Error(operation="create", response_data=res)
+        raise Stream_CRUD_Error(operation="create", res=res)
 
     return res
 
@@ -214,8 +212,6 @@ async def execute_stream(
     )
 
     if not res.is_success:
-        raise Stream_CRUD_Error(
-            operation="execute", stream_id=stream_id, response_data=res
-        )
+        raise Stream_CRUD_Error(operation="execute", stream_id=stream_id, res=res)
 
     return res

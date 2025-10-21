@@ -11,6 +11,7 @@ __all__ = [
     "delete_user_attribute",
 ]
 
+from enum import Enum
 import datetime as dt
 import re
 from typing import List
@@ -21,10 +22,10 @@ from ..client import auth as dmda
 from ..client import exceptions as de
 from ..client import get_data as gd
 
-from ..client.entities import DomoEnum
+from ..client.entities import DomoEnumMixin
 
 
-class UserAttributes_IssuerType(DomoEnum):
+class UserAttributes_IssuerType(DomoEnumMixin, Enum):
     IDP = "idp"
     SYSTEM = "domo-defined"
     CUSTOM = "customer-defined"
@@ -68,7 +69,7 @@ class UserAttributes_CRUD_Error(de.DomoError):
 
 @gd.route_function
 async def get_user_attributes(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     issuer_type_ls: List[
         UserAttributes_IssuerType
     ] = None,  # use `UserAttributes_IssuerType` enum
@@ -120,7 +121,7 @@ async def get_user_attributes(
 
 @gd.route_function
 async def get_user_attribute_by_id(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     attribute_id: str,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
@@ -193,7 +194,7 @@ def generate_create_user_attribute_body(
 
 @gd.route_function
 async def create_user_attribute(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     attribute_id,
     name=None,
     description=None,
@@ -253,7 +254,7 @@ async def create_user_attribute(
 
 @gd.route_function
 async def update_user_attribute(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     attribute_id,
     name=None,
     description=None,
@@ -311,7 +312,7 @@ async def update_user_attribute(
 
 @gd.route_function
 async def delete_user_attribute(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     attribute_id,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,

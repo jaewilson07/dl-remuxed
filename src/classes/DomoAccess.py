@@ -38,7 +38,7 @@ class Access_Entity(Entity_Relation):
 
 @dataclass
 class DomoAccess(DomoSubEntity):
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
 
     share_enum: ShareAccount = field(repr=False)
 

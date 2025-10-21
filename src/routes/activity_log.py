@@ -19,12 +19,10 @@ from ..client import response as rgd
 class ActivityLog_GET_Error(RouteError):
     """Raised when activity log retrieval operations fail."""
 
-    def __init__(
-        self, message: Optional[str] = None, response_data=None, **kwargs
-    ):
+    def __init__(self, message: Optional[str] = None, res=None, **kwargs):
         super().__init__(
             message=message or "Activity log retrieval failed",
-            response_data=response_data,
+            res=res,
             **kwargs,
         )
 
@@ -53,7 +51,7 @@ async def get_activity_log_object_types(
 
     if not res.is_success:
         raise ActivityLog_GET_Error(
-            message="Failed to get activity log object types", response_data=res
+            message="Failed to get activity log object types", res=res
         )
 
     return res
@@ -112,7 +110,7 @@ async def search_activity_log(
     )
 
     if not res.is_success:
-        raise ActivityLog_GET_Error(response_data=res)
+        raise ActivityLog_GET_Error(res=res)
 
     if is_close_session:
         await session.aclose()

@@ -39,7 +39,7 @@ After attempting to repair the route functions, I've discovered that the issues 
    ```python
    # Ensure our new exceptions work with existing patterns:
    - Test exception construction
-   - Verify response_data parameter handling
+   - Verify res parameter handling
    - Check backward compatibility
    ```
 
@@ -91,7 +91,7 @@ Verify our new exception classes work with existing code:
 # Test exception construction:
 from src.client.exceptions import RouteError
 
-error = RouteError(message="test", response_data=None)
+error = RouteError(message="test", res=None)
 print(error)  # Should work without issues
 ```
 

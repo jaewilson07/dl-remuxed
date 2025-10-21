@@ -23,7 +23,7 @@ from .DomoDataflow_Action import DomoDataflow_Action
 @dataclass
 class DomoDataflow(DomoEntity_w_Lineage):
     id: str
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
 
     name: str = None
     owner: str = None
@@ -78,7 +78,7 @@ class DomoDataflow(DomoEntity_w_Lineage):
     async def get_by_id(
         cls: DomoDataflow,
         dataflow_id: int,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         return_raw: bool = False,
         session: httpx.AsyncClient = None,
         debug_api: bool = False,
@@ -186,7 +186,7 @@ class DomoDataflow(DomoEntity_w_Lineage):
 
     async def execute(
         self: "DomoDataflow",
-        auth: "dmda.DomoAuth" = None,
+        auth: "DomoAuth" = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
     ):
@@ -201,7 +201,7 @@ class DomoDataflow(DomoEntity_w_Lineage):
     @classmethod
     async def get_by_version_id(
         cls: "DomoDataflow",
-        auth: "dmda.DomoAuth",
+        auth: "DomoAuth",
         dataflow_id: int,
         version_id: int,
         debug_api: bool = False,
@@ -272,7 +272,7 @@ class DomoDataflow(DomoEntity_w_Lineage):
 
 @dataclass
 class DomoDataflows:
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
     dataflows: List[DomoDataflow] = None
 
     async def get(

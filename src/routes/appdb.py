@@ -16,12 +16,13 @@ __all__ = [
     "update_document",
 ]
 
+from enum import Enum
 import httpx
 
 from ..client import auth as dmda
 from ..client import exceptions as de
 from ..client import get_data as gd
-from ..client.entities import DomoEnum
+from ..client.entities import DomoEnumMixin
 
 
 class AppDb_GET_Exception(de.DomoError):
@@ -47,8 +48,8 @@ class AppDb_CRUD_Exception(de.DomoError):
 
 
 @gd.route_function
-sync def get_datastores(
-    auth: dmda.DomoAuth,
+async def get_datastores(
+    auth: DomoAuth,
     parent_class: str = None,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
@@ -76,7 +77,7 @@ gd.route_function
 
 
 async def get_datastore_by_id(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     datastore_id: str,
     parent_class: str = None,
     debug_api: bool = False,
@@ -105,7 +106,7 @@ gd.route_function
 
 
 async def get_collections_from_datastore(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     datastore_id: str,
     parent_class: str = None,
     debug_api: bool = False,
@@ -132,7 +133,7 @@ async def get_collections_from_datastore(
 
 @gd.route_function
 async def create_datastore(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     datastore_name=None,  # in UI shows up as appName,
     parent_class: str = None,
     debug_api: bool = False,
@@ -162,7 +163,7 @@ async def create_datastore(
 
 @gd.route_function
 async def create_collection(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     datastore_id: str,  # collections must be created inside a datastore which will show as the associated app_name
     collection_name: str,
     parent_class: str = None,
@@ -194,7 +195,7 @@ async def create_collection(
 # NOT SUPPORTED
 # @gd.route_function
 # async def update_datastore_name(
-#     auth: dmda.DomoAuth,
+#     auth: DomoAuth,
 #     datastore_id :str,
 #     datastore_name = None, # in UI shows up as appName,
 #     parent_class: str = None,
@@ -229,7 +230,7 @@ gd.route_function
 
 
 async def get_collections(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     datastore_id: str = None,  # filters for a specific datastoreId
     parent_class: str = None,
     debug_api: bool = False,
@@ -263,7 +264,7 @@ async def get_collections(
 
 @gd.route_function
 async def get_collection_by_id(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     collection_id,
     parent_class: str = None,
     debug_api: bool = False,
@@ -290,7 +291,7 @@ async def get_collection_by_id(
 
 @gd.route_function
 async def get_documents_from_collection(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     collection_id: str,
     parent_class: str = None,
     debug_api: bool = False,
@@ -322,7 +323,7 @@ async def get_documents_from_collection(
     return res
 
 
-class Collection_Permission_Enum(DomoEnum):
+class Collection_Permission_Enum(DomoEnumMixin, Enum):
     READ_CONTENT = "READ_CONTENT"
     ADMIN = "ADMIN"
     UPDATE_CONTENT = "UPDATE_CONTENT"
@@ -331,7 +332,7 @@ class Collection_Permission_Enum(DomoEnum):
 @gd.route_function
 async def modify_collection_permissions(
     collection_id: str,
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     user_id: str = None,
     group_id: str = None,
     permission=Collection_Permission_Enum.READ_CONTENT,
@@ -379,7 +380,7 @@ async def modify_collection_permissions(
 
 @gd.route_function
 async def get_collection_document_by_id(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     collection_id: str,
     document_id: str,
     query: dict = None,
@@ -409,7 +410,7 @@ async def get_collection_document_by_id(
 
 @gd.route_function
 async def create_document(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     collection_id: str,
     content: dict,
     session: httpx.AsyncClient = None,
@@ -438,7 +439,7 @@ async def create_document(
 
 @gd.route_function
 async def update_document(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     collection_id: str,
     document_id: str,
     content: dict,

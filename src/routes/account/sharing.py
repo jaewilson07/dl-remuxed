@@ -16,6 +16,7 @@ Classes:
     ShareAccount_V1_AccessLevel: v1 API sharing permissions (legacy)
 """
 
+from abc import abstractmethod
 from enum import Enum
 from typing import Optional, Union
 
@@ -24,10 +25,20 @@ import httpx
 from ...client.auth import DomoAuth
 from ...client import get_data as gd
 from ...client import response as rgd
+from ...client.entities import DomoEnumMixin
 from .exceptions import AccountSharing_Error
 
 
-class ShareAccount_V1_AccessLevel(Enum):
+class ShareAccount(DomoEnumMixin, Enum):
+    """Abstract base class for sharing enums."""
+
+    @abstractmethod
+    def generate_payload(self, *args, **kwargs) -> Optional[dict]:
+        """Generate sharing payload - must be implemented by subclasses."""
+        pass
+
+
+class ShareAccount_V1_AccessLevel(ShareAccount):
     """Legacy v1 API sharing permissions (users only)."""
 
     CAN_VIEW = "READ"
@@ -51,7 +62,7 @@ class ShareAccount_V1_AccessLevel(Enum):
         return cls.CAN_VIEW
 
 
-class ShareAccount_AccessLevel(Enum):
+class ShareAccount_AccessLevel(ShareAccount):
     """v2 API sharing permissions (users and groups)."""
 
     CAN_VIEW = "CAN_VIEW"
@@ -60,7 +71,9 @@ class ShareAccount_AccessLevel(Enum):
     OWNER = "OWNER"
     NO_ACCESS = "NONE"
 
-    def generate_payload(self, user_id: int = None, group_id: int = None, **kwargs):
+    def generate_payload(
+        self, user_id: Optional[int] = None, group_id: Optional[int] = None, **kwargs
+    ):
         """Generate v2 sharing payload for users or groups."""
         if user_id:
             return {"type": "USER", "id": str(user_id), "accessLevel": self.value}
@@ -86,7 +99,7 @@ class Account_Share_Error(AccountSharing_Error):
     def __init__(
         self,
         account_id: Optional[str] = None,
-        response_data=None,
+        res=None,
         message: Optional[str] = None,
         **kwargs,
     ):
@@ -95,7 +108,7 @@ class Account_Share_Error(AccountSharing_Error):
         super().__init__(
             operation="share",
             account_id=account_id,
-            response_data=response_data,
+            res=res,
             message=message,
             **kwargs,
         )
@@ -107,7 +120,7 @@ class Account_AlreadyShared_Error(AccountSharing_Error):
     def __init__(
         self,
         account_id: Optional[str] = None,
-        response_data=None,
+        res=None,
         message: Optional[str] = None,
         **kwargs,
     ):
@@ -116,7 +129,7 @@ class Account_AlreadyShared_Error(AccountSharing_Error):
         super().__init__(
             operation="share (already exists)",
             account_id=account_id,
-            response_data=response_data,
+            res=res,
             message=message,
             **kwargs,
         )
@@ -168,7 +181,7 @@ async def get_account_accesslist(
 
     if not res.is_success:
         raise AccountSharing_Error(
-            operation="get access list", account_id=account_id, response_data=res
+            operation="get access list", account_id=account_id, res=res
         )
 
     return res
@@ -218,7 +231,7 @@ async def get_oauth_account_accesslist(
 
     if not res.is_success:
         raise AccountSharing_Error(
-            operation="get OAuth access list", account_id=account_id, response_data=res
+            operation="get OAuth access list", account_id=account_id, res=res
         )
 
     return res
@@ -278,13 +291,13 @@ async def share_account(
         raise Account_AlreadyShared_Error(
             account_id=account_id,
             message=f"{res.response} - User may already have access to account",
-            response_data=res,
+            res=res,
         )
 
     if not res.is_success:
         raise Account_Share_Error(
             account_id=account_id,
-            response_data=res,
+            res=res,
         )
 
     return res
@@ -338,7 +351,7 @@ async def share_oauth_account(
     if not res.is_success:
         raise Account_Share_Error(
             account_id=account_id,
-            response_data=res,
+            res=res,
         )
 
     return res
@@ -400,13 +413,13 @@ async def share_account_v1(
         raise Account_AlreadyShared_Error(
             account_id=account_id,
             message=f"{res.response} - User may already have access to account",
-            response_data=res,
+            res=res,
         )
 
     if not res.is_success:
         raise Account_Share_Error(
             account_id=account_id,
-            response_data=res,
+            res=res,
         )
 
     return res

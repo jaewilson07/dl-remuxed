@@ -13,8 +13,6 @@ from dataclasses import dataclass, field
 from typing import Any, List
 
 import httpx
-from nbdev.showdoc import patch_to
-
 from . import DomoAccount as dmac
 from . import DomoDataset as dmds
 from . import DomoUser as dmdu
@@ -232,7 +230,7 @@ class DomoJupyterWorkspace(DomoEntity):
     async def get_by_id(
         cls,
         workspace_id,
-        auth: dmda.DomoAuth,  # this API does not require the jupyter_token, but activities inside the workspace will require additional authentication
+        auth: DomoAuth,  # this API does not require the jupyter_token, but activities inside the workspace will require additional authentication
         jupyter_token=None,
         return_raw: bool = False,
         debug_api: bool = False,
@@ -264,7 +262,6 @@ class DomoJupyterWorkspace(DomoEntity):
         return djw
 
 
-@patch_to(DomoJupyterWorkspace, cls_method=True)
 async def get_current_workspace(
     cls: DomoJupyterWorkspace,
     auth: dmda.DomoJupyterAuth,
@@ -284,7 +281,6 @@ async def get_current_workspace(
     )
 
 
-@patch_to(DomoJupyterWorkspace)
 async def get_account_configuration(
     self: DomoJupyterWorkspace,
     session: httpx.AsyncClient = None,
@@ -305,7 +301,6 @@ async def get_account_configuration(
     return self.account_configuration
 
 
-@patch_to(DomoJupyterWorkspace)
 async def get_input_configuration(
     self: DomoJupyterWorkspace,
     session: httpx.AsyncClient = None,
@@ -324,7 +319,6 @@ async def get_input_configuration(
     return self.input_configuration
 
 
-@patch_to(DomoJupyterWorkspace)
 async def get_output_configuration(
     self: DomoJupyterWorkspace,
     session: httpx.AsyncClient = None,
@@ -343,7 +337,6 @@ async def get_output_configuration(
     return self.output_configuration
 
 
-@patch_to(DomoJupyterWorkspace)
 def _add_config(self, config, attribute):
     # print(config.alias)
     config_ls = getattr(self, attribute)
@@ -359,7 +352,6 @@ def _add_config(self, config, attribute):
     config_ls.sort()
 
 
-@patch_to(DomoJupyterWorkspace)
 def add_config_input_datasource(self, dja_datasource: DomoJupyter_DataSource):
     if not isinstance(dja_datasource, DomoJupyter_DataSource):
         raise DJW_InvalidClass(
@@ -369,7 +361,6 @@ def add_config_input_datasource(self, dja_datasource: DomoJupyter_DataSource):
     return self._add_config(dja_datasource, attribute="input_configuration")
 
 
-@patch_to(DomoJupyterWorkspace)
 def add_config_output_datasource(self, dja_datasource: DomoJupyter_DataSource):
     if not isinstance(dja_datasource, DomoJupyter_DataSource):
         raise DJW_InvalidClass(
@@ -378,7 +369,6 @@ def add_config_output_datasource(self, dja_datasource: DomoJupyter_DataSource):
     return self._add_config(dja_datasource, attribute="output_configuration")
 
 
-@patch_to(DomoJupyterWorkspace)
 def add_config_account(self, dja_account: DomoJupyter_Account):
     if not isinstance(dja_account, DomoJupyter_Account):
         raise DJW_InvalidClass(
@@ -389,7 +379,7 @@ def add_config_account(self, dja_account: DomoJupyter_Account):
 
 @dataclass
 class DomoJupyterWorkspaces(DomoManager):
-    auth: dmda.DomoAuth
+    auth: DomoAuth
     workspaces: List[DomoJupyterWorkspace] = None
 
     parent: Any = None
@@ -478,7 +468,6 @@ class DomoJupyterWorkspaces(DomoManager):
         )
 
 
-@patch_to(DomoJupyterWorkspace)
 def _test_config_duplicates(self, config_name):
     configuration = getattr(self, config_name)
 
@@ -488,7 +477,6 @@ def _test_config_duplicates(self, config_name):
     return f"aliases are not unique for {config_name}"
 
 
-@patch_to(DomoJupyterWorkspace)
 async def update_config(
     self,
     config: dict = None,
@@ -508,14 +496,13 @@ async def update_config(
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         )
 
-    except dmde.DomoError as e:
+    except DomoError as e:
         print(self._test_config_duplicates("account_configuration"))
         print(self._test_config_duplicates("output_configuration"))
         print(self._test_config_duplicates("input_configuration"))
         raise e from e
 
 
-@patch_to(DomoJupyterWorkspace)
 async def add_account(
     self,
     domo_account: dmac.DomoAccount,
@@ -578,7 +565,6 @@ async def add_account(
             retry += 1
 
 
-@patch_to(DomoJupyterWorkspace)
 async def add_input_dataset(
     self,
     domo_dataset: dmds.DomoDataset,
@@ -628,7 +614,6 @@ async def add_input_dataset(
             retry += 1
 
 
-@patch_to(DomoJupyterWorkspace)
 async def add_output_dataset(
     self,
     domo_dataset: dmds.DomoDataset,
@@ -676,7 +661,6 @@ async def add_output_dataset(
             retry += 1
 
 
-@patch_to(DomoJupyterWorkspace)
 async def get_content(
     self,
     debug_api: bool = False,
@@ -703,7 +687,6 @@ async def get_content(
     return self.content
 
 
-@patch_to(DomoJupyterWorkspace)
 async def download_workspace_content(
     self, base_export_folder=None, replace_folder: bool = True
 ) -> str:

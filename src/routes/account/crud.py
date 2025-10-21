@@ -111,7 +111,7 @@ async def create_account(
         raise Account_CRUD_Error(
             operation="create",
             account_id=account_name,
-            response_data=res,
+            res=res,
         )
 
     return res
@@ -163,7 +163,7 @@ async def delete_account(
         raise Account_CRUD_Error(
             operation="delete",
             account_id=account_id,
-            response_data=res,
+            res=res,
         )
 
     return res
@@ -239,7 +239,7 @@ async def create_oauth_account(
         raise Account_CRUD_Error(
             operation="create",
             account_id=create_body.get("displayName"),
-            response_data=res,
+            res=res,
         )
 
     return res
@@ -288,9 +288,7 @@ async def delete_oauth_account(
         return res
 
     if not res.is_success:
-        raise Account_CRUD_Error(
-            operation="delete", account_id=account_id, response_data=res
-        )
+        raise Account_CRUD_Error(operation="delete", account_id=account_id, res=res)
 
     res.response = f"deleted account {account_id}"
     return res
@@ -346,7 +344,7 @@ async def update_account_name(
 
     if not res.is_success:
         raise Account_CRUD_Error(
-            operation="update name", account_id=str(account_id), response_data=res
+            operation="update name", account_id=str(account_id), res=res
         )
 
     return res
@@ -400,7 +398,7 @@ async def update_oauth_account_name(
 
     if not res.is_success:
         raise Account_CRUD_Error(
-            operation="update name", account_id=str(account_id), response_data=res
+            operation="update name", account_id=str(account_id), res=res
         )
 
     return res

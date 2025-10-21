@@ -25,14 +25,12 @@ from ..client import get_data as gd
 from ..client import response as rgd
 
 
-class SSO_AddUserDirectSignonError(dmde.DomoError):
+class SSO_AddUserDirectSignonError(dmde.RouteError):
     def __init__(self, res: rgd.ResponseGetData, user_id_ls: List[str], message=None):
         message = (
             message or f"unable to add {', '.join(user_id_ls)} to DSO {res.response}"
         )
-        super().__init__(
-            status=res.status, domo_instance=res.auth.domo_instance, message=message
-        )
+        super().__init__(res=res, message=message)
 
 
 @gd.route_function

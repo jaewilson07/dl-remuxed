@@ -13,7 +13,7 @@ async def loop_upload(
     consol_ds: dmds.DomoDataset,
     partition_key: str,
     upload_method: str,
-    logger: lc.Logger,
+    logger: Logger,
     debug_api: bool = False,
     debug_prn: bool = False,
     debug_fn: bool = True,
@@ -68,7 +68,7 @@ async def loop_upload(
 async def upload_data(
     # instance where the data_fn function will execute against
     data_fn,  # data function to execute
-    instance_auth: dmda.DomoAuth,  # instance to run the data function against
+    instance_auth: DomoAuth,  # instance to run the data function against
     consol_ds: dmds.DomoDataset,  # dataset where data should be accumulated
     # if partition key supplied, will replace existing partition
     partition_key: str = None,
@@ -77,10 +77,10 @@ async def upload_data(
     debug_prn: bool = False,
     debug_fn: bool = True,
     debug_api: bool = False,
-    logger: lc.Logger = None,
+    logger: Logger = None,
     max_retry: int = 2,  # number of times to attempt upload
 ):
-    logger = logger or lc.Logger(app_name="upload_data")
+    logger = logger or Logger(app_name="upload_data")
 
     try:
         message = f"🏁 starting {instance_auth.domo_instance} - {data_fn.__name__}"

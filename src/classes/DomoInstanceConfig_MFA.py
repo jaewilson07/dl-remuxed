@@ -4,27 +4,25 @@ from dataclasses import dataclass, field
 from typing import List
 
 import httpx
-from nbdev.showdoc import patch_to
-
 from ..client import auth as dmda
 from ..client import exceptions as dmde
 from ..routes import instance_config_mfa as mfa_routes
 
 
 class MFAConfig_InstantiationError(dmde.ClassError):
-    def __init__(self, message, auth: dmda.DomoAuth, cls):
+    def __init__(self, message, auth: DomoAuth, cls):
         super().__init__(domo_instance=auth.domo_instance, message=message, cls=cls)
 
 
 @dataclass
 class MFA_Config:
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
     is_multifactor_required: bool = None
     max_code_attempts: int = None
     num_days_valid: int = None
 
     @classmethod
-    def from_dict(cls, auth: dmda.DomoAuth, obj: List[dict]):
+    def from_dict(cls, auth: DomoAuth, obj: List[dict]):
         return cls(
             auth=auth,
             is_multifactor_required=obj.get("is_multifactor_required"),
@@ -35,7 +33,7 @@ class MFA_Config:
     @classmethod
     async def get_instance_config(
         cls,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         incl_is_multifactor_required: bool = True,
         incl_num_days_valid: bool = True,
         incl_max_code_attempts: bool = True,
@@ -95,7 +93,6 @@ class MFA_Config:
         return self
 
 
-@patch_to(MFA_Config)
 def _test_need_update_config(
     self, attr_name, new_value, is_ignore_test: bool = False, debug_prn: bool = False
 ):
@@ -112,7 +109,6 @@ def _test_need_update_config(
     return True
 
 
-@patch_to(MFA_Config)
 async def toggle_mfa(
     self,
     is_enable_MFA: bool,
@@ -148,7 +144,6 @@ async def toggle_mfa(
     return await self.get()
 
 
-@patch_to(MFA_Config)
 async def enable(
     self,
     is_ignore_test: bool = False,
@@ -166,7 +161,6 @@ async def enable(
     )
 
 
-@patch_to(MFA_Config)
 async def disable(
     self,
     is_ignore_test: bool = False,
@@ -184,7 +178,6 @@ async def disable(
     )
 
 
-@patch_to(MFA_Config)
 async def set_max_code_attempts(
     self,
     max_code_attempts: int,
@@ -220,7 +213,6 @@ async def set_max_code_attempts(
     return await self.get()
 
 
-@patch_to(MFA_Config)
 async def set_num_days_valid(
     self,
     num_days_valid: int,
@@ -255,7 +247,6 @@ async def set_num_days_valid(
     return await self.get()
 
 
-@patch_to(MFA_Config)
 async def update(
     self,
     is_enable_MFA: bool = None,

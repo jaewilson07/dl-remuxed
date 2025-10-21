@@ -21,7 +21,7 @@ from . import DomoUser as dmdu
 
 @dataclass
 class ApiClient(DomoEntity):
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
     id: int
 
     name: str
@@ -40,13 +40,13 @@ class ApiClient(DomoEntity):
         return f"https://{self.auth.domo_instance}.domo.com/admin/api-clients"
 
     @classmethod
-    async def from_dict(cls, auth: dmda.DomoAuth, obj):
+    async def from_dict(cls, auth: DomoAuth, obj):
         domo_user = None
         is_invalid = False
         try:
             domo_user = await dmdu.DomoUser.get_by_id(auth=auth, user_id=obj["userId"])
 
-        except dmde.DomoError:
+        except DomoError:
             is_invalid = True
 
         return cls(
@@ -67,7 +67,7 @@ class ApiClient(DomoEntity):
     async def get_by_id(
         cls,
         client_id: str,
-        auth: dmda.DomoAuth,
+        auth: DomoAuth,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
         debug_num_stacks_to_drop: int = 2,
@@ -117,7 +117,7 @@ class ApiClient_Search_Error(dmde.ClassError):
 
 @dataclass
 class ApiClients:
-    auth: dmda.DomoAuth
+    auth: DomoAuth
 
     domo_clients: List[ApiClient] = field(default_factory=lambda: [])
 
