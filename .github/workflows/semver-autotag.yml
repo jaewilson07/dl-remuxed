@@ -148,36 +148,36 @@ jobs:
                       core.setOutput('pr_number', prData.number);
                       core.setOutput('pr_title', prData.title);
 
-            - name: Update version files
-              if: steps.calc-version.outputs.skip != 'true'
-              run: |
-                  NEW_VERSION="${{ steps.calc-version.outputs.new_version }}"
+             - name: Update version files
+               if: steps.calc-version.outputs.skip != 'true'
+               run: |
+                   NEW_VERSION="${{ steps.calc-version.outputs.new_version }}"
 
-                  echo "Updating version to: $NEW_VERSION"
+                   echo "Updating version to: $NEW_VERSION"
 
-                  # Update pyproject.toml
-                  sed -i "s/^version = .*/version = \"$NEW_VERSION\"/" pyproject.toml
+                   # Update pyproject.toml
+                   sed -i "s/^version = .*/version = \"$NEW_VERSION\"/" pyproject.toml
 
-                  # Update src/__init__.py
-                  sed -i "s/^__version__ = .*/__version__ = \"$NEW_VERSION\"/" src/__init__.py
+                   # Update src/domolibrary2/__init__.py
+                   sed -i "s/^__version__ = .*/__version__ = \"$NEW_VERSION\"/" src/domolibrary2/__init__.py
 
-                  echo "Files updated successfully"
+                   echo "Files updated successfully"
 
-                  # Show changes
-                  echo "--- pyproject.toml changes ---"
-                  git diff pyproject.toml
-                  echo "--- src/__init__.py changes ---"
-                  git diff src/__init__.py
+                   # Show changes
+                   echo "--- pyproject.toml changes ---"
+                   git diff pyproject.toml
+                   echo "--- src/domolibrary2/__init__.py changes ---"
+                   git diff src/domolibrary2/__init__.py
 
-            - name: Commit version bump
-              if: steps.calc-version.outputs.skip != 'true'
-              run: |
-                  git config --local user.email "github-actions[bot]@users.noreply.github.com"
-                  git config --local user.name "github-actions[bot]"
+             - name: Commit version bump
+               if: steps.calc-version.outputs.skip != 'true'
+               run: |
+                   git config --local user.email "github-actions[bot]@users.noreply.github.com"
+                   git config --local user.name "github-actions[bot]"
 
-                  git add pyproject.toml src/__init__.py
-                  git commit -m "chore: bump version to ${{ steps.calc-version.outputs.new_version }} [skip ci]"
-                  git push
+                   git add pyproject.toml src/domolibrary2/__init__.py
+                   git commit -m "chore: bump version to ${{ steps.calc-version.outputs.new_version }} [skip ci]"
+                   git push
 
             - name: Create and push tag
               if: steps.calc-version.outputs.skip != 'true'
