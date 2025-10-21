@@ -48,7 +48,7 @@ dev = [
 [dependency-groups]
 dev = [
     "pylint",
-    "ruff", 
+    "ruff",
     "black",
     "isort",
     "mypy",
@@ -80,6 +80,13 @@ mypy_path = "src"
 module = "domolibrary2.*"
 ignore_missing_imports = true
 
+[tool.bandit]
+exclude_dirs = ["tests", "scripts"]
+skips = ["B101"]  # Skip assert_used (common in tests)
+
+[tool.pydocstyle]
+convention = "google"
+add_ignore = ["D100", "D104"]  # Missing docstring in public module/package
 
 [tool.setuptools]
 packages = ["domolibrary2"]

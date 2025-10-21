@@ -344,29 +344,29 @@ class TestRoutePerformance:
 """
 class TestIntegrationRoutes:
     \"\"\"Integration tests with real API calls.\"\"\"
-    
+
     @pytest.mark.integration
     @pytest.mark.asyncio
     async def test_real_auth_endpoint(self):
         \"\"\"Test against real Domo API (requires credentials).\"\"\"
         from test_harness import IntegrationTestHarness
         from ..src.client.auth import DomoAuth
-        
+
         # This would require real credentials
         real_auth = DomoAuth(
             domo_instance="your-instance",
             session_token="your-token"
         )
-        
+
         integration_harness = IntegrationTestHarness(real_auth)
-        
+
         # Test real route function
         result = await integration_harness.test_route_integration(
             route_function=who_am_i,
             test_params={},
             expected_status_range=(200, 299)
         )
-        
+
         assert result["success"] is True
 """
 

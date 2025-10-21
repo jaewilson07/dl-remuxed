@@ -25,28 +25,28 @@ async def function_name(
     return_raw: bool = False,  # REQUIRED on all route functions
 ) -> rgd.ResponseGetData:
     """Function description.
-    
+
     Args:
         auth: Authentication object
         entity_id: Entity identifier
         return_raw: Return raw response without processing
-        
+
     Returns:
         ResponseGetData object
-        
+
     Raises:
         ModuleName_GET_Error: If retrieval fails
     """
     res = await gd.get_data(...)
-    
+
     # IMMEDIATE return_raw check after get_data
     if return_raw:
         return res
-        
+
     # Error handling only if not return_raw
     if not res.is_success:
         raise ModuleName_GET_Error(entity_id=entity_id, res=res)
-    
+
     return res
 ```
 
@@ -61,7 +61,7 @@ class ModuleName_GET_Error(RouteError):
             entity_id=entity_id, res=res, **kwargs
         )
 
-# CRUD errors - create/update/delete failures  
+# CRUD errors - create/update/delete failures
 class ModuleName_CRUD_Error(RouteError):
     def __init__(self, operation: str, entity_id: Optional[str] = None, res=None, **kwargs):
         super().__init__(
@@ -81,7 +81,7 @@ class SearchModuleName_NotFound(RouteError):
 ## Required Standards Checklist
 
 - [ ] `@gd.route_function` decorator on ALL route functions
-- [ ] `return_raw: bool = False` parameter on ALL route functions  
+- [ ] `return_raw: bool = False` parameter on ALL route functions
 - [ ] Immediate `if return_raw: return res` check after `gd.get_data()`
 - [ ] Standard parameter order (auth first, control params last)
 - [ ] Complete type hints on all parameters and return types

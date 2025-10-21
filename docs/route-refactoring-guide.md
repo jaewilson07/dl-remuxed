@@ -100,7 +100,7 @@ This allows:
 ### Simple Routes (Quick Wins - Apply access_token.py template directly)
 - **beastmode.py** (272 lines) - Standard GET/CRUD error classes needed
 - **codeengine.py** (243 lines) - CodeEngine_GET_Error, CodeEngine_CRUD_Error
-- **enterprise_apps.py** (263 lines) - EnterpriseApp_GET_Error, EnterpriseApp_CRUD_Error  
+- **enterprise_apps.py** (263 lines) - EnterpriseApp_GET_Error, EnterpriseApp_CRUD_Error
 - **pdp.py** (307 lines) - PDP_GET_Error, PDP_CRUD_Error
 - **card.py** (266 lines) - Card_GET_Error, Card_CRUD_Error, SearchCard_NotFound
 
@@ -114,7 +114,7 @@ This allows:
 ### Complex Routes (May need restructuring)
 - **dataset.py** (900+ lines) - **PRIORITY** - Consider splitting like account/ structure:
   - `dataset/__init__.py` - Main exports
-  - `dataset/core.py` - GET operations  
+  - `dataset/core.py` - GET operations
   - `dataset/crud.py` - Create/Update/Delete operations
   - `dataset/query.py` - Query operations
   - `dataset/upload.py` - Upload operations
@@ -179,15 +179,15 @@ async def function_name(
     return_raw: bool = False,  # REQUIRED parameter
 ) -> rgd.ResponseGetData:
     res = await gd.get_data(...)
-    
+
     # IMMEDIATE check - must be first after get_data call
     if return_raw:
         return res
-        
+
     # Error processing only happens if not return_raw
     if not res.is_success:
         raise CustomError(res=res)
-    
+
     return res
 ```
 
@@ -210,7 +210,7 @@ class {Module}_GET_Error(RouteError):
             **kwargs
         )
 
-# Search not found - for empty search results  
+# Search not found - for empty search results
 class Search{Module}_NotFound(RouteError):
     def __init__(self, search_criteria: str, res=None, **kwargs):
         message = f"No {module}s found matching: {search_criteria}"
@@ -232,7 +232,7 @@ class {Module}_CRUD_Error(RouteError):
             **kwargs
         )
 
-# Sharing errors - for permission/sharing failures  
+# Sharing errors - for permission/sharing failures
 class {Module}Sharing_Error(RouteError):
     def __init__(self, operation: str, entity_id: Optional[str] = None, res=None, **kwargs):
         message = f"{Module} sharing {operation} failed"
@@ -252,17 +252,17 @@ class {Module}Sharing_Error(RouteError):
 async def function_name(
     # 1. Required auth parameter (always first)
     auth: DomoAuth,
-    
+
     # 2. Primary entity parameters
     entity_id: str,
-    
+
     # 3. Operation-specific parameters
     operation_param: str,
     operation_list: List[str],
-    
+
     # 4. Optional operation parameters
     optional_param: Optional[str] = None,
-    
+
     # 5. Standard control parameters (always in this order)
     session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
@@ -296,7 +296,7 @@ async def get_entity_by_id(
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Retrieve a specific entity by ID.
-    
+
     Args:
         auth: Authentication object
         entity_id: Unique identifier for the entity
@@ -305,16 +305,16 @@ async def get_entity_by_id(
         debug_num_stacks_to_drop: Stack frames to drop for debugging
         parent_class: Name of calling class for debugging
         return_raw: Return raw response without processing
-        
+
     Returns:
         ResponseGetData object containing entity data
-        
+
     Raises:
         Entity_GET_Error: If entity retrieval fails
         SearchEntity_NotFound: If entity doesn't exist
     """
     url = f"https://{auth.domo_instance}.domo.com/api/entity/v1/{entity_id}"
-    
+
     res = await gd.get_data(
         auth=auth,
         method="GET",
@@ -324,10 +324,10 @@ async def get_entity_by_id(
         num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
-    
+
     if return_raw:
         return res
-        
+
     # Handle specific error cases
     if not res.is_success:
         if res.status == 404:
@@ -340,7 +340,7 @@ async def get_entity_by_id(
                 entity_id=entity_id,
                 res=res
             )
-    
+
     return res
 ```
 
@@ -363,7 +363,7 @@ async def get_entity_by_id(
 **Priority Order** (Using access_token.py as template):
 1. **account.py** - Authentication dependencies (HIGH PRIORITY)
 2. **role.py** - Permission system (needed by user.py)
-3. **dataset.py** - Core data functionality  
+3. **dataset.py** - Core data functionality
 4. **user.py** - Critical for user management (complex, save for after role.py)
 5. **card.py** - Dashboard functionality (quick win)
 
@@ -410,7 +410,7 @@ import httpx
 
 from ..client.auth import DomoAuth
 from ..client.exceptions import RouteError, AuthError, ClassError
-from ..client import get_data as gd 
+from ..client import get_data as gd
 from ..client import response as rgd
 from ..client.entities import DomoEnum  # If needed
 ```
@@ -480,12 +480,12 @@ from ..client.entities import DomoEnum  # If needed
 ### Week 1: Foundation Routes (Using access_token.py template)
 - Apply access_token.py patterns to highest priority routes
 - **account.py** - Authentication dependencies (HIGH PRIORITY)
-- **role.py** - Permission system (needed by user.py)  
+- **role.py** - Permission system (needed by user.py)
 - **dataset.py** - Core data functionality
 - **card.py** - Dashboard functionality (quick win)
 - Critical for basic library functionality
 
-### Week 2: Core Entities (Card, Page, Dataflow, Group, Grant)  
+### Week 2: Core Entities (Card, Page, Dataflow, Group, Grant)
 - Core business logic routes
 - High usage functionality
 - Dashboard and data management
@@ -509,7 +509,7 @@ from ..client.entities import DomoEnum  # If needed
 
 ### ✅ Template Achievement (access_token.py demonstrates all targets):
 1. **Code Quality**: 100% type hint coverage, zero lint errors ✅
-2. **Consistency**: All routes follow identical patterns ✅  
+2. **Consistency**: All routes follow identical patterns ✅
 3. **Route Function Decorator**: All route functions use `@gd.route_function` ✅
 4. **Return Raw Pattern**: All functions include `return_raw` parameter with immediate return ✅
 5. **Error Handling**: Comprehensive error coverage with specific exceptions ✅

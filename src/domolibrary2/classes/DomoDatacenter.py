@@ -7,9 +7,7 @@ import httpx
 
 from ..client.DomoError import DomoError
 from ..routes import datacenter as datacenter_routes
-from ..routes.datacenter import (
-    generate_search_datacenter_filter,
-)
+from ..routes.datacenter import generate_search_datacenter_filter
 from ..utils import chunk_execution as dmce
 
 
