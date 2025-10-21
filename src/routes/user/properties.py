@@ -369,7 +369,7 @@ async def request_password_reset(
     """
     url = f"https://{domo_instance}.domo.com/api/domoweb/auth/sendReset"
 
-    params = {"email": email, "local": locale}
+    params = {"email": email, "locale": locale}
 
     res = await gd.get_data(
         url=url,
