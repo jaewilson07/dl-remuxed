@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import domolibrary2.client.auth as dmda
 from dotenv import load_dotenv
 import os
@@ -16,5 +15,3 @@ async def test_domo_auth_who_am_i():
     res = await domo_auth.who_am_i()
 
     return res.is_success
-=======
->>>>>>> test

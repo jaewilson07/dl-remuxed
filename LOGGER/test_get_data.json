@@ -1,0 +1,140 @@
+{
+    "timestamp": "2025-10-21T13:20:05.472959Z",
+    "level": "INFO",
+    "app_name": "test_get_data",
+    "message": {
+        "url": "https://domo-community.domo.com/api/content/v2/users/me",
+        "headers": {
+            "Content-Type": "application/json",
+            "Connection": "keep-alive",
+            "accept": "application/json, text/plain",
+            "x-domo-developer-token": "5df6b2c362d49fa51c1eeaaf9c8d5ff1f950b96dad7c7f07"
+        },
+        "body": "null",
+        "params": null
+    },
+    "method": "COMMENT",
+    "status": "info",
+    "correlation": {
+        "trace_id": "84c1793c-4da2-47fc-b36f-cfae33411981",
+        "span_id": "9a14dc3bcffc47d6",
+        "parent_span_id": null
+    },
+    "extra": {}
+}
+{
+    "timestamp": "2025-10-21T13:20:05.772314Z",
+    "level": "INFO",
+    "app_name": "test_get_data",
+    "message": {
+        "id": 1893952720,
+        "invitorUserId": 587894148,
+        "displayName": "Jae Wilson1",
+        "department": "Business Improvement",
+        "userName": "jae@onyxreporting.com",
+        "emailAddress": "jae@datacrew.space",
+        "avatarKey": "c605f478-0cd2-4451-9fd4-d82090b71e66",
+        "accepted": true,
+        "userType": "USER",
+        "modified": 1760738169975,
+        "created": 1588960518,
+        "active": true,
+        "systemUser": false,
+        "anonymous": false,
+        "pending": false
+    },
+    "method": "COMMENT",
+    "status": "info",
+    "correlation": {
+        "trace_id": "84c1793c-4da2-47fc-b36f-cfae33411981",
+        "span_id": "1321662d50e94e55",
+        "parent_span_id": "9a14dc3bcffc47d6"
+    },
+    "extra": {}
+}
+{
+    "timestamp": "2025-10-21T13:20:22.932130Z",
+    "level": "INFO",
+    "app_name": "test_get_data",
+    "message": "Starting test_logger function.",
+    "method": "COMMENT",
+    "status": "info",
+    "correlation": {
+        "trace_id": "af44c344-5dfd-4a68-ab70-f16f0411779e",
+        "span_id": "ffec2a086d3a4d61",
+        "parent_span_id": null
+    },
+    "extra": {}
+}
+{
+    "timestamp": "2025-10-21T13:20:23.065598Z",
+    "level": "INFO",
+    "app_name": "test_get_data",
+    "message": {
+        "url": "https://domo-community.domo.com/api/content/v2/users/me",
+        "headers": {
+            "Content-Type": "application/json",
+            "Connection": "keep-alive",
+            "accept": "application/json, text/plain",
+            "x-domo-developer-token": "5df6b2c362d49fa51c1eeaaf9c8d5ff1f950b96dad7c7f07"
+        },
+        "body": "null",
+        "params": null
+    },
+    "method": "COMMENT",
+    "status": "info",
+    "correlation": {
+        "trace_id": "af44c344-5dfd-4a68-ab70-f16f0411779e",
+        "span_id": "0a95b6d45213419e",
+        "parent_span_id": "ffec2a086d3a4d61"
+    },
+    "extra": {}
+}
+{
+    "timestamp": "2025-10-21T13:20:23.370678Z",
+    "level": "INFO",
+    "app_name": "test_get_data",
+    "message": {
+        "id": 1893952720,
+        "invitorUserId": 587894148,
+        "displayName": "Jae Wilson1",
+        "department": "Business Improvement",
+        "userName": "jae@onyxreporting.com",
+        "emailAddress": "jae@datacrew.space",
+        "avatarKey": "c605f478-0cd2-4451-9fd4-d82090b71e66",
+        "accepted": true,
+        "userType": "USER",
+        "modified": 1760738169975,
+        "created": 1588960518,
+        "active": true,
+        "systemUser": false,
+        "anonymous": false,
+        "pending": false
+    },
+    "method": "COMMENT",
+    "status": "info",
+    "correlation": {
+        "trace_id": "af44c344-5dfd-4a68-ab70-f16f0411779e",
+        "span_id": "b7a1a23e7d1a45e2",
+        "parent_span_id": "0a95b6d45213419e"
+    },
+    "extra": {}
+}
+{
+    "timestamp": "2025-10-21T13:20:23.372597Z",
+    "level": "INFO",
+    "app_name": "test_get_data",
+    "message": "Completed who_am_i request.",
+    "method": "COMMENT",
+    "status": "info",
+    "correlation": {
+        "trace_id": "af44c344-5dfd-4a68-ab70-f16f0411779e",
+        "span_id": "c0a5ad7b32024755",
+        "parent_span_id": "b7a1a23e7d1a45e2"
+    },
+    "extra": {}
+}{"timestamp": "2025-10-21T13:56:55.551715Z", "level": "INFO", "app_name": "test_get_data", "message": "Starting test_logger function.", "method": "COMMENT", "status": "info", "correlation": {"trace_id": "bb3f069d-bc77-42f0-98aa-aaeb67f90c16", "span_id": "cea9fe0a93d641e4", "parent_span_id": null}, "extra": {}}
+{"timestamp": "2025-10-21T13:57:15.114696Z", "level": "INFO", "app_name": "test_get_data", "message": "Starting test_logger function.", "method": "COMMENT", "status": "info", "correlation": {"trace_id": "fd64d37a-5e4d-4337-b4bf-53bd12b92909", "span_id": "2b890684a6184e5e", "parent_span_id": null}, "extra": {}}
+{"timestamp": "2025-10-21T13:57:15.216880Z", "level": "INFO", "app_name": "test_get_data", "message": {"url": "https://domo-community.domo.com/api/content/v2/users/me", "headers": {"Content-Type": "application/json", "Connection": "keep-alive", "accept": "application/json, text/plain", "x-domo-developer-token": "5df6b2c362d49fa51c1eeaaf9c8d5ff1f950b96dad7c7f07"}, "body": "null", "params": null}, "method": "COMMENT", "status": "info", "correlation": {"trace_id": "fd64d37a-5e4d-4337-b4bf-53bd12b92909", "span_id": "3f22265ecf6c4183", "parent_span_id": "2b890684a6184e5e"}, "extra": {"level_name": "get_data"}}
+{"timestamp": "2025-10-21T13:57:15.522340Z", "level": "INFO", "app_name": "test_get_data", "message": {"id": 1893952720, "invitorUserId": 587894148, "displayName": "Jae Wilson1", "department": "Business Improvement", "userName": "jae@onyxreporting.com", "emailAddress": "jae@datacrew.space", "avatarKey": "c605f478-0cd2-4451-9fd4-d82090b71e66", "accepted": true, "userType": "USER", "modified": 1760738169975, "created": 1588960518, "active": true, "systemUser": false, "anonymous": false, "pending": false}, "method": "COMMENT", "status": "info", "correlation": {"trace_id": "fd64d37a-5e4d-4337-b4bf-53bd12b92909", "span_id": "86e167652f5a401f", "parent_span_id": "3f22265ecf6c4183"}, "extra": {}}
+{"timestamp": "2025-10-21T13:57:15.524346Z", "level": "INFO", "app_name": "test_get_data", "message": "Completed who_am_i request.", "method": "COMMENT", "status": "info", "correlation": {"trace_id": "fd64d37a-5e4d-4337-b4bf-53bd12b92909", "span_id": "273ca937d6874ca1", "parent_span_id": "58404b5ff1694897"}, "extra": {}}

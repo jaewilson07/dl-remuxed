@@ -161,6 +161,8 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
 
         parent_class = parent_class or cls.__name__
 
+        # self.logger.info(message=f"Getting dataset by ID: {dataset_id}")  # TO DO
+
         res = await dataset_routes.get_dataset_by_id(
             auth=auth,
             dataset_id=dataset_id,
@@ -184,251 +186,250 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
     async def _get_entity_by_id(cls, entity_id: str, auth: DomoAuth, **kwargs):
         return await cls.get_by_id(dataset_id=entity_id, auth=auth, **kwargs)
 
+    async def query_dataset_private(
+        self,
+        sql: str,
+        session: Optional[httpx.AsyncClient] = None,
+        filter_pdp_policy_id_ls: List[int] = None,  # filter by pdp policy
+        loop_until_end: bool = False,  # retrieve all available rows
+        limit=100,  # maximum rows to return per request.  refers to PAGINATION
+        skip=0,
+        maximum=100,  # equivalent to the LIMIT or TOP clause in SQL, the number of rows to return total
+        debug_api: bool = False,
+        debug_loop: bool = False,
+        debug_num_stacks_to_drop: int = 2,
+        timeout=10,  # larger API requests may require a longer response time
+        maximum_retry: int = 5,
+        is_return_dataframe: bool = True,
+    ) -> pd.DataFrame:
+        res = None
+        retry = 1
 
-async def query_dataset_private(
-    self: DomoDataset_Default,
-    sql: str,
-    session: Optional[httpx.AsyncClient] = None,
-    filter_pdp_policy_id_ls: List[int] = None,  # filter by pdp policy
-    loop_until_end: bool = False,  # retrieve all available rows
-    limit=100,  # maximum rows to return per request.  refers to PAGINATION
-    skip=0,
-    maximum=100,  # equivalent to the LIMIT or TOP clause in SQL, the number of rows to return total
-    debug_api: bool = False,
-    debug_loop: bool = False,
-    debug_num_stacks_to_drop: int = 2,
-    timeout=10,  # larger API requests may require a longer response time
-    maximum_retry: int = 5,
-    is_return_dataframe: bool = True,
-) -> pd.DataFrame:
-    res = None
-    retry = 1
+        if filter_pdp_policy_id_ls and not isinstance(filter_pdp_policy_id_ls, list):
+            filter_pdp_policy_id_ls = [int(filter_pdp_policy_id_ls)]
 
-    if filter_pdp_policy_id_ls and not isinstance(filter_pdp_policy_id_ls, list):
-        filter_pdp_policy_id_ls = [int(filter_pdp_policy_id_ls)]
-
-    while (not res or not res.is_success) and retry <= maximum_retry:
-        try:
-            res = await dataset_routes.query_dataset_private(
-                auth=self.auth,
-                dataset_id=self.id,
-                sql=sql,
-                maximum=maximum,
-                filter_pdp_policy_id_ls=filter_pdp_policy_id_ls,
-                skip=skip,
-                limit=limit,
-                loop_until_end=loop_until_end,
-                session=session,
-                debug_loop=debug_loop,
-                debug_api=debug_api,
-                timeout=timeout,
-                debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-                parent_class=self.__class__.__name__,
-            )
-
-        except DomoError as e:
-            if isinstance(e, (DatasetNotFoundError, QueryRequestError)):
-                raise e from e
-
-            if retry <= maximum_retry and e:
-                print(
-                    f"⚠️ Error.  Attempt {retry} / {maximum_retry} - {e} - while query dataset {self.id} in {self.auth.domo_instance} with {sql}"
-                )
-
-            if retry == maximum_retry:
-                raise e from e
-
-            retry += 1
-
-    if not is_return_dataframe:
-        return res.response
-
-    return pd.DataFrame(res.response)
-
-
-async def delete(
-    self: DomoDataset_Default,
-    dataset_id=None,
-    auth: DomoAuth = None,
-    debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-):
-    dataset_id = dataset_id or self.id
-    auth = auth or self.auth
-
-    res = await dataset_routes.delete(
-        auth=auth, dataset_id=dataset_id, debug_api=debug_api, session=session
-    )
-
-    return res
-
-
-async def share(
-    self: DomoDataset_Default,
-    member,  # DomoUser or DomoGroup
-    auth: DomoAuth = None,
-    share_type: ShareDataset_AccessLevelEnum = ShareDataset_AccessLevelEnum.CAN_SHARE,
-    is_send_email=False,
-    debug_api: bool = False,
-    debug_prn: bool = False,
-    session: httpx.AsyncClient = None,
-):
-    body = dataset_routes.generate_share_dataset_payload(
-        entity_type="GROUP" if type(member).__name__ == "DomoGroup" else "USER",
-        entity_id=int(member.id),
-        access_level=share_type,
-        is_send_email=is_send_email,
-    )
-
-    res = await dataset_routes.share_dataset(
-        auth=auth or self.auth,
-        dataset_id=self.id,
-        body=body,
-        session=session,
-        debug_api=debug_api,
-    )
-
-    return res
-
-
-async def index_dataset(
-    self: DomoDataset_Default,
-    auth: DomoAuth = None,
-    dataset_id: str = None,
-    debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-):
-    auth = auth or self.auth
-    dataset_id = dataset_id or self.id
-    return await dataset_routes.index_dataset(
-        auth=auth, dataset_id=dataset_id, debug_api=debug_api, session=session
-    )
-
-
-async def upload_data(
-    self: DomoDataset_Default,
-    upload_df: pd.DataFrame = None,
-    upload_df_ls: list[pd.DataFrame] = None,
-    upload_file: io.TextIOWrapper = None,
-    upload_method: str = "REPLACE",  # APPEND or REPLACE
-    partition_key: str = None,
-    is_index: bool = True,
-    dataset_upload_id=None,
-    session: httpx.AsyncClient = None,
-    debug_api: bool = False,
-    debug_prn: bool = False,
-):
-    auth = self.auth
-    dataset_id = self.id
-
-    upload_df_ls = upload_df_ls or [upload_df]
-
-    status_message = f"{dataset_id} {partition_key} | {auth.domo_instance}"
-
-    # stage 1 get uploadId
-    retry = 1
-    while dataset_upload_id is None and retry < 5:
-        try:
-            if debug_prn:
-                print(f"\n\n🎭 starting Stage 1 - {status_message}")
-
-            res = await dataset_routes.upload_dataset_stage_1(
-                auth=auth,
-                dataset_id=dataset_id,
-                session=session,
-                partition_tag=partition_key,
-                debug_api=debug_api,
-            )
-            if debug_prn:
-                print(f"\n\n🎭 Stage 1 response -- {res.status} for {status_message}")
-
-            dataset_upload_id = res.response
-
-        except dataset_routes.UploadDataError as e:
-            print(f"{e} - attempt{retry}")
-            retry += 1
-
-            if retry == 5:
-                print(f"failed to upload data for {dataset_id} in {auth.domo_instance}")
-                raise e
-                return
-
-            await asyncio.sleep(5)
-
-    # stage 2 upload_dataset
-    if upload_file:
-        if debug_prn:
-            print(f"\n\n🎭 starting Stage 2 - upload file for {status_message}")
-
-        res = await dmce.gather_with_concurrency(
-            n=60,
-            *[
-                dataset_routes.upload_dataset_stage_2_file(
-                    auth=auth,
-                    dataset_id=dataset_id,
-                    upload_id=dataset_upload_id,
-                    part_id=1,
-                    data_file=upload_file,
+        while (not res or not res.is_success) and retry <= maximum_retry:
+            try:
+                res = await dataset_routes.query_dataset_private(
+                    auth=self.auth,
+                    dataset_id=self.id,
+                    sql=sql,
+                    maximum=maximum,
+                    filter_pdp_policy_id_ls=filter_pdp_policy_id_ls,
+                    skip=skip,
+                    limit=limit,
+                    loop_until_end=loop_until_end,
                     session=session,
+                    debug_loop=debug_loop,
                     debug_api=debug_api,
+                    timeout=timeout,
+                    debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+                    parent_class=self.__class__.__name__,
                 )
-            ],
-        )
 
-    else:
-        if debug_prn:
-            print(
-                f"\n\n🎭 starting Stage 2 - {len(upload_df_ls)} - number of parts for {status_message}"
-            )
+            except DomoError as e:
+                if isinstance(e, (DatasetNotFoundError, QueryRequestError)):
+                    raise e from e
 
-        res = await dmce.gather_with_concurrency(
-            n=60,
-            *[
-                dataset_routes.upload_dataset_stage_2_df(
-                    auth=auth,
-                    dataset_id=dataset_id,
-                    upload_id=dataset_upload_id,
-                    part_id=index + 1,
-                    upload_df=df,
-                    session=session,
-                    debug_api=debug_api,
-                )
-                for index, df in enumerate(upload_df_ls)
-            ],
-        )
+                if retry <= maximum_retry and e:
+                    print(
+                        f"⚠️ Error.  Attempt {retry} / {maximum_retry} - {e} - while query dataset {self.id} in {self.auth.domo_instance} with {sql}"
+                    )
 
-    if debug_prn:
-        print(f"🎭 Stage 2 - upload data: complete for {status_message}")
+                if retry == maximum_retry:
+                    raise e from e
 
-    # stage 3 commit_data
-    if debug_prn:
-        print(
-            f"\n\n🎭 starting Stage 3 - commit dataset_upload_id for {status_message}"
-        )
+                retry += 1
 
-    await asyncio.sleep(5)  # wait for uploads to finish
+        if not is_return_dataframe:
+            return res.response
 
-    res = await dataset_routes.upload_dataset_stage_3(
-        auth=auth,
-        dataset_id=dataset_id,
-        upload_id=dataset_upload_id,
-        update_method=upload_method,
-        partition_tag=partition_key,
-        is_index=False,
-        session=session,
-        debug_api=debug_api,
-    )
+        return pd.DataFrame(res.response)
 
-    if debug_prn:
-        print(f"\n🎭 stage 3 - commit dataset: complete for {status_message} ")
+    async def delete(
+        self,
+        dataset_id=None,
+        auth: DomoAuth = None,
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+    ):
+        dataset_id = dataset_id or self.id
+        auth = auth or self.auth
 
-    if is_index:
-        await asyncio.sleep(3)
-        return await self.index_dataset(
+        res = await dataset_routes.delete(
             auth=auth, dataset_id=dataset_id, debug_api=debug_api, session=session
         )
 
-    return res
+        return res
+
+    async def share(
+        self: DomoDataset_Default,
+        member,  # DomoUser or DomoGroup
+        auth: DomoAuth = None,
+        share_type: ShareDataset_AccessLevelEnum = ShareDataset_AccessLevelEnum.CAN_SHARE,
+        is_send_email=False,
+        debug_api: bool = False,
+        debug_prn: bool = False,
+        session: httpx.AsyncClient = None,
+    ):
+        body = dataset_routes.generate_share_dataset_payload(
+            entity_type="GROUP" if type(member).__name__ == "DomoGroup" else "USER",
+            entity_id=int(member.id),
+            access_level=share_type,
+            is_send_email=is_send_email,
+        )
+
+        res = await dataset_routes.share_dataset(
+            auth=auth or self.auth,
+            dataset_id=self.id,
+            body=body,
+            session=session,
+            debug_api=debug_api,
+        )
+
+        return res
+
+    async def index_dataset(
+        self: DomoDataset_Default,
+        auth: DomoAuth = None,
+        dataset_id: str = None,
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+    ):
+        auth = auth or self.auth
+        dataset_id = dataset_id or self.id
+        return await dataset_routes.index_dataset(
+            auth=auth, dataset_id=dataset_id, debug_api=debug_api, session=session
+        )
+
+    async def upload_data(
+        self: DomoDataset_Default,
+        upload_df: pd.DataFrame = None,
+        upload_df_ls: list[pd.DataFrame] = None,
+        upload_file: io.TextIOWrapper = None,
+        upload_method: str = "REPLACE",  # APPEND or REPLACE
+        partition_key: str = None,
+        is_index: bool = True,
+        dataset_upload_id=None,
+        session: httpx.AsyncClient = None,
+        debug_api: bool = False,
+        debug_prn: bool = False,
+    ):
+        auth = self.auth
+        dataset_id = self.id
+
+        upload_df_ls = upload_df_ls or [upload_df]
+
+        status_message = f"{dataset_id} {partition_key} | {auth.domo_instance}"
+
+        # stage 1 get uploadId
+        retry = 1
+        while dataset_upload_id is None and retry < 5:
+            try:
+                if debug_prn:
+                    print(f"\n\n🎭 starting Stage 1 - {status_message}")
+
+                res = await dataset_routes.upload_dataset_stage_1(
+                    auth=auth,
+                    dataset_id=dataset_id,
+                    session=session,
+                    partition_tag=partition_key,
+                    debug_api=debug_api,
+                )
+                if debug_prn:
+                    print(
+                        f"\n\n🎭 Stage 1 response -- {res.status} for {status_message}"
+                    )
+
+                dataset_upload_id = res.response
+
+            except dataset_routes.UploadDataError as e:
+                print(f"{e} - attempt{retry}")
+                retry += 1
+
+                if retry == 5:
+                    print(
+                        f"failed to upload data for {dataset_id} in {auth.domo_instance}"
+                    )
+                    raise e
+                    return
+
+                await asyncio.sleep(5)
+
+        # stage 2 upload_dataset
+        if upload_file:
+            if debug_prn:
+                print(f"\n\n🎭 starting Stage 2 - upload file for {status_message}")
+
+            res = await dmce.gather_with_concurrency(
+                n=60,
+                *[
+                    dataset_routes.upload_dataset_stage_2_file(
+                        auth=auth,
+                        dataset_id=dataset_id,
+                        upload_id=dataset_upload_id,
+                        part_id=1,
+                        data_file=upload_file,
+                        session=session,
+                        debug_api=debug_api,
+                    )
+                ],
+            )
+
+        else:
+            if debug_prn:
+                print(
+                    f"\n\n🎭 starting Stage 2 - {len(upload_df_ls)} - number of parts for {status_message}"
+                )
+
+            res = await dmce.gather_with_concurrency(
+                n=60,
+                *[
+                    dataset_routes.upload_dataset_stage_2_df(
+                        auth=auth,
+                        dataset_id=dataset_id,
+                        upload_id=dataset_upload_id,
+                        part_id=index + 1,
+                        upload_df=df,
+                        session=session,
+                        debug_api=debug_api,
+                    )
+                    for index, df in enumerate(upload_df_ls)
+                ],
+            )
+
+        if debug_prn:
+            print(f"🎭 Stage 2 - upload data: complete for {status_message}")
+
+        # stage 3 commit_data
+        if debug_prn:
+            print(
+                f"\n\n🎭 starting Stage 3 - commit dataset_upload_id for {status_message}"
+            )
+
+        await asyncio.sleep(5)  # wait for uploads to finish
+
+        res = await dataset_routes.upload_dataset_stage_3(
+            auth=auth,
+            dataset_id=dataset_id,
+            upload_id=dataset_upload_id,
+            update_method=upload_method,
+            partition_tag=partition_key,
+            is_index=False,
+            session=session,
+            debug_api=debug_api,
+        )
+
+        if debug_prn:
+            print(f"\n🎭 stage 3 - commit dataset: complete for {status_message} ")
+
+        if is_index:
+            await asyncio.sleep(3)
+            return await self.index_dataset(
+                auth=auth, dataset_id=dataset_id, debug_api=debug_api, session=session
+            )
+
+        return res
 
 
 async def list_partitions(
@@ -610,27 +611,26 @@ async def reset_dataset(
 
     return res
 
-
-async def upsert_connector(
-    self,
-    cnfg_body,
-    auth: DomoAuth = None,
-    session: Optional[httpx.AsyncClient] = None,
-    debug_api: bool = False,
-):
-    if self.stream_id:
-        return await self.Stream.update_stream(
-            cnfg_body,
-            stream_id=self.stream_id,
-            auth=auth,
-            session=session,
-            debug_api=False,
+    async def upsert_connector(
+        self,
+        cnfg_body,
+        auth: DomoAuth = None,
+        session: Optional[httpx.AsyncClient] = None,
+        debug_api: bool = False,
+    ):
+        if self.stream_id:
+            return await self.Stream.update_stream(
+                cnfg_body,
+                stream_id=self.stream_id,
+                auth=auth,
+                session=session,
+                debug_api=False,
+            )
+        self.Stream = await self.Stream.create_stream(
+            cnfg_body, auth=auth, session=session, debug_api=debug_api
         )
-    self.Stream = await self.Stream.create_stream(
-        cnfg_body, auth=auth, session=session, debug_api=debug_api
-    )
 
-    return self.Stream
+        return self.Stream
 
 
 @staticmethod

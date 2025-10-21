@@ -22,6 +22,13 @@ from . import auth as dmda
 from . import response as rgd
 from .exceptions import DomoError
 
+import dc_logger
+from dc_logger.client.base import get_global_logger, Logger
+from dc_logger.client.decorators import log_call
+
+logger: Logger = get_global_logger()
+assert logger, "A global logger must be set before using get_data functions."
+
 
 class GetData_Error(DomoError):
     def __init__(self, message, url):
@@ -78,6 +85,7 @@ def create_httpx_session(
 
 
 @dmce.run_with_retry()
+@log_call(logger=logger, action_name="get_data")
 async def get_data(
     url: str,
     method: str,
@@ -117,6 +125,14 @@ async def get_data(
         headers=headers,
         body=body,
         params=params,
+    )
+
+    if debug_api:
+        print(request_metadata.to_dict())
+
+    await logger.info(
+        message=request_metadata.to_dict(),
+        extra={"level_name": "get_data"},
     )
 
     # Create additional information with parent_class and traceback_details
@@ -163,7 +179,7 @@ async def get_data(
 
         # Return raw response if requested
         if return_raw:
-            return rgd.ResponseGetData(
+            res = rgd.ResponseGetData(
                 status=response.status_code,
                 response=response,
                 is_success=True,
@@ -171,12 +187,18 @@ async def get_data(
                 additional_information=additional_information,
             )
 
+            await logger.info(message=res.to_dict())
+
         # Process response into ResponseGetData using from_httpx_response
-        return rgd.ResponseGetData.from_httpx_response(
+        res = rgd.ResponseGetData.from_httpx_response(
             res=response,
             request_metadata=request_metadata,
             additional_information=additional_information,
         )
+
+        await logger.info(message=res.response)
+
+        return res
 
     except httpx.HTTPStatusError as http_err:
         print(f"HTTP error occurred: {http_err}")
@@ -192,6 +214,7 @@ async def get_data(
 
 
 @dmce.run_with_retry()
+@log_call(logger=logger, action_name="get_data")
 async def get_data_stream(
     url: str,
     auth: dmda.DomoAuth,
@@ -294,7 +317,7 @@ async def get_data_stream(
                 timeout=timeout,
             ) as res:
                 if res.status_code != 200:
-                    return rgd.ResponseGetData(
+                    res = rgd.ResponseGetData(
                         status=res.status_code,
                         response=res.text if hasattr(res, "text") else str(res.content),
                         is_success=False,
@@ -302,17 +325,22 @@ async def get_data_stream(
                         additional_information=additional_information,
                     )
 
+                    await logger.info(message=res.to_dict())
+                    return res
+
                 content = bytearray()
                 async for chunk in res.aiter_bytes():
                     content += chunk
 
-                return rgd.ResponseGetData(
+                res = rgd.ResponseGetData(
                     status=res.status_code,
                     response=content,
                     is_success=True,
                     request_metadata=request_metadata,
                     additional_information=additional_information,
                 )
+
+                await logger.info(message=res.to_dict())
 
     except httpx.TransportError as e:
         raise GetData_Error(url=url, message=e) from e
@@ -323,6 +351,7 @@ class LooperError(DomoError):
         super().__init__(message=f"{loop_stage} - {message}")
 
 
+@log_call(logger=logger, action_name="looper")
 async def looper(
     auth: dmda.DomoAuth,
     session: Optional[httpx.AsyncClient],
@@ -409,13 +438,28 @@ async def looper(
 
             except Exception as e:
                 await session.aclose()
+
+                message = "processing body_fn", message=str(e)
+
+                logger.error(message)
+
                 raise LooperError(
-                    loop_stage="processing body_fn", message=str(e)
+                    loop_stage=message
                 ) from e
 
         if debug_loop:
             print(f"\n🚀 Retrieving records {skip} through {skip + limit} via {url}")
             # pprint(params)
+
+        await logger.info(
+            message={
+                "action": "looper_request",
+                "params": params,
+                "body": body,
+                "skip": skip,
+                "limit": limit,
+            }
+        )
 
         res = await get_data(
             auth=auth,
@@ -446,6 +490,9 @@ async def looper(
 
         except Exception as e:
             await session.aclose()
+
+            logger.error(f"Error processing arr_fn: {e}")
+
             raise LooperError(loop_stage="processing arr_fn", message=str(e)) from e
 
         allRows += newRecords
@@ -456,9 +503,12 @@ async def looper(
         if maximum and len(allRows) >= maximum and not loop_until_end:
             isLoop = False
 
+        message = f"🐛 Looper iteration complete: {{'all_rows': {len(allRows)}, 'new_records': {len(newRecords)}, 'skip': {skip}, 'limit': {limit}}}"
+        
         if debug_loop:
-            print({"all_rows": len(allRows), "new_records": len(newRecords)})
-            print(f"skip: {skip}, limit: {limit}")
+            print(message)
+
+        logger.info(message=message)
 
         if maximum and skip + limit > maximum and not loop_until_end:
             limit = maximum - len(allRows)
@@ -467,9 +517,9 @@ async def looper(
         time.sleep(wait_sleep)
 
     if debug_loop:
-        print(
-            f"\n🎉 Success - {len(allRows)} records retrieved from {url} in query looper\n"
-        )
+        message =  f"\n🎉 Success - {len(allRows)} records retrieved from {url} in query looper\n"
+    
+    logger.info(message=message)
 
     if is_close_session:
         await session.aclose()
@@ -489,6 +539,7 @@ class RouteFunction_ResponseTypeError(TypeError):
         )
 
 
+# @log_call(logger=logger, action_name="route_function")
 def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
     """
     Decorator for route functions to ensure they receive certain arguments.
@@ -518,6 +569,7 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
         session: Optional[httpx.AsyncClient] = None,
         **kwargs: Any,
     ) -> Any:
+
         result = await func(
             *args,
             parent_class=parent_class,
