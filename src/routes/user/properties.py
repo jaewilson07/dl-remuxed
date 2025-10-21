@@ -109,7 +109,7 @@ def generate_patch_user_property_body(user_property_ls: List[UserProperty]):
 async def update_user(
     user_id: str,
     user_property_ls: List[UserProperty],
-    auth: DomoAuth = None,
+    auth: DomoAuth,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
     parent_class: str = None,
