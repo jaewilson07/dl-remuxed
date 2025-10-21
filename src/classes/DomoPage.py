@@ -18,6 +18,58 @@ from ..utils import convert as dmcv
 from ..utils import DictDot as util_dd
 from ..client.entities import DomoEntity_w_Lineage
 
+
+class DomoPage_GetRecursive(dmde.ClassError):
+    def __init__(
+        self,
+        cls,
+        entity_id,
+        auth: DomoAuth,
+        include_recursive_children,
+        include_recursive_parents,
+    ):
+        super().__init__(
+            auth=auth,
+            cls=cls,
+            entity_id=entity_id,
+            message=f"can only trace parents OR children recursively but not both. include_recursive_children : {include_recursive_children}, include_recursive_parents: {include_recursive_parents}",
+        )
+
+
+@dataclass
+class DomoPage(DomoEntity_w_Lineage):
+    id: int
+    auth: DomoAuth = field(repr=False)
+    Lineage: dmdl.DomoLineage = field(repr=False)
+
+    title: str = None
+    top_page_id: int = None
+    parent_page_id: int = None
+    is_locked: bool = None
+
+    collections: list = field(default_factory=list)
+
+    owners: list = field(default_factory=list)
+    cards: list = field(default_factory=list)
+
+    custom_attributes: dict = field(default_factory=dict)
+
+    parent_page: dict = None  # DomoPage
+    top_page: dict = None  # DomoPage
+    children: list = field(default_factory=list)
+
+    # parent_hierarchy: [dict] = None
+    # flat_children: list = None
+
+    layout: dmpg_c.PageLayout = field(default_factory=dict)
+__all__ = ["DomoPage_GetRecursive", "DomoPage", "DomoPages", "Page_NoAccess"]
+
+
+import datetime as dt
+from dataclasses import dataclass, field
+from typing import List
+
+import httpx
 from . import DomoLineage as dmdl
 from . import DomoPage_Content as dmpg_c
 from ..client import auth as dmda
@@ -44,8 +96,8 @@ class DomoPage_GetRecursive(dmde.ClassError):
             auth=auth,
             cls=cls,
             entity_id=entity_id,
-            message=f"can only trace parents OR children recursively but not both. include_recursive_children : {include_recursive_children}, include_recursive_parents: {include_recursive_parents}",
-        )
+            message=f"can only trace parents OR children recursively but not both. include_recursive_children : {include_recurs\
+ive_children}, include_recursive_parents: {include_recursive_parents}",                                                                )
 
 
 @dataclass
@@ -399,8 +451,7 @@ async def get_children(self: DomoPage, is_suppress_errors: bool = False):
 
         except DomoError as e:
             print(
-                f"cannot access child page -- https://{parent_page.auth.domo_instance}.domo.com/page/{page_id} -- is it shared with you?"
-            )
+                f"cannot access child page -- https://{parent_page.auth.domo_instance}.domo.com/page/{page_id} -- is it shared \nwith you?"                                                                    )
             if not is_suppress_errors:
                 raise e from e
 
@@ -623,7 +674,7 @@ async def get_accesslist(
             (
                 owner_obj
                 for owner_obj in owner_ls
-                if int(owner_obj["id"])
+                if int(owner_obj["id"]) 
                 in [
                     int(domo_group.id)
                     for domo_group in domo_user.custom_attributes["group_membership"]

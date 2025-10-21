@@ -56,6 +56,7 @@ dev = [
     "pytest",
     "pytest-cov",
     "pre-commit"]
+<<<<<<< HEAD
 
 [dependency-groups]
 dev = [
@@ -68,16 +69,6 @@ dev = [
     "pytest-cov",
     "pre-commit",
 ]
-
-[project.urls]
-Homepage = "https://github.com/jaewilson07/dl-remuxed"
-Repository = "https://github.com/jaewilson07/dl-remuxed.git"
-Documentation = "https://jaewilson07.github.io/dl-remuxed"
-
-[tool.ruff]
-line-length = 88
-target-version = "py39"
-src = ["src"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP"]
