@@ -8,7 +8,7 @@ from typing import Generator
 import os
 from unittest.mock import MagicMock
 
-from test_harness import RouteTestHarness
+from .test_harness import RouteTestHarness
 
 
 # Configure pytest for async testing

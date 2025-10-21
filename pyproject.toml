@@ -9,7 +9,7 @@ description = "A Python library for interacting with Domo APIs"
 authors = [
     { name = "Jae Wilson", email = "jaewilson07@gmail.com" }
 ]
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
 readme = "README.md"
 requires-python = ">=3.9"
 keywords = ["jupyter", "notebook", "python", "domo", "api"]
@@ -17,7 +17,6 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Natural Language :: English",
-    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -80,5 +79,7 @@ mypy_path = "src"
 module = "domolibrary2.*"
 ignore_missing_imports = true
 
-[tool.setuptools.packages.find]
-where = ["src"]
+
+[tool.setuptools]
+packages = ["domolibrary2"]
+package-dir = {"domolibrary2" = "src"}
