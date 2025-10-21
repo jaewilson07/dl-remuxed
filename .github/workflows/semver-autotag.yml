@@ -1,0 +1,221 @@
+name: Semantic Versioning Auto-Tag
+
+on:
+    push:
+        branches:
+            - main
+
+permissions:
+    contents: write
+    pull-requests: read
+
+jobs:
+    auto-version:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+                  token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Get merged PR details
+              id: get-pr
+              uses: actions/github-script@v7
+              with:
+                  script: |
+                      const commit = context.payload.head_commit;
+                      if (!commit) {
+                        console.log('No commit found in payload');
+                        return { labels: [], number: null };
+                      }
+
+                      // Find PR associated with this merge commit
+                      const prs = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        commit_sha: commit.id
+                      });
+
+                      if (prs.data.length === 0) {
+                        console.log('No PR found for this commit');
+                        return { labels: [], number: null };
+                      }
+
+                      const pr = prs.data[0];
+                      const labels = pr.labels.map(label => label.name);
+
+                      console.log(`Found PR #${pr.number} with labels: ${labels.join(', ')}`);
+
+                      return {
+                        labels: labels,
+                        number: pr.number,
+                        title: pr.title
+                      };
+
+            - name: Get latest tag
+              id: get-latest-tag
+              run: |
+                  # Get the latest tag, or use 0.0.1-alpha if no tags exist
+                  LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.1-alpha")
+                  echo "latest_tag=${LATEST_TAG}" >> $GITHUB_OUTPUT
+                  echo "Latest tag: ${LATEST_TAG}"
+
+            - name: Calculate new version
+              id: calc-version
+              uses: actions/github-script@v7
+              env:
+                  LATEST_TAG: ${{ steps.get-latest-tag.outputs.latest_tag }}
+                  PR_DATA: ${{ steps.get-pr.outputs.result }}
+              with:
+                  script: |
+                      const prData = JSON.parse(process.env.PR_DATA);
+                      const labels = prData.labels || [];
+
+                      console.log('PR Labels:', labels);
+
+                      // If no PR found or no labels, skip versioning
+                      if (labels.length === 0) {
+                        console.log('No labels found, skipping version bump');
+                        core.setOutput('skip', 'true');
+                        return;
+                      }
+
+                      // Parse current version
+                      let currentTag = process.env.LATEST_TAG.replace(/^v/, '');
+                      console.log('Current version:', currentTag);
+
+                      // Extract version parts and suffix
+                      const versionRegex = /^(\d+)\.(\d+)\.(\d+)(?:-(.+))?$/;
+                      const match = currentTag.match(versionRegex);
+
+                      if (!match) {
+                        console.log('Invalid version format, defaulting to 0.0.0');
+                        currentTag = '0.0.0';
+                      }
+
+                      let [, major, minor, patch, suffix] = match || ['', '0', '0', '0', ''];
+                      major = parseInt(major);
+                      minor = parseInt(minor);
+                      patch = parseInt(patch);
+
+                      console.log(`Parsed version: ${major}.${minor}.${patch}${suffix ? `-${suffix}` : ''}`);
+
+                       // Determine version bump
+                       let bumpType = 'patch'; // default
+                       if (labels.includes('major')) {
+                         bumpType = 'major';
+                       } else if (labels.includes('feat')) {
+                         bumpType = 'minor';
+                       } else if (labels.includes('fix') || labels.includes('patch') || labels.includes('refactor')) {
+                         bumpType = 'patch';
+                       }
+
+                      console.log('Bump type:', bumpType);
+
+                      // Apply version bump
+                      if (bumpType === 'major') {
+                        major += 1;
+                        minor = 0;
+                        patch = 0;
+                      } else if (bumpType === 'minor') {
+                        minor += 1;
+                        patch = 0;
+                      } else {
+                        patch += 1;
+                      }
+
+                      // Determine release stage
+                      let newSuffix = suffix; // preserve by default
+                      if (labels.includes('stable')) {
+                        newSuffix = '';
+                      } else if (labels.includes('beta')) {
+                        newSuffix = 'beta';
+                      } else if (labels.includes('alpha')) {
+                        newSuffix = 'alpha';
+                      }
+
+                      console.log('New suffix:', newSuffix || '(none)');
+
+                      // Construct new version
+                      const newVersion = `${major}.${minor}.${patch}${newSuffix ? `-${newSuffix}` : ''}`;
+                      console.log('New version:', newVersion);
+
+                      core.setOutput('skip', 'false');
+                      core.setOutput('new_version', newVersion);
+                      core.setOutput('bump_type', bumpType);
+                      core.setOutput('pr_number', prData.number);
+                      core.setOutput('pr_title', prData.title);
+
+            - name: Update version files
+              if: steps.calc-version.outputs.skip != 'true'
+              run: |
+                  NEW_VERSION="${{ steps.calc-version.outputs.new_version }}"
+
+                  echo "Updating version to: $NEW_VERSION"
+
+                  # Update pyproject.toml
+                  sed -i "s/^version = .*/version = \"$NEW_VERSION\"/" pyproject.toml
+
+                  # Update src/__init__.py
+                  sed -i "s/^__version__ = .*/__version__ = \"$NEW_VERSION\"/" src/__init__.py
+
+                  echo "Files updated successfully"
+
+                  # Show changes
+                  echo "--- pyproject.toml changes ---"
+                  git diff pyproject.toml
+                  echo "--- src/__init__.py changes ---"
+                  git diff src/__init__.py
+
+            - name: Commit version bump
+              if: steps.calc-version.outputs.skip != 'true'
+              run: |
+                  git config --local user.email "github-actions[bot]@users.noreply.github.com"
+                  git config --local user.name "github-actions[bot]"
+
+                  git add pyproject.toml src/__init__.py
+                  git commit -m "chore: bump version to ${{ steps.calc-version.outputs.new_version }} [skip ci]"
+                  git push
+
+            - name: Create and push tag
+              if: steps.calc-version.outputs.skip != 'true'
+              run: |
+                  NEW_VERSION="${{ steps.calc-version.outputs.new_version }}"
+                  git tag -a "v${NEW_VERSION}" -m "Release v${NEW_VERSION}"
+                  git push origin "v${NEW_VERSION}"
+
+            - name: Create GitHub Release
+              if: steps.calc-version.outputs.skip != 'true'
+              uses: actions/github-script@v7
+              with:
+                  script: |
+                      const newVersion = '${{ steps.calc-version.outputs.new_version }}';
+                      const bumpType = '${{ steps.calc-version.outputs.bump_type }}';
+                      const prNumber = '${{ steps.calc-version.outputs.pr_number }}';
+                      const prTitle = '${{ steps.calc-version.outputs.pr_title }}';
+
+                      const isPrerelease = newVersion.includes('-alpha') || newVersion.includes('-beta');
+
+                      let releaseNotes = `## Release v${newVersion}\n\n`;
+                      releaseNotes += `**Type:** ${bumpType.toUpperCase()} version bump\n\n`;
+
+                      if (prNumber) {
+                        releaseNotes += `**Changes:**\n`;
+                        releaseNotes += `- ${prTitle} (#${prNumber})\n\n`;
+                      }
+
+                      releaseNotes += `**Full Changelog:** https://github.com/${{ github.repository }}/compare/v${{ steps.get-latest-tag.outputs.latest_tag }}...v${newVersion}`;
+
+                      await github.rest.repos.createRelease({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        tag_name: `v${newVersion}`,
+                        name: `v${newVersion}`,
+                        body: releaseNotes,
+                        draft: false,
+                        prerelease: isPrerelease
+                      });
+
+                      console.log(`Created release for v${newVersion}`);
