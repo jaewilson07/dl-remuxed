@@ -40,6 +40,9 @@ from .crud import (
     upsert_package,
 )
 
+# Backward compatibility alias
+CodeEngine_API_Error = CodeEngine_GET_Error
+
 __all__ = [
     # Exception classes
     "CodeEngine_GET_Error",
@@ -47,6 +50,7 @@ __all__ = [
     "CodeEngine_CRUD_Error",
     "CodeEngine_InvalidPackage",
     "CodeEngine_FunctionCallError",
+    "CodeEngine_API_Error",  # Backward compatibility alias
     # Core functions
     "get_packages",
     "CodeEngine_Package_Parts",
