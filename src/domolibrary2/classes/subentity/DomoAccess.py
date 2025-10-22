@@ -14,6 +14,7 @@ import httpx
 from .. import DomoUser as dmdu
 
 from ...client import exceptions as dmde
+from ...client.auth import DomoAuth
 from ...client.entities import DomoSubEntity, Entity_Relation
 from ...routes import account as account_routes
 from ...routes.account import (

@@ -18,8 +18,8 @@ from ...client import auth as dmda, exceptions as dmde
 from ...client.auth import DomoAuth
 from ...utils import convert as dmcv
 from . import Account_Default as dmacb
-from ..subentity.DomoAccess import DomoAccessToken as dmact
-from ..DomoUser import DomoUser as dmdu
+from ..DomoAccessToken import DomoAccessToken as dmact
+from .. import DomoUser as dmdu
 
 
 class DAC_NoTargetInstance(dmde.ClassError):
@@ -91,7 +91,7 @@ class DomoAccount_Credential(dmacb.DomoAccount_Default):
 
     target_auth: DomoAuth = field(default=None)
     target_user: dmdu.DomoUser = field(default=None)
-    target_access_token: dmact.DomoAccessToken = field(default=None)
+    target_access_token: dmact = field(default=None)
 
     # def __post_init__(self):
     #     if not self.target_instance:

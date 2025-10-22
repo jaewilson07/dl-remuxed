@@ -3,6 +3,11 @@ __all__ = [
     "DomoAccountOAuth_Config_JiraOnPremOauth",
     "OAuthConfig",
     "DomoAccount_OAuth",
+    # Route exceptions
+    "Account_GET_Error",
+    "Account_CRUD_Error",
+    "Account_NoMatch",
+    "Account_Config_Error",
 ]
 
 from dataclasses import dataclass, field
@@ -14,11 +19,17 @@ import httpx
 from ...client import entities as dmee
 from ...client.auth import DomoAuth
 from ...routes import account as account_routes
+from ...routes.account.exceptions import (
+    Account_Config_Error,
+    Account_CRUD_Error,
+    Account_GET_Error,
+    Account_NoMatch,
+)
 from . import (
     Account_Default as dmacb,
     Config as dmacnfg,
 )
-from ..subentity.DomoAccess import DomoAccess as dmacc
+from ..subentity.DomoAccess import DomoAccess_OAuth
 
 
 @dataclass
@@ -86,10 +97,10 @@ class OAuthConfig(dmee.DomoEnumMixin, Enum):
 
 @dataclass
 class DomoAccount_OAuth(dmacb.DomoAccount_Default):
-    Access: dmacc.DomoAccess_OAuth = field(repr=False, default=None)
+    Access: DomoAccess_OAuth = field(repr=False, default=None)
 
     def __post_init__(self):
-        self.Access = dmacc.DomoAccess_OAuth.from_parent(parent=self)
+        self.Access = DomoAccess_OAuth.from_parent(parent=self)
 
     async def _get_config(
         self,
@@ -97,8 +108,28 @@ class DomoAccount_OAuth(dmacb.DomoAccount_Default):
         return_raw: bool = False,
         debug_api: bool = None,
         debug_num_stacks_to_drop=2,
-        is_suppress_no_config: bool = False,  # can be used to suppress cases where the config is not defined, either because the account_config is OAuth, and therefore not stored in Domo OR because the AccountConfig class doesn't cover the data_type
+        is_suppress_no_config: bool = False,
     ):
+        """Retrieve OAuth account configuration.
+
+        Internal method to fetch and parse OAuth account configuration.
+        Can be used to suppress cases where the config is not defined, either
+        because the account_config is OAuth and not stored in Domo, OR because
+        the AccountConfig class doesn't cover the data_type.
+
+        Args:
+            session: HTTP client session (optional)
+            return_raw: Return raw response without processing
+            debug_api: Enable API debugging
+            debug_num_stacks_to_drop: Stack frames to drop for debugging
+            is_suppress_no_config: Suppress errors when config is not defined
+
+        Returns:
+            DomoAccount_Config: OAuth account configuration object
+
+        Raises:
+            Account_Config_Error: If configuration retrieval or parsing fails
+        """
         if not self.data_provider_type:
             res = await account_routes.get_account_by_id(
                 auth=self.auth,
@@ -162,7 +193,26 @@ class DomoAccount_OAuth(dmacb.DomoAccount_Default):
         debug_num_stacks_to_drop=2,
         **kwargs,
     ):
-        """retrieves account metadata and attempts to retrieve config"""
+        """Retrieve OAuth account metadata and attempt to retrieve configuration.
+
+        Args:
+            auth: Authentication object for API requests
+            account_id: ID of the OAuth account to retrieve
+            is_suppress_no_config: Suppress errors when config is not defined
+            session: HTTP client session (optional)
+            return_raw: Return raw response without processing
+            debug_api: Enable API debugging
+            debug_num_stacks_to_drop: Stack frames to drop for debugging
+            **kwargs: Additional arguments passed to from_dict
+
+        Returns:
+            DomoAccount_OAuth: OAuth account instance with configuration
+
+        Raises:
+            Account_NoMatch: If OAuth account is not found
+            Account_GET_Error: If OAuth account retrieval fails
+            Account_Config_Error: If configuration retrieval fails
+        """
 
         res = await account_routes.get_oauth_account_by_id(
             auth=auth,
@@ -205,6 +255,23 @@ class DomoAccount_OAuth(dmacb.DomoAccount_Default):
         session: httpx.AsyncClient = None,
         debug_num_stacks_to_drop=2,
     ):
+        """Create a new OAuth account.
+
+        Args:
+            auth: Authentication object for API requests
+            account_name: Name for the new OAuth account
+            oauth_config: OAuth configuration object
+            origin: Origin type for OAuth configuration (default: OAUTH_CONFIGURATION)
+            debug_api: Enable API debugging
+            session: HTTP client session (optional)
+            debug_num_stacks_to_drop: Stack frames to drop for debugging
+
+        Returns:
+            DomoAccount_OAuth: The newly created OAuth account instance
+
+        Raises:
+            Account_CRUD_Error: If OAuth account creation fails
+        """
         res = await account_routes.create_oauth_account(
             account_name=account_name,
             data_provider_type=oauth_config.data_provider_type,
@@ -230,6 +297,19 @@ class DomoAccount_OAuth(dmacb.DomoAccount_Default):
         debug_num_stacks_to_drop=2,
         session: httpx.AsyncClient = None,
     ):
+        """Delete this OAuth account.
+
+        Args:
+            debug_api: Enable API debugging
+            debug_num_stacks_to_drop: Stack frames to drop for debugging
+            session: HTTP client session (optional)
+
+        Returns:
+            ResponseGetData: API response from delete operation
+
+        Raises:
+            Account_CRUD_Error: If OAuth account deletion fails
+        """
         return await account_routes.delete_oauth_account(
             auth=self.auth,
             account_id=self.id,
@@ -246,6 +326,20 @@ class DomoAccount_OAuth(dmacb.DomoAccount_Default):
         debug_num_stacks_to_drop: int = 2,
         session: httpx.AsyncClient = None,
     ):
+        """Update the name of this OAuth account.
+
+        Args:
+            account_name: New name for the account
+            debug_api: Enable API debugging
+            debug_num_stacks_to_drop: Stack frames to drop for debugging
+            session: HTTP client session (optional)
+
+        Returns:
+            DomoAccount_OAuth: Self for method chaining
+
+        Raises:
+            Account_CRUD_Error: If OAuth account name update fails
+        """
         await account_routes.update_oauth_account_name(
             auth=self.auth,
             account_id=self.id,
@@ -266,6 +360,20 @@ class DomoAccount_OAuth(dmacb.DomoAccount_Default):
         debug_num_stacks_to_drop=2,
         session: httpx.AsyncClient = None,
     ):
+        """Update the OAuth configuration for this account.
+
+        Args:
+            oauth_config: New OAuth configuration (if None, uses existing Config)
+            debug_api: Enable API debugging
+            debug_num_stacks_to_drop: Stack frames to drop for debugging
+            session: HTTP client session (optional)
+
+        Returns:
+            DomoAccount_OAuth: Self for method chaining
+
+        Raises:
+            Account_Config_Error: If OAuth account config update fails
+        """
         await account_routes.update_oauth_account_config(
             auth=self.auth,
             account_id=self.id,
