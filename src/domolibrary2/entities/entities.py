@@ -229,7 +229,7 @@ class DomoManager(DomoBase):
 
 
 @dataclass
-class DomoSubEntity(DomoBase):
+class DomoSubEntity(DomoEntity):
     """Base class for entities that belong to a parent entity.
 
     Handles entities that are sub-components of other entities,

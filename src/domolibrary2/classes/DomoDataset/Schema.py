@@ -11,11 +11,12 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, List
 
+import httpx
 import pandas as pd
 
-from ...client.auth import DomoAuth
+
 from ...entities.entities import DomoSubEntity
-from ...client.exceptions import DomoError
+from ...client.exceptions import ClassError
 from ...routes import dataset as dataset_routes
 
 
@@ -27,6 +28,14 @@ class DatasetSchema_Types(Enum):
     DATETIME = "DATETIME"
 
 
+class DatasetSchema_InvalidSchema(ClassError):
+    def __init__(self, missing_columns: List[str]):
+        message = (
+            f"Dataset schema is missing required columns: {', '.join(missing_columns)}"
+        )
+        super().__init__(message=message)
+
+
 @dataclass
 class DomoDataset_Schema_Column:
     name: str
@@ -36,6 +45,7 @@ class DomoDataset_Schema_Column:
     visible: bool = True
     upsert_key: bool = False
     tags: List[Any] = field(default_factory=list)  # DomoTag
+    raw: dict = field(repr=False, default_factory=dict)
 
     def __eq__(self, other):
         return self.id == other.id
@@ -61,6 +71,7 @@ class DomoDataset_Schema_Column:
             upsert_key=obj.get("upsertKey") or False,
             order=obj.get("order") or 0,
             tags=obj.get("tags", []),  # Assuming tags are a list of objects
+            raw=obj,
         )
 
     def to_dict(self):
@@ -74,17 +85,7 @@ class DomoDataset_Schema_Column:
 class DomoDataset_Schema(DomoSubEntity):
     """class for interacting with dataset schemas"""
 
-    auth: DomoAuth = field(repr=False)
-    parent: Any = field(repr=False)
-
-    parent_id: str
-
     columns: List[DomoDataset_Schema_Column] = field(default_factory=list)
-
-    def __post_init__(self):
-        if self.parent:
-            self.auth = self.parent.auth
-            self.parent_id = self.parent.id
 
     # @classmethod
     # def from_parent(cls, parent):
@@ -124,13 +125,11 @@ class DomoDataset_Schema(DomoSubEntity):
         return self.columns
 
     async def _test_missing_columns(
-        self: "DomoDataset_Schema",
-        df: pd.DataFrame,
-        dataset_id=None,
-        auth: "DomoAuth" = None,
+        self,
+        df: pd.DataFrame,  # test dataframe to compare against
     ):
-        dataset_id = dataset_id or self.parent.id
-        auth = auth or self.parent.auth
+        dataset_id = self.parent.id
+        auth = self.parent.auth
 
         await self.get()
 
@@ -140,16 +139,19 @@ class DomoDataset_Schema(DomoSubEntity):
 
         if len(missing_columns) > 0:
             raise DatasetSchema_InvalidSchema(
-                domo_instance=auth.domo_instance,
-                dataset_id=dataset_id,
+                cls_instance=self.parent,
                 missing_columns=missing_columns,
             )
 
         return True
 
-
-class DatasetSchema_InvalidSchema(DomoError):
-    async def reset_col_order(self: "DomoDataset_Schema", df: pd.DataFrame):
+    async def change_col_order(
+        self,
+        df: pd.DataFrame,
+        session: httpx.AsyncClient = None,
+        is_update_schema: bool = True,
+        debug_api: bool = False,
+    ):
         from ...routes import dataset as dataset_routes
 
         await self.get()
@@ -165,14 +167,18 @@ class DatasetSchema_InvalidSchema(DomoError):
         for index, col in enumerate(self.columns):
             col.order = col.order if col.order > 0 else index
 
-        return await dataset_routes.alter_schema(
-            auth=self.auth, dataset_id=self.parent.id, schema_obj=self.schema
-        )
+        if not is_update_schema:
+            return self.columns
 
-    def add_col(
-        self: "DomoDataset_Schema",
-        col: "DomoDataset_Schema_Column",
+        return await self.alter_schema(debug_api=debug_api, session=session)
+
+    async def add_col(
+        self,
+        col: DomoDataset_Schema_Column,
         debug_prn: bool = False,
+        is_update_schema: bool = True,
+        debug_api: bool = False,
+        session: httpx.AsncClient = None,
     ):
         if col in self.columns and debug_prn:
             print(
@@ -182,12 +188,17 @@ class DatasetSchema_InvalidSchema(DomoError):
         if col not in self.columns:
             self.columns.append(col)
 
-        return self.columns
+        if not is_update_schema:
+            return self.columns
 
-    def remove_col(
-        self: "DomoDataset_Schema",
+        return await self.update_schema(debug_api=debug_api, session=session)
+
+    async def remove_col(
+        self,
         col_to_remove: "DomoDataset_Schema_Column",
-        debug_prn: bool = False,
+        debug_api: bool = False,
+        is_update_schema: bool = True,
+        session: httpx.AsyncClient = None,
     ):
         [
             self.columns.pop(index)
@@ -195,43 +206,43 @@ class DatasetSchema_InvalidSchema(DomoError):
             if col == col_to_remove
         ]
 
-        return self.columns
+        if not is_update_schema:
+            return self.columns
 
-    async def alter_schema(
-        self: "DomoDataset_Schema",
-        dataset_id: str = None,
-        auth: "DomoAuth" = None,
+        return await self.update_schema(debug_api=debug_api, session=session)
+
+    async def update_schema(
+        self,
         return_raw: bool = False,
+        session: httpx.AsyncClient = None,
         debug_api: bool = False,
     ):
-        dataset_id = dataset_id or self.parent.id
-        auth = auth or self.parent.auth
+        dataset_id = self.parent.id
+        auth = self.parent.auth
 
         schema_obj = self.to_dict()
 
-        if return_raw:
-            return schema_obj
-
         res = await dataset_routes.alter_schema(
-            dataset_id=dataset_id, auth=auth, schema_obj=schema_obj, debug_api=debug_api
+            dataset_id=dataset_id,
+            auth=auth,
+            schema_obj=schema_obj,
+            debug_api=debug_api,
+            session=session,
         )
 
-        if not res.is_success:
-            raise CRUD_Dataset_Error(
-                auth=auth, res=res, message=f"unable to alter schema for {dataset_id}"
-            )
+        if return_raw:
+            return res
 
-        return res
+        return await self.get()
 
-    async def alter_schema_descriptions(
-        self: "DomoDataset_Schema",
-        dataset_id: str = None,
-        auth: "DomoAuth" = None,
+    async def update_schema_descriptions(
+        self,
         return_raw: bool = False,
         debug_api: bool = False,
+        session: httpx.AsyncClient = None,
     ):
-        dataset_id = dataset_id or self.parent.id
-        auth = auth or self.parent.auth
+        dataset_id = self.parent.id
+        auth = self.parent.auth
 
         schema_obj = self.to_dict()
 
@@ -239,146 +250,11 @@ class DatasetSchema_InvalidSchema(DomoError):
             return schema_obj
 
         res = await dataset_routes.alter_schema_descriptions(
-            dataset_id=dataset_id, auth=auth, schema_obj=schema_obj, debug_api=debug_api
-        )
-
-        if not res.is_success:
-            raise CRUD_Dataset_Error(
-                auth=auth, res=res, message=f"unable to alter schema for {dataset_id}"
-            )
-
-        return res
-
-
-async def _test_missing_columns(
-    self: DomoDataset_Schema,
-    df: pd.DataFrame,
-    dataset_id=None,
-    auth: DomoAuth = None,
-):
-    dataset_id = dataset_id or self.parent.id
-    auth = auth or self.parent.auth
-
-    await self.get()
-
-    missing_columns = [
-        col for col in df.columns if col not in [scol.name for scol in self.columns]
-    ]
-
-    if len(missing_columns) > 0:
-        raise DatasetSchema_InvalidSchema(
-            domo_instance=auth.domo_instance,
             dataset_id=dataset_id,
-            missing_columns=missing_columns,
+            auth=auth,
+            schema_obj=schema_obj,
+            debug_api=debug_api,
+            session=session,
         )
 
-    return False
-
-
-async def reset_col_order(self: DomoDataset_Schema, df: pd.DataFrame):
-    from ...routes import dataset as dataset_routes
-
-    await self.get()
-
-    if len(self.columns) != len(df.columns):
-        raise Exception("")
-
-    for index, col in enumerate(self.schema.columns):
-        col.order = col.order if col.order > 0 else index
-
-    return await dataset_routes.alter_schema(
-        auth=self.auth, dataset_id=self.parent.id, schema_obj=self.schema
-    )
-
-
-def add_col(
-    self: DomoDataset_Schema, col: DomoDataset_Schema_Column, debug_prn: bool = False
-):
-    if col in self.columns and debug_prn:
-        print(
-            f"column - {col.name} already in dataset {self.parent.name if self.parent else ''}"
-        )
-
-    if col not in self.columns:
-        self.columns.append(col)
-
-    return self.columns
-
-
-def remove_col(
-    self: DomoDataset_Schema,
-    col_to_remove: DomoDataset_Schema_Column,
-    debug_prn: bool = False,
-):
-    [
-        self.columns.pop(index)
-        for index, col in enumerate(self.columns)
-        if col == col_to_remove
-    ]
-
-    return self.columns
-
-
-class CRUD_Dataset_Error(DomoError):
-    def __init__(self, auth, res, message):
-        super().__init__(
-            status=res.status,
-            function_name=res.traceback_details.function_name,
-            parent_class=res.traceback_details.parent_class,
-            message=message or res.response,
-            domo_instance=auth.domo_instance,
-        )
-
-
-async def alter_schema(
-    self: DomoDataset_Schema,
-    dataset_id: str = None,
-    auth: DomoAuth = None,
-    return_raw: bool = False,
-    debug_api: bool = False,
-):
-    dataset_id = dataset_id or self.parent.id
-    auth = auth or self.parent.auth
-
-    schema_obj = self.to_dict()
-
-    if return_raw:
-        return schema_obj
-
-    res = await dataset_routes.alter_schema(
-        dataset_id=dataset_id, auth=auth, schema_obj=schema_obj, debug_api=debug_api
-    )
-
-    if not res.is_success:
-        raise CRUD_Dataset_Error(
-            auth=auth, res=res, message=f"unable to alter schema for {dataset_id}"
-        )
-
-    return res
-
-
-async def alter_schema_descriptions(
-    self: DomoDataset_Schema,
-    dataset_id: str = None,
-    auth: DomoAuth = None,
-    return_raw: bool = False,
-    debug_api: bool = False,
-):
-    dataset_id = dataset_id or self.parent.id
-    auth = auth or self.parent.auth
-
-    schema_obj = self.to_dict()
-
-    if return_raw:
-        return schema_obj
-
-    res = await dataset_routes.alter_schema_descriptions(
-        dataset_id=dataset_id, auth=auth, schema_obj=schema_obj, debug_api=debug_api
-    )
-
-    if not res.is_success:
-        raise CRUD_Dataset_Error(
-            auth=auth, res=res, message=f"unable to alter schema for {dataset_id}"
-        )
-
-    return res
+        return await self.get()

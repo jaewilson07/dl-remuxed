@@ -28,29 +28,32 @@ Enums:
 """
 
 # Import all classes and functionality from the package modules
-from .Connector import DomoConnector, DomoConnectors
-from .Dataset import (
+from .connector import DomoConnector, DomoConnectors
+from .dataset import (
     DomoDataset,
     DomoDataset_Default,
     DomoPublishDataset,
     FederatedDomoDataset,
 )
-from .PDP import Dataset_PDP_Policies, PDP_Parameter, PDP_Policy, SearchPDP_NotFound
-from .Schema import (
+from .pdp import Dataset_PDP_Policies, PDP_Parameter, PDP_Policy, SearchPDP_NotFound
+from .schema import (
     DatasetSchema_InvalidSchema,
     DatasetSchema_Types,
     DomoDataset_Schema,
     DomoDataset_Schema_Column,
 )
-from .Stream import (
+from .stream import (
     DomoStream,
+    DomoStreams,
+)
+from .stream_config import (
     StreamConfig,
+    StreamConfig_Mappings,
     StreamConfig_Mapping_snowflake,
     StreamConfig_Mapping_snowflake_federated,
     StreamConfig_Mapping_snowflake_internal_unload,
     StreamConfig_Mapping_snowflake_keypair_internal_managed_unload,
     StreamConfig_Mapping_snowflakekeypairauthentication,
-    StreamConfig_Mappings,
 )
 
 # Import route-level exceptions that are commonly used
@@ -82,6 +85,7 @@ __all__ = [
     "SearchPDP_NotFound",
     # Streaming
     "DomoStream",
+    "DomoStreams",
     "StreamConfig",
     "StreamConfig_Mappings",
     "StreamConfig_Mapping_snowflake",
