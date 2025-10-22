@@ -1,2 +1,5 @@
 DOMO_ACCESS_TOKEN = ""
 DOMO_INSTANCE = "domo-instance"
+
+# Dataset IDs for testing
+DATASET_ID_1 = "your-test-dataset-id"
