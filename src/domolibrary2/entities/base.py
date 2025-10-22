@@ -6,9 +6,13 @@ the building blocks for all Domo entities and relationships.
 """
 
 import abc
-from dataclasses import dataclass
+from dataclasses import dataclass, field, fields
 from enum import Enum
-from typing import Any
+from typing import Any, Optional, Callable, List, TYPE_CHECKING
+
+
+from ..utils.convert import convert_snake_to_pascal
+from ..client import auth as dmda
 
 
 class DomoEnumMixin:
@@ -73,23 +77,6 @@ class DomoEnumMixin:
 
 
 class DomoEnum(DomoEnumMixin, Enum):
-    """Enhanced Enum class with case-insensitive lookup and default value support.
-
-    This enum provides case-insensitive string matching and falls back to a default
-    value when no match is found. All subclasses should define a 'default' member.
-
-    Example:
-        >>> class Status(DomoEnum):
-        ...     ACTIVE = "active"
-        ...     INACTIVE = "inactive"
-        ...     default = "UNKNOWN"
-        >>> Status.get("ACTIVE")  # Case insensitive
-        <Status.ACTIVE: 'active'>
-        >>> Status.get("invalid")
-        <Status.default: 'UNKNOWN'>
-    """
-
-    # Define a default value that all enum subclasses should override
     default = "UNKNOWN"
 
 
