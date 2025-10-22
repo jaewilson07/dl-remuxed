@@ -7,7 +7,15 @@ Exception Classes:
     ApiClient_GET_Error: Raised when API client retrieval operations fail
     ApiClient_CRUD_Error: Raised when API client create/update/delete operations fail
     ApiClient_RevokeError: Raised when API client revocation operations fail
+    SearchApiClient_NotFound: Raised when API client search operations return no results
 """
+
+__all__ = [
+    "ApiClient_GET_Error",
+    "ApiClient_CRUD_Error",
+    "ApiClient_RevokeError",
+    "SearchApiClient_NotFound",
+]
 
 from typing import Optional
 
@@ -95,5 +103,31 @@ class ApiClient_RevokeError(RouteError):
             message=message,
             entity_id=client_id,
             res=res,
+            **kwargs,
+        )
+
+
+class SearchApiClient_NotFound(RouteError):
+    """
+    Raised when API client search operations return no results.
+
+    This exception is used when searching for API clients by name or other
+    criteria yields no matching results.
+    """
+
+    def __init__(
+        self,
+        search_criteria: str,
+        res: Optional[rgd.ResponseGetData] = None,
+        message: Optional[str] = None,
+        **kwargs,
+    ):
+        if not message:
+            message = f"No API client found matching: {search_criteria}"
+
+        super().__init__(
+            message=message,
+            res=res,
+            additional_context={"search_criteria": search_criteria},
             **kwargs,
         )

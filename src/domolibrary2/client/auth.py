@@ -394,7 +394,7 @@ class _DomoFullAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):
             self.token_name = self.token_name or "full_auth"
 
         if not self.token:
-            raise AuthError("Failed to retrieve authentication token")
+            raise AuthError(message="Failed to retrieve authentication token")
 
         return self.token
 

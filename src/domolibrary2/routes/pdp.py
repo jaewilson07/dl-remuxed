@@ -149,7 +149,9 @@ class PDP_NotRetrieved(PDP_GET_Error):
 class SearchPDP_Error(SearchPDP_NotFound):
     """Legacy error class - use SearchPDP_NotFound instead."""
 
-    def __init__(self, status=None, message=None, domo_instance=None, function_name=None):
+    def __init__(
+        self, status=None, message=None, domo_instance=None, function_name=None
+    ):
         # Extract search criteria from message if available
         search_criteria = message or "unknown"
         super().__init__(search_criteria=search_criteria, res=None)
@@ -176,8 +178,8 @@ async def get_pdp_policies(
     """
     Retrieve all PDP policies for a specific dataset.
 
-    Fetches a list of all PDP (Personalized Data Permissions) policies associated 
-    with the specified dataset. Includes policy filters, associations, and open 
+    Fetches a list of all PDP (Personalized Data Permissions) policies associated
+    with the specified dataset. Includes policy filters, associations, and open
     policy settings when include_all_rows is True.
 
     Args:
@@ -220,7 +222,9 @@ async def get_pdp_policies(
     if return_raw:
         return res
 
-    if not res.is_success or (isinstance(res.response, list) and len(res.response) == 0):
+    if not res.is_success or (
+        isinstance(res.response, list) and len(res.response) == 0
+    ):
         raise PDP_GET_Error(
             dataset_id=dataset_id,
             res=res,
@@ -666,7 +670,9 @@ async def toggle_pdp(
         >>> # Disable PDP for a dataset
         >>> response = await toggle_pdp(auth, "abc123", is_enable=False)
     """
-    url = f"https://{auth.domo_instance}.domo.com/api/query/v1/data-control/{dataset_id}"
+    url = (
+        f"https://{auth.domo_instance}.domo.com/api/query/v1/data-control/{dataset_id}"
+    )
 
     body = {
         "enabled": is_enable,
