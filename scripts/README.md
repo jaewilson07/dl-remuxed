@@ -5,6 +5,7 @@ This folder contains PowerShell scripts for common development tasks.
 ## Scripts
 
 ### `setup-dev.ps1`
+
 Sets up the development environment by installing dependencies and pre-commit hooks.
 
 ```powershell
@@ -12,6 +13,7 @@ Sets up the development environment by installing dependencies and pre-commit ho
 ```
 
 ### `lint.ps1`
+
 Runs all linting and formatting tools (ruff, black, isort, pylint, mypy).
 
 ```powershell
@@ -19,6 +21,7 @@ Runs all linting and formatting tools (ruff, black, isort, pylint, mypy).
 ```
 
 ### `test.ps1`
+
 Runs the test suite with coverage reporting.
 
 ```powershell
@@ -26,6 +29,7 @@ Runs the test suite with coverage reporting.
 ```
 
 ### `build.ps1`
+
 Builds the package for distribution.
 
 ```powershell
@@ -33,6 +37,7 @@ Builds the package for distribution.
 ```
 
 ### `publish.ps1`
+
 Publishes the package to PyPI. Includes pre-publish checks.
 
 ```powershell
@@ -45,9 +50,9 @@ Publishes the package to PyPI. Includes pre-publish checks.
 
 ## Requirements
 
-- PowerShell 5.1 or later
-- `uv` package manager installed
-- Development dependencies installed (`uv sync --dev`)
+-   PowerShell 5.1 or later
+-   `uv` package manager installed
+-   Development dependencies installed (`uv sync --dev`)
 
 ## Alternative: Manual Commands
 

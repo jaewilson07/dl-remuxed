@@ -1,3 +1,8 @@
+# LOGGER folder - contains sensitive data and test files
+LOGGER/
+EXPORTS/
+
+*_env/
 _publish.yml
 _quarto.yml
 _proc/
@@ -18,6 +23,7 @@ nbs/blog/posts/2024-04-04_extract_codeenegine_functions/EXPORT/
 nbs/blog/posts/20240404_extract_codeenegine_functions/EXPORT/
 
 *.bak
+*.backup
 .gitattributes
 .last_checked
 .gitconfig

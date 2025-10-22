@@ -1,32 +1,30 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "domolibrary2"
-version = "4.5.29"
+version = "0.0.1-alpha"
 description = "A Python library for interacting with Domo APIs"
 authors = [
     { name = "Jae Wilson", email = "jaewilson07@gmail.com" }
 ]
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
 readme = "README.md"
 requires-python = ">=3.9"
-keywords = ["nbdev", "jupyter", "notebook", "python", "domo", "api"]
+keywords = ["jupyter", "notebook", "python", "domo", "api"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Natural Language :: English",
-    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-]
+    "Programming Language :: Python :: 3.12"]
 dependencies = [
-    "nbdev",
     "pandas",
     "aiohttp",
+    "dc_logger",
     "requests",
     "twine",
     "orjson",
@@ -41,8 +39,8 @@ dependencies = [
     "pillow",
     "xkcdpass",
     "sql_metadata",
-    "beautifulsoup4",
-]
+    "dc-logger",
+    "beautifulsoup4"]
 
 [project.optional-dependencies]
 dev = [
@@ -52,8 +50,15 @@ dev = [
 
 [dependency-groups]
 dev = [
+    "pytest",
+    "pytest-cov",
+    "pre-commit",
+    "isort"]
+
+[dependency-groups]
+dev = [
     "pylint",
-    "ruff", 
+    "ruff",
     "black",
     "isort",
     "mypy",
@@ -62,19 +67,14 @@ dev = [
     "pre-commit",
 ]
 
-[project.urls]
-Homepage = "https://github.com/jaewilson07/dl-remuxed"
-Repository = "https://github.com/jaewilson07/dl-remuxed.git"
-Documentation = "https://jaewilson07.github.io/dl-remuxed"
-
-[tool.ruff]
-line-length = 88
-target-version = "py39"
-src = ["src"]
-
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP"]
 ignore = ["E501"]  # Line too long (handled by black)
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+force-wrap-aliases = true
+split-on-trailing-comma = true
 
 [tool.black]
 line-length = 88
@@ -83,6 +83,12 @@ target-version = ['py39']
 [tool.isort]
 profile = "black"
 line_length = 88
+multi_line_output = 3
+force_grid_wrap = 0
+combine_as_imports = true
+remove_redundant_aliases = true
+split_on_trailing_comma = true
+include_trailing_comma = true
 
 [tool.mypy]
 python_version = "3.9"
@@ -95,11 +101,7 @@ mypy_path = "src"
 module = "domolibrary2.*"
 ignore_missing_imports = true
 
-[tool.setuptools.packages.find]
-where = ["src"]
 
-[tool.hatch.build.targets.wheel]
-packages = ["src"]
-
-[tool.hatch.build.targets.wheel.sources]
-"src" = "domolibrary2"
+[tool.setuptools]
+packages = ["domolibrary2"]
+package-dir = {"domolibrary2" = "src"}

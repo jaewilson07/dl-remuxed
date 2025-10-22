@@ -5,10 +5,10 @@ param(
     [Parameter(HelpMessage="Start from a specific directory (classes, client, routes, utils, integrations)")]
     [ValidateSet("classes", "client", "routes", "utils", "integrations")]
     [string]$StartFrom = "classes",
-    
+
     [Parameter(HelpMessage="Process only a specific file")]
     [string]$File = "",
-    
+
     [Parameter(HelpMessage="Dry run - show what would be processed")]
     [switch]$DryRun
 )
@@ -36,16 +36,15 @@ Write-Host "Processing directories in order: $($targetDirectories -join ', ')" -
 
 foreach ($dir in $targetDirectories) {
     $dirPath = "src\$dir"
-    
     if (-not (Test-Path $dirPath)) {
         Write-Host "Directory $dirPath not found, skipping..." -ForegroundColor Yellow
         continue
     }
-    
+
     Write-Host "`nProcessing $dir directory..." -ForegroundColor Green
-    
+
     $pythonFiles = Get-ChildItem -Path $dirPath -Filter "*.py" -Recurse | Where-Object { $_.Name -notmatch '^__' }
-    
+
     if ($File) {
         $pythonFiles = $pythonFiles | Where-Object { $_.Name -eq $File }
         if (-not $pythonFiles) {
@@ -53,37 +52,37 @@ foreach ($dir in $targetDirectories) {
             continue
         }
     }
-    
+
     foreach ($file in $pythonFiles) {
         Write-Host "  📄 $($file.Name)" -ForegroundColor White
-        
+
         if ($DryRun) {
             Write-Host "    [DRY RUN] Would process this file" -ForegroundColor Gray
             continue
         }
-        
+
         # Check if file needs type hints by looking for it in the guide
         $guideContent = Get-Content "type-hints-implementation-guide.md" -Raw
         $fileName = $file.Name
-        
+
         if ($guideContent -match "### $fileName") {
             Write-Host "    ⚠️  Needs type hints - check implementation guide" -ForegroundColor Yellow
-            
+
             # Ask user if they want to open the file for editing
             $response = Read-Host "    Open $fileName for editing? (y/n/s=skip directory/q=quit)"
-            
+
             switch ($response.ToLower()) {
                 'y' {
                     Write-Host "    🔧 Opening $fileName..." -ForegroundColor Blue
                     & code $file.FullName
-                    
+
                     # Wait for user to finish editing
                     Read-Host "    Press Enter when you've finished editing $fileName"
-                    
+
                     # Run a quick syntax check
                     Write-Host "    🔍 Checking syntax..." -ForegroundColor Blue
                     $syntaxCheck = python -m py_compile $file.FullName 2>&1
-                    
+
                     if ($LASTEXITCODE -eq 0) {
                         Write-Host "    ✅ Syntax check passed" -ForegroundColor Green
                     } else {
