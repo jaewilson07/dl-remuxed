@@ -1,4 +1,4 @@
-﻿"""
+"""
 Test script to verify the modular page structure works correctly.
 
 This script demonstrates that all functions and exceptions can be imported
