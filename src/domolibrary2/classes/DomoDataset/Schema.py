@@ -13,8 +13,10 @@ from typing import Any, List
 
 import pandas as pd
 
-from ..client.entities import DomoSubEntity
-from ..routes import dataset as dataset_routes
+from ...client.auth import DomoAuth
+from ...entities.entities import DomoSubEntity
+from ...client.exceptions import DomoError
+from ...routes import dataset as dataset_routes
 
 
 class DatasetSchema_Types(Enum):
@@ -148,7 +150,7 @@ class DomoDataset_Schema(DomoSubEntity):
 
 class DatasetSchema_InvalidSchema(DomoError):
     async def reset_col_order(self: "DomoDataset_Schema", df: pd.DataFrame):
-        from ..routes import dataset as dataset_routes
+        from ...routes import dataset as dataset_routes
 
         await self.get()
 
@@ -274,7 +276,7 @@ async def _test_missing_columns(
 
 
 async def reset_col_order(self: DomoDataset_Schema, df: pd.DataFrame):
-    from ..routes import dataset as dataset_routes
+    from ...routes import dataset as dataset_routes
 
     await self.get()
 

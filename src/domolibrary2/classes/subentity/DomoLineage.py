@@ -21,7 +21,7 @@ import httpx
 from aenum import NoAlias
 
 from ...client import DomoEntity
-from ...client.entities import DomoEntity
+from ...entities.entities import DomoEntity
 from ...routes import datacenter as datacenter_routes
 from ...utils import chunk_execution as dmce
 

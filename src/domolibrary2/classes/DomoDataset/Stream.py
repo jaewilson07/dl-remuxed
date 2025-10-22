@@ -7,10 +7,10 @@ from typing import Any, List, Optional, Union
 import httpx
 from sqlglot import exp, parse_one
 
-from ..client.auth import DomoAuth
-from ..client.entities import DomoEntity
-from ..routes import stream as stream_routes
-from ..routes.stream import Stream_GET_Error, Stream_CRUD_Error
+from ...client.auth import DomoAuth
+from ...entities.entities import DomoEntity
+from ...routes import stream as stream_routes
+from ...routes.stream import Stream_GET_Error, Stream_CRUD_Error
 
 __all__ = [
     "StreamConfig_Mapping_snowflake",
@@ -295,7 +295,7 @@ class DomoStream(DomoEntity):
     id: str
     auth: DomoAuth = field(repr=False)
     raw: dict = field(default_factory=dict, repr=False)
-    
+
     dataset_id: str = None
     parent: Any = field(repr=False, default=None)
 
@@ -382,7 +382,7 @@ class DomoStream(DomoEntity):
         session: Optional[httpx.AsyncClient] = None,
     ):
         """Get a stream by its ID.
-        
+
         Args:
             auth: Authentication object
             stream_id: Unique stream identifier
@@ -391,10 +391,10 @@ class DomoStream(DomoEntity):
             debug_api: Enable API debugging
             parent: Parent dataset entity
             session: HTTP client session
-            
+
         Returns:
             DomoStream instance or ResponseGetData if return_raw=True
-            
+
         Raises:
             Stream_GET_Error: If stream retrieval fails
         """
@@ -430,7 +430,7 @@ class DomoStream(DomoEntity):
         session: Optional[httpx.AsyncClient] = None,
     ):
         """Deprecated: Use get_by_id instead.
-        
+
         Legacy method for backwards compatibility.
         """
         return await cls.get_by_id(
@@ -445,10 +445,10 @@ class DomoStream(DomoEntity):
 
     async def get(self):
         """Get the stream details for this entity's parent dataset.
-        
+
         Returns:
             DomoStream instance
-            
+
         Raises:
             Stream_GET_Error: If dataset has no stream_id or retrieval fails
         """

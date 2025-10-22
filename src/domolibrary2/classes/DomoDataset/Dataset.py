@@ -19,21 +19,19 @@ import httpx
 import pandas as pd
 
 from ...client.auth import DomoAuth
-from domolibrary2.client.exceptions import DomoError
-
-from domolibrary2.client.entities import (
+from ...client.exceptions import DomoError
+from ...entities.entities import (
     DomoEntity_w_Lineage,
     DomoFederatedEntity,
     DomoPublishedEntity,
 )
-from domolibrary2.routes import dataset as dataset_routes
-
-from domolibrary2.routes.dataset import (
+from ...routes import dataset as dataset_routes
+from ...routes.dataset import (
     DatasetNotFoundError,
     QueryRequestError,
     ShareDataset_AccessLevelEnum,
 )
-from domolibrary2.utils import chunk_execution as dmce, convert as dmcv
+from ...utils import chunk_execution as dmce, convert as dmcv
 
 from ..subentity import DomoTag as dmtg, DomoLineage as dmdl, DomoCertification as dmdc
 

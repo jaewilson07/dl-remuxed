@@ -4,13 +4,16 @@ from dataclasses import dataclass
 
 import httpx
 
-from ..client import DomoError as de
-from ..routes import pdp as pdp_routes
-from ..utils import DictDot as util_dd, chunk_execution as ce
+from domolibrary2.entities.entities import DomoBase, DomoManager, DomoSubEntity
+from typing import List
+from ...client.auth import DomoAuth
+from ...client.exceptions import DomoError as de
+from ...routes import pdp as pdp_routes
+from ...utils import DictDot as util_dd, chunk_execution as ce
 
 
 @dataclass
-class PDP_Parameter:
+class PDP_Parameter(DomoBase):
     column_name: str
     column_values_ls: list
     operator: str = (
@@ -26,25 +29,14 @@ class PDP_Parameter:
         "COLUMN" or "DYNAMIC"
     )  # column sets parameter on data vs dynamic creates on Domo Trusted Attribute
 
-
-def generate_parameter_simple(obj):
-    return pdp_routes.generate_policy_parameter_simple(
-        column_name=obj.name,
-        type=obj.type,
-        column_values_ls=obj.values,
-        operator=obj.operator,
-        ignore_case=obj.ignoreCase,
-    )
-
-
-def generate_body_from_parameter(self):
-    return pdp_routes.generate_policy_parameter_simple(
-        column_name=self.column_name,
-        type=self.type,
-        column_values_ls=self.column_values_ls,
-        operator=self.operator,
-        ignore_case=self.ignore_case,
-    )
+    def to_parameter_simple(self) -> dict:
+        return pdp_routes.generate_policy_parameter_simple(
+            column_name=self.name,
+            type=self.type,
+            column_values_ls=self.values,
+            operator=self.operator,
+            ignore_case=self.ignore_case,
+        )
 
 
 @dataclass
@@ -60,25 +52,23 @@ class PDP_Policy:
 
     @classmethod
     async def from_dict(cls, obj, auth: DomoAuth):
-        dd = util_dd.DictDot(obj)
-
         from . import DomoGroup as dmg, DomoUser as dmu
 
         return cls(
-            dataset_id=dd.dataSourceId,
-            filter_group_id=dd.filterGroupId,
-            name=dd.name,
+            dataset_id=obj["dataSourceId"],
+            filter_group_id=obj["filterGroupId"],
+            name=obj["name"],
             # resources=dd.resources,
-            parameters_ls=dd.parameters,
+            parameters_ls=obj["parameters"],
             user_ls=(
                 await ce.gather_with_concurrency(
                     n=60,
                     *[
                         dmu.DomoUser.get_by_id(user_id=id, auth=auth)
-                        for id in dd.userIds
+                        for id in obj.get("userIds", [])
                     ],
                 )
-                if dd.userIds
+                if obj.get("userIds")
                 else None
             ),
             group_ls=(
@@ -86,13 +76,13 @@ class PDP_Policy:
                     n=60,
                     *[
                         dmg.DomoGroup.get_by_id(group_id=id, auth=auth)
-                        for id in dd.groupIds
+                        for id in obj.get("groupIds", [])
                     ],
                 )
-                if dd.groupIds
+                if obj.get("groupIds")
                 else None
             ),
-            virtual_user_ls=dd.virtualUserIds,
+            virtual_user_ls=obj.get("virtualUserIds", []),
         )
 
     @classmethod
@@ -153,47 +143,42 @@ def generate_body_from_policy(
 
 
 @dataclass
-class Dataset_PDP_Policies:
-    dataset = None  # domo dataset class
-    policies: list[PDP_Policy] = None
-    auth = None
+class Dataset_PDP_Policies(DomoSubEntity):
+    parent = None  # domo dataset class
+    policies: List[PDP_Policy] = None
 
-    def __init__(self, dataset):
-        self.dataset = dataset
-        self.policies = []
+    async def get(
+        self,
+        include_all_rows: bool = True,
+        return_raw: bool = False,
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+    ):
+        dataset_id = self.parent.id
+        auth = self.auth or self.parent.auth
 
+        res = await pdp_routes.get_pdp_policies(
+            auth=auth,
+            dataset_id=dataset_id,
+            debug_api=debug_api,
+            include_all_rows=include_all_rows,
+            session=session,
+            parent_class=self.__class__.__name__,
+        )
 
-async def get_policies(
-    self: Dataset_PDP_Policies,
-    include_all_rows: bool = True,
-    auth: DomoAuth = None,
-    dataset_id: str = None,
-    return_raw: bool = False,
-    debug_api: bool = False,
-):
-    dataset_id = dataset_id or self.dataset.id
-    auth = auth or self.dataset.auth
+        if return_raw:
+            return res
 
-    res = await pdp_routes.get_pdp_policies(
-        auth=auth,
-        dataset_id=dataset_id,
-        debug_api=debug_api,
-        include_all_rows=include_all_rows,
-    )
-
-    if return_raw:
-        return res
-
-    if res.status == 200:
-        domo_policy = await ce.gather_with_concurrency(
+        policies: List[PDP_Policy] = await ce.gather_with_concurrency(
             n=60,
             *[
                 PDP_Policy.from_dict(policy_obj, auth=auth)
                 for policy_obj in res.response
             ],
         )
-        self.policies = domo_policy
-        return domo_policy
+
+        self.policies = policies
+        return policies
 
 
 class SearchPDP_NotFound(de.DomoError):
