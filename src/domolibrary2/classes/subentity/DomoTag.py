@@ -1,0 +1,128 @@
+"""a class based approach for interacting with Domo Datasets"""
+
+__all__ = ["DomoTags_SetTagsError", "DomoTags"]
+
+import json
+from dataclasses import dataclass, field
+from typing import Any, List, Optional
+
+import httpx
+
+from ...client import exceptions as dmde
+from ...routes import dataset as dataset_routes
+
+
+class DomoTags_SetTagsError(dmde.ClassError):
+    """return if DatasetTags request is not successfull"""
+
+    def __init__(self, dataset_id, res, cls_instance):
+        message = f"failed to set tags on dataset - {dataset_id}"
+        super().__init__(message=message, res=res, cls_instance=cls_instance)
+
+
+@dataclass
+class DomoTags:
+    """class for interacting with dataset tags"""
+
+    auth: DomoAuth = field(repr=False)
+    dataset_id: str = field(repr=False)
+    parent: Any = field(repr=False, default=None)
+
+    tag_ls: List[str] = field(default_factory=list)
+
+    def __post_init__(self):
+        if self.parent:
+            self.auth = self.parent.auth
+            self.dataset_id = self.parent.id
+
+    @classmethod
+    def from_parent(cls, parent):
+        return cls(
+            parent=parent,
+            auth=parent.auth,
+            dataset_id=parent.id,
+        )
+
+    async def get(
+        self,
+        auth: DomoAuth = None,
+        session: Optional[httpx.AsyncClient] = None,
+        debug_api: bool = False,
+    ) -> List[str]:  # returns a list of tags
+        """gets the existing list of dataset_tags"""
+
+        res = await dataset_routes.get_dataset_by_id(
+            dataset_id=self.dataset_id,
+            auth=self.auth,
+            debug_api=debug_api,
+            session=session,
+        )
+
+        if not res.is_success:
+            DomoTags_SetTagsError(dataset_id=dataset_id, res=res, cls_instance=self)
+
+        if res.response.get("tags"):
+            self.tag_ls = json.loads(res.response.get("tags"))
+
+        return self.tag_ls
+
+    async def set(
+        self,
+        tag_ls: List[str],
+        debug_api: bool = False,
+        session: Optional[httpx.AsyncClient] = None,
+    ) -> List[str]:  # returns a list of tags
+        """replaces all tags with a new list of dataset_tags"""
+
+        res = await dataset_routes.set_dataset_tags(
+            auth=self.auth,
+            tag_ls=list(set(tag_ls)),
+            dataset_id=self.dataset_id,
+            debug_api=debug_api,
+            session=session,
+        )
+
+        if not res.is_success:
+            DomoTags_SetTagsError(
+                dataset_id=self.dataset_id, res=res, cls_instance=self
+            )
+
+        await self.get()
+
+        return self.tag_ls
+
+    async def add(
+        self,
+        add_tag_ls: List[str],
+        debug_api: bool = False,
+        session: Optional[httpx.AsyncClient] = None,
+    ) -> List[str]:  # returns a list of tags
+        """appends tags to the list of existing dataset_tags"""
+
+        existing_tag_ls = await self.get()
+
+        add_tag_ls += existing_tag_ls
+
+        return await self.set(
+            tag_ls=list(set(add_tag_ls)),
+            debug_api=debug_api,
+            session=session,
+        )
+
+    async def remove(
+        self,
+        remove_tag_ls: List[str],
+        debug_api: bool = False,
+        session: Optional[httpx.AsyncClient] = None,
+    ) -> List[str]:  # returns a list of tags
+        """removes tags from the existing list of dataset_tags"""
+
+        existing_tag_ls = await self.get()
+
+        existing_tag_ls = [ex for ex in existing_tag_ls if ex not in remove_tag_ls]
+
+        return await self.set(
+            tag_ls=list(set(existing_tag_ls)),
+            debug_api=debug_api,
+            session=session,
+        )

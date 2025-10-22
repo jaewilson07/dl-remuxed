@@ -2,11 +2,9 @@
 
 __all__ = ["DomoError", "RouteError", "ClassError", "AuthError"]
 
-from dataclasses import dataclass
 from typing import Any, Optional, Union
 
 
-@dataclass
 class DomoError(Exception):
     """Base exception for all Domo-related errors.
 
@@ -15,17 +13,28 @@ class DomoError(Exception):
 
     """
 
-    message: Optional[str] = None
-    exception: Optional[Exception] = None
-    entity_id: Optional[str] = None
-    entity_name: Optional[str] = None
-    function_name: Optional[str] = None
-    parent_class: Optional[str] = None
-    status: Optional[int] = None
-    domo_instance: Optional[str] = None
-    is_warning: bool = False
+    def __init__(
+        self,
+        message: Optional[str] = None,
+        exception: Optional[Exception] = None,
+        entity_id: Optional[str] = None,
+        entity_name: Optional[str] = None,
+        function_name: Optional[str] = None,
+        parent_class: Optional[str] = None,
+        status: Optional[int] = None,
+        domo_instance: Optional[str] = None,
+        is_warning: bool = False,
+    ):
+        self.message = message
+        self.exception = exception
+        self.entity_id = entity_id
+        self.entity_name = entity_name
+        self.function_name = function_name
+        self.parent_class = parent_class
+        self.status = status
+        self.domo_instance = domo_instance
+        self.is_warning = is_warning
 
-    def __post_init__(self):
         if not self.message and not self.exception:
             raise ValueError("Either 'message' or 'exception' must be provided.")
 
@@ -105,59 +114,66 @@ class DomoError(Exception):
         return "|".join(parts) if parts else "An error occurred"
 
 
-@dataclass
 class RouteError(DomoError):
     """Exception for API route/endpoint errors."""
 
-    res: Optional[Any] = None  # Should be ResponseGetData but avoiding circular import
+    def __init__(
+        self,
+        res: Optional[
+            Any
+        ] = None,  # Should be ResponseGetData but avoiding circular import
+        **kwargs,
+    ):
+        self.res = res
 
-    def __post_init__(self):
-        """Extract route-specific information from response."""
+        # Extract information from response if available
+        if self.res:
+            if not kwargs.get("message"):
+                kwargs["message"] = getattr(self.res, "response", None)
+            if not kwargs.get("parent_class"):
+                kwargs["parent_class"] = getattr(self.res, "parent_class", None)
+            if not kwargs.get("status"):
+                kwargs["status"] = getattr(self.res, "status", None)
+            if not kwargs.get("domo_instance"):
+                auth = getattr(self.res, "auth", None)
+                if auth:
+                    kwargs["domo_instance"] = getattr(auth, "domo_instance", None)
 
-        super().__init__(
-            is_warning=self.is_warning,
-            message=self.message or getattr(self.res, "response", None),
-            entity_id=self.entity_id,
-            entity_name=self.entity_name,
-            parent_class=getattr(self.res, "parent_class", None),
-            function_name=self.function_name,
-            status=getattr(self.res, "status", None),
-            domo_instance=getattr(
-                getattr(self.res, "auth", None), "domo_instance", None
-            ),
-        )
+        # Call parent's __init__
+        super().__init__(**kwargs)
 
 
-@dataclass
 class AuthError(DomoError):
     """Exception for authentication-related errors."""
 
-    def __post_init__(self):
-        super().__init__(
-            message=self.message,
-            entity_id=self.entity_id,
-            entity_name=self.entity_name,
-            function_name=self.function_name,
-            parent_class=self.parent_class,
-            status=self.status,
-            domo_instance=self.domo_instance,
-            is_warning=self.is_warning,
-            exception=self.exception,
-        )
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
 
-@dataclass
 class ClassError(DomoError):
     """Exception for class-specific errors."""
 
-    cls: Any = None
-    cls_instance: Any = None
+    def __init__(
+        self,
+        cls: Any = None,
+        cls_instance: Any = None,
+        entity_id_col: Optional[str] = "id",
+        **kwargs,
+    ):
+        self.cls = cls
+        self.cls_instance = cls_instance
+        self.entity_id_col = entity_id_col
 
-    entity_id_col: Optional[str] = "id"
+        # Extract class-specific information
+        if not kwargs.get("entity_id"):
+            kwargs["entity_id"] = self._get_entity_id_str()
+        if not kwargs.get("parent_class"):
+            kwargs["parent_class"] = self._get_parent_class_str()
 
-    @property
-    def entity_id_str(self) -> Union[str, None]:
-        if self.entity_id:
+        super().__init__(**kwargs)
+
+    def _get_entity_id_str(self) -> Union[str, None]:
+        if hasattr(self, "entity_id") and self.entity_id:
             return self.entity_id
 
         if not self.entity_id_col or not self.cls_instance:
@@ -165,24 +181,11 @@ class ClassError(DomoError):
 
         return getattr(self.cls_instance, self.entity_id_col, None)
 
-    @property
-    def parent_class_str(self) -> Union[str, None]:
+    def _get_parent_class_str(self) -> Union[str, None]:
         if self.cls_instance:
             return self.cls_instance.__class__.__name__
 
         if self.cls:
             return self.cls.__name__
 
-    def __post_init__(self):
-        """Extract class-specific information."""
-
-        super().__init__(
-            is_warning=self.is_warning,
-            message=self.message,
-            entity_id=self.entity_id_str,
-            entity_name=self.entity_name,
-            parent_class=self.parent_class_str,
-            function_name=self.function_name,
-            status=self.status,
-            domo_instance=self.domo_instance,
-        )
+        return None

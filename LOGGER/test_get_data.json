@@ -230,4 +230,7 @@
         "parent_span_id": "58404b5ff1694897"
     },
     "extra": {}
-}
+}{"timestamp": "2025-10-21T21:16:05.035744Z", "level": "INFO", "app_name": "test_get_data", "message": "Mock get_data called", "method": "COMMENT", "status": "info", "correlation": {"trace_id": "c28e5687-294b-468e-819b-de7a4d4f941c", "span_id": "6267d4a5a8574ecc", "parent_span_id": null}, "extra": {}}
+{"timestamp": "2025-10-21T21:21:59.030568Z", "level": "INFO", "app_name": "test_get_data", "message": "Mock get_data called", "method": "COMMENT", "status": "info", "correlation": {"trace_id": "767b01a1-4b2a-4f90-95ed-afcd88d1bfa2", "span_id": "7b9a371dd8404d94", "parent_span_id": null}, "extra": {}}
+{"timestamp": "2025-10-21T21:27:23.644147Z", "level": "INFO", "app_name": "test_get_data", "message": "Mock get_data called", "method": "COMMENT", "status": "info", "correlation": {"trace_id": "8180896f-672e-4803-9722-df5fd17dab80", "span_id": "65e6195663da4f01", "parent_span_id": null}, "extra": {}}
+{"timestamp": "2025-10-21T21:38:13.719992Z", "level": "INFO", "app_name": "test_get_data", "message": "Mock get_data called", "method": "COMMENT", "status": "info", "correlation": {"trace_id": "8a0efbcb-412a-492f-ae9e-eb6955b23825", "span_id": "1b9b4a24c04b46f4", "parent_span_id": null}, "extra": {}}

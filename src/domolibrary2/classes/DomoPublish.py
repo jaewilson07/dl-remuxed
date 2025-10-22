@@ -8,16 +8,17 @@ from typing import TYPE_CHECKING, Any, Callable, List, Optional, Union
 
 import httpx
 
-from ..client import entities as dmen
-from ..client import exceptions as dmde
-from ..client.DomoEntity import DomoEntity_w_Lineage
-from ..client.entities import DomoEntity_w_Lineage
+from . import DomoAppStudio as dmas, DomoCard as dmac
+
+from ..client import entities as dmen, exceptions as dmde
+from ..client.auth import DomoAuth
+from ..client.entities import DomoEntity_w_Lineage, DomoEnumMixin
 from ..routes import publish as publish_routes
 from ..utils import chunk_execution as dmce
-from . import DomoLineage as dmdl
+from .subentity import DomoLineage as dmdl
 
 if TYPE_CHECKING:
-    from . import DomoCard, DomoDataset, DomoPage
+    from . import dataset, DomoPage
 
 __all__ = [
     "DomoPublication_Content_Enum",
@@ -32,10 +33,10 @@ __all__ = [
 
 
 class DomoPublication_Content_Enum(DomoEnumMixin, Enum):
-    from . import DomoAppStudio as dmas
-    from . import DomoCard as dmac
-    from . import DomoDataset as dmdc
-    from . import DomoPage as dmpg
+    from . import (
+        dataset as dmdc,
+        DomoPage as dmpg,
+    )
 
     CARD = dmac.DomoCard
     DATASET = dmdc.DomoDataset
@@ -253,12 +254,12 @@ class DomoPublication(DomoEntity_w_Lineage):
     async def get_publication_entity_by_subscriber_entity(
         self,
         subscriber_domain: str,
-        subscriber: Union[DomoCard, DomoDataset, DomoPage],
+        subscriber: Union[DomoCard, dataset, DomoPage],
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
         debug_num_stacks_to_drop: int = 2,
         is_suppress_errors: bool = False,
-    ) -> Union[DomoCard, DomoDataset, DomoPage, None]:
+    ) -> Union[DomoCard, dataset, DomoPage, None]:
         res = await self.get_content_details(
             subscriber_domain=subscriber_domain,
             debug_api=debug_api,
@@ -648,7 +649,7 @@ class DomoEverywhere:
         self, debug_api: bool = False, session: httpx.AsyncClient = None
     ):
         res = await publish_routes.get_subscription_invitations(
-            auth=auth,
+            auth=self.auth,
             debug_api=debug_api,
             session=session,
             parent_class=self.__class__.__name__,

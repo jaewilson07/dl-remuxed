@@ -10,7 +10,7 @@ import pandas as pd
 
 from ..client import entities as dmee
 from ..routes import sandbox as sandbox_routes
-from . import DomoLineage as dmdl
+from .subentity import DomoLineage as dmdl
 
 
 @dataclass
