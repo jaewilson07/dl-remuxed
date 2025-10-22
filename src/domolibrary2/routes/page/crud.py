@@ -1,5 +1,5 @@
 """
-Page Properties Functions
+Page CRUD Functions
 
 This module provides functions for managing page properties including
 layout management, write locks, and ownership.
@@ -8,14 +8,14 @@ Functions:
     update_page_layout: Update page layout configuration
     put_writelock: Set write lock on a page layout
     delete_writelock: Remove write lock from a page layout
-    add_page_owner: Add owners to multiple pages
+    
 """
 
 __all__ = [
     "update_page_layout",
     "put_writelock",
     "delete_writelock",
-    "add_page_owner",
+ 
 ]
 
 from typing import Optional
@@ -200,43 +200,6 @@ async def delete_writelock(
     return res
 
 
-@gd.route_function
-async def add_page_owner(
-    auth: DomoAuth,
-    page_id: str,
-    user_id: str,
-    session: Optional[httpx.AsyncClient] = None,
-    debug_api: bool = False,
-    debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
-    return_raw: bool = False,
-) -> rgd.ResponseGetData:
-    """Add owners to a page.
-
-    Args:
-        auth: Authentication object containing credentials and instance info
-        page_id: Unique identifier for the page
-        user_id: Unique identifier for the user to add as owner
-        session: Optional httpx client session for connection reuse
-        debug_api: Enable detailed API request/response logging
-        debug_num_stacks_to_drop: Number of stack frames to drop in debug output
-        parent_class: Optional parent class name for debugging context
-        return_raw: Return raw API response without processing
-
-    Returns:
-        ResponseGetData object containing owner addition result
-
-    Raises:
-        Page_CRUD_Error: If owner addition fails
-    """
-    url = f"https://{auth.domo_instance}.domo.com/api/content/v4/pages/{page_id}/owners"
-    body = {"userId": user_id}
-
-    res = await gd.get_data(
-        auth=auth,
-        url=url,
-        method="POST",
-        json_body=body,
         debug_api=debug_api,
         session=session,
         num_stacks_to_drop=debug_num_stacks_to_drop,
