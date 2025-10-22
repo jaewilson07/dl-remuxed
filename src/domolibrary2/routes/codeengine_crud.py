@@ -12,6 +12,7 @@ __all__ = [
     "CodeEnginePackageBuilder",
     "deploy_code_engine_package",
     "CodeEngine_InvalidPackage",
+    "CodeEngine_API_Error",  # Backward compatibility alias
     "create_code_engine_package",
     "increment_version",
     "upsert_code_engine_package_version",
