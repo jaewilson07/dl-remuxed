@@ -19,7 +19,7 @@ from ..client import auth as dmda
 from ..client import exceptions as dmde
 from ..routes import account as account_routes
 from ..utils import convert as cd
-from ..classes.DomoAccount_Config import (
+from .DomoAccount_Config import (
     AccountConfig,
     DomoAccount_Config,
 )
