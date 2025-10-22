@@ -35,7 +35,7 @@ async def test_cell_1(token_auth=token_auth) -> dmac.DomoAccount_Credential:
     if not TEST_ACCOUNT_ID_1:
         print("Skipping test_cell_1: ACCOUNT_CREDENTIAL_ID_1 not set in environment")
         return None
-    
+
     account_credential = await dmac.DomoAccount_Credential.get_by_id(
         auth=token_auth,
         account_id=TEST_ACCOUNT_ID_1,
@@ -43,10 +43,10 @@ async def test_cell_1(token_auth=token_auth) -> dmac.DomoAccount_Credential:
         debug_api=False,
         return_raw=False,
     )
-    
+
     print(f"Retrieved account: {account_credential.name} (ID: {account_credential.id})")
     print(f"Data provider type: {account_credential.data_provider_type}")
-    
+
     return account_credential
 
 
@@ -60,17 +60,17 @@ async def test_cell_2(token_auth=token_auth):
         "createdAt": 1234567890000,
         "modifiedAt": 1234567890000,
     }
-    
+
     account_credential = dmac.DomoAccount_Credential.from_dict(
         auth=token_auth,
         obj=account_data,
         is_admin_summary=True,
         target_instance=TEST_TARGET_INSTANCE,
     )
-    
+
     print(f"Created account from dict: {account_credential.name}")
     print(f"Target instance: {account_credential.target_instance}")
-    
+
     return account_credential
 
 
@@ -79,21 +79,23 @@ async def test_cell_3(token_auth=token_auth):
     if not TEST_ACCOUNT_ID_1:
         print("Skipping test_cell_3: ACCOUNT_CREDENTIAL_ID_1 not set in environment")
         return None
-    
+
     account_credential = await dmac.DomoAccount_Credential.get_by_id(
         auth=token_auth,
         account_id=TEST_ACCOUNT_ID_1,
         is_suppress_no_config=True,
     )
-    
+
     # Test setter methods (these update in memory, not persisted yet)
     account_credential.set_username("test_user@example.com")
     account_credential.set_password("test_password")
     account_credential.set_access_token("test_token_value")
-    
+
     print(f"Updated credential setters for account: {account_credential.name}")
-    print(f"Config username: {account_credential.Config.username if account_credential.Config else 'No config'}")
-    
+    print(
+        f"Config username: {account_credential.Config.username if account_credential.Config else 'No config'}"
+    )
+
     return account_credential
 
 
@@ -102,16 +104,16 @@ async def test_cell_4(token_auth=token_auth):
     if not TEST_ACCOUNT_ID_1:
         print("Skipping test_cell_4: ACCOUNT_CREDENTIAL_ID_1 not set in environment")
         return None
-    
+
     account_credential = await dmac.DomoAccount_Credential.get_by_id(
         auth=token_auth,
         account_id=TEST_ACCOUNT_ID_1,
         is_suppress_no_config=True,
     )
-    
+
     display_url = account_credential.display_url()
     print(f"Display URL: {display_url}")
-    
+
     return display_url
 
 
@@ -120,15 +122,14 @@ async def test_cell_5(token_auth=token_auth):
     if not TEST_ACCOUNT_ID_1:
         print("Skipping test_cell_5: ACCOUNT_CREDENTIAL_ID_1 not set in environment")
         return None
-    
+
     account_credential = await dmac.DomoAccount_Credential.get_by_id(
         auth=token_auth,
         account_id=TEST_ACCOUNT_ID_1,
         is_suppress_no_config=True,
     )
-    
+
     credential_dict = account_credential.to_dict()
     print(f"Credential dictionary: {credential_dict}")
-    
-    return credential_dict
 
+    return credential_dict
