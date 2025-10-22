@@ -14,17 +14,17 @@ from ..routes import account as account_routes
 from ..routes import datacenter as datacenter_routes
 
 from ..utils import chunk_execution as dmce
-from ..classes.DomoAccount_Config import (
+from .DomoAccount_Config import (
     AccountConfig,
 )
-from ..classes.DomoAccount_Credential import (
+from .DomoAccount_Credential import (
     DomoAccount_Credential,
 )
-from ..classes.DomoAccount_Default import (
+from .DomoAccount_Default import (
     DomoAccount_Default,
     UpsertAccount_MatchCriteria,
 )
-from ..classes.DomoAccount_OAuth import DomoAccount_OAuth
+from .DomoAccount_OAuth import DomoAccount_OAuth
 
 
 @dataclass
