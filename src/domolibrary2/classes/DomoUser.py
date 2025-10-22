@@ -23,7 +23,7 @@ from typing import Any, List, Optional, Union
 import httpx
 
 from ..client.auth import DomoAuth
-from ..client.entities import DomoEntity, DomoManager
+from ..entities.entities import DomoEntity, DomoManager
 from ..client.exceptions import ClassError, DomoError
 from ..client.Logger import Logger
 from ..client.response import ResponseGetData
