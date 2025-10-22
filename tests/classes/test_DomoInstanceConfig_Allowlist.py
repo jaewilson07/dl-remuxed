@@ -1,6 +1,26 @@
 """
 Test file for DomoInstanceConfig Allowlist class
 Tests the DomoAllowlist class methods and route integration
+
+Environment Variables Required:
+    DOMO_INSTANCE: Your Domo instance name (e.g., "mycompany")
+    DOMO_ACCESS_TOKEN: A valid Domo access token with appropriate permissions
+    
+How to Obtain Test Values:
+    1. Navigate to your Domo instance
+    2. Go to Admin > Security > IP Allowlist
+    3. You'll need an access token with admin permissions to manage the allowlist
+    
+Running Tests:
+    # Run unit tests only (no API calls)
+    pytest tests/classes/test_DomoInstanceConfig_Allowlist.py -m "not integration"
+    
+    # Run all tests including integration tests (requires valid credentials)
+    pytest tests/classes/test_DomoInstanceConfig_Allowlist.py
+    
+Note:
+    Integration tests that modify the allowlist are commented out to prevent
+    accidental changes. Uncomment them carefully for manual testing.
 """
 
 import os
