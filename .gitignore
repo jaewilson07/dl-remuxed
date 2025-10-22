@@ -1,3 +1,5 @@
+LOGGER/
+
 *_env/
 _publish.yml
 _quarto.yml
