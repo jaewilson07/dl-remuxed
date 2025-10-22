@@ -55,7 +55,7 @@ async def test_cell_4(token_auth=token_auth):
     )
 
     res = await get_codeengine_package_by_id_and_version(
-        package_id=package_id, version=version, auth=token_auth, debug_api=False
+        auth=token_auth, package_id=package_id, version=version, debug_api=False
     )
 
     package = res.response
@@ -76,7 +76,7 @@ async def test_cell_5(token_auth=token_auth):
     )
 
     res = await get_codeengine_package_by_id_and_version(
-        package_id=package_id, version=version, auth=token_auth, debug_api=False
+        auth=token_auth, package_id=package_id, version=version, debug_api=False
     )
 
     package = res.response
