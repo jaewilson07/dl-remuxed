@@ -1,86 +1,81 @@
 from __future__ import annotations
 
 __all__ = [
-    "DJW_Search_Error",
-    "DJW_InvalidClass",
     "DomoJupyterWorkspace",
     "DomoJupyterWorkspaces",
+    # Exception classes from routes.jupyter
+    "Jupyter_GET_Error",
+    "SearchJupyter_NotFound",
+    "Jupyter_CRUD_Error",
+    "JupyterWorkspace_Error",
 ]
 
 import datetime as dt
 import os
 from dataclasses import dataclass, field
-from typing import Any, List
+from typing import Any, List, Optional
 
 import httpx
 
-from ..client import auth as dmda, exceptions as dmde
-from ..client.entities import DomoEntity, DomoManager
-from ..routes import jupyter as jupyter_routes
-from ..routes.jupyter import JupyterAPI_Error
-from ..utils import chunk_execution as dmce, files as defi
-from . import Account as dmac, dataset as dmds, DomoUser as dmdu
+from ...client import auth as dmda, exceptions as dmde
+from ...client.auth import DomoAuth
+from ...client.entities import DomoEntity, DomoManager
+from ...client.exceptions import DomoError
+from ...routes import jupyter as jupyter_routes
+from ...routes.jupyter.exceptions import (
+    Jupyter_CRUD_Error,
+    Jupyter_GET_Error,
+    JupyterWorkspace_Error,
+    SearchJupyter_NotFound,
+)
+from ...utils import chunk_execution as dmce, files as defi
+from .. import Account as dmac, dataset as dmds, DomoUser as dmdu
 from .Account import DomoJupyter_Account
 from .Content import DomoJupyter_Content
 from .DataSource import DomoJupyter_DataSource
 
 
-class DJW_Search_Error(dmde.ClassError):
-    def __init__(
-        self,
-        cls=None,
-        cls_instance=None,
-        search_name=None,
-        message=None,
-        domo_instance=None,
-    ):
-        super().__init__(
-            cls=cls,
-            cls_instance=cls_instance,
-            message=message or f"unable to find {search_name}",
-            entity_id=domo_instance
-            or (cls_instance and cls_instance.auth.domo_instance),
-        )
-
-
-class DJW_InvalidClass(dmde.ClassError):
-    def __init__(self, cls_instance, message):
-        super().__init__(cls_instance=cls_instance, message=message)
-
-
 @dataclass
 class DomoJupyterWorkspace(DomoEntity):
-    auth: dmda.DomoJupyterAuth = field(repr=False)
+    """Domo Jupyter Workspace entity.
+    
+    Represents a Jupyter workspace in Domo with its configuration,
+    content, and associated resources like datasets and accounts.
+    
+    Attributes:
+        auth: Authentication object for API requests
+        id: Unique workspace identifier
+        name: Workspace name
+        description: Workspace description
+        raw: Raw API response data
+    """
+    auth: DomoAuth = field(repr=False)
     id: str
+    raw: dict = field(default_factory=dict, repr=False)
 
-    name: str
-    description: str
+    name: str = None
+    description: str = None
 
-    created_dt: dt.datetime
-    updated_dt: dt.datetime
+    created_dt: dt.datetime = None
+    updated_dt: dt.datetime = None
 
-    owner: dict
-    cpu: str
-    memory: int
+    owner: dict = field(default_factory=dict)
+    cpu: str = None
+    memory: int = None
 
     last_run_dt: dt.datetime = None
-    instances: List[dict] = None
+    instances: List[dict] = field(default_factory=list)
 
-    input_configuration: List[DomoJupyter_DataSource] = field(
-        default_factory=lambda: []
-    )
-    output_configuration: List[DomoJupyter_DataSource] = field(
-        default_factory=lambda: []
-    )
-    account_configuration: List[DomoJupyter_Account] = field(default_factory=lambda: [])
-    content: List[DomoJupyter_Content] = field(default_factory=lambda: [])
+    input_configuration: List[DomoJupyter_DataSource] = field(default_factory=list)
+    output_configuration: List[DomoJupyter_DataSource] = field(default_factory=list)
+    account_configuration: List[DomoJupyter_Account] = field(default_factory=list)
+    content: List[DomoJupyter_Content] = field(default_factory=list)
 
-    collection_configuration: List[dict] = None
-    fileshare_configuration: List[dict] = None
+    collection_configuration: List[dict] = field(default_factory=list)
+    fileshare_configuration: List[dict] = field(default_factory=list)
 
     service_location: str = None
     service_prefix: str = None
-    raw: dict
 
     def __post_init__(self):
         self._update_auth_params()
@@ -218,18 +213,36 @@ class DomoJupyterWorkspace(DomoEntity):
     @classmethod
     async def get_by_id(
         cls,
-        workspace_id,
-        auth: DomoAuth,  # this API does not require the jupyter_token, but activities inside the workspace will require additional authentication
-        jupyter_token=None,
+        auth: DomoAuth,
+        workspace_id: str,
+        jupyter_token: Optional[str] = None,
         return_raw: bool = False,
         debug_api: bool = False,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         is_use_default_account_class: bool = False,
         is_suppress_errors: bool = False,
     ):
+        """Retrieve a Jupyter workspace by ID.
+        
+        Args:
+            auth: Authentication object
+            workspace_id: Workspace identifier
+            jupyter_token: Optional Jupyter authentication token
+            return_raw: Return raw response without processing
+            debug_api: Enable API debugging
+            session: Optional httpx client session
+            is_use_default_account_class: Use default account class for configuration
+            is_suppress_errors: Suppress errors during processing
+            
+        Returns:
+            DomoJupyterWorkspace instance or ResponseGetData if return_raw=True
+            
+        Raises:
+            Jupyter_GET_Error: If workspace retrieval fails
+        """
         res = await jupyter_routes.get_jupyter_workspace_by_id(
-            workspace_id=workspace_id,
             auth=auth,
+            workspace_id=workspace_id,
             session=session,
             debug_api=debug_api,
             parent_class=cls.__name__,
