@@ -8,14 +8,13 @@ Functions:
     update_page_layout: Update page layout configuration
     put_writelock: Set write lock on a page layout
     delete_writelock: Remove write lock from a page layout
-    
+
 """
 
 __all__ = [
     "update_page_layout",
     "put_writelock",
     "delete_writelock",
- 
 ]
 
 from typing import Optional
@@ -194,26 +193,6 @@ async def delete_writelock(
             operation="remove writelock",
             page_id=layout_id,
             message=f"Unable to remove writelock from layout {layout_id}",
-            res=res,
-        )
-
-    return res
-
-
-        debug_api=debug_api,
-        session=session,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-    )
-
-    if return_raw:
-        return res
-
-    if not res.is_success:
-        raise Page_CRUD_Error(
-            operation="add owner",
-            page_id=page_id,
-            message=f"Unable to add owner {user_id} to page {page_id}",
             res=res,
         )
 
