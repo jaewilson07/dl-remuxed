@@ -218,7 +218,7 @@ class TestUserCoreRoutes(PytestRouteTestCase):
 
             # Verify function was called with correct parameters
             mock_func.assert_called_once_with(auth=harness.default_auth)
-            call_args = mock_looper.call_args
+            call_args = mock_func.call_args
             assert call_args[1]["auth"] == harness.default_auth
             assert "method" in call_args[1]
             assert "url" in call_args[1]
