@@ -212,7 +212,25 @@ async def create_stream(
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
+    """Create a new stream.
+    
+    Args:
+        auth: Authentication object
+        body: Stream configuration data
+        session: HTTP client session
+        debug_api: Enable API debugging
+        debug_num_stacks_to_drop: Stack frames to drop for debugging
+        parent_class: Name of the calling class
+        return_raw: Return raw response without processing
+        
+    Returns:
+        ResponseGetData object
+        
+    Raises:
+        Stream_CRUD_Error: If create operation fails
+    """
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/streams"
 
     res = await gd.get_data(
@@ -225,6 +243,9 @@ async def create_stream(
         parent_class=parent_class,
         num_stacks_to_drop=debug_num_stacks_to_drop,
     )
+
+    if return_raw:
+        return res
 
     if not res.is_success:
         raise Stream_CRUD_Error(operation="create", res=res)
@@ -240,7 +261,25 @@ async def execute_stream(
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
+    """Execute a stream to run data import.
+    
+    Args:
+        auth: Authentication object
+        stream_id: Unique stream identifier
+        session: HTTP client session
+        debug_api: Enable API debugging
+        parent_class: Name of the calling class
+        debug_num_stacks_to_drop: Stack frames to drop for debugging
+        return_raw: Return raw response without processing
+        
+    Returns:
+        ResponseGetData object
+        
+    Raises:
+        Stream_CRUD_Error: If execute operation fails
+    """
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/streams/{stream_id}/executions"
 
     res = await gd.get_data(
@@ -252,6 +291,9 @@ async def execute_stream(
         parent_class=parent_class,
         num_stacks_to_drop=debug_num_stacks_to_drop,
     )
+
+    if return_raw:
+        return res
 
     if not res.is_success:
         raise Stream_CRUD_Error(operation="execute", stream_id=stream_id, res=res)
