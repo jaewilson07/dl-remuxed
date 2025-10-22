@@ -4,7 +4,7 @@ __all__ = ["STREAM_FILE_PATH", "ResponseGetData", "find_ip"]
 
 import re
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any, List, Optional
 
 import httpx
 import requests
@@ -18,6 +18,18 @@ class RequestMetadata:
     body: Optional[str] = field(default=None)
     params: Optional[dict] = field(default=None)
 
+    def to_dict(self, auth_headers: Optional[List[str]] = None) -> dict:
+        """returns dict representation of RequestMetadata"""
+
+        return {
+            "url": self.url,
+            "headers": {
+                k: v for k, v in self.headers.items() if k not in (auth_headers or [])
+            },
+            "body": self.body,
+            "params": self.params,
+        }
+
 
 @dataclass
 class ResponseGetData:
@@ -29,6 +41,18 @@ class ResponseGetData:
 
     request_metadata: Optional[RequestMetadata] = field(default=None)
     additional_information: Optional[dict] = field(default=None, repr=False)
+
+    def to_dict(self, is_exclude_response: bool = True) -> dict:
+        """returns dict representation of ResponseGetData"""
+        return {
+            "status": self.status,
+            "response": None if is_exclude_response else self.response,
+            "is_success": self.is_success,
+            "request_metadata": (
+                self.request_metadata.to_dict() if self.request_metadata else None
+            ),
+            "additional_information": self.additional_information,
+        }
 
     @classmethod
     def from_requests_response(

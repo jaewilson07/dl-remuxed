@@ -43,44 +43,44 @@ When you merge the PR to `main`, the workflow automatically:
 
 ### Example 1: Bug Fix in Alpha
 
-**Current version:** `0.0.1-alpha`  
-**PR labels:** `fix`  
+**Current version:** `0.0.1-alpha`
+**PR labels:** `fix`
 **New version:** `0.0.2-alpha`
 
 ### Example 2: New Feature, Move to Beta
 
-**Current version:** `0.0.5-alpha`  
-**PR labels:** `feat`, `beta`  
+**Current version:** `0.0.5-alpha`
+**PR labels:** `feat`, `beta`
 **New version:** `0.1.0-beta`
 
 ### Example 3: Bug Fix in Beta (stays in Beta)
 
-**Current version:** `0.1.0-beta`  
-**PR labels:** `patch`  
+**Current version:** `0.1.0-beta`
+**PR labels:** `patch`
 **New version:** `0.1.1-beta`
 
 ### Example 4: Code Refactoring in Alpha
 
-**Current version:** `0.0.3-alpha`  
-**PR labels:** `refactor`  
+**Current version:** `0.0.3-alpha`
+**PR labels:** `refactor`
 **New version:** `0.0.4-alpha`
 
 ### Example 5: Feature Ready for Stable Release
 
-**Current version:** `0.1.5-beta`  
-**PR labels:** `feat`, `stable`  
+**Current version:** `0.1.5-beta`
+**PR labels:** `feat`, `stable`
 **New version:** `0.2.0` (stable release)
 
 ### Example 6: Breaking Change
 
-**Current version:** `0.9.5`  
-**PR labels:** `major`  
+**Current version:** `0.9.5`
+**PR labels:** `major`
 **New version:** `1.0.0`
 
 ### Example 7: Breaking Change, Back to Alpha Testing
 
-**Current version:** `1.2.3`  
-**PR labels:** `major`, `alpha`  
+**Current version:** `1.2.3`
+**PR labels:** `major`, `alpha`
 **New version:** `2.0.0-alpha`
 
 ## Best Practices

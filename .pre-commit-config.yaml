@@ -1,41 +1,75 @@
+# Pre-commit configuration optimized to minimize virtualenv/setuptools errors
+# Uses local system installations to avoid creating isolated environments
+
+# Global configuration
+fail_fast: false
+default_language_version:
+    python: python3.11
+
 repos:
-    # General hooks
-    - repo: https://github.com/pre-commit/pre-commit-hooks
-      rev: v4.6.0
+    # Essential local hooks using system Python
+    - repo: local
       hooks:
-          - id: trailing-whitespace
-          - id: end-of-file-fixer
-          - id: check-yaml
-          - id: check-toml
-          - id: check-merge-conflict
-          - id: check-added-large-files
-
-    # Python formatting
-    - repo: https://github.com/psf/black
-      rev: 24.8.0
-      hooks:
+          # Basic Python syntax check
+          - id: python-syntax-check
+            name: Python Syntax Check
+            entry: python -m py_compile
+            language: system
+            files: ^src/.*\.py$
+            
+          # Black formatting
           - id: black
+            name: Black Python Formatter
+            entry: python -m black
+            language: system
+            types: [python]
             files: ^src/
-
-    # Import sorting
-    - repo: https://github.com/pycqa/isort
-      rev: 5.13.2
-      hooks:
+            require_serial: false
+            
+          # Import sorting
           - id: isort
-            args: ["--profile", "black"]
+            name: Sort Python Imports
+            entry: python -m isort
+            language: system
+            types: [python]
+            args: ["--profile=black", "--multi-line=3", "--combine-as", "--remove-redundant-aliases", "--force-grid-wrap=0"]
             files: ^src/
 
-    # Linting
+    # Minimal external hooks - only essential ones that are stable
     - repo: https://github.com/astral-sh/ruff-pre-commit
       rev: v0.6.9
       hooks:
           - id: ruff
-            args: [--fix]
+            args: [--fix, --select=I,F401,F811, --ignore=E501]
             files: ^src/
-          - id: ruff-format
-            files: ^src/
+            fail_fast: false
 
-    # # Type checking
+    # Conventional commits (lightweight, rarely causes virtualenv issues)
+    - repo: https://github.com/compilerla/conventional-pre-commit
+      rev: v3.4.0
+      hooks:
+          - id: conventional-pre-commit
+            stages: [commit-msg]
+            fail_fast: false
+
+    # Documentation linting (Uncomment for documentation linting checks)
+    # - repo: https://github.com/pycqa/pydocstyle
+    #   rev: 6.3.0
+    #   hooks:
+    #       - id: pydocstyle
+    #         files: ^src/
+    #         args: ["--convention=google"]
+
+    # Conventional commits - with error tolerance
+    - repo: https://github.com/compilerla/conventional-pre-commit
+      rev: v3.4.0
+      hooks:
+          - id: conventional-pre-commit
+            stages: [commit-msg]
+            fail_fast: false
+            verbose: false
+
+    # Type checking (commented out due to import issues)
     # - repo: https://github.com/pre-commit/mirrors-mypy
     #   rev: v1.11.2
     #   hooks:

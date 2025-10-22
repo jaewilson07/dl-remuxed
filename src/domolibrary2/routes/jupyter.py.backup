@@ -1,0 +1,985 @@
+"""
+Jupyter Route Functions
+
+This module provides functions for managing Domo Jupyter workspaces including
+workspace management, content operations, and configuration.
+
+Functions:
+    get_jupyter_workspaces: Retrieve all available Jupyter workspaces
+    get_jupyter_workspace_by_id: Retrieve a specific workspace by ID
+    start_jupyter_workspace: Start a Jupyter workspace instance
+    get_jupyter_content: Retrieve content from a Jupyter workspace
+    create_jupyter_obj: Create new content in a Jupyter workspace
+    delete_jupyter_content: Delete content from a Jupyter workspace
+    update_jupyter_file: Update existing file content in workspace
+    get_content: Recursively retrieve all workspace content
+    update_jupyter_workspace_config: Update workspace configuration
+
+Exception Classes:
+    Jupyter_GET_Error: Raised when Jupyter workspace retrieval fails
+    SearchJupyter_NotFound: Raised when Jupyter search returns no results
+    Jupyter_CRUD_Error: Raised when Jupyter create/update/delete operations fail
+    JupyterWorkspace_Error: Raised when workspace operations fail
+"""
+
+__all__ = [
+    # Exception classes
+    "Jupyter_GET_Error",
+    "SearchJupyter_NotFound",
+    "Jupyter_CRUD_Error",
+    "JupyterWorkspace_Error",
+    # Core functions
+    "get_jupyter_workspaces",
+    "get_jupyter_workspace_by_id",
+    "start_jupyter_workspace",
+    "get_jupyter_content",
+    "create_jupyter_obj",
+    "delete_jupyter_content",
+    "update_jupyter_file",
+    "get_content",
+    "update_jupyter_workspace_config",
+    # Utility functions
+    "parse_instance_service_location_and_prefix",
+    "get_workspace_auth_token_params",
+    "generate_update_jupyter_body__new_content_path",
+    "generate_update_jupyter_body__text",
+    "generate_update_jupyter_body__ipynb",
+    "generate_update_jupyter_body__directory",
+    "generate_update_jupyter_body_factory",
+    "generate_update_jupyter_body",
+]
+
+import asyncio
+import os
+import urllib
+from enum import Enum
+from functools import partial
+from typing import Any, List, Optional, Union
+
+import httpx
+
+from ..client.auth import DomoAuth
+from ..client.exceptions import RouteError
+from ..client import get_data as gd
+from ..client import response as rgd
+from ..client.entities import DomoEnumMixin
+from ..utils import chunk_execution as dmce
+
+# Import for backward compatibility
+from ..client import auth as dmda
+
+
+class Jupyter_GET_Error(RouteError):
+    """Raised when Jupyter workspace retrieval operations fail."""
+
+    def __init__(
+        self,
+        workspace_id: Optional[str] = None,
+        message: Optional[str] = None,
+        res=None,
+        **kwargs,
+    ):
+        super().__init__(
+            message=message,
+            entity_id=workspace_id,
+            res=res,
+            **kwargs,
+        )
+
+
+class SearchJupyter_NotFound(RouteError):
+    """Raised when Jupyter workspace search operations return no results."""
+
+    def __init__(
+        self,
+        search_criteria: str,
+        message: Optional[str] = None,
+        res=None,
+        **kwargs,
+    ):
+        super().__init__(
+            message=message
+            or f"No Jupyter workspaces found matching: {search_criteria}",
+            res=res,
+            additional_context={"search_criteria": search_criteria},
+            **kwargs,
+        )
+
+
+class Jupyter_CRUD_Error(RouteError):
+    """Raised when Jupyter workspace create, update, or delete operations fail."""
+
+    def __init__(
+        self,
+        operation: str,
+        workspace_id: Optional[str] = None,
+        content_path: Optional[str] = None,
+        message: Optional[str] = None,
+        res=None,
+        **kwargs,
+    ):
+        super().__init__(
+            message=message or f"Jupyter {operation} operation failed",
+            entity_id=workspace_id,
+            res=res,
+            additional_context={"operation": operation, "content_path": content_path},
+            **kwargs,
+        )
+
+
+class JupyterWorkspace_Error(RouteError):
+    """Raised when Jupyter workspace operations fail."""
+
+    def __init__(
+        self,
+        operation: str,
+        workspace_id: Optional[str] = None,
+        message: Optional[str] = None,
+        res=None,
+        **kwargs,
+    ):
+        super().__init__(
+            message=message or f"Jupyter workspace {operation} failed",
+            entity_id=workspace_id,
+            res=res,
+            **kwargs,
+        )
+
+
+# Backward compatibility aliases
+JupyterAPI_Error = Jupyter_GET_Error
+JupyterAPI_WorkspaceStarted = JupyterWorkspace_Error
+
+
+@gd.route_function
+async def get_jupyter_workspaces(
+    auth: DomoAuth,
+    session: Optional[httpx.AsyncClient] = None,
+    debug_api: bool = False,
+    debug_loop: bool = False,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
+    """Retrieve all available Jupyter workspaces.
+
+    Args:
+        auth: Authentication object containing credentials and instance info
+        session: Optional httpx client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_loop: Enable detailed loop debugging
+        debug_num_stacks_to_drop: Number of stack frames to drop in debug output
+        parent_class: Optional parent class name for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing list of Jupyter workspaces
+
+    Raises:
+        Jupyter_GET_Error: If workspace retrieval fails
+    """
+    url = f"https://{auth.domo_instance}.domo.com/api/datascience/v1/search/workspaces"
+
+    body = {
+        "limit": 50,
+        "offset": 0,
+        "sortFieldMap": {"CREATED": "DESC"},
+        "filters": [],
+    }
+
+    def arr_fn(res):
+        return res.response["workspaces"]
+
+    offset_params = {"limit": "limit", "offset": "offset"}
+
+    res = await gd.looper(
+        url=url,
+        method="POST",
+        limit=50,
+        body=body,
+        auth=auth,
+        arr_fn=arr_fn,
+        offset_params_in_body=True,
+        offset_params=offset_params,
+        parent_class=parent_class,
+        session=session,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_api=debug_api,
+        debug_loop=debug_loop,
+    )
+
+    if return_raw:
+        return res
+
+    if not res.is_success:
+        raise Jupyter_GET_Error(
+            message="Failed to retrieve Jupyter workspaces", res=res
+        )
+
+    return res
+
+
+@gd.route_function
+async def get_jupyter_workspace_by_id(
+    auth: DomoAuth,
+    workspace_id: str,
+    session: Optional[httpx.AsyncClient] = None,
+    debug_api: bool = False,
+    debug_num_stacks_to_drop: int = 2,
+    parent_class: Optional[str] = None,
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
+    """Retrieve a specific Jupyter workspace by ID.
+
+    Args:
+        auth: Authentication object containing credentials and instance info
+        workspace_id: Unique identifier for the Jupyter workspace
+        session: Optional httpx client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to drop in debug output
+        parent_class: Optional parent class name for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing workspace information
+
+    Raises:
+        Jupyter_GET_Error: If workspace retrieval fails
+        SearchJupyter_NotFound: If workspace with specified ID doesn't exist
+    """
+    url = f"https://{auth.domo_instance}.domo.com/api/datascience/v1/workspaces/{workspace_id}"
+
+    res = await gd.get_data(
+        url=url,
+        method="GET",
+        auth=auth,
+        parent_class=parent_class,
+        session=session,
+        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_api=debug_api,
+    )
+
+    if return_raw:
+        return res
+
+    if not res.is_success:
+        if res.status == 404:
+            raise SearchJupyter_NotFound(
+                search_criteria=f"workspace_id: {workspace_id}",
+                res=res,
+            )
+        raise Jupyter_GET_Error(workspace_id=workspace_id, res=res)
+
+    return res
+
+
+def parse_instance_service_location_and_prefix(instance: dict, domo_instance):
+    url = instance["url"]
+
+    query = urllib.parse.unquote(urllib.parse.urlparse(url).query)
+    query = urllib.parse.urlparse(query.split("&")[1].replace("next=", ""))
+
+    return {
+        "service_location": query.netloc.replace(domo_instance, "")[1:],
+        "service_prefix": query.path,
+    }
+
+
+async def get_workspace_auth_token_params(workspace_id, auth, return_raw: bool = False):
+    """
+    params are needed for authenticating requests inside the workspace environment
+    Note: you'll also need a internally generated jupyter_token to authenticate requests
+    returns { service_location , service_prefix}
+    """
+    res = await get_jupyter_workspace_by_id(workspace_id=workspace_id, auth=auth)
+
+    open_instances = res.response.get("instances")
+
+    if return_raw:
+        return open_instances
+
+    if not open_instances:
+        raise JupyterWorkspace_Error(
+            operation="get_auth_token",
+            workspace_id=workspace_id,
+            message="There are no open instances. Do you need to start the workspace?",
+            res=res,
+        )
+
+    return parse_instance_service_location_and_prefix(
+        open_instances[0], auth.domo_instance
+    )
+
+
+@gd.route_function
+async def start_jupyter_workspace(
+    auth: DomoAuth,
+    workspace_id: str,
+    session: Optional[httpx.AsyncClient] = None,
+    debug_api: bool = False,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
+    """Start a Jupyter workspace instance.
+
+    Args:
+        auth: Authentication object containing credentials and instance info
+        workspace_id: Unique identifier for the workspace to start
+        session: Optional httpx client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to drop in debug output
+        parent_class: Optional parent class name for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing workspace start result
+
+    Raises:
+        JupyterWorkspace_Error: If workspace start operation fails
+        Jupyter_GET_Error: If workspace retrieval fails
+    """
+    url = f"https://{auth.domo_instance}.domo.com/api/datascience/v1/workspaces/{workspace_id}/instances"
+
+    try:
+        res = await gd.get_data(
+            url=url,
+            method="POST",
+            auth=auth,
+            parent_class=parent_class,
+            session=session,
+            num_stacks_to_drop=debug_num_stacks_to_drop,
+            debug_api=debug_api,
+        )
+
+        if return_raw:
+            return res
+
+    except RuntimeError as e:
+        return rgd.ResponseGetData(
+            status=500,
+            response=f"starting workspace, please wait - {e}",
+            is_success=False,
+        )
+
+    if res.status == 500 or res.status == 403:
+        raise JupyterWorkspace_Error(
+            operation="start",
+            workspace_id=workspace_id,
+            message=f"You may not have access to this workspace {workspace_id}, is it shared with you? Or may already be started",
+            res=res,
+        )
+
+    if not res.is_success:
+        raise JupyterWorkspace_Error(
+            operation="start", workspace_id=workspace_id, res=res
+        )
+
+    res.response = "workspace started"
+    return res
+
+
+@gd.route_function
+async def get_jupyter_content(
+    auth: dmda.DomoJupyterAuth,
+    content_path: str = "",
+    session: Optional[httpx.AsyncClient] = None,
+    debug_api: bool = False,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
+    """Retrieve content from a Jupyter workspace.
+
+    Args:
+        auth: Jupyter authentication object with workspace credentials
+        content_path: Path to content within the workspace (default: root)
+        session: Optional httpx client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to drop in debug output
+        parent_class: Optional parent class name for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing workspace content
+
+    Raises:
+        Jupyter_GET_Error: If content retrieval fails
+        SearchJupyter_NotFound: If content path doesn't exist
+    """
+    dmda.test_is_jupyter_auth(auth)
+
+    url = f"https://{auth.domo_instance}.{auth.service_location}{auth.service_prefix}api/contents/{content_path}"
+
+    res = await gd.get_data(
+        url=f"{url}",
+        method="GET",
+        auth=auth,
+        headers={"authorization": f"Token {auth.jupyter_token}"},
+        debug_api=debug_api,
+        num_stacks_to_drop=debug_num_stacks_to_drop,
+        parent_class=parent_class,
+        session=session,
+    )
+
+    if return_raw:
+        return res
+
+    if res.status == 403:
+        raise Jupyter_GET_Error(
+            message="Unable to query API, valid jupyter_token?", res=res
+        )
+
+    if res.status == 404:
+        raise SearchJupyter_NotFound(
+            search_criteria=f"content_path: {content_path}", res=res
+        )
+
+    if not res.is_success:
+        raise Jupyter_GET_Error(message="Failed to retrieve Jupyter content", res=res)
+
+    return res
+
+
+def generate_update_jupyter_body__new_content_path(content_path):
+    if not content_path:
+        return ""
+
+    ## replaces ./ if passed as part of url description
+    if content_path.startswith("./"):
+        content_path = content_path[2:]
+
+    if "/" in content_path:
+        return "/".join(content_path.split("/")[:-1])
+    else:
+        return ""
+
+
+def generate_update_jupyter_body__text(body, content_path=None):
+    body.update(
+        {
+            "format": "text",
+            "type": "file",
+            "path": generate_update_jupyter_body__new_content_path(content_path),
+        }
+    )
+    return body
+
+
+def generate_update_jupyter_body__ipynb(body, content_path=None):
+    body.update(
+        {
+            "format": "json",
+            "type": "notebook",
+            "path": generate_update_jupyter_body__new_content_path(content_path),
+        }
+    )
+    return body
+
+
+def generate_update_jupyter_body__directory(content_path, body):
+    body.update(
+        {
+            "path": generate_update_jupyter_body__new_content_path(content_path),
+            "format": None,
+            "type": "directory",
+        }
+    )
+    return body
+
+
+class generate_update_jupyter_body_factory(DomoEnumMixin, Enum):
+    IPYNB = partial(generate_update_jupyter_body__ipynb)
+    DIRECTORY = partial(generate_update_jupyter_body__directory)
+    TEXT = partial(generate_update_jupyter_body__text)
+    default = partial(generate_update_jupyter_body__text)
+
+
+def generate_update_jupyter_body(
+    new_content,
+    content_path: str,  # my_folder/datatypes.ipynb
+):
+    """factory to construct properly formed body"""
+
+    if content_path.startswith("./"):
+        content_path = content_path[2:]
+
+    content_name = os.path.normpath(content_path).split(os.sep)[-1]
+
+    if "." in content_path:
+        content_type = content_path.split(".")[-1]
+    else:
+        content_type = "directory"
+
+    body = {
+        "name": content_name,
+        "content": new_content,
+        "path": content_path,
+    }
+    return generate_update_jupyter_body_factory.get(content_type).value(
+        body=body, content_path=content_path
+    )
+
+
+@gd.route_function
+async def create_jupyter_obj(
+    auth: dmda.DomoJupyterAuth,
+    new_content: Any = "",
+    content_path: str = "",
+    session: Optional[httpx.AsyncClient] = None,
+    debug_api: bool = False,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
+    """Create new content in a Jupyter workspace.
+
+    Args:
+        auth: Jupyter authentication object with workspace credentials
+        new_content: Content to create (text, notebook data, etc.)
+        content_path: File name and location within the workspace
+        session: Optional httpx client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to drop in debug output
+        parent_class: Optional parent class name for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing creation result
+
+    Raises:
+        Jupyter_CRUD_Error: If content creation fails
+    """
+    dmda.test_is_jupyter_auth(auth)
+
+    # removes ./ jic
+    if content_path.startswith("./"):
+        content_path = content_path[2:]
+
+    body = generate_update_jupyter_body(
+        new_content=new_content, content_path=content_path
+    )
+
+    content_path_split = os.path.normpath(content_path).split(os.sep)
+
+    # new content gets created as "untitled folder" // removes the 'future name' and saves for later
+    path_to_rename = content_path_split.pop(-1)
+
+    base_url = f"https://{auth.domo_instance}.{auth.service_location}{auth.service_prefix}api/contents/"
+
+    res_post = await gd.get_data(
+        url=f"{base_url}{'/'.join(content_path_split)}",
+        method="POST",
+        auth=auth,
+        body=body,
+        debug_api=debug_api,
+        parent_class=parent_class,
+        num_stacks_to_drop=debug_num_stacks_to_drop,
+        session=session,
+    )
+
+    if return_raw:
+        return res_post
+
+    if res_post.status == 403:
+        raise Jupyter_CRUD_Error(
+            operation="create",
+            content_path=content_path,
+            message="Unable to query API, valid jupyter_token?",
+            res=res_post,
+        )
+
+    if not res_post.is_success:
+        raise Jupyter_CRUD_Error(
+            operation="create", content_path=content_path, res=res_post
+        )
+
+    # untitled_folder
+    url = urllib.parse.urljoin(base_url, res_post.response["path"])
+
+    # created a folder "untitled folder"
+    await asyncio.sleep(3)
+
+    res = await gd.get_data(
+        url=urllib.parse.quote(url, safe="/:?=&"),
+        method="PATCH",
+        auth=auth,
+        body={"path": content_path, "content": new_content},
+        debug_api=debug_api,
+        parent_class=parent_class,
+        num_stacks_to_drop=debug_num_stacks_to_drop,
+        session=session,
+    )
+
+    if res.status == 403:
+        raise Jupyter_CRUD_Error(
+            operation="rename",
+            content_path=content_path,
+            message="Unable to query API, valid jupyter_token?",
+            res=res,
+        )
+
+    if res.status == 409:
+        raise Jupyter_CRUD_Error(
+            operation="rename",
+            content_path=content_path,
+            message="Conflict during PATCH - does the content already exist?",
+            res=res,
+        )
+
+    if not res.is_success:
+        raise Jupyter_CRUD_Error(operation="rename", content_path=content_path, res=res)
+
+    res.response = {**res_post.response, **res.response}
+
+    return res
+
+
+@gd.route_function
+async def delete_jupyter_content(
+    auth: dmda.DomoJupyterAuth,
+    content_path: str,
+    session: Optional[httpx.AsyncClient] = None,
+    debug_api: bool = False,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
+    """Delete content from a Jupyter workspace.
+
+    Args:
+        auth: Jupyter authentication object with workspace credentials
+        content_path: File name and location within the workspace
+        session: Optional httpx client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to drop in debug output
+        parent_class: Optional parent class name for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing deletion result
+
+    Raises:
+        Jupyter_CRUD_Error: If content deletion fails
+        SearchJupyter_NotFound: If content path doesn't exist
+    """
+    dmda.test_is_jupyter_auth(auth)
+
+    base_url = f"https://{auth.domo_instance}.{auth.service_location}{auth.service_prefix}api/contents/"
+
+    url = urllib.parse.urljoin(base_url, content_path)
+    url = urllib.parse.quote(url, safe="/:?=&")
+
+    res = await gd.get_data(
+        url=url,
+        method="DELETE",
+        auth=auth,
+        debug_api=debug_api,
+        parent_class=parent_class,
+        num_stacks_to_drop=debug_num_stacks_to_drop,
+        session=session,
+    )
+
+    if return_raw:
+        return res
+
+    if res.status == 403:
+        raise Jupyter_CRUD_Error(
+            operation="delete",
+            content_path=content_path,
+            message="Unable to query API, valid jupyter_token?",
+            res=res,
+        )
+
+    if res.status == 404:
+        raise SearchJupyter_NotFound(
+            search_criteria=f"content_path: {content_path}", res=res
+        )
+
+    if not res.is_success:
+        raise Jupyter_CRUD_Error(operation="delete", content_path=content_path, res=res)
+
+    return res
+
+
+@gd.route_function
+async def update_jupyter_file(
+    auth: dmda.DomoJupyterAuth,
+    new_content: Any,
+    content_path: str = "",
+    body: Optional[dict] = None,
+    session: Optional[httpx.AsyncClient] = None,
+    debug_api: bool = False,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
+    """Update content in a Jupyter workspace file.
+
+    Args:
+        auth: Jupyter authentication object with workspace credentials
+        new_content: New content to update the file with
+        content_path: File name and location within the workspace
+        body: Optional custom body for the request
+        session: Optional httpx client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to drop in debug output
+        parent_class: Optional parent class name for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing update result
+
+    Raises:
+        Jupyter_CRUD_Error: If file update fails
+        SearchJupyter_NotFound: If content path doesn't exist
+    """
+    dmda.test_is_jupyter_auth(auth)
+
+    body = body or generate_update_jupyter_body(new_content, content_path)
+
+    content_path_split = os.path.normpath(content_path).split(os.sep)
+
+    base_url = f"https://{auth.domo_instance}.{auth.service_location}{auth.service_prefix}api/contents/"
+
+    url = urllib.parse.urljoin(base_url, content_path)
+    url = urllib.parse.quote(url, safe="/:?=&")
+
+    res = await gd.get_data(
+        url=url,
+        method="PUT",
+        auth=auth,
+        body=body,
+        debug_api=debug_api,
+        parent_class=parent_class,
+        num_stacks_to_drop=debug_num_stacks_to_drop,
+        session=session,
+    )
+
+    if return_raw:
+        return res
+
+    if res.status == 403:
+        raise Jupyter_CRUD_Error(
+            operation="update",
+            content_path=content_path,
+            message="Unable to query API, valid jupyter_token?",
+            res=res,
+        )
+
+    if res.status == 404:
+        raise SearchJupyter_NotFound(
+            search_criteria=f"content_path: {content_path}", res=res
+        )
+
+    if not res.is_success:
+        raise Jupyter_CRUD_Error(operation="update", content_path=content_path, res=res)
+
+    return res
+
+
+async def get_content_recursive(
+    auth: dmda.DomoJupyterAuth,
+    all_rows,
+    content_path,
+    logs,
+    res: rgd.ResponseGetData,
+    obj: dict = None,
+    is_recursive: bool = True,
+    is_skip_recent_executions: bool = True,
+    is_skip_default_files: bool = True,
+    return_raw: bool = False,
+    debug_api: bool = False,
+    debug_num_stacks_to_drop=0,
+    parent_class=None,
+    session: httpx.AsyncClient = None,
+):
+    # set path (on initial execution there is no object)
+
+    dmda.test_is_jupyter_auth(auth)
+
+    res = await get_jupyter_content(
+        auth=auth,
+        content_path=content_path,
+        debug_api=debug_api,
+        parent_class=parent_class,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
+        session=session,
+    )
+    if return_raw:
+        return res
+
+    obj = res.response
+    obj_name = obj["name"]
+    obj_type = obj["type"]
+    obj_path = obj["path"]
+    obj_content = obj["content"] or []
+
+    s = {"content_path": obj_path, "type": obj_type, "name": obj_name}
+
+    if (is_skip_recent_executions and obj_path.startswith("recent_executions")) or (
+        is_skip_default_files and obj_path.startswith("domo_jupyter_examples")
+    ):
+        res.response = all_rows
+        res.logs = logs
+        return res
+
+    all_rows.append(obj)
+    s.update({"is_append": True})
+    logs.append(s)
+
+    res.response = all_rows
+    res.logs = logs
+
+    if obj["type"] != "directory":
+        return res
+
+    s.update({"content": len(obj_content), "all_rows": len(all_rows)})
+    logs.append(s)
+
+    res.response = all_rows
+    res.logs = logs
+
+    if not is_recursive:
+        return res
+
+    if len(obj_content) > 0:
+        await dmce.gather_with_concurrency(
+            *[
+                get_content_recursive(
+                    auth=auth,
+                    content_path=content["path"],
+                    all_rows=all_rows,
+                    logs=logs,
+                    res=res,
+                    is_skip_recent_executions=is_skip_recent_executions,
+                    is_skip_default_files=is_skip_default_files,
+                    debug_api=debug_api,
+                    debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
+                    parent_class=parent_class,
+                    session=session,
+                )
+                for content in obj_content
+            ],
+            n=5,
+        )
+
+    return res
+
+
+@gd.route_function
+async def get_content(
+    auth: dmda.DomoJupyterAuth,
+    content_path: str = "",
+    is_recursive: bool = True,
+    is_skip_recent_executions: bool = True,
+    is_skip_default_files: bool = True,
+    session: Optional[httpx.AsyncClient] = None,
+    debug_api: bool = False,
+    debug_num_stacks_to_drop: int = 2,
+    parent_class: Optional[str] = None,
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
+    """Get content from a Jupyter workspace recursively.
+
+    Args:
+        auth: Jupyter authentication object with workspace credentials
+        content_path: Path to start retrieving content from
+        is_recursive: Whether to recursively get nested directory content
+        is_skip_recent_executions: Skip files with recent execution timestamps
+        is_skip_default_files: Skip default workspace files
+        session: Optional httpx client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to drop in debug output
+        parent_class: Optional parent class name for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing all workspace content
+
+    Raises:
+        Jupyter_GET_Error: If content retrieval fails
+    """
+    dmda.test_is_jupyter_auth(auth)
+
+    all_rows = []
+    logs = []
+    res = None
+
+    return await get_content_recursive(
+        auth=auth,
+        content_path=content_path,
+        all_rows=all_rows,
+        logs=logs,
+        res=res,
+        is_recursive=is_recursive,
+        is_skip_recent_executions=is_skip_recent_executions,
+        is_skip_default_files=is_skip_default_files,
+        return_raw=return_raw,
+        debug_api=debug_api,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        parent_class=parent_class,
+        session=session,
+    )
+
+
+@gd.route_function
+async def update_jupyter_workspace_config(
+    auth: DomoAuth,
+    workspace_id: str,
+    config: dict,
+    session: Optional[httpx.AsyncClient] = None,
+    debug_api: bool = False,
+    debug_num_stacks_to_drop: int = 2,
+    parent_class: Optional[str] = None,
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
+    """Update the configuration of a Jupyter workspace.
+
+    Args:
+        auth: Authentication object containing credentials and instance info
+        workspace_id: Unique identifier for the workspace to configure
+        config: Configuration dictionary to update the workspace with
+        session: Optional httpx client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to drop in debug output
+        parent_class: Optional parent class name for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing configuration update result
+
+    Raises:
+        Jupyter_CRUD_Error: If workspace configuration update fails
+        SearchJupyter_NotFound: If workspace doesn't exist
+    """
+    url = f"https://{auth.domo_instance}.domo.com/api/datascience/v1/workspaces/{workspace_id}"
+
+    res = await gd.get_data(
+        url=url,
+        method="PUT",
+        auth=auth,
+        body=config,
+        debug_api=debug_api,
+        num_stacks_to_drop=debug_num_stacks_to_drop,
+        parent_class=parent_class,
+        session=session,
+    )
+
+    if return_raw:
+        return res
+
+    if res.status == 404:
+        raise SearchJupyter_NotFound(
+            search_criteria=f"workspace_id: {workspace_id}", res=res
+        )
+
+    if not res.is_success:
+        raise Jupyter_CRUD_Error(
+            operation="update_config",
+            workspace_id=workspace_id,
+            message=f"Error updating workspace configuration for {workspace_id}",
+            res=res,
+        )
+
+    return res

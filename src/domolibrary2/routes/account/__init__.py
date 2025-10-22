@@ -22,11 +22,7 @@ from .config import (
 )
 
 # Import core functions
-from .core import (
-    get_account_by_id,
-    get_accounts,
-    get_available_data_providers,
-)
+from .core import get_account_by_id, get_accounts, get_available_data_providers
 
 # Import CRUD functions
 from .crud import (
@@ -50,10 +46,7 @@ from .exceptions import (
 )
 
 # Import OAuth functions
-from .oauth import (
-    get_oauth_account_by_id,
-    get_oauth_accounts,
-)
+from .oauth import get_oauth_account_by_id, get_oauth_accounts
 
 # Import sharing functions and classes
 from .sharing import (

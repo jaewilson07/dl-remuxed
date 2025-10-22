@@ -9,7 +9,7 @@ from typing import Optional
 import httpx
 
 from ..routes import activity_log as activity_log_routes
-from ..utils import convert as convert
+from ..utils import convert
 
 
 class ActivityLog_ObjectType(Enum):

@@ -16,8 +16,7 @@ __all__ = [
 
 import httpx
 
-from ..client import get_data as gd
-from ..client import response as rgd
+from ..client import get_data as gd, response as rgd
 from . import codeengine as codeengine_routes
 from .codeengine import CodeEngine_API_Error
 

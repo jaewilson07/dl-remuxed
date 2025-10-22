@@ -156,6 +156,18 @@ class DomoEntity(DomoBase):
     id: str
     raw: dict = field(repr=False)  # api representation of the class
 
+    # logger: Logger = field(repr=False) ## pass global logger
+
+    @property
+    def _name(self) -> str:
+        name = getattr(self, "name", None)
+
+        if not name:
+            raise NotImplementedError(
+                "This property should be implemented by subclasses."
+            )
+        return name
+
     def __eq__(self, other) -> bool:
         """Check equality based on entity ID.
 
@@ -257,7 +269,7 @@ class DomoEntity_w_Lineage(DomoEntity):
 
     def __post_init__(self):
         """Initialize lineage tracking after entity creation."""
-        from ..classes import DomoLineage as dmdl
+        from ..classes.subentity import DomoLineage as dmdl
 
         # Using protected method until public interface is available
         self.lineage = dmdl.DomoLineage.from_parent(auth=self.auth, parent=self)

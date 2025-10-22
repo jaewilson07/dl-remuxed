@@ -10,7 +10,7 @@ This document outlines the comprehensive error strategy for the Domo Library, pr
 
 ```python
 DomoError                    # Base for all Domo-related errors
-├── RouteError              # API route/endpoint errors  
+├── RouteError              # API route/endpoint errors
 ├── ClassError              # Class instance errors (DomoDataset, DomoCard, etc.)
 └── AuthError               # Authentication-specific errors
 ```
@@ -58,7 +58,7 @@ For most API routes, implement these four core error types:
 
 ### 1. GET Errors - `{Module}_GET_Error`
 **Purpose**: Failed retrieval operations
-**When to Use**: 
+**When to Use**:
 - API returns 4xx/5xx status codes during GET requests
 - Data parsing failures
 - Malformed responses
@@ -134,25 +134,25 @@ class AuthError(RouteError):
 ```python
 class InvalidCredentialsError(AuthError):
     """Username/password, tokens, or API keys are invalid"""
-    
+
 class InvalidInstanceError(AuthError):
     """Domo instance URL is invalid or inaccessible"""
-    
+
 class AccountLockedError(AuthError):
     """User account is locked due to failed attempts or policy"""
-    
+
 class InvalidAuthTypeError(AuthError):
     """Wrong authentication method for the API endpoint"""
-    
+
 class TokenExpiredError(AuthError):
     """Access token or session has expired"""
-    
+
 class InsufficientPermissionsError(AuthError):
     """Valid auth but lacks required permissions"""
-    
+
 class MFARequiredError(AuthError):
     """Multi-factor authentication step required"""
-    
+
 class NoAccessTokenReturned(AuthError):
     """Auth API didn't return expected token"""
 
@@ -166,10 +166,10 @@ class RateLimitExceededError(AuthError):
 ```python
 class DataUploadError(RouteError):
     """Specific to data upload failures"""
-    
+
 class DataExportError(RouteError):
     """Specific to data export failures"""
-    
+
 class SchemaValidationError(RouteError):
     """Data schema doesn't match expectations"""
 ```
@@ -178,7 +178,7 @@ class SchemaValidationError(RouteError):
 ```python
 class ConfigurationError(RouteError):
     """Instance configuration issues"""
-    
+
 class FeatureNotAvailableError(RouteError):
     """Requested feature not available in instance"""
 ```
@@ -257,7 +257,7 @@ class InvalidAuthTypeError(AuthError):
         message = f"This API requires one of: {auth_list}"
         if current_auth_type:
             message += f" (provided: {current_auth_type})"
-            
+
         super().__init__(
             message=message,
             **kwargs
@@ -320,7 +320,7 @@ except SearchUser_NotFound:
 For each new route module, implement:
 
 - [ ] `{Module}_GET_Error` - for retrieval failures
-- [ ] `Search{Module}_NotFound` - for empty search results  
+- [ ] `Search{Module}_NotFound` - for empty search results
 - [ ] `{Module}_CRUD_Error` - for create/update/delete failures
 - [ ] `{Module}Sharing_Error` - for permission/sharing issues (if applicable)
 - [ ] Specific errors for unique failure modes
@@ -341,7 +341,7 @@ For each new route module, implement:
 When working with this library, follow these patterns:
 
 1. **Always** use specific error types rather than generic exceptions
-2. **Include** entity IDs and relevant context in error messages  
+2. **Include** entity IDs and relevant context in error messages
 3. **Preserve** original API responses for debugging
 4. **Suggest** recovery actions when possible
 5. **Test** error scenarios as thoroughly as success paths
@@ -388,7 +388,7 @@ class DataUploadError(RouteError): pass
 class SchemaValidationError(RouteError): pass
 ```
 
-### User Route Errors  
+### User Route Errors
 ```python
 # /src/routes/user.py
 class User_GET_Error(RouteError):
@@ -421,7 +421,7 @@ class DownloadAvatar_Error(RouteError): pass
 
 ### Application Route Errors
 ```python
-# /src/routes/application.py  
+# /src/routes/application.py
 class Application_GET_Error(RouteError):
     """Raised when application retrieval operations fail."""
     def __init__(self, application_id: Optional[str] = None, message: Optional[str] = None, res=None, **kwargs):
