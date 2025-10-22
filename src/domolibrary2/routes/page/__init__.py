@@ -7,7 +7,7 @@ layout management, access control, and sharing operations.
 The module is organized into functional areas:
 - core: Basic page retrieval and definition functions
 - access: Access control and permissions functions
-- properties: Layout management, locks, and ownership functions
+- crud: Layout management, locks, and ownership functions
 - exceptions: All page-related exception classes
 
 Functions:
