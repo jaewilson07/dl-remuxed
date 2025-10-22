@@ -113,7 +113,25 @@ async def get_stream_by_id(
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
+    """Get a stream by its ID.
+    
+    Args:
+        auth: Authentication object
+        stream_id: Unique stream identifier
+        session: HTTP client session
+        debug_api: Enable API debugging
+        debug_num_stacks_to_drop: Stack frames to drop for debugging
+        parent_class: Name of the calling class
+        return_raw: Return raw response without processing
+        
+    Returns:
+        ResponseGetData object
+        
+    Raises:
+        Stream_GET_Error: If retrieval fails
+    """
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/streams/{stream_id}"
 
     res = await gd.get_data(
@@ -125,6 +143,9 @@ async def get_stream_by_id(
         parent_class=parent_class,
         num_stacks_to_drop=debug_num_stacks_to_drop,
     )
+
+    if return_raw:
+        return res
 
     if not res.is_success:
         raise Stream_GET_Error(stream_id=stream_id, res=res)
@@ -141,7 +162,26 @@ async def update_stream(
     debug_num_stacks_to_drop: int = 1,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
+    """Update a stream configuration.
+    
+    Args:
+        auth: Authentication object
+        stream_id: Unique stream identifier
+        body: Stream configuration data
+        session: HTTP client session
+        debug_num_stacks_to_drop: Stack frames to drop for debugging
+        debug_api: Enable API debugging
+        parent_class: Name of the calling class
+        return_raw: Return raw response without processing
+        
+    Returns:
+        ResponseGetData object
+        
+    Raises:
+        Stream_CRUD_Error: If update operation fails
+    """
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/streams/{stream_id}"
 
     res = await gd.get_data(
@@ -154,6 +194,9 @@ async def update_stream(
         parent_class=parent_class,
         num_stacks_to_drop=debug_num_stacks_to_drop,
     )
+
+    if return_raw:
+        return res
 
     if not res.is_success:
         raise Stream_CRUD_Error(operation="update", stream_id=stream_id, res=res)
