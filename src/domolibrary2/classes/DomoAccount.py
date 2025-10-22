@@ -6,12 +6,8 @@ from typing import List
 
 import httpx
 
-from ..classes.DomoAccount_Config import (
-    AccountConfig,
-)
-from ..classes.DomoAccount_Credential import (
-    DomoAccount_Credential,
-)
+from ..classes.DomoAccount_Config import AccountConfig
+from ..classes.DomoAccount_Credential import DomoAccount_Credential
 from ..classes.DomoAccount_Default import (
     DomoAccount_Default,
     UpsertAccount_MatchCriteria,

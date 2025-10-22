@@ -21,15 +21,9 @@ from ..client.Logger import Logger
 from ..client.response import ResponseGetData
 from ..routes import instance_config_sso as sso_routes
 from ..routes import user as user_routes
-from ..routes.user import (
-    SearchUser_NotFound,
-    UserProperty,
-)
+from ..routes.user import SearchUser_NotFound, UserProperty
 from ..utils import DictDot
-from ..utils.convert import (
-    convert_epoch_millisecond_to_datetime,
-    test_valid_email,
-)
+from ..utils.convert import convert_epoch_millisecond_to_datetime, test_valid_email
 from ..utils.Image import Image, are_same_image
 
 
