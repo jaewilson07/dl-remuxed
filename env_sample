@@ -1,2 +1,8 @@
 DOMO_ACCESS_TOKEN = ""
 DOMO_INSTANCE = "domo-instance"
+
+# Account_Default tests - provide IDs of test accounts
+# To obtain: Navigate to Data Center > Accounts in Domo, select an account,
+# and copy the ID from the URL or from the account details
+ACCOUNT_DEFAULT_ID_1 = "123"  # First test account ID
+ACCOUNT_DEFAULT_ID_2 = "456"  # Second test account ID (optional)
