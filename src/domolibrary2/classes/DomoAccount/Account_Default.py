@@ -14,13 +14,13 @@ from typing import Any, List
 
 import httpx
 
-from .Config import AccountConfig, DomoAccount_Config
 from ...client import exceptions as dmde
 from ...client.auth import DomoAuth
 from ...client.entities import DomoEntity
 from ...routes import account as account_routes
 from ...utils import convert as cd
 from ..subentity import DomoAccess as dmas
+from .Config import AccountConfig, DomoAccount_Config
 
 
 class Account_CanIModify(dmde.ClassError):

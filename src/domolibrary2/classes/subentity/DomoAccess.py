@@ -11,8 +11,6 @@ from typing import Any, List
 
 import httpx
 
-from .. import DomoUser as dmdu
-
 from ...client import exceptions as dmde
 from ...client.auth import DomoAuth
 from ...client.entities import DomoSubEntity, Entity_Relation
@@ -23,6 +21,7 @@ from ...routes.account import (
     ShareAccount_V1_AccessLevel,
 )
 from ...utils import chunk_execution as dmce
+from .. import DomoUser as dmdu
 
 
 class Access_Config_Error(dmde.ClassError):

@@ -14,11 +14,11 @@ import httpx
 from ...client import entities as dmee
 from ...client.auth import DomoAuth
 from ...routes import account as account_routes
+from ..subentity.DomoAccess import DomoAccess_OAuth
 from . import (
     Account_Default as dmacb,
     Config as dmacnfg,
 )
-from ..subentity.DomoAccess import DomoAccess_OAuth
 
 
 @dataclass
