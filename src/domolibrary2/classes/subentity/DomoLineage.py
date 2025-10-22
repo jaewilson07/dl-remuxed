@@ -20,7 +20,7 @@ from typing import Any, Callable, List
 import httpx
 from aenum import NoAlias
 
-from ...client import DomoEntity
+from ...client.auth import DomoAuth
 from ...client.entities import DomoEntity
 from ...routes import datacenter as datacenter_routes
 from ...utils import chunk_execution as dmce
