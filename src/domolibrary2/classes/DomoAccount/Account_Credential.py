@@ -18,8 +18,8 @@ from ...client import auth as dmda, exceptions as dmde
 from ...client.auth import DomoAuth
 from ...utils import convert as dmcv
 from . import Account_Default as dmacb
-from ..subentity.DomoAccess import DomoAccessToken as dmact
-from ..DomoUser import DomoUser as dmdu
+from ..DomoAccessToken import DomoAccessToken as dmact
+from ..DomoUser import DomoUser as dmdu, DomoUsers
 
 
 class DAC_NoTargetInstance(dmde.ClassError):
@@ -90,8 +90,8 @@ class DomoAccount_Credential(dmacb.DomoAccount_Default):
     _full_auth: DomoAuth = field(repr=False, default=None)
 
     target_auth: DomoAuth = field(default=None)
-    target_user: dmdu.DomoUser = field(default=None)
-    target_access_token: dmact.DomoAccessToken = field(default=None)
+    target_user: dmdu = field(default=None)
+    target_access_token: dmact = field(default=None)
 
     # def __post_init__(self):
     #     if not self.target_instance:
@@ -276,7 +276,7 @@ class DomoAccount_Credential(dmacb.DomoAccount_Default):
                 message="no target_auth, pass a valid backup_auth",
             )
 
-        self.target_user = await dmdu.DomoUsers.by_email(
+        self.target_user = await DomoUsers.by_email(
             email_ls=[user_email],
             auth=target_auth,
             debug_api=debug_api,
