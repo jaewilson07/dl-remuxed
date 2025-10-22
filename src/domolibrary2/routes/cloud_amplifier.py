@@ -1,7 +1,41 @@
+"""
+Cloud Amplifier Route Functions
+
+This module provides functions for managing Domo Cloud Amplifier integrations,
+including integration management, warehouse configuration, and database operations.
+
+Functions:
+    get_integrations: Retrieve all Cloud Amplifier integrations
+    get_integration_by_id: Retrieve a specific integration by ID
+    get_integration_permissions: Get permissions for integrations
+    check_for_colliding_datasources: Check for dataset collisions
+    get_federated_source_metadata: Retrieve federated source metadata
+    get_integration_warehouses: List available compute warehouses
+    get_databases: List databases for an integration
+    get_schemas: List schemas for a database
+    get_tables: List tables for a schema
+    convert_federated_to_cloud_amplifier: Convert federated dataset to Cloud Amplifier
+    create_integration: Create a new Cloud Amplifier integration
+    update_integration_warehouses: Update compute warehouses
+    update_integration: Update an existing integration
+    delete_integration: Delete a Cloud Amplifier integration
+
+Exception Classes:
+    CloudAmplifier_GET_Error: Raised when integration retrieval fails
+    SearchCloudAmplifier_NotFound: Raised when integration search returns no results
+    CloudAmplifier_CRUD_Error: Raised when integration create/update/delete operations fail
+
+Deprecated:
+    Cloud_Amplifier_Error: Legacy error class, use specific error classes instead
+"""
+
 __all__ = [
     "ENGINES",
     "create_integration_body",
-    "Cloud_Amplifier_Error",
+    "CloudAmplifier_GET_Error",
+    "SearchCloudAmplifier_NotFound",
+    "CloudAmplifier_CRUD_Error",
+    "Cloud_Amplifier_Error",  # Deprecated, kept for backward compatibility
     "get_integrations",
     "get_integration_by_id",
     "get_integration_permissions",
@@ -22,10 +56,109 @@ from typing import Any, Literal, Optional
 
 import httpx
 
-from ..client import exceptions as dmde, get_data as gd, response as rgd
+from ..client import get_data as gd, response as rgd
+from ..client.auth import DomoAuth
+from ..client.exceptions import RouteError
 
 # TODO: Expand to include all engines
 ENGINES = Literal["SNOWFLAKE", "BIGQUERY"]
+
+
+class CloudAmplifier_GET_Error(RouteError):
+    """
+    Raised when Cloud Amplifier integration retrieval operations fail.
+
+    This exception is used for failures during GET operations on integrations,
+    warehouses, databases, schemas, tables, and metadata retrieval.
+    """
+
+    def __init__(
+        self,
+        entity_id: Optional[str] = None,
+        res: Optional[rgd.ResponseGetData] = None,
+        message: Optional[str] = None,
+        **kwargs,
+    ):
+        if not message:
+            if entity_id:
+                message = f"Failed to retrieve Cloud Amplifier integration {entity_id}"
+            else:
+                message = "Failed to retrieve Cloud Amplifier integration"
+
+        super().__init__(message=message, entity_id=entity_id, res=res, **kwargs)
+
+
+class SearchCloudAmplifier_NotFound(RouteError):
+    """
+    Raised when Cloud Amplifier integration search operations return no results.
+
+    This exception is used when searching for specific integrations, warehouses,
+    databases, schemas, or tables that don't exist or when search criteria match nothing.
+    """
+
+    def __init__(
+        self,
+        search_criteria: str,
+        res: Optional[rgd.ResponseGetData] = None,
+        **kwargs,
+    ):
+        message = f"No Cloud Amplifier resources found matching: {search_criteria}"
+        super().__init__(
+            message=message,
+            res=res,
+            **kwargs,
+        )
+
+
+class CloudAmplifier_CRUD_Error(RouteError):
+    """
+    Raised when Cloud Amplifier integration create, update, or delete operations fail.
+
+    This exception is used for failures during integration creation, modification,
+    deletion, warehouse updates, and federated dataset conversion operations.
+    """
+
+    def __init__(
+        self,
+        operation: str,
+        entity_id: Optional[str] = None,
+        res: Optional[rgd.ResponseGetData] = None,
+        message: Optional[str] = None,
+        **kwargs,
+    ):
+        if not message:
+            if entity_id:
+                message = (
+                    f"Cloud Amplifier {operation} failed for integration {entity_id}"
+                )
+            else:
+                message = f"Cloud Amplifier {operation} operation failed"
+
+        super().__init__(
+            message=message,
+            entity_id=entity_id,
+            res=res,
+            **kwargs,
+        )
+
+
+class Cloud_Amplifier_Error(RouteError):
+    """
+    Legacy error class for Cloud Amplifier operations.
+
+    .. deprecated::
+        Use CloudAmplifier_GET_Error, SearchCloudAmplifier_NotFound, or
+        CloudAmplifier_CRUD_Error instead for more specific error handling.
+    """
+
+    def __init__(
+        self,
+        res: Optional[rgd.ResponseGetData] = None,
+        account_id: str = "",
+        message: str = "",
+        **kwargs,
+    ):
+        super().__init__(res=res, message=message, entity_id=account_id, **kwargs)
 
 
 def create_integration_body(
@@ -69,24 +202,41 @@ def create_integration_body(
     return body
 
 
-class Cloud_Amplifier_Error(dmde.RouteError):
-    def __init__(
-        self, res: rgd.ResponseGetData, account_id: str = "", message: str = ""
-    ):
-        super().__init__(res=res, message=message, entity_id=account_id)
-
-
 @gd.route_function
 async def get_integrations(
     auth: DomoAuth,
     integration_engine: Optional[ENGINES] = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
-):
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
     """
-    Retrieves a list of all the integrations.
+    Retrieve a list of all Cloud Amplifier integrations.
+
+    Fetches all integrations associated with the current Domo instance,
+    optionally filtered by engine type (SNOWFLAKE, BIGQUERY).
+
+    Args:
+        auth: Authentication object containing instance and credentials
+        integration_engine: Optional filter by engine type (SNOWFLAKE or BIGQUERY)
+        session: Optional HTTP client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to omit in debug output
+        parent_class: Name of calling class for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing list of integrations
+
+    Raises:
+        CloudAmplifier_GET_Error: If integration retrieval fails
+
+    Example:
+        >>> integrations_response = await get_integrations(auth)
+        >>> for integration in integrations_response.response:
+        ...     print(f"Integration: {integration['id']}")
     """
 
     api_type = "data"
@@ -109,8 +259,11 @@ async def get_integrations(
         params=params,
     )
 
-    if res and not res.is_success:
-        raise Cloud_Amplifier_Error(res=res)
+    if return_raw:
+        return res
+
+    if not res.is_success:
+        raise CloudAmplifier_GET_Error(res=res)
 
     return res
 
@@ -119,13 +272,34 @@ async def get_integrations(
 async def get_integration_by_id(
     auth: DomoAuth,
     integration_id: str,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
-):
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
     """
-    Retrieves a list of all the integrations.
+    Retrieve a specific Cloud Amplifier integration by ID.
+
+    Args:
+        auth: Authentication object containing instance and credentials
+        integration_id: Unique identifier for the integration
+        session: Optional HTTP client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to omit in debug output
+        parent_class: Name of calling class for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing integration details
+
+    Raises:
+        CloudAmplifier_GET_Error: If integration retrieval fails
+        SearchCloudAmplifier_NotFound: If integration doesn't exist
+
+    Example:
+        >>> integration = await get_integration_by_id(auth, "12345")
+        >>> print(integration.response)
     """
 
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/byos/accounts/{integration_id}"
@@ -139,23 +313,57 @@ async def get_integration_by_id(
         parent_class=parent_class,
         session=session,
     )
-    if res and not res.is_success:
-        raise Cloud_Amplifier_Error(res=res)
+
+    if return_raw:
+        return res
+
+    if res.status == 404:
+        raise SearchCloudAmplifier_NotFound(
+            search_criteria=f"Integration ID: {integration_id}",
+            res=res,
+        )
+
+    if not res.is_success:
+        raise CloudAmplifier_GET_Error(entity_id=integration_id, res=res)
+
     return res
 
 
 @gd.route_function
 async def get_integration_permissions(
     auth: DomoAuth,
-    user_id: str = None,
-    integration_ids: list[str] = [],
+    user_id: Optional[str] = None,
+    integration_ids: Optional[list[str]] = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
-):
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
     """
-    Retrieves a list of all the integrations.
+    Retrieve permissions for Cloud Amplifier integrations.
+
+    Lists permissions for specified integrations and/or user.
+
+    Args:
+        auth: Authentication object containing instance and credentials
+        user_id: Optional user ID to filter permissions
+        integration_ids: Optional list of integration IDs to check permissions for
+        session: Optional HTTP client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to omit in debug output
+        parent_class: Name of calling class for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing permissions information
+
+    Raises:
+        CloudAmplifier_GET_Error: If permissions retrieval fails
+
+    Example:
+        >>> permissions = await get_integration_permissions(auth, user_id="123")
+        >>> print(permissions.response)
     """
 
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/byos/accounts/permissions/list"
@@ -178,8 +386,13 @@ async def get_integration_permissions(
         parent_class=parent_class,
         session=session,
     )
-    if res and not res.is_success:
-        raise Cloud_Amplifier_Error(res=res)
+
+    if return_raw:
+        return res
+
+    if not res.is_success:
+        raise CloudAmplifier_GET_Error(res=res)
+
     return res
 
 
@@ -187,14 +400,33 @@ async def get_integration_permissions(
 async def check_for_colliding_datasources(
     auth: DomoAuth,
     dataset_id: str,
-    return_raw: bool = False,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
-):
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
     """
-    Checks for Cloud Amplifier integrations that collide with an existing Domo Dataset.
+    Check for Cloud Amplifier integrations that collide with an existing Domo Dataset.
+
+    Args:
+        auth: Authentication object containing instance and credentials
+        dataset_id: Dataset ID to check for collisions
+        session: Optional HTTP client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to omit in debug output
+        parent_class: Name of calling class for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing collision information
+
+    Raises:
+        CloudAmplifier_GET_Error: If collision check fails or no federated metadata exists
+
+    Example:
+        >>> collisions = await check_for_colliding_datasources(auth, "dataset-123")
+        >>> print(collisions.response)
     """
 
     url = f"https://{auth.domo_instance}.domo.com/api/query/migration/integrations/datasource/{dataset_id}"
@@ -214,13 +446,14 @@ async def check_for_colliding_datasources(
 
     # A 400 may be returned if no federated metadata exists for the dataset
     if res.status == 400:
-        raise Cloud_Amplifier_Error(
+        raise CloudAmplifier_GET_Error(
+            entity_id=dataset_id,
             res=res,
             message=f"No federated metadata exists for the datasource {dataset_id}",
         )
 
-    if not res.is_success and res.status != 400:
-        raise Cloud_Amplifier_Error(res=res)
+    if not res.is_success:
+        raise CloudAmplifier_GET_Error(entity_id=dataset_id, res=res)
 
     return res
 
@@ -229,13 +462,34 @@ async def check_for_colliding_datasources(
 async def get_federated_source_metadata(
     auth: DomoAuth,
     dataset_id: str,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
-):
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
     """
-    Retrieves federated source metadata for a dataset.
+    Retrieve federated source metadata for a dataset.
+
+    Args:
+        auth: Authentication object containing instance and credentials
+        dataset_id: Dataset ID to retrieve metadata for
+        session: Optional HTTP client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to omit in debug output
+        parent_class: Name of calling class for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing federated source metadata
+
+    Raises:
+        SearchCloudAmplifier_NotFound: If no federated datasource exists with the ID
+        CloudAmplifier_GET_Error: If metadata retrieval fails
+
+    Example:
+        >>> metadata = await get_federated_source_metadata(auth, "dataset-123")
+        >>> print(metadata.response)
     """
 
     url = f"https://{auth.domo_instance}.domo.com/api/federated/v1/config/datasources/{dataset_id}"
@@ -250,15 +504,18 @@ async def get_federated_source_metadata(
         session=session,
     )
 
+    if return_raw:
+        return res
+
     # A 404 may be returned if no federated metadata exists for the dataset
     if res.status == 404:
-        raise Cloud_Amplifier_Error(
+        raise SearchCloudAmplifier_NotFound(
+            search_criteria=f"Federated datasource ID: {dataset_id}",
             res=res,
-            message=f"Could not find a federated datasource with id: {dataset_id}",
         )
 
-    if not res.is_success and res.status != 404:
-        raise Cloud_Amplifier_Error(res=res)
+    if not res.is_success:
+        raise CloudAmplifier_GET_Error(entity_id=dataset_id, res=res)
 
     return res
 
@@ -267,13 +524,36 @@ async def get_federated_source_metadata(
 async def get_integration_warehouses(
     auth: DomoAuth,
     integration_id: str,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
-):
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
     """
-    Lists available compute warehouses for a Cloud Amplifier integration. User must have permission to view the integration.
+    List available compute warehouses for a Cloud Amplifier integration.
+
+    User must have permission to view the integration.
+
+    Args:
+        auth: Authentication object containing instance and credentials
+        integration_id: Integration ID to list warehouses for
+        session: Optional HTTP client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to omit in debug output
+        parent_class: Name of calling class for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing list of warehouses
+
+    Raises:
+        CloudAmplifier_GET_Error: If warehouse retrieval fails or user lacks permission
+
+    Example:
+        >>> warehouses = await get_integration_warehouses(auth, "integration-123")
+        >>> for warehouse in warehouses.response:
+        ...     print(warehouse['name'])
     """
 
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/byos/warehouses/{integration_id}"
@@ -287,14 +567,19 @@ async def get_integration_warehouses(
         parent_class=parent_class,
         session=session,
     )
+
+    if return_raw:
+        return res
+
     if res.status == 403:
-        raise Cloud_Amplifier_Error(
+        raise CloudAmplifier_GET_Error(
+            entity_id=integration_id,
             res=res,
             message=f"User may not have permission to view the warehouses - {integration_id}",
         )
 
-    if res and not res.is_success:
-        raise Cloud_Amplifier_Error(res=res)
+    if not res.is_success:
+        raise CloudAmplifier_GET_Error(entity_id=integration_id, res=res)
 
     return res
 
@@ -305,13 +590,36 @@ async def get_databases(
     integration_id: str,
     page: int = 0,
     rows: int = 5000,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
-):
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
     """
-    Retrieves a list of all the databases for a Cloud Amplifier integration.
+    Retrieve a list of all databases for a Cloud Amplifier integration.
+
+    Args:
+        auth: Authentication object containing instance and credentials
+        integration_id: Integration ID to list databases for
+        page: Page number for pagination (default: 0)
+        rows: Number of rows per page (default: 5000)
+        session: Optional HTTP client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to omit in debug output
+        parent_class: Name of calling class for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing list of databases
+
+    Raises:
+        CloudAmplifier_GET_Error: If database retrieval fails
+
+    Example:
+        >>> databases = await get_databases(auth, "integration-123")
+        >>> for db in databases.response:
+        ...     print(db['databaseName'])
     """
 
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/byos/accounts/{integration_id}/databases"
@@ -329,8 +637,11 @@ async def get_databases(
         params=params,
     )
 
-    if res and not res.is_success:
-        raise Cloud_Amplifier_Error(res=res)
+    if return_raw:
+        return res
+
+    if not res.is_success:
+        raise CloudAmplifier_GET_Error(entity_id=integration_id, res=res)
 
     return res
 
@@ -342,13 +653,37 @@ async def get_schemas(
     database: str,
     page: int = 0,
     rows: int = 5000,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
-):
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
     """
-    Retrieves a list of all the schemas for a Cloud Amplifier integration.
+    Retrieve a list of all schemas for a Cloud Amplifier integration database.
+
+    Args:
+        auth: Authentication object containing instance and credentials
+        integration_id: Integration ID
+        database: Database name to list schemas for
+        page: Page number for pagination (default: 0)
+        rows: Number of rows per page (default: 5000)
+        session: Optional HTTP client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to omit in debug output
+        parent_class: Name of calling class for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing list of schemas
+
+    Raises:
+        CloudAmplifier_GET_Error: If schema retrieval fails
+
+    Example:
+        >>> schemas = await get_schemas(auth, "integration-123", "MY_DATABASE")
+        >>> for schema in schemas.response:
+        ...     print(schema['schemaName'])
     """
 
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/byos/accounts/{integration_id}/databases/{database}/schemas"
@@ -366,8 +701,11 @@ async def get_schemas(
         params=params,
     )
 
-    if res and not res.is_success:
-        raise Cloud_Amplifier_Error(res=res)
+    if return_raw:
+        return res
+
+    if not res.is_success:
+        raise CloudAmplifier_GET_Error(entity_id=integration_id, res=res)
 
     return res
 
@@ -380,13 +718,38 @@ async def get_tables(
     schema: str,
     page: int = 0,
     rows: int = 5000,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
-):
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
     """
-    Retrieves a list of all the tables for a Cloud Amplifier integration.
+    Retrieve a list of all tables for a Cloud Amplifier integration schema.
+
+    Args:
+        auth: Authentication object containing instance and credentials
+        integration_id: Integration ID
+        database: Database name
+        schema: Schema name to list tables for
+        page: Page number for pagination (default: 0)
+        rows: Number of rows per page (default: 5000)
+        session: Optional HTTP client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to omit in debug output
+        parent_class: Name of calling class for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing list of tables
+
+    Raises:
+        CloudAmplifier_GET_Error: If table retrieval fails
+
+    Example:
+        >>> tables = await get_tables(auth, "integration-123", "MY_DB", "MY_SCHEMA")
+        >>> for table in tables.response:
+        ...     print(table['tableName'])
     """
 
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/byos/accounts/{integration_id}/databases/{database}/schemas/{schema}/objects"
@@ -404,8 +767,11 @@ async def get_tables(
         session=session,
     )
 
-    if res and not res.is_success:
-        raise Cloud_Amplifier_Error(res=res)
+    if return_raw:
+        return res
+
+    if not res.is_success:
+        raise CloudAmplifier_GET_Error(entity_id=integration_id, res=res)
 
     return res
 
@@ -415,14 +781,36 @@ async def convert_federated_to_cloud_amplifier(
     auth: DomoAuth,
     federated_dataset_id: str,
     cloud_amplifier_integration_id: str,
-    return_raw: bool = False,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
-):
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
     """
-    Converts a federated dataset to use a Cloud Amplifier integration.
+    Convert a federated dataset to use a Cloud Amplifier integration.
+
+    Args:
+        auth: Authentication object containing instance and credentials
+        federated_dataset_id: Dataset ID of the federated dataset to convert
+        cloud_amplifier_integration_id: Integration ID to convert to
+        session: Optional HTTP client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to omit in debug output
+        parent_class: Name of calling class for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing conversion result
+
+    Raises:
+        CloudAmplifier_CRUD_Error: If conversion operation fails
+
+    Example:
+        >>> result = await convert_federated_to_cloud_amplifier(
+        ...     auth, "dataset-123", "integration-456"
+        ... )
+        >>> print(result.response)
     """
 
     url = (
@@ -444,8 +832,12 @@ async def convert_federated_to_cloud_amplifier(
     if return_raw:
         return res
 
-    if res and not res.is_success:
-        raise Cloud_Amplifier_Error(res=res)
+    if not res.is_success:
+        raise CloudAmplifier_CRUD_Error(
+            operation="convert",
+            entity_id=federated_dataset_id,
+            res=res,
+        )
 
     return res
 
@@ -459,13 +851,44 @@ async def create_integration(
     auth_method: str,
     description: str = "",
     admin_auth_method: Optional[str] = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
-):
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
     """
-    Creates a new Cloud Amplifier integration.
+    Create a new Cloud Amplifier integration.
+
+    Args:
+        auth: Authentication object containing instance and credentials
+        engine: Cloud platform engine (SNOWFLAKE or BIGQUERY)
+        friendly_name: Display name for the integration
+        service_account_id: Service account ID to use for authentication
+        auth_method: Authentication method
+        description: Optional description for the integration (default: "")
+        admin_auth_method: Admin authentication method (defaults to auth_method)
+        session: Optional HTTP client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to omit in debug output
+        parent_class: Name of calling class for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing created integration details
+
+    Raises:
+        CloudAmplifier_CRUD_Error: If integration creation fails
+
+    Example:
+        >>> result = await create_integration(
+        ...     auth,
+        ...     engine="SNOWFLAKE",
+        ...     friendly_name="My Snowflake Integration",
+        ...     service_account_id="account-123",
+        ...     auth_method="OAUTH"
+        ... )
+        >>> print(result.response)
     """
 
     if admin_auth_method is None:
@@ -493,8 +916,14 @@ async def create_integration(
         session=session,
     )
 
-    if res and not res.is_success:
-        raise Cloud_Amplifier_Error(res=res)
+    if return_raw:
+        return res
+
+    if not res.is_success:
+        raise CloudAmplifier_CRUD_Error(
+            operation="create",
+            res=res,
+        )
 
     return res
 
@@ -504,14 +933,39 @@ async def update_integration_warehouses(
     auth: DomoAuth,
     integration_id: str,
     warehouses: list[dict[str, Any]],
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
-):
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
     """
-    Updates the compute warehouses for a Cloud Amplifier integration.
+    Update the compute warehouses for a Cloud Amplifier integration.
+
     Expects a list of warehouse dicts as returned by the GET warehouses endpoint.
+
+    Args:
+        auth: Authentication object containing instance and credentials
+        integration_id: Integration ID to update warehouses for
+        warehouses: List of warehouse configuration dictionaries
+        session: Optional HTTP client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to omit in debug output
+        parent_class: Name of calling class for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing update result
+
+    Raises:
+        CloudAmplifier_CRUD_Error: If warehouse update fails
+
+    Example:
+        >>> warehouses = [{"name": "COMPUTE_WH", "size": "LARGE"}]
+        >>> result = await update_integration_warehouses(
+        ...     auth, "integration-123", warehouses
+        ... )
+        >>> print(result.response)
     """
 
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/byos/warehouses/{integration_id}"
@@ -527,9 +981,16 @@ async def update_integration_warehouses(
         session=session,
     )
 
-    if res and not res.is_success:
-        # Using POST error class for non-GET write operations
-        raise Cloud_Amplifier_Error(res=res)
+    if return_raw:
+        return res
+
+    if not res.is_success:
+        raise CloudAmplifier_CRUD_Error(
+            operation="update warehouses",
+            entity_id=integration_id,
+            res=res,
+        )
+
     return res
 
 
@@ -538,14 +999,35 @@ async def update_integration(
     auth: DomoAuth,
     integration_id: str,
     update_body: dict[str, Any],
-    return_raw: bool = False,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
-):
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
     """
-    Updates a Cloud Amplifier integration.
+    Update a Cloud Amplifier integration.
+
+    Args:
+        auth: Authentication object containing instance and credentials
+        integration_id: Integration ID to update
+        update_body: Dictionary containing fields to update
+        session: Optional HTTP client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to omit in debug output
+        parent_class: Name of calling class for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing update result
+
+    Raises:
+        CloudAmplifier_CRUD_Error: If integration update fails
+
+    Example:
+        >>> update_body = {"properties": {"friendlyName": {"value": "New Name"}}}
+        >>> result = await update_integration(auth, "integration-123", update_body)
+        >>> print(result.response)
     """
 
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/byos/accounts/{integration_id}"
@@ -564,8 +1046,13 @@ async def update_integration(
     if return_raw:
         return res
 
-    if res and not res.is_success:
-        raise Cloud_Amplifier_Error(res=res)
+    if not res.is_success:
+        raise CloudAmplifier_CRUD_Error(
+            operation="update",
+            entity_id=integration_id,
+            res=res,
+        )
+
     return res
 
 
@@ -573,13 +1060,33 @@ async def update_integration(
 async def delete_integration(
     auth: DomoAuth,
     integration_id: str,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
-):
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
     """
-    Deletes a Cloud Amplifier integration.
+    Delete a Cloud Amplifier integration.
+
+    Args:
+        auth: Authentication object containing instance and credentials
+        integration_id: Integration ID to delete
+        session: Optional HTTP client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to omit in debug output
+        parent_class: Name of calling class for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing deletion confirmation
+
+    Raises:
+        CloudAmplifier_CRUD_Error: If integration deletion fails
+
+    Example:
+        >>> result = await delete_integration(auth, "integration-123")
+        >>> print(result.response)
     """
 
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/byos/accounts/{integration_id}"
@@ -594,6 +1101,14 @@ async def delete_integration(
         session=session,
     )
 
-    if res and not res.is_success:
-        raise Cloud_Amplifier_Error(res=res)
+    if return_raw:
+        return res
+
+    if not res.is_success:
+        raise CloudAmplifier_CRUD_Error(
+            operation="delete",
+            entity_id=integration_id,
+            res=res,
+        )
+
     return res
