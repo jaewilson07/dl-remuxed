@@ -209,7 +209,7 @@ class DomoEntity(DomoBase):
 
     @classmethod
     @abc.abstractmethod
-    def from_dict(cls):
+    def from_dict(cls, auth: "DomoAuth", obj: dict):
         """Create an entity instance from a dictionary representation.
 
         This method should be implemented by subclasses to handle the conversion

@@ -34,7 +34,11 @@ import httpx
 from ...client import get_data as gd, response as rgd
 from ...client.auth import DomoAuth
 from ...client.entities import DomoEnumMixin
-from .exceptions import Datacenter_GET_Error, SearchDatacenter_NoResultsFound, ShareResource_Error
+from .exceptions import (
+    Datacenter_GET_Error,
+    SearchDatacenter_NoResultsFound,
+    ShareResource_Error,
+)
 
 
 class Datacenter_Enum(DomoEnumMixin, Enum):
@@ -249,7 +253,9 @@ def generate_search_datacenter_account_body(
 async def search_datacenter(
     auth: DomoAuth,
     maximum: Optional[int] = None,
-    body: Optional[dict] = None,  # either pass a body or generate a body in the function using search_text, entity_type, and additional_filters parameters
+    body: Optional[
+        dict
+    ] = None,  # either pass a body or generate a body in the function using search_text, entity_type, and additional_filters parameters
     search_text: Optional[str] = None,
     entity_type: Union[
         str, list

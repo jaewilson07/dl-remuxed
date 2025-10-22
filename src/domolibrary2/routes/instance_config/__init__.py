@@ -14,6 +14,7 @@ from .exceptions import (
     ApiClient_CRUD_Error,
     ApiClient_GET_Error,
     ApiClient_RevokeError,
+    SearchApiClient_NotFound,
 )
 
 # Import API client functions and enums
@@ -30,6 +31,7 @@ __all__ = [
     "ApiClient_GET_Error",
     "ApiClient_CRUD_Error",
     "ApiClient_RevokeError",
+    "SearchApiClient_NotFound",
     # Enums
     "ApiClient_ScopeEnum",
     # API Client functions
