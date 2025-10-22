@@ -18,9 +18,7 @@ from ..client import auth as dmda
 from ..client import exceptions as dmde
 from ..client.entities import DomoEntity, DomoManager
 from ..routes import jupyter as jupyter_routes
-from ..routes.jupyter import (
-    JupyterAPI_Error,
-)
+from ..routes.jupyter import JupyterAPI_Error
 from ..utils import chunk_execution as dmce
 from ..utils import files as defi
 from . import DomoAccount as dmac

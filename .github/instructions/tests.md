@@ -25,7 +25,7 @@ from tests.test_harness import RouteTestHarness, RouteTestBuilder
 async def test_my_route():
     # Create test harness
     harness = RouteTestHarness()
-    
+
     # Build test scenarios
     builder = RouteTestBuilder(harness)
     builder.add_success_scenario(
@@ -33,23 +33,23 @@ async def test_my_route():
         "Test successful route call",
         res={"id": "123", "name": "Test Entity"}
     )
-    
+
     scenarios = builder.build()
-    
+
     # Your route function (example)
     async def my_route_function(auth, entity_id):
         return harness.create_response_get_data(
             status=200,
             res={"id": entity_id, "status": "success"}
         )
-    
+
     # Run tests
     results = harness.run_test_scenarios(
-        my_route_function, 
+        my_route_function,
         scenarios,
         entity_id="123"
     )
-    
+
     assert results["passed"] > 0
 ```
 
@@ -62,14 +62,14 @@ from tests.test_harness import create_standard_route_tests
 
 def test_user_route_standard():
     harness = RouteTestHarness()
-    
+
     # Automatically creates success, error, not found, auth error scenarios
     scenarios = create_standard_route_tests(
         harness,
         entity_name="user",
         sample_data={"id": "user-123", "name": "John Doe"}
     )
-    
+
     # Test your route function
     results = harness.run_test_scenarios(get_user_by_id, scenarios)
     assert results["failed"] == 0
@@ -139,7 +139,7 @@ scenario = TestScenario(
 ```python
 async def test_route_error_handling():
     harness = RouteTestHarness()
-    
+
     # Test that route raises correct exception
     scenario = TestScenario(
         name="auth_error",
@@ -152,7 +152,7 @@ async def test_route_error_handling():
         expected_success=False,
         expected_exception=AuthError  # Verify correct exception type
     )
-    
+
     results = harness.run_test_scenarios(my_route, [scenario])
     assert results["passed"] == 1
 ```
@@ -164,7 +164,7 @@ from src.client.exceptions import RouteError
 
 async def test_error_message_context():
     harness = RouteTestHarness()
-    
+
     try:
         # Simulate route that should fail
         error = RouteError.for_entity(
@@ -192,7 +192,7 @@ async def test_route_performance():
         auth=harness.default_auth,
         entity_id="test-123"
     )
-    
+
     # Assert performance requirements
     assert performance["avg_time"] < 0.1  # Under 100ms average
     assert performance["errors"] == 0     # No failures
@@ -207,17 +207,17 @@ For testing against real APIs (use sparingly):
 @pytest.mark.integration
 async def test_real_api_integration():
     from tests.test_harness import IntegrationTestHarness
-    
+
     # Requires real auth credentials
     real_auth = get_real_auth_from_env()
     integration = IntegrationTestHarness(real_auth)
-    
+
     result = await integration.test_route_integration(
         route_function=get_user_by_id,
         test_params={"user_id": "real-user-id"},
         expected_status_range=(200, 299)
     )
-    
+
     assert result["success"] is True
 ```
 
@@ -291,14 +291,14 @@ auth_scenarios = [
         expected_exception=InvalidCredentialsError
     ),
     TestScenario(
-        name="expired_token", 
+        name="expired_token",
         description="Expired session token",
         mock_response=MockResponse(401, {"error": "Token expired"}),
         expected_exception=InvalidCredentialsError
     ),
     TestScenario(
         name="insufficient_permissions",
-        description="Valid token but no permission", 
+        description="Valid token but no permission",
         mock_response=MockResponse(403, {"error": "Forbidden"}),
         expected_exception=AuthError
     )
@@ -312,17 +312,17 @@ auth_scenarios = [
 ```python
 class TestEntityRoutes:
     """Group related route tests together."""
-    
+
     @pytest.fixture
     def entity_data(self):
         return {"id": "123", "name": "Test Entity"}
-    
+
     @pytest.mark.asyncio
     async def test_get_entity(self, entity_data):
         # Test implementation
         pass
-    
-    @pytest.mark.asyncio  
+
+    @pytest.mark.asyncio
     async def test_create_entity(self, entity_data):
         # Test implementation
         pass
@@ -333,7 +333,7 @@ class TestEntityRoutes:
 ```python
 @pytest.mark.parametrize("status_code,expected_exception", [
     (400, RouteError),
-    (401, AuthError), 
+    (401, AuthError),
     (403, AuthError),
     (404, RouteError),
     (500, RouteError)
@@ -354,7 +354,7 @@ def common_scenarios(harness):
 def test_route_a(common_scenarios):
     # Use shared scenarios
     pass
-    
+
 def test_route_b(common_scenarios):
     # Reuse same scenarios for different route
     pass
@@ -365,13 +365,13 @@ def test_route_b(common_scenarios):
 ```python
 async def test_error_messages_are_helpful():
     """Ensure error messages provide useful debugging information."""
-    
+
     error = RouteError.for_entity(
-        "user-123", 
+        "user-123",
         "User {entity_id} not found in instance {domo_instance}",
         domo_instance="test-instance"
     )
-    
+
     error_str = str(error)
     assert "user-123" in error_str
     assert "test-instance" in error_str
@@ -430,10 +430,10 @@ export PYTEST_CURRENT_TEST=true
 ```python
 class CustomMockResponse:
     """Custom response handler for complex scenarios."""
-    
+
     def __init__(self, scenario_data):
         self.scenario_data = scenario_data
-    
+
     async def handle_request(self, **kwargs):
         # Custom logic based on request parameters
         if kwargs.get("entity_id") == "special":
@@ -449,7 +449,7 @@ def create_user_list(count=5):
     return [
         {
             "id": f"user-{i}",
-            "name": f"User {i}", 
+            "name": f"User {i}",
             "email": f"user{i}@example.com"
         }
         for i in range(count)
