@@ -16,7 +16,8 @@ expected = (
     + "lib_name user branch license status min_python audience language".split()
 )
 for o in expected:
-    assert o in cfg, f"missing expected setting: {o}"
+    if o not in cfg:
+        raise KeyError(f"Missing expected setting in settings.ini: '{o}'")
 setup_cfg = {o: cfg[o] for o in cfg_keys}
 
 licenses = {
