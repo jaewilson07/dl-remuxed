@@ -9,6 +9,25 @@ Tests:
     test_cell_1: Test get_by_id method
     test_cell_2: Test from_dict method
     test_cell_3: Test Access.get() method
+    test_cell_4: Test display_url method
+    test_cell_5_error_handling: Test exception handling
+
+Required Environment Variables:
+    DOMO_INSTANCE: Your Domo instance name (e.g., 'my-company')
+    DOMO_ACCESS_TOKEN: Domo access token with account permissions
+    OAUTH_ACCOUNT_ID_1: (Optional) ID of an OAuth account to test with (defaults to 1)
+
+Example .env file:
+    DOMO_INSTANCE=my-company
+    DOMO_ACCESS_TOKEN=your-access-token-here
+    OAUTH_ACCOUNT_ID_1=123
+
+How to obtain test values:
+    1. Navigate to your Domo instance
+    2. Go to Admin > Data > Accounts
+    3. Find an OAuth account (e.g., Snowflake OAuth)
+    4. Copy the account ID from the URL or API response
+    5. Ensure your access token has permission to view/manage accounts
 """
 
 import os
@@ -37,7 +56,7 @@ TEST_OAUTH_ACCOUNT_ID_1 = int(os.environ.get("OAUTH_ACCOUNT_ID_1", 1))
 
 async def test_cell_0(token_auth=token_auth) -> dmda.DomoTokenAuth:
     """Helper function to verify authentication is working.
-    
+
     Returns:
         DomoTokenAuth: Authenticated token auth object
     """
@@ -48,10 +67,10 @@ async def test_cell_0(token_auth=token_auth) -> dmda.DomoTokenAuth:
 
 async def test_cell_1(token_auth=token_auth) -> DomoAccount_OAuth:
     """Test retrieving an OAuth account by ID.
-    
+
     Returns:
         DomoAccount_OAuth: Retrieved OAuth account instance
-    
+
     Raises:
         Account_NoMatch: If OAuth account is not found
         Account_GET_Error: If retrieval fails
@@ -62,18 +81,18 @@ async def test_cell_1(token_auth=token_auth) -> DomoAccount_OAuth:
         return_raw=False,
         debug_api=False,
     )
-    
+
     # Verify basic attributes
     assert domo_oauth.id is not None
     assert domo_oauth.auth is not None
     assert domo_oauth.Access is not None
-    
+
     return domo_oauth
 
 
 async def test_cell_2(token_auth=token_auth):
     """Test from_dict method for OAuth account.
-    
+
     This test verifies that OAuth accounts can be properly constructed
     from dictionary representations (API responses).
     """
@@ -82,7 +101,7 @@ async def test_cell_2(token_auth=token_auth):
         auth=token_auth,
         account_id=TEST_OAUTH_ACCOUNT_ID_1,
     )
-    
+
     # Test from_dict using the raw data
     if domo_oauth.raw:
         reconstructed = DomoAccount_OAuth.from_dict(
@@ -91,16 +110,16 @@ async def test_cell_2(token_auth=token_auth):
             is_admin_summary=False,
             new_cls=DomoAccount_OAuth,
         )
-        
+
         assert reconstructed.id == domo_oauth.id
         assert reconstructed.name == domo_oauth.name
-    
+
     return domo_oauth
 
 
 async def test_cell_3(token_auth=token_auth):
     """Test Access composition and get() method.
-    
+
     Verifies that the DomoAccess_OAuth subentity is properly
     initialized and can retrieve access information.
     """
@@ -108,42 +127,42 @@ async def test_cell_3(token_auth=token_auth):
         auth=token_auth,
         account_id=TEST_OAUTH_ACCOUNT_ID_1,
     )
-    
+
     # Verify Access is initialized
     assert domo_oauth.Access is not None
-    
+
     # Test getting access list
     access_list = await domo_oauth.Access.get()
-    
+
     # Verify we got a response
     assert access_list is not None
-    
+
     return access_list
 
 
 async def test_cell_4(token_auth=token_auth):
     """Test display_url method.
-    
+
     Verifies that the display URL is properly formatted.
     """
     domo_oauth = await DomoAccount_OAuth.get_by_id(
         auth=token_auth,
         account_id=TEST_OAUTH_ACCOUNT_ID_1,
     )
-    
+
     url = domo_oauth.display_url()
-    
+
     # Verify URL format
     assert url is not None
     assert isinstance(url, str)
     assert "accounts" in url.lower()
-    
+
     return url
 
 
 async def test_cell_5_error_handling(token_auth=token_auth):
     """Test error handling for non-existent OAuth account.
-    
+
     Verifies that appropriate exceptions are raised for invalid account IDs.
     """
     try:
