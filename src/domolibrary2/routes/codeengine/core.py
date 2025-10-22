@@ -36,7 +36,7 @@ from ...client import (
     response as rgd,
 )
 from ...client.auth import DomoAuth
-from ...client.entities import DomoEnumMixin
+from ...entities.entities import DomoEnumMixin
 from .exceptions import (
     CodeEngine_FunctionCallError,
     CodeEngine_GET_Error,
@@ -136,7 +136,9 @@ async def get_codeengine_package_by_id(
             auth=auth,
         )
 
-    url = f"https://{auth.domo_instance}.domo.com/api/codeengine/v2/packages/{package_id}"
+    url = (
+        f"https://{auth.domo_instance}.domo.com/api/codeengine/v2/packages/{package_id}"
+    )
 
     params = params or {"parts": "versions"}
 

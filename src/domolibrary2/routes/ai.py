@@ -21,7 +21,7 @@ import httpx
 
 from ..client import get_data as gd, response as rgd
 from ..client.auth import DomoAuth
-from ..client.entities import DomoEnumMixin
+from ..entities.entities import DomoEnumMixin
 from ..client.exceptions import RouteError
 
 
