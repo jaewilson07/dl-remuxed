@@ -97,4 +97,4 @@ ignore_missing_imports = true
 
 [tool.setuptools]
 packages = ["domolibrary2"]
-package-dir = {"domolibrary2" = "src"}
+package-dir = {"" = "src"}
