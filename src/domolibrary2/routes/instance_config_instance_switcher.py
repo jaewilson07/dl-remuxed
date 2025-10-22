@@ -52,7 +52,25 @@ async def get_instance_switcher_mapping(
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
     timeout: int = 20,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
+    """Retrieve instance switcher mapping configuration.
+
+    Args:
+        auth: Authentication object
+        session: HTTP client session
+        debug_api: Enable API debugging
+        parent_class: Name of calling class for logging
+        debug_num_stacks_to_drop: Stack frames to drop for debugging
+        timeout: Request timeout in seconds
+        return_raw: Return raw response without processing
+
+    Returns:
+        ResponseGetData object with list of mapping dictionaries
+
+    Raises:
+        InstanceSwitcherMapping_GET_Error: If retrieval fails
+    """
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/everywhere/admin/userattributeinstances"
 
     res = await gd.get_data(
@@ -65,6 +83,9 @@ async def get_instance_switcher_mapping(
         num_stacks_to_drop=debug_num_stacks_to_drop,
         timeout=timeout,
     )
+
+    if return_raw:
+        return res
 
     if not res.is_success:
         raise InstanceSwitcherMapping_GET_Error(
@@ -85,11 +106,28 @@ async def set_instance_switcher_mapping(
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
     timeout: int = 60,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
-    """
-    accepts a list of instance_switcher_mappings format:
-    mapping_payloads = [ {'userAttribute': 'test1','instance': 'test.domo.com'}]
+    """Update instance switcher mapping configuration.
 
+    Overwrites existing mappings with the provided list.
+
+    Args:
+        auth: Authentication object
+        mapping_payloads: List of mapping dictionaries with format:
+            [{'userAttribute': 'test1', 'instance': 'test.domo.com'}]
+        session: HTTP client session
+        debug_api: Enable API debugging
+        parent_class: Name of calling class for logging
+        debug_num_stacks_to_drop: Stack frames to drop for debugging
+        timeout: Request timeout in seconds
+        return_raw: Return raw response without processing
+
+    Returns:
+        ResponseGetData object with success message
+
+    Raises:
+        InstanceSwitcherMapping_CRUD_Error: If update fails
     """
 
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/everywhere/admin/userattributeinstances"
@@ -105,6 +143,9 @@ async def set_instance_switcher_mapping(
         num_stacks_to_drop=debug_num_stacks_to_drop,
         timeout=timeout,
     )
+
+    if return_raw:
+        return res
 
     if not res.is_success:
         raise InstanceSwitcherMapping_CRUD_Error(
