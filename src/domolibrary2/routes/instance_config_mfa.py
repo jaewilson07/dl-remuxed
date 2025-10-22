@@ -10,8 +10,7 @@ __all__ = [
 
 import httpx
 
-from ..client import get_data as gd
-from ..client import response as rgd
+from ..client import get_data as gd, response as rgd
 
 
 class MFA_UPDATE_Error(DomoError):

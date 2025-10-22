@@ -8,11 +8,8 @@ import httpx
 from ..client import exceptions as dmde
 from ..client.entities import DomoEntity
 from ..routes import group as group_routes
-from ..routes.group import (
-    Group_CRUD_Error,
-    GroupType_Enum,
-)
-from . import DomoMembership as dmgm
+from ..routes.group import Group_CRUD_Error, GroupType_Enum
+from .subentity import DomoMembership as dmgm
 
 
 class Group_Class_Error(dmde.ClassError):

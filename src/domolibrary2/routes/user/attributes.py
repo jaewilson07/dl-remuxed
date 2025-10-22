@@ -23,8 +23,6 @@ Enums:
 
 __all__ = [
     "UserAttributes_IssuerType",
-    "UserAttributes_GET_Error",
-    "UserAttributes_CRUD_Error",
     "get_user_attributes",
     "get_user_attribute_by_id",
     "clean_attribute_id",
@@ -41,11 +39,10 @@ from typing import List, Optional
 
 import httpx
 
-from ...client import get_data as gd
-from ...client import response as rgd
+from ...client import get_data as gd, response as rgd
 from ...client.auth import DomoAuth
 from ...client.entities import DomoEnumMixin
-from ...client.exceptions import RouteError
+from .exceptions import UserAttributes_CRUD_Error, UserAttributes_GET_Error
 
 
 class UserAttributes_IssuerType(DomoEnumMixin, Enum):
@@ -54,43 +51,6 @@ class UserAttributes_IssuerType(DomoEnumMixin, Enum):
     IDP = "idp"
     SYSTEM = "domo-defined"
     CUSTOM = "customer-defined"
-
-
-class UserAttributes_GET_Error(RouteError):
-    """Raised when user attributes retrieval operations fail."""
-
-    def __init__(
-        self,
-        attribute_id: Optional[str] = None,
-        message: Optional[str] = None,
-        res=None,
-        **kwargs,
-    ):
-        super().__init__(
-            message=message or "User attributes retrieval failed",
-            entity_id=attribute_id,
-            res=res,
-            **kwargs,
-        )
-
-
-class UserAttributes_CRUD_Error(RouteError):
-    """Raised when user attributes create, update, or delete operations fail."""
-
-    def __init__(
-        self,
-        operation: str,
-        attribute_id: Optional[str] = None,
-        message: Optional[str] = None,
-        res=None,
-        **kwargs,
-    ):
-        super().__init__(
-            message=message or f"User attributes {operation} operation failed",
-            entity_id=attribute_id,
-            res=res,
-            **kwargs,
-        )
 
 
 def clean_attribute_id(text: str) -> str:

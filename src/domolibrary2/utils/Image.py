@@ -48,24 +48,11 @@ import io
 import os
 from typing import Union
 
-# Optional dependencies with fallbacks
-try:
-    import numpy as np
+import numpy as np
 
-    _NUMPY_AVAILABLE = True
-except ImportError:
-    np = None
-    _NUMPY_AVAILABLE = False
+import PIL
+from PIL.Image import Image
 
-try:
-    import PIL
-    from PIL.Image import Image
-
-    _PIL_AVAILABLE = True
-except ImportError:
-    PIL = None
-    Image = None
-    _PIL_AVAILABLE = False
 
 from .exceptions import ImageProcessingError
 
@@ -175,11 +162,6 @@ def are_same_image(image1, image2) -> bool:
         >>> same = are_same_image(img1, img2)
         >>> print(same)  # True or False
     """
-    if not _PIL_AVAILABLE:
-        raise ImportError("PIL (Pillow) is required for image comparison")
-
-    if not _NUMPY_AVAILABLE:
-        raise ImportError("numpy is required for image comparison")
 
     try:
         img_chop = PIL.ImageChops.difference(image1, image2)
@@ -224,8 +206,6 @@ class ImageUtils:
             >>> img_bytes = ImageUtils.to_bytes(img)
             >>> png_bytes = ImageUtils.to_bytes(img, "PNG")
         """
-        if not _PIL_AVAILABLE:
-            raise ImportError("PIL (Pillow) is required for image operations")
 
         try:
             byte_arr = io.BytesIO()
@@ -256,8 +236,6 @@ class ImageUtils:
             >>> square = ImageUtils.crop_square(img)
             >>> print(square.size)  # (min_dimension, min_dimension)
         """
-        if not _PIL_AVAILABLE:
-            raise ImportError("PIL (Pillow) is required for image operations")
 
         try:
             width, height = image.size
@@ -293,11 +271,6 @@ class ImageUtils:
             >>> img = ImageUtils.from_image_file("/path/to/image.jpg")
             >>> print(img.size)  # (width, height)
         """
-        if not _PIL_AVAILABLE:
-            raise ImportError("PIL (Pillow) is required for image operations")
-
-        if not os.path.exists(image_path):
-            raise FileNotFoundError(f"Image file not found: {image_path}")
 
         try:
             with open(image_path, "rb") as file:
@@ -334,9 +307,6 @@ class ImageUtils:
             >>> base64_str = base64.b64encode(img_bytes).decode()
             >>> img = ImageUtils.from_bytestr(base64_str)
         """
-        if not _PIL_AVAILABLE:
-            raise ImportError("PIL (Pillow) is required for image operations")
-
         try:
             data = handle_string_to_bytes_and_decode(data)
             return PIL.Image.open(io.BytesIO(data))

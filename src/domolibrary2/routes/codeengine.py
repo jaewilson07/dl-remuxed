@@ -14,9 +14,7 @@ from enum import Enum
 
 import httpx
 
-from ..client import exceptions as dmde
-from ..client import get_data as gd
-from ..client import response as rgd
+from ..client import exceptions as dmde, get_data as gd, response as rgd
 from ..client.entities import DomoEnumMixin
 
 
