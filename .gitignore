@@ -1,4 +1,6 @@
+# LOGGER folder - contains sensitive data and test files
 LOGGER/
+EXPORTS/
 
 *_env/
 _publish.yml
