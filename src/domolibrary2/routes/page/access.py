@@ -13,18 +13,17 @@ __all__ = [
     "get_page_access_list",
 ]
 
-from typing import Optional, List, Union
+from typing import List, Optional, Union
 
 import httpx
 
+from ...client import get_data as gd, response as rgd
 from ...client.auth import DomoAuth
-from ...client import get_data as gd
-from ...client import response as rgd
 from .exceptions import (
     Page_CRUD_Error,
     Page_GET_Error,
-    SearchPage_NotFound,
     PageSharing_Error,
+    SearchPage_NotFound,
 )
 
 

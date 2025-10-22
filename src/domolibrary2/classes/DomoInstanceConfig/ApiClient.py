@@ -1,0 +1,395 @@
+__all__ = [
+    "ApiClient",
+    "ApiClient_Search_Error",  # Legacy - use SearchApiClient_NotFound
+    "ApiClients",
+    "SearchApiClient_NotFound",
+    "ApiClient_GET_Error",
+    "ApiClient_CRUD_Error",
+]
+
+import datetime as dt
+from dataclasses import dataclass, field
+from typing import List, Optional
+
+import httpx
+
+from ...client import response as rgd
+from ...client.auth import DomoAuth
+from ...client.entities import DomoEntity
+from ...client.exceptions import DomoError
+from ...routes.instance_config import (
+    api_client as client_routes,
+    ApiClient_ScopeEnum,
+)
+from ...routes.instance_config.exceptions import (
+    ApiClient_GET_Error,
+    ApiClient_CRUD_Error,
+    SearchApiClient_NotFound,
+)
+from ...utils import chunk_execution as dmce
+from .. import DomoUser as dmdu
+
+
+@dataclass
+class ApiClient(DomoEntity):
+    auth: DomoAuth = field(repr=False)
+    id: int
+
+    name: str
+    client_id: str  # will be masked in UI
+    owner_id: str
+    domo_user: dmdu.DomoUser
+
+    # authorization_grant_types: List[str] # no longer part of API 6/10/2025
+
+    scopes: List[ApiClient_ScopeEnum]
+    description: str = None
+
+    is_invalid: bool = False
+
+    def display_url(self):
+        return f"https://{self.auth.domo_instance}.domo.com/admin/api-clients"
+
+    @classmethod
+    async def from_dict(cls, auth: DomoAuth, obj):
+        domo_user = None
+        is_invalid = False
+        try:
+            domo_user = await dmdu.DomoUser.get_by_id(auth=auth, user_id=obj["userId"])
+
+        except DomoError:
+            is_invalid = True
+
+        return cls(
+            auth=auth,
+            id=obj["id"],
+            raw=obj,
+            name=obj["name"],
+            client_id=obj["clientId"],
+            owner_id=obj["userId"],
+            domo_user=domo_user,
+            # authorization_grant_types=obj["authorizedGrantTypes"],
+            scopes=[ApiClient_ScopeEnum[sc.upper()] for sc in obj["scopes"]],
+            description=obj.get("description"),
+            is_invalid=is_invalid,
+        )
+
+    @classmethod
+    async def get_by_id(
+        cls,
+        auth: DomoAuth,
+        client_id: str,
+        session: Optional[httpx.AsyncClient] = None,
+        debug_api: bool = False,
+        debug_num_stacks_to_drop: int = 2,
+        parent_class: Optional[str] = None,
+        return_raw: bool = False,
+    ) -> rgd.ResponseGetData:
+        """
+        Retrieve a specific API client by its ID.
+
+        Args:
+            auth: Authentication object containing instance and credentials
+            client_id: Unique identifier for the API client
+            session: Optional HTTP client session for connection reuse
+            debug_api: Enable detailed API request/response logging
+            debug_num_stacks_to_drop: Number of stack frames to omit in debug output
+            parent_class: Name of calling class for debugging context
+            return_raw: Return raw API response without processing
+
+        Returns:
+            ResponseGetData object or ApiClient instance
+
+        Raises:
+            ApiClient_GET_Error: If API client retrieval fails
+        """
+        res = await client_routes.get_client_by_id(
+            auth=auth,
+            client_id=int(client_id),
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class or cls.__name__,
+            return_raw=return_raw,
+        )
+
+        if return_raw:
+            return res
+
+        return await cls.from_dict(auth=auth, obj=res.response)
+
+    async def revoke(
+        self,
+        session: Optional[httpx.AsyncClient] = None,
+        debug_api: bool = False,
+        debug_num_stacks_to_drop: int = 2,
+        parent_class: Optional[str] = None,
+        return_raw: bool = False,
+    ) -> rgd.ResponseGetData:
+        """
+        Revoke (delete) this API client.
+
+        Args:
+            session: Optional HTTP client session for connection reuse
+            debug_api: Enable detailed API request/response logging
+            debug_num_stacks_to_drop: Number of stack frames to omit in debug output
+            parent_class: Name of calling class for debugging context
+            return_raw: Return raw API response without processing
+
+        Returns:
+            ResponseGetData object with confirmation message
+
+        Raises:
+            ApiClient_RevokeError: If API client revocation fails
+        """
+        return await client_routes.revoke_api_client(
+            auth=self.auth,
+            client_id=str(self.id),
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class or self.__class__.__name__,
+            return_raw=return_raw,
+        )
+
+
+# Legacy error class - use SearchApiClient_NotFound instead
+class ApiClient_Search_Error(SearchApiClient_NotFound):
+    """
+    Legacy error class for API client search failures.
+
+    Deprecated: Use SearchApiClient_NotFound instead.
+    This class is maintained for backward compatibility.
+    """
+
+    def __init__(self, cls_instance, client_name: str):
+        super().__init__(
+            search_criteria=f"client name: {client_name}",
+        )
+
+
+@dataclass
+class ApiClients:
+    auth: DomoAuth
+
+    domo_clients: List[ApiClient] = field(default_factory=lambda: [])
+
+    invalid_clients: List[ApiClient] = field(default_factory=lambda: [])
+
+    async def get(
+        self,
+        session: Optional[httpx.AsyncClient] = None,
+        debug_api: bool = False,
+        debug_num_stacks_to_drop: int = 2,
+        parent_class: Optional[str] = None,
+        return_raw: bool = False,
+    ) -> rgd.ResponseGetData:
+        """
+        Retrieve all API clients for the authenticated instance.
+
+        Args:
+            session: Optional HTTP client session for connection reuse
+            debug_api: Enable detailed API request/response logging
+            debug_num_stacks_to_drop: Number of stack frames to omit in debug output
+            parent_class: Name of calling class for debugging context
+            return_raw: Return raw API response without processing
+
+        Returns:
+            ResponseGetData object or list of ApiClient instances
+
+        Raises:
+            ApiClient_GET_Error: If API client retrieval fails
+        """
+        res = await client_routes.get_api_clients(
+            auth=self.auth,
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class or self.__class__.__name__,
+            return_raw=return_raw,
+        )
+
+        if return_raw:
+            return res
+
+        self.domo_clients = await dmce.gather_with_concurrency(
+            *[ApiClient.from_dict(auth=self.auth, obj=obj) for obj in res.response],
+            n=10,
+        )
+
+        self.invalid_clients = [
+            client for client in self.domo_clients if client.is_invalid
+        ]
+
+        return self.domo_clients
+
+    async def get_by_name(
+        self,
+        client_name: str,
+        session: Optional[httpx.AsyncClient] = None,
+        debug_api: bool = False,
+        debug_num_stacks_to_drop: int = 2,
+        parent_class: Optional[str] = None,
+    ) -> ApiClient:
+        """
+        Retrieve an API client by its name.
+
+        Args:
+            client_name: Name of the API client to find
+            session: Optional HTTP client session for connection reuse
+            debug_api: Enable detailed API request/response logging
+            debug_num_stacks_to_drop: Number of stack frames to omit in debug output
+            parent_class: Name of calling class for debugging context
+
+        Returns:
+            ApiClient instance matching the specified name
+
+        Raises:
+            SearchApiClient_NotFound: If no client with the specified name is found
+            ApiClient_GET_Error: If API client retrieval fails
+        """
+        await self.get(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
+            parent_class=parent_class or self.__class__.__name__,
+        )
+
+        domo_client = next(
+            (
+                _domo_client
+                for _domo_client in self.domo_clients
+                if _domo_client.name == client_name
+            ),
+            None,
+        )
+
+        if not domo_client:
+            raise SearchApiClient_NotFound(
+                search_criteria=f"client name: {client_name}"
+            )
+
+        return domo_client
+
+    async def create_for_authorized_user(
+        self,
+        client_name: str,
+        client_description: str = f"created via DL {dt.date.today()}",
+        scope: Optional[List[ApiClient_ScopeEnum]] = None,
+        session: Optional[httpx.AsyncClient] = None,
+        debug_api: bool = False,
+        debug_num_stacks_to_drop: int = 2,
+        parent_class: Optional[str] = None,
+        return_raw: bool = False,
+    ) -> rgd.ResponseGetData:
+        """
+        Create a new API client for the authenticated user.
+
+        Args:
+            client_name: Name for the new API client
+            client_description: Optional description for the API client
+            scope: List of ApiClient_ScopeEnum values, defaults to [data, audit]
+            session: Optional HTTP client session for connection reuse
+            debug_api: Enable detailed API request/response logging
+            debug_num_stacks_to_drop: Number of stack frames to omit in debug output
+            parent_class: Name of calling class for debugging context
+            return_raw: Return raw API response without processing
+
+        Returns:
+            ResponseGetData object or ApiClient instance with credentials
+
+        Raises:
+            ApiClient_CRUD_Error: If API client creation fails
+            SearchApiClient_NotFound: If created client cannot be retrieved
+        """
+        res = await client_routes.create_api_client(
+            auth=self.auth,
+            client_name=client_name,
+            client_description=client_description,
+            scope=scope,
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class or self.__class__.__name__,
+            return_raw=return_raw,
+        )
+
+        if return_raw:
+            return res
+
+        domo_client = await self.get_by_name(
+            client_name=client_name,
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class or self.__class__.__name__,
+        )
+        domo_client.client_id = res.response["client_id"]
+        domo_client.client_secret = res.response["client_secret"]
+
+        return domo_client
+
+    async def upsert_client(
+        self,
+        client_name: str,
+        client_description: Optional[str] = None,
+        scope: Optional[List[ApiClient_ScopeEnum]] = None,
+        is_regenerate: bool = False,
+        session: Optional[httpx.AsyncClient] = None,
+        debug_api: bool = False,
+        debug_num_stacks_to_drop: int = 2,
+        parent_class: Optional[str] = None,
+    ) -> ApiClient:
+        """
+        Create or update an API client (upsert operation).
+
+        Args:
+            client_name: Name of the API client to create or update
+            client_description: Optional description for the API client
+            scope: List of ApiClient_ScopeEnum values, defaults to [data, audit]
+            is_regenerate: If True, revoke existing client and create new one
+            session: Optional HTTP client session for connection reuse
+            debug_api: Enable detailed API request/response logging
+            debug_num_stacks_to_drop: Number of stack frames to omit in debug output
+            parent_class: Name of calling class for debugging context
+
+        Returns:
+            ApiClient instance (existing or newly created)
+
+        Raises:
+            ApiClient_CRUD_Error: If API client creation or revocation fails
+        """
+        domo_client = None
+
+        try:
+            domo_client = await self.get_by_name(
+                client_name=client_name,
+                session=session,
+                debug_api=debug_api,
+                debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
+                parent_class=parent_class or self.__class__.__name__,
+            )
+
+        except SearchApiClient_NotFound:
+            pass
+
+        if domo_client:
+            if not is_regenerate:
+                return domo_client
+
+            await domo_client.revoke(
+                session=session,
+                debug_api=debug_api,
+                debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+                parent_class=parent_class or self.__class__.__name__,
+            )
+
+        return await self.create_for_authorized_user(
+            client_name=client_name,
+            client_description=client_description,
+            scope=scope,
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class or self.__class__.__name__,
+        )

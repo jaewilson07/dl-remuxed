@@ -39,6 +39,7 @@ dependencies = [
     "pillow",
     "xkcdpass",
     "sql_metadata",
+    "dc-logger",
     "beautifulsoup4"]
 
 [project.optional-dependencies]

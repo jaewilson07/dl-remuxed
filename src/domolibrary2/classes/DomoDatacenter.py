@@ -55,7 +55,7 @@ class DomoDatacenter:
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
     ) -> List[Any]:
-        from . import DomoDataset as dmds
+        from . import dataset as dmds
 
         json_list = await self.search_datacenter(
             maximum=maximum,
@@ -234,7 +234,7 @@ class DomoDatacenter:
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
     ) -> List[Any]:
-        from . import DomoCodeEngine as dmceg
+        from .DomoCodeEngine import CodeEngine as dmceg
 
         res = await self.search_datacenter(
             maximum=maximum,
