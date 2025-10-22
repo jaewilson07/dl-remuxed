@@ -8,7 +8,7 @@ import dateutil.parser as dtut
 import httpx
 import pandas as pd
 
-from ..client import entities as dmee
+from ..entities import entities as dmee
 from ..routes import sandbox as sandbox_routes
 from .subentity import DomoLineage as dmdl
 

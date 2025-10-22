@@ -8,11 +8,13 @@ from typing import TYPE_CHECKING, Any, Callable, List, Optional, Union
 
 import httpx
 
+from ..entities import entities as dmen
+
 from . import DomoAppStudio as dmas, DomoCard as dmac
 
-from ..client import entities as dmen, exceptions as dmde
+from ..client import exceptions as dmde
 from ..client.auth import DomoAuth
-from ..client.entities import DomoEntity_w_Lineage, DomoEnumMixin
+from ..entities.entities import DomoEntity_w_Lineage, DomoEnumMixin
 from ..routes import publish as publish_routes
 from ..utils import chunk_execution as dmce
 from .subentity import DomoLineage as dmdl
