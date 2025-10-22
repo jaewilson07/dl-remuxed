@@ -31,8 +31,6 @@ __all__ = [
     "UserProperty",
     "generate_patch_user_property_body",
     "update_user",
-    "ResetPassword_PasswordUsed",
-    "DownloadAvatar_Error",
     "set_user_landing_page",
     "reset_password",
     "request_password_reset",
@@ -49,35 +47,16 @@ from typing import List, Optional
 
 import httpx
 
-from ...client import get_data as gd
-from ...client import response as rgd
+from ...client import get_data as gd, response as rgd
 from ...client.auth import DomoAuth
 from ...client.entities import DomoEnumMixin
-from ...client.exceptions import DomoError, RouteError
+from ...client.exceptions import DomoError
 from ...utils import Image as uimg
-
-# Import the User_CRUD_Error from the user module
-from .core import User_CRUD_Error
-
-
-class ResetPassword_PasswordUsed(RouteError):
-    """Raised when attempting to reset password to a previously used password."""
-
-    def __init__(self, user_id: Optional[str] = None, res=None, **kwargs):
-        super().__init__(
-            message="Password has been used previously",
-            entity_id=user_id,
-            res=res,
-            **kwargs,
-        )
-
-
-class DownloadAvatar_Error(RouteError):
-    """Raised when user avatar download operations fail."""
-
-    def __init__(self, user_id: str, res=None, **kwargs):
-        message = f"Unable to download avatar for user {user_id}"
-        super().__init__(message=message, entity_id=user_id, res=res, **kwargs)
+from .exceptions import (
+    DownloadAvatar_Error,
+    ResetPassword_PasswordUsed,
+    User_CRUD_Error,
+)
 
 
 class UserProperty_Type(DomoEnumMixin, Enum):

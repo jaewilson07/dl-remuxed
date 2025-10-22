@@ -21,9 +21,8 @@ from typing import Optional
 
 import httpx
 
+from ...client import get_data as gd, response as rgd
 from ...client.auth import DomoAuth
-from ...client import get_data as gd
-from ...client import response as rgd
 from .exceptions import Page_CRUD_Error
 
 

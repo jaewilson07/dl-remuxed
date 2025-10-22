@@ -189,7 +189,7 @@ class RouteTestHarness:
 
         # Mock the get_data function
         with patch(
-            "src.client.get_data.get_data", new_callable=AsyncMock
+            "domolibrary2.client.get_data.get_data", new_callable=AsyncMock
         ) as mock_get_data:
             mock_get_data.return_value = await self.mock_get_data(
                 scenario.mock_response

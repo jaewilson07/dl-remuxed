@@ -6,11 +6,12 @@ from typing import List
 
 import httpx
 
-from ..classes.DomoLineage import DomoLineage
+from . import DomoUser as dmu
+
+from .subentity.DomoLineage import DomoLineage
 from ..client.entities import DomoEntity_w_Lineage
 from ..routes import appstudio as appstudio_routes
-from ..utils import DictDot as util_dd
-from ..utils import chunk_execution as ce
+from ..utils import DictDot as util_dd, chunk_execution as ce
 
 
 @dataclass
@@ -81,7 +82,6 @@ class DomoAppStudio(DomoEntity_w_Lineage):
             return []
 
         from . import DomoGroup as dmg
-        from . import DomoUser as dmu
 
         domo_groups = []
         domo_users = []
@@ -165,7 +165,6 @@ class DomoAppStudio(DomoEntity_w_Lineage):
             raise Exception("error getting access list")
 
         from . import DomoGroup as dmg
-        from . import DomoUser as dmu
 
         s = {
             # "explicit_shared_user_count": res.response.get("explicitSharedUserCount"),
