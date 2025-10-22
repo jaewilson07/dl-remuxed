@@ -1,10 +1,18 @@
 __all__ = [
     "domo_default_img",
-    "CreateUser_MissingRole",
-    "DownloadAvatar_NoAvatarKey",
     "DomoUser",
     "DomoUsers",
     "DomoUser_NoSearch",
+    # User Route Exceptions
+    "User_GET_Error",
+    "User_CRUD_Error",
+    "SearchUser_NotFound",
+    "UserSharing_Error",
+    "DeleteUser_Error",
+    "UserAttributes_GET_Error",
+    "UserAttributes_CRUD_Error",
+    "ResetPassword_PasswordUsed",
+    "DownloadAvatar_Error",
 ]
 
 import asyncio
@@ -15,41 +23,38 @@ from typing import Any, List, Optional, Union
 import httpx
 
 from ..client.auth import DomoAuth
-from ..client.entities import DomoManager
+from ..client.entities import DomoEntity, DomoManager
 from ..client.exceptions import ClassError, DomoError
 from ..client.Logger import Logger
 from ..client.response import ResponseGetData
-from ..routes import instance_config_sso as sso_routes
-from ..routes import user as user_routes
-from ..routes.user import (
+from ..routes import instance_config_sso as sso_routes, user as user_routes
+from ..routes.user import UserProperty
+from ..routes.user.exceptions import (
+    DownloadAvatar_Error,
+    ResetPassword_PasswordUsed,
     SearchUser_NotFound,
-    UserProperty,
+    User_CRUD_Error,
+    User_GET_Error,
+    UserAttributes_CRUD_Error,
+    UserAttributes_GET_Error,
+    UserSharing_Error,
+    DeleteUser_Error,
 )
 from ..utils import DictDot
-from ..utils.convert import (
-    convert_epoch_millisecond_to_datetime,
-    test_valid_email,
-)
-from ..utils.Image import Image, are_same_image
+from ..utils.convert import convert_epoch_millisecond_to_datetime, test_valid_email
+from ..utils.Image import Image, ImageUtils, are_same_image
+
+
+# User route exceptions are now imported from ..routes.user.exceptions
 
 
 class CreateUser_MissingRole(DomoError):
+    """Legacy exception for missing role during user creation."""
+
     def __init__(self, domo_instance, email_address):
         super().__init__(
             domo_instance=domo_instance,
             message=f"error creating user {email_address} missing role_id",
-        )
-
-
-class DownloadAvatar_NoAvatarKey(DomoError):
-    def __init__(
-        self,
-        domo_instance,
-        user_id,
-    ):
-        super().__init__(
-            domo_instance,
-            message=f"This profile {user_id} doesn't have an avatar uploaded - unable to download",
         )
 
 
@@ -67,12 +72,10 @@ domo_default_img = None  # Placeholder for the default image
 
 
 @dataclass
-class DomoUser:
+class DomoUser(DomoEntity):
     """A class for interacting with a Domo User"""
 
     id: str
-    auth: Optional[DomoAuth] = field(repr=False, default=None)
-
     display_name: Optional[str] = None
     email_address: Optional[str] = None
     role_id: Optional[int] = None  # Updated to match expected type
@@ -98,9 +101,13 @@ class DomoUser:
 
     custom_attributes: dict = field(default_factory=dict)
 
-    role: Optional[Any] = None  # DomoRole
     domo_api_clients: Optional[List[Any]] = None
     domo_access_tokens: Optional[List[Any]] = None
+    Role: Optional[Any] = None  # DomoRole
+
+    @property
+    def display_url(self):
+        return f"https://{self.auth.domo_instance}.domo.com/admin/people/{self.id}"
 
     def __post_init__(self):
         self.id = str(self.id)
@@ -112,48 +119,48 @@ class DomoUser:
         return self.id == other.id
 
     @classmethod
-    def _from_search_json(cls, auth, user_obj):
-        user_dd = DictDot(user_obj.__dict__)
+    def from_dict(cls, auth, obj: dict):
 
         return cls(
             auth=auth,
-            id=str(user_dd.id or user_dd.userId),
-            display_name=user_dd.displayName,
-            title=user_dd.title,
-            department=user_dd.department,
-            email_address=user_dd.emailAddress or user_dd.email,
-            role_id=user_dd.roleId,
-            avatar_key=user_dd.avatarKey,
-            phone_number=user_dd.phoneNumber,
-            web_landing_page=user_dd.webLandingPage,
-            web_mobile_landing_page=user_dd.webMobileLandingPage,
-            employee_id=user_dd.employeeId,
-            employee_number=user_dd.employeeNumber,
-            hire_date=user_dd.hireDate,
-            reports_to=user_dd.reportsTo,
-            created_dt=convert_epoch_millisecond_to_datetime(user_dd.created),
+            id=str(obj.get("id") or obj.get("userId")),
+            display_name=obj.get("displayName"),
+            title=obj.get("title"),
+            department=obj.get("department"),
+            email_address=obj.get("emailAddress") or obj.get("email"),
+            role_id=obj.get("roleId"),
+            avatar_key=obj.get("avatarKey"),
+            phone_number=obj.get("phoneNumber"),
+            web_landing_page=obj.get("webLandingPage"),
+            web_mobile_landing_page=obj.get("webMobileLandingPage"),
+            employee_id=obj.get("employeeId"),
+            employee_number=obj.get("employeeNumber"),
+            hire_date=obj.get("hireDate"),
+            reports_to=obj.get("reportsTo"),
+            created_dt=convert_epoch_millisecond_to_datetime(obj.get("created")),
             last_activity_dt=convert_epoch_millisecond_to_datetime(
-                user_dd.lastActivity
+                obj.get("lastActivity"),
             ),
+            raw=obj,
         )
 
     @classmethod
-    def _from_virtual_json(cls, auth, user_obj):
-        user_dd = DictDot(user_obj.__dict__)
+    def _from_virtual_json(cls, auth, obj: dict):
 
         return cls(
-            id=user_dd.id,
+            id=obj["id"],
             auth=auth,
-            publisher_domain=user_dd.publisherDomain,
-            subscriber_domain=user_dd.subscriberDomain,
-            virtual_user_id=user_dd.virtualUserId,
+            publisher_domain=obj.get("publisherDomain"),
+            subscriber_domain=obj.get("subscriberDomain"),
+            virtual_user_id=obj.get("virtualUserId"),
+            raw=obj,
         )
 
     @classmethod
-    def _from_bootstrap_json(cls, auth, user_obj):
-        dd = user_obj
-        if isinstance(user_obj, dict):
-            dd = DictDot(user_obj)
+    def _from_bootstrap_json(cls, auth, obj):
+        dd = obj
+        if isinstance(obj, dict):
+            dd = DictDot(obj)
 
         return cls(id=dd.id, display_name=dd.displayName, auth=auth)
 
@@ -163,9 +170,9 @@ class DomoUser:
         debug_num_stacks_to_drop=2,
         session: httpx.AsyncClient = None,
     ):
-        from . import DomoRole as dmr
+        from .DomoInstanceConfig import Role as dmr
 
-        self.role = await dmr.DomoRole.get_by_id(
+        self.Role = await dmr.DomoRole.get_by_id(
             role_id=self.role_id,
             auth=self.auth,
             debug_api=debug_api,
@@ -173,26 +180,7 @@ class DomoUser:
             session=session,
         )
 
-        return self.role
-
-
-async def get_role(
-    self: DomoUser,
-    debug_api: bool = False,
-    debug_num_stacks_to_drop=2,
-    session: httpx.AsyncClient = None,
-):
-    from . import DomoRole as dmr
-
-    self.role = await dmr.DomoRole.get_by_id(
-        role_id=self.role_id,
-        auth=self.auth,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        session=session,
-    )
-
-    return self.role
+        return self.Role
 
     @classmethod
     async def get_by_id(
@@ -224,7 +212,7 @@ async def get_role(
         if not res.is_success:
             return None
 
-        domo_user = cls._from_search_json(user_obj=res.response, auth=auth)
+        domo_user = cls.from_dict(obj=res.response, auth=auth)
 
         try:
             await domo_user.get_role(
@@ -271,7 +259,7 @@ async def get_role(
         if return_raw:
             return res
 
-        self.avatar = Image.from_bytestr(data=res.response)
+        self.avatar = ImageUtils.from_bytestr(data=res.response)
 
         return self.avatar
 
@@ -360,7 +348,7 @@ async def get_role(
         return domo_user
 
     async def delete(
-        self: DomoUser,
+        self,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
         debug_num_stacks_to_drop=2,
@@ -378,7 +366,7 @@ async def get_role(
         return res
 
     async def reset_password(
-        self: DomoUser,
+        self: "DomoUser",
         new_password: str,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
@@ -429,12 +417,12 @@ async def get_role(
         session: httpx.AsyncClient = None,
         return_raw: bool = False,
     ):
-        avatar.crop_square()
+        avatar = ImageUtils.crop_square(avatar)
 
         res = await user_routes.upload_avatar(
             auth=self.auth,
             user_id=self.id,
-            img_bytestr=avatar.to_bytes(),
+            img_bytestr=ImageUtils.to_bytes(avatar),
             img_type=avatar.format,
             debug_api=debug_api,
             parent_class=self.__class__.__name__,
@@ -455,14 +443,14 @@ async def get_role(
         session: httpx.AsyncClient = None,
         return_raw: bool = False,
     ):
-        avatar.crop_square()
+        avatar = ImageUtils.crop_square(avatar)
 
         res = "images are the same"
         if not are_same_image(domo_default_img, avatar):
             res = await user_routes.upload_avatar(
                 auth=self.auth,
                 user_id=self.id,
-                img_bytestr=avatar.to_bytes(),
+                img_bytestr=ImageUtils.to_bytes(avatar),
                 img_type=avatar.format,
                 debug_api=debug_api,
                 parent_class=self.__class__.__name__,
@@ -477,7 +465,7 @@ async def get_role(
         return await self.download_avatar(debug_api=debug_api)
 
     async def toggle_direct_signon_access(
-        self: DomoUser,
+        self: "DomoUser",
         is_enable_direct_signon: bool = True,
         session: httpx.AsyncClient = None,
         debug_api: bool = False,
@@ -589,17 +577,11 @@ class DomoUsers(DomoManager):
 
     @classmethod
     def _users_to_domo_user(cls, user_ls, auth: DomoAuth):
-        return [
-            DomoUser._from_search_json(auth=auth, user_obj=user_obj)
-            for user_obj in user_ls
-        ]
+        return [DomoUser.from_dict(auth=auth, obj=obj) for obj in user_ls]
 
     @classmethod
     def _users_to_virtual_user(cls, user_ls, auth: DomoAuth):
-        return [
-            DomoUser._from_virtual_json(auth=auth, user_obj=user_obj)
-            for user_obj in user_ls
-        ]
+        return [DomoUser._from_virtual_json(auth=auth, obj=obj) for obj in user_ls]
 
     def _generate_logger(self, logger: Optional[Logger] = None):
         self.logger = logger or self.logger or Logger(app_name="domo_users")
@@ -720,7 +702,7 @@ class DomoUsers(DomoManager):
                 debug_api=debug_api,
                 auth=self.auth,
                 debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-                parent_class=cls.__name__,
+                parent_class=self.__class__.__name__,
                 session=session,
             )
 
@@ -871,72 +853,3 @@ class DomoUsers(DomoManager):
         #     if grant_ls:
         #         grant_ls = domo_role._valid_grant_ls(grant_ls)
         #         await domo_role.set_grants(grant_ls=grant_ls)
-
-
-async def upsert_user(
-    cls: "DomoUsers",
-    auth: DomoAuth,
-    email_address: str,
-    display_name: str = None,
-    role_id: str = None,
-    debug_api: bool = False,
-    debug_prn: bool = False,
-    session: httpx.AsyncClient = None,
-):
-    test_valid_email(email_address)
-
-    try:
-        domo_user = await cls.by_email(
-            email_ls=[email_address],
-            auth=auth,
-            only_allow_one=True,
-            debug_api=debug_api,
-        )
-
-        if domo_user:
-            user_property_ls = []
-            if display_name:
-                user_property_ls.append(
-                    user_routes.UserProperty(
-                        user_routes.UserProperty_Type.display_name, display_name
-                    )
-                )
-
-            if role_id:
-                user_property_ls.append(
-                    user_routes.UserProperty(
-                        user_routes.UserProperty_Type.role_id, role_id
-                    )
-                )
-
-            if user_property_ls:
-                await user_routes.update_user(
-                    user_id=domo_user.id,
-                    user_property_ls=user_property_ls,
-                    auth=auth,
-                    debug_api=debug_api,
-                )
-        return await DomoUser.get_by_id(auth=auth, user_id=domo_user.id)
-
-    except (SearchUser_NotFound, DomoUser_NoSearch) as e:
-        if debug_prn:
-            print(f"No user match -- creating new user in {auth.domo_instance}")
-
-        if not role_id:
-            raise CreateUser_MissingRole(
-                domo_instance=auth.domo_instance, email_address=email_address
-            ) from e
-
-        return await cls.create_user(
-            auth=auth,
-            display_name=display_name or f"{email_address} - via dl {dt.date.today()}",
-            email_address=email_address,
-            role_id=role_id,
-            debug_api=debug_api,
-            session=session,
-        )
-
-    # finally:
-    #     if grant_ls:
-    #         grant_ls = domo_role._valid_grant_ls(grant_ls)
-    #         await domo_role.set_grants(grant_ls=grant_ls)

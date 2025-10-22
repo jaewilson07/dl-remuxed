@@ -24,7 +24,7 @@ src/
 - Use **relative imports** within the package: `from ..client import DomoAuth as dmda`
 - **Aliased imports** for commonly used modules:
   - `DomoAuth as dmda`
-  - `DomoError as dmde` 
+  - `DomoError as dmde`
   - `Logger as lc`
   - `DictDot as util_dd`
 - Group imports: stdlib → third-party → local
@@ -44,7 +44,7 @@ All methods are added to classes using `@patch_to` decorators:
 async def method_name(self: DomoUser, ...):
     pass
 
-@patch_to(DomoUser, cls_method=True)  
+@patch_to(DomoUser, cls_method=True)
 async def class_method_name(cls: DomoUser, ...):
     pass
 ```
@@ -187,7 +187,7 @@ class RouteError(de.RouteError):
 ```python
 async def method_name(self, param: str) -> DomoUser:
     """Brief description of what the method does.
-    
+
     More detailed explanation if needed.
     """
 ```
@@ -197,7 +197,7 @@ Every module should start with `__all__` listing public exports:
 ```python
 __all__ = [
     "MainClass",
-    "HelperFunction", 
+    "HelperFunction",
     "CustomError",
 ]
 ```
@@ -240,7 +240,7 @@ except SomeError as e:
 
 ### Priority Order:
 1. Core classes in `classes/` directory
-2. Client classes in `client/` directory  
+2. Client classes in `client/` directory
 3. Route functions in `routes/` directory
 4. Utility functions in `utils/` directory
 5. Integration functions in `integrations/` directory

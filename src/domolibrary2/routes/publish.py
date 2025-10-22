@@ -21,9 +21,8 @@ from typing import List
 
 import httpx
 
-from ..client import exceptions as de
-from ..client import get_data as gd
-from ..client import response as rgd
+from ..client import exceptions as de, get_data as gd, response as rgd
+from ..client.auth import DomoAuth
 
 
 class GET_Publish_Error(de.RouteError):

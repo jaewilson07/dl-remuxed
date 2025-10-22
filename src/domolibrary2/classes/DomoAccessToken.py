@@ -9,8 +9,7 @@ import httpx
 
 from ..client import entities as dmee
 from ..routes import access_token as access_token_routes
-from ..utils import chunk_execution as ce
-from ..utils import convert as dmcv
+from ..utils import chunk_execution as ce, convert as dmcv
 
 
 @dataclass
