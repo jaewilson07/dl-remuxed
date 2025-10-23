@@ -121,9 +121,7 @@ async def query_dataset_public(
     return res
 
 
-gd.route_function
-
-
+@gd.route_function
 async def query_dataset_private(
     auth: DomoAuth,
     dataset_id: str,
