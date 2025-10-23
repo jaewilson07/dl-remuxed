@@ -102,7 +102,7 @@ class DomoDataflow(DomoEntity_w_Lineage):
         return cls.from_dict(res.response, auth=auth)
 
     @classmethod
-    async def _get_entity_by_id(cls, auth, entity_id, **kwargs):
+    async def get_entity_by_id(cls, auth, entity_id, **kwargs):
         return await cls.get_by_id(
             dataflow_id=entity_id, auth=auth, return_raw=False, **kwargs
         )

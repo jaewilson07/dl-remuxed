@@ -10,7 +10,7 @@ from .. import DomoUser as dmdu
 
 from ...client import exceptions as dmde
 from ...client import DomoSubEntity, Entity_Relation
-from ...client.entities import DomoSubEntity, Entity_Relation
+from ...entities.entities import DomoSubEntity, Entity_Relation
 from ...routes import group as group_routes
 from ...utils import chunk_execution as dmce
 
@@ -22,7 +22,7 @@ class UpdateMembership(dmde.ClassError):
         super().__init__(
             entity_id=entity_id,
             cls_instance=cls_instance,
-            message=f"unable to alter mmbership {member_name if member_name else ''}",
+            message=f"unable to alter membership {member_name if member_name else ''}",
         )
 
 
