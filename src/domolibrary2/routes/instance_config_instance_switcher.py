@@ -66,6 +66,7 @@ async def get_instance_switcher_mapping(
     parent_class: Optional[str] = None,
     return_raw: bool = False,
     timeout: int = 20,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
     Retrieve instance switcher mapping configuration.
@@ -124,6 +125,7 @@ async def set_instance_switcher_mapping(
     parent_class: Optional[str] = None,
     return_raw: bool = False,
     timeout: int = 60,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
     Update instance switcher mapping configuration.
