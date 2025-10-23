@@ -6,6 +6,10 @@ Generated on: C:\GitHub\domolibrary
 
 import os
 import domolibrary.client.DomoAuth as dmda
+from domolibrary2.routes.codeengine import (
+    deploy_code_engine_package,
+    CodeEngine_CRUD_Error,
+)
 
 # Setup authentication for tests
 token_auth = dmda.DomoTokenAuth(
@@ -31,9 +35,9 @@ async def test_cell_2(token_auth=token_auth):
     """Test case from cell 2"""
     try:
         res = await deploy_code_engine_package(
-            package_id=PACKAGE_ID, version=VERSION_ID, auth=auth, debug_api=False
+            auth=auth, package_id=PACKAGE_ID, version=VERSION_ID, debug_api=False
         )
         print(res.response)
 
-    except CodeEngine_API_Error as e:
+    except CodeEngine_CRUD_Error as e:
         print(e)
