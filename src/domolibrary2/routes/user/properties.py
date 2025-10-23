@@ -54,7 +54,7 @@ from ...client import (
 from ...client.auth import DomoAuth
 from ...client.exceptions import DomoError
 from ...entities.base import DomoEnumMixin
-from ...utils import Image as uimg
+from ...utils import image as uimg
 from .exceptions import (
     DownloadAvatar_Error,
     ResetPassword_PasswordUsed,

@@ -5,12 +5,12 @@ Generated on: C:\GitHub\domolibrary
 """
 
 import os
-import domolibrary.client.DomoAuth as dmda
+import domolibrary2.client.auth as dmda
 
 # Setup authentication for tests
 token_auth = dmda.DomoTokenAuth(
-    domo_instance=os.environ['DOMO_INSTANCE'],
-    domo_access_token=os.environ['DOMO_ACCESS_TOKEN'],
+    domo_instance=os.environ["DOMO_INSTANCE"],
+    domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],
 )
 
 
@@ -29,7 +29,7 @@ async def test_cell_2(token_auth=token_auth):
         # version=2,
         # share_enum=ShareAccount_AccessLevel.CAN_SHARE,
         parent_id=71,
-        parent = None
+        parent=None,
     )
 
     await account_access.get(debug_api=False)
@@ -76,10 +76,6 @@ async def test_cell_5(token_auth=token_auth):
 async def test_cell_6(token_auth=token_auth):
     """Test case from cell 6"""
     oauth_account_id = 1
-    domo_access = DomoAccess_OAuth(
-        auth = auth,
-        parent_id = oauth_account_id,
-        parent = None
-    )
+    domo_access = DomoAccess_OAuth(auth=auth, parent_id=oauth_account_id, parent=None)
 
-    await domo_access.get(return_raw = False)
+    await domo_access.get(return_raw=False)

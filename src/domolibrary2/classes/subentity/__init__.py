@@ -51,15 +51,6 @@ except ImportError:
 # AccessControl module not yet implemented
 # from .AccessControl import (...)
 
-# Legacy access and membership classes
-from .access import (
-    Access_Config_Error,
-    Access_Entity,
-    DomoAccess,
-    DomoAccess_Account,
-    DomoAccess_OAuth,
-)
-
 # Other subentity classes
 from .certification import DomoCertification
 from .lineage import DomoLineage
@@ -76,12 +67,6 @@ __all__ = [
     "RelationshipType",
     "Relationship",
     "DomoRelationshipController",
-    # Legacy access classes (deprecated)
-    "DomoAccess",
-    "DomoAccess_Account",
-    "DomoAccess_OAuth",
-    "Access_Entity",
-    "Access_Config_Error",
     # Legacy membership classes (deprecated)
     "DomoMembership",
     "DomoMembership_Group",

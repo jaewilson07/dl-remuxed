@@ -7,7 +7,9 @@ import os
 from dotenv import load_dotenv
 import domolibrary2.client.auth as dmda
 import domolibrary2.routes.stream as stream_routes
-from domolibrary2.classes.DomoDataset.Stream import DomoStream, Stream_GET_Error, Stream_CRUD_Error
+from domolibrary2.routes.stream import Stream_GET_Error
+
+from domolibrary2.classes.DomoDataset.stream import DomoStream
 
 load_dotenv()
 
@@ -36,10 +38,7 @@ async def test_cell_1(token_auth=token_auth) -> DomoStream:
         return None
 
     domo_stream = await DomoStream.get_by_id(
-        auth=token_auth,
-        stream_id=TEST_STREAM_ID_1,
-        return_raw=False,
-        debug_api=False
+        auth=token_auth, stream_id=TEST_STREAM_ID_1, return_raw=False, debug_api=False
     )
 
     print(f"Stream ID: {domo_stream.id}")
@@ -55,25 +54,13 @@ async def test_cell_2(token_auth=token_auth):
     # Sample stream response data
     sample_stream_data = {
         "id": "test-stream-123",
-        "dataProvider": {
-            "name": "Snowflake",
-            "key": "snowflake"
-        },
-        "transport": {
-            "description": "Transport Description",
-            "version": 1
-        },
-        "dataSource": {
-            "id": "test-dataset-456"
-        },
+        "dataProvider": {"name": "Snowflake", "key": "snowflake"},
+        "transport": {"description": "Transport Description", "version": 1},
+        "dataSource": {"id": "test-dataset-456"},
         "updateMethod": "REPLACE",
         "configuration": [
-            {
-                "name": "query",
-                "type": "TEXT",
-                "value": "SELECT * FROM test_table"
-            }
-        ]
+            {"name": "query", "type": "TEXT", "value": "SELECT * FROM test_table"}
+        ],
     }
 
     domo_stream = DomoStream.from_dict(auth=token_auth, obj=sample_stream_data)
@@ -98,14 +85,12 @@ async def test_cell_3(token_auth=token_auth):
         return None
 
     res = await DomoStream.get_by_id(
-        auth=token_auth,
-        stream_id=TEST_STREAM_ID_1,
-        return_raw=True
+        auth=token_auth, stream_id=TEST_STREAM_ID_1, return_raw=True
     )
 
     # Should be ResponseGetData, not DomoStream
-    assert hasattr(res, 'is_success')
-    assert hasattr(res, 'response')
+    assert hasattr(res, "is_success")
+    assert hasattr(res, "response")
 
     print(f"Raw response returned successfully")
     print(f"Status: {res.status}")
@@ -120,10 +105,8 @@ async def test_cell_4(token_auth=token_auth):
         return None
 
     # Test deprecated method
-    domo_stream = await DomoStream.get_stream_by_id(
-        auth=token_auth,
-        stream_id=TEST_STREAM_ID_1,
-        return_raw=False
+    domo_stream = await DomoStream.get_by_id(
+        auth=token_auth, stream_id=TEST_STREAM_ID_1, return_raw=False
     )
 
     assert domo_stream.id == TEST_STREAM_ID_1
@@ -136,9 +119,7 @@ async def test_cell_5(token_auth=token_auth):
     """Test error handling - invalid stream ID should raise Stream_GET_Error."""
     try:
         await DomoStream.get_by_id(
-            auth=token_auth,
-            stream_id="invalid-stream-id-12345",
-            return_raw=False
+            auth=token_auth, stream_id="invalid-stream-id-12345", return_raw=False
         )
         print("ERROR: Should have raised Stream_GET_Error")
         assert False, "Expected Stream_GET_Error but no exception was raised"
@@ -155,9 +136,7 @@ async def test_cell_6(token_auth=token_auth):
         return None
 
     domo_stream = await DomoStream.get_by_id(
-        auth=token_auth,
-        stream_id=TEST_STREAM_ID_1,
-        return_raw=False
+        auth=token_auth, stream_id=TEST_STREAM_ID_1, return_raw=False
     )
 
     # Test configuration report generation
@@ -190,12 +169,13 @@ async def main(token_auth=token_auth):
     for fn in fn_ls:
         print(f"\n{'='*60}")
         print(f"Running {fn.__name__}: {fn.__doc__}")
-        print('='*60)
+        print("=" * 60)
         try:
             await fn(token_auth=token_auth)
         except Exception as e:
             print(f"Test failed with error: {e}")
             import traceback
+
             traceback.print_exc()
 
 
