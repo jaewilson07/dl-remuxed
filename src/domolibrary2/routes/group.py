@@ -26,7 +26,7 @@ from typing import List, Union
 import httpx
 
 from ..client import exceptions as dmde, get_data as gd, response as rgd
-from ..client.entities import DomoEnumMixin
+from ..entities.entities import DomoEnumMixin
 from ..utils import convert as dmcv
 
 
