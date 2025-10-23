@@ -16,7 +16,8 @@ from typing import List, Union
 import httpx
 
 from ..client import exceptions as de, get_data as gd, response as rgd
-from ..client.entities import DomoEnumMixin
+from ..client.auth import DomoAuth
+from ..entities.base import DomoEnumMixin
 
 
 class Cards_API_Exception(de.DomoError):

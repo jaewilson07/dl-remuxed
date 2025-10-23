@@ -6,10 +6,10 @@ from typing import List
 
 import httpx
 
-from . import DomoUser as dmu
-
-from .subentity.DomoLineage import DomoLineage
-from ..client.entities import DomoEntity_w_Lineage
+from . import DomoUser as dmdu
+from ..client.auth import DomoAuth
+from .subentity.lineage import DomoLineage
+from ..entities.entities import DomoEntity_w_Lineage
 from ..routes import appstudio as appstudio_routes
 from ..utils import DictDot as util_dd, chunk_execution as ce
 
@@ -71,7 +71,7 @@ class DomoAppStudio(DomoEntity_w_Lineage):
         return await cls._from_content_stacks_v3(page_obj=res.response, auth=auth)
 
     @classmethod
-    async def _get_entity_by_id(cls, entity_id: str, **kwargs):
+    async def get_entity_by_id(cls, entity_id: str, auth: DomoAuth, **kwargs):
         return await cls.get_by_id(auth=auth, appstudio_id=entity_id, **kwargs)
 
     def display_url(self):
@@ -104,7 +104,7 @@ class DomoAppStudio(DomoEntity_w_Lineage):
         ]
 
         if len(owner_user_ls) > 0:
-            domo_users = await dmu.DomoUsers.by_id(
+            domo_users = await dmdu.DomoUsers.by_id(
                 user_ids=owner_user_ls,
                 only_allow_one=False,
                 auth=self.auth,
@@ -174,7 +174,7 @@ class DomoAppStudio(DomoEntity_w_Lineage):
         user_ls = res.response.get("users", None)
         domo_users = []
         if user_ls and isinstance(user_ls, list) and len(user_ls) > 0:
-            domo_users = await dmu.DomoUsers.by_id(
+            domo_users = await dmdu.DomoUsers.by_id(
                 user_ids=[user.get("id") for user in user_ls],
                 only_allow_one=False,
                 auth=auth,
