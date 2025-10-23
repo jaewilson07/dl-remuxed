@@ -8,8 +8,6 @@ from typing import Any, List
 
 import httpx
 
-from . import DomoUser as dmdu
-
 from ..client import DomoEntity_w_Lineage
 from ..routes import card as card_routes
 from ..utils import (
@@ -18,6 +16,7 @@ from ..utils import (
     convert as dmut,
     files as dmfi,
 )
+from . import DomoUser as dmdu
 from .subentity import DomoLineage as dmdl
 
 
@@ -127,7 +126,7 @@ class DomoCard(DomoEntity_w_Lineage):
 
         return domo_card
 
-    async def _get_entity_by_id(
+    async def get_entity_by_id(
         cls,
         entity_id: str,
         auth: DomoAuth,

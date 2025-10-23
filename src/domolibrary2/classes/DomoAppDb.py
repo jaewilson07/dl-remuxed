@@ -9,7 +9,10 @@ from typing import Callable, List, Optional
 
 from ..client.auth import DomoAuth
 from ..routes import appdb as appdb_routes
-from ..utils import chunk_execution as ce, convert as dlcv
+from ..utils import (
+    chunk_execution as ce,
+    convert as dlcv,
+)
 
 
 def to_dict(value):

@@ -4,11 +4,12 @@ __all__ = ["DomoTags_SetTagsError", "DomoTags"]
 
 import json
 from dataclasses import dataclass, field
-from typing import Any, List, Optional
+from typing import List, Optional
 
 import httpx
 
 from ...client import exceptions as dmde
+from ...entities.entities import DomoSubEntity
 from ...routes import dataset as dataset_routes
 
 
@@ -21,108 +22,83 @@ class DomoTags_SetTagsError(dmde.ClassError):
 
 
 @dataclass
-class DomoTags:
+class DomoTags(DomoSubEntity):
     """class for interacting with dataset tags"""
 
-    auth: DomoAuth = field(repr=False)
-    dataset_id: str = field(repr=False)
-    parent: Any = field(repr=False, default=None)
-
-    tag_ls: List[str] = field(default_factory=list)
-
-    def __post_init__(self):
-        if self.parent:
-            self.auth = self.parent.auth
-            self.dataset_id = self.parent.id
-
-    @classmethod
-    def from_parent(cls, parent):
-        return cls(
-            parent=parent,
-            auth=parent.auth,
-            dataset_id=parent.id,
-        )
+    tags: List[str] = field(default_factory=list)
 
     async def get(
         self,
-        auth: DomoAuth = None,
         session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
     ) -> List[str]:  # returns a list of tags
         """gets the existing list of dataset_tags"""
 
         res = await dataset_routes.get_dataset_by_id(
-            dataset_id=self.dataset_id,
-            auth=self.auth,
+            dataset_id=self.parent.id,
+            auth=self.parent.auth,
             debug_api=debug_api,
             session=session,
         )
 
-        if not res.is_success:
-            DomoTags_SetTagsError(dataset_id=dataset_id, res=res, cls_instance=self)
-
         if res.response.get("tags"):
-            self.tag_ls = json.loads(res.response.get("tags"))
+            self.tags = json.loads(res.response.get("tags"))
 
-        return self.tag_ls
+        return self.tags
 
-    async def set(
+    async def update(
         self,
-        tag_ls: List[str],
         debug_api: bool = False,
         session: Optional[httpx.AsyncClient] = None,
     ) -> List[str]:  # returns a list of tags
         """replaces all tags with a new list of dataset_tags"""
 
         res = await dataset_routes.set_dataset_tags(
-            auth=self.auth,
-            tag_ls=list(set(tag_ls)),
-            dataset_id=self.dataset_id,
+            auth=self.parent.auth,
+            tag_ls=self.tags,
+            dataset_id=self.parent.id,
             debug_api=debug_api,
             session=session,
         )
 
-        if not res.is_success:
-            DomoTags_SetTagsError(
-                dataset_id=self.dataset_id, res=res, cls_instance=self
-            )
-
         await self.get()
 
-        return self.tag_ls
+        return self.tags
 
     async def add(
         self,
-        add_tag_ls: List[str],
+        add_tags: List[str],
         debug_api: bool = False,
         session: Optional[httpx.AsyncClient] = None,
     ) -> List[str]:  # returns a list of tags
         """appends tags to the list of existing dataset_tags"""
 
-        existing_tag_ls = await self.get()
+        await self.get()
 
-        add_tag_ls += existing_tag_ls
+        for tg in add_tags:
+            if tg not in self.tags:
+                self.tags.append(tg)
 
-        return await self.set(
-            tag_ls=list(set(add_tag_ls)),
+        return await self.update(
             debug_api=debug_api,
             session=session,
         )
 
     async def remove(
         self,
-        remove_tag_ls: List[str],
+        remove_tags: List[str],
         debug_api: bool = False,
         session: Optional[httpx.AsyncClient] = None,
     ) -> List[str]:  # returns a list of tags
         """removes tags from the existing list of dataset_tags"""
 
-        existing_tag_ls = await self.get()
+        await self.get()
 
-        existing_tag_ls = [ex for ex in existing_tag_ls if ex not in remove_tag_ls]
+        for tg in remove_tags:
+            if tg in self.tags:
+                self.tags.remove(tg)
 
-        return await self.set(
-            tag_ls=list(set(existing_tag_ls)),
+        return await self.update(
             debug_api=debug_api,
             session=session,
         )

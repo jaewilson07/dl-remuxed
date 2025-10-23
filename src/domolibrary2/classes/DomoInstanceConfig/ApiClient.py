@@ -15,15 +15,15 @@ import httpx
 
 from ...client import response as rgd
 from ...client.auth import DomoAuth
-from ...client.entities import DomoEntity
 from ...client.exceptions import DomoError
+from ...entities.entities import DomoEntity
 from ...routes.instance_config import (
-    api_client as client_routes,
     ApiClient_ScopeEnum,
+    api_client as client_routes,
 )
 from ...routes.instance_config.exceptions import (
-    ApiClient_GET_Error,
     ApiClient_CRUD_Error,
+    ApiClient_GET_Error,
     SearchApiClient_NotFound,
 )
 from ...utils import chunk_execution as dmce

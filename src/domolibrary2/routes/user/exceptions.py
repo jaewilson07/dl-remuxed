@@ -98,7 +98,6 @@ class DeleteUser_Error(RouteError):
         user_id: Optional[str] = None,
         **kwargs,
     ):
-
         super().__init__(res=res, entity_id=user_id, message=message, **kwargs)
 
 

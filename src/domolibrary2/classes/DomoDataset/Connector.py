@@ -1,4 +1,4 @@
-__all__ = ["DomoConnector"]
+__all__ = ["DomoConnector", "DomoConnectors"]
 
 import datetime as dt
 from dataclasses import dataclass, field
@@ -6,12 +6,15 @@ from typing import List
 
 import httpx
 
-from ..utils import DictDot as util_dd, convert as cd
+from ...client.auth import DomoAuth
+from ...entities.entities import DomoBase, DomoManager
+from ...utils import convert as cd
 
 
 @dataclass
-class DomoConnector:
+class DomoConnector(DomoBase):
     id: str
+    raw: dict = field(repr=False)
     label: str
     title: str
     sub_title: str
@@ -20,30 +23,31 @@ class DomoConnector:
     last_modified: dt.datetime
     publisher_name: str
     writeback_enabled: bool
-    tags: list[str] = field(default_factory=list)
-    capabilities: list[str] = field(default_factory=list)
+    tags: List[str] = field(default_factory=list)
+    capabilities: List[str] = field(default_factory=list)
 
     @classmethod
     def from_dict(cls, obj: dict):
-        dd = util_dd.DictDot(obj)
-
         return cls(
-            id=dd.databaseId,
-            label=dd.label,
-            title=dd.title,
-            sub_title=dd.subTitle,
-            description=dd.description,
-            create_date=cd.convert_epoch_millisecond_to_datetime(dd.createDate),
-            last_modified=cd.convert_epoch_millisecond_to_datetime(dd.lastModified),
-            publisher_name=dd.publisherName,
-            writeback_enabled=dd.writebackEnabled,
-            tags=dd.tags,
-            capabilities=dd.capabilities,
+            id=obj.get("databaseId"),
+            label=obj.get("label"),
+            title=obj.get("title"),
+            sub_title=obj.get("subTitle"),
+            description=obj.get("description"),
+            create_date=cd.convert_epoch_millisecond_to_datetime(obj.get("createDate")),
+            last_modified=cd.convert_epoch_millisecond_to_datetime(
+                obj.get("lastModified")
+            ),
+            publisher_name=obj.get("publisherName"),
+            writeback_enabled=obj.get("writebackEnabled"),
+            tags=obj.get("tags", []),
+            capabilities=obj.get("capabilities", []),
+            raw=obj,
         )
 
 
 @dataclass
-class DomoConnectors:
+class DomoConnectors(DomoManager):
     auth: DomoAuth = field(repr=False)
 
     domo_connectors: List[DomoConnector] = field(default=None)
@@ -57,7 +61,7 @@ class DomoConnectors:
         debug_num_stacks_to_drop=2,
         session: httpx.AsyncClient = None,
     ):
-        from ..routes import datacenter as datacenter_routes
+        from ...routes import datacenter as datacenter_routes
 
         res = await datacenter_routes.get_connectors(
             auth=self.auth,

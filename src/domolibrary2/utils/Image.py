@@ -45,14 +45,10 @@ __all__ = [
 
 import base64
 import io
-import os
 from typing import Union
 
 import numpy as np
-
 import PIL
-from PIL.Image import Image
-
 
 from .exceptions import ImageProcessingError
 

@@ -37,7 +37,7 @@ __all__ = [
 
 # Import main classes
 from .Account import DomoAccount, DomoAccounts, DomoAccounts_NoAccount
-from .Account_Default import DomoAccount_Default, UpsertAccount_MatchCriteria
 from .Account_Credential import DomoAccount_Credential
+from .Account_Default import DomoAccount_Default, UpsertAccount_MatchCriteria
 from .Account_OAuth import DomoAccount_OAuth
 from .Config import AccountConfig, DomoAccount_Config

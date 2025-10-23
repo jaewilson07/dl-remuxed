@@ -4,53 +4,55 @@ import domolibrary2.client.auth as dmda
 from dotenv import load_dotenv
 import os
 
-from dc_logger.client.base import (
-    Logger,
-    HandlerInstance,
-    Handler_BufferSettings,
-    set_global_logger,
-)
-from dc_logger.logs.services.file import FileHandler, File_ServiceConfig
+# from dc_logger.client.base import (
+#     Logger,
+#     HandlerInstance,
+#     Handler_BufferSettings,
+#     set_global_logger,
+# )
+
+# from dc_logger.logs.services.file import FileHandler, File_ServiceConfig
 
 load_dotenv()
 
-json_config = File_ServiceConfig(
-    destination="./LOGGER/routes/test_access_tokens.json",
-    output_mode="file",
-    format="json",
-    append=True,
-)
+# json_config = File_ServiceConfig(
+#     destination="./LOGGER/routes/test_access_tokens.json",
+#     output_mode="file",
+#     format="json",
+#     append=True,
+# )
 
-buffer_settings = Handler_BufferSettings()
+# buffer_settings = Handler_BufferSettings()
 
-json_file_handler = FileHandler(
-    buffer_settings=buffer_settings, service_config=json_config
-)
+# json_file_handler = FileHandler(
+#     buffer_settings=buffer_settings, service_config=json_config
+# )
 
-# Create handler instance
-json_handler_instance = HandlerInstance(
-    service_handler=json_file_handler, handler_name="json_file"
-)
+# # Create handler instance
+# json_handler_instance = HandlerInstance(
+#     service_handler=json_file_handler, handler_name="json_file"
+# )
 
-logger = Logger(app_name="test_access_tokens", handlers=[json_handler_instance])
+# logger = Logger(app_name="test_access_tokens", handlers=[json_handler_instance])
 
-set_global_logger(logger)
+# set_global_logger(logger)
 
 
-async def test_logger():
-    """Test logger functionality."""
+# async def test_logger():
+#     """Test logger functionality."""
 
-    await logger.info(message="Starting test_logger function.")
+#     await logger.info(message="Starting test_logger function.")
 
-    domo_auth = dmda.DomoTokenAuth(
-        domo_access_token=os.getenv("DOMO_ACCESS_TOKEN"),
-        domo_instance=os.getenv("DOMO_INSTANCE"),
-    )
+#     domo_auth = dmda.DomoTokenAuth(
+#         domo_access_token=os.getenv("DOMO_ACCESS_TOKEN"),
+#         domo_instance=os.getenv("DOMO_INSTANCE"),
+#     )
 
-    # res = await access_token_routes.get_access_tokens(auth=domo_auth, logger=logger)
+    res = await access_token_routes.get_access_tokens(auth=domo_auth)
 
     # logger.info(message="Completed get_access_tokens request.", data=res.response)
-    # return res.is_success
+
+    assert res.is_success
 
 
 def main():
