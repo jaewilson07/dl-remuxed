@@ -8,7 +8,7 @@ import dateutil.parser as dtut
 import httpx
 import pandas as pd
 
-from ..client import entities as dmee
+from ..entities import entities as dmee
 from ..routes import sandbox as sandbox_routes
 from .subentity import DomoLineage as dmdl
 
@@ -73,7 +73,7 @@ class DomoRepository(dmee.DomoEntity_w_Lineage):
         return cls.from_dict(obj=res.response, auth=auth)
 
     @classmethod
-    def _get_entity_by_id(
+    def get_entity_by_id(
         cls,
         entity_id: str,
         auth: DomoAuth,

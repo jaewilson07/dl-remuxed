@@ -11,14 +11,14 @@ from typing import Any
 
 import httpx
 
-from ...client import entities as dmee
+from ...entities import entities as dmee
 from ...client.auth import DomoAuth
 from ...routes import account as account_routes
 from . import (
     Account_Default as dmacb,
     Config as dmacnfg,
 )
-from ..subentity.DomoAccess import DomoAccess as dmacc
+from ..subentity.DomoAccess import DomoAccess_OAuth
 
 
 @dataclass
@@ -86,10 +86,10 @@ class OAuthConfig(dmee.DomoEnumMixin, Enum):
 
 @dataclass
 class DomoAccount_OAuth(dmacb.DomoAccount_Default):
-    Access: dmacc.DomoAccess_OAuth = field(repr=False, default=None)
+    Access: DomoAccess_OAuth = field(repr=False, default=None)
 
     def __post_init__(self):
-        self.Access = dmacc.DomoAccess_OAuth.from_parent(parent=self)
+        self.Access = DomoAccess_OAuth.from_parent(parent=self)
 
     async def _get_config(
         self,
