@@ -27,6 +27,8 @@ from ..DomoUser import (
     DomoUsers,
 )
 from . import Account_Default as dmacb
+from ..DomoAccessToken import DomoAccessToken
+from .. import DomoUser as dmdu
 
 
 class DAC_NoTargetInstance(dmde.ClassError):
@@ -103,6 +105,9 @@ class DomoAccount_Credential(dmacb.DomoAccount_Default):
         target_access_token: Access token for the account
     """
 
+    target_auth: DomoAuth = field(default=None)
+    target_user: dmdu.DomoUser = field(default=None)
+    target_access_token: DomoAccessToken = field(default=None)
     target_instance: Optional[str] = None
 
     is_valid_full_auth: Optional[bool] = None
@@ -581,7 +586,7 @@ class DomoAccount_Credential(dmacb.DomoAccount_Default):
             )
 
         else:
-            domo_access_token = await dmact.DomoAccessToken.generate(
+            domo_access_token = await DomoAccessToken.generate(
                 duration_in_days=duration_in_days,
                 token_name=token_name,
                 auth=target_auth,
