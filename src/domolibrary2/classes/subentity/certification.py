@@ -4,7 +4,7 @@ import datetime as dt
 from dataclasses import dataclass
 from enum import Enum
 
-from ...entities.entities import DomoEnumMixin, DomoSubEntity
+from ...entities import DomoEnumMixin, DomoSubEntity, DomoBase
 from ...utils import convert as cd
 
 
@@ -16,34 +16,36 @@ class DomoCertificationState(DomoEnumMixin, Enum):
 
 @dataclass
 class DomoCertification(DomoSubEntity):
-    certification_state: DomoCertificationState
-    last_updated: dt.datetime
-    certification_type: str
-    certification_name: str
+
+    certification_state: DomoCertificationState = None
+    last_updated: dt.datetime = None
+    certification_type: str = None
+    certification_name: str = None
 
     @classmethod
     def from_parent(cls, parent):
-        certification = parent.raw["certification"]
-
-        cert_state = None
-
-        if isinstance(certification.get("state"), dict):
-            cert_state = DomoCertificationState[certification.get["state"].get("value")]
-
-        if isinstance(certification.get("state"), str):
-            cert_state = DomoCertificationState[certification["state"]]
 
         return cls(
-            auth=parent.auth,
             parent=parent,
-            parent_id=parent.id,
-            certification_state=cert_state,
-            last_updated=cd.convert_epoch_millisecond_to_datetime(
-                certification.get("lastUpdated")
-            ),
-            certification_type=certification.get("processType"),
-            certification_name=certification.get("processName"),
         )
+
+    def get(self):
+        certification = self.parent.raw.get("certification")
+
+        if not certification:
+            return None
+
+        self.last_updated = cd.convert_epoch_millisecond_to_datetime(
+            certification.get("lastUpdated")
+        )
+
+        self.certification_type = certification.get("processType")
+        self.certification_name = certification.get("processName")
+
+        if isinstance(certification.get("state"), dict):
+            self.certification_state = DomoCertificationState[
+                certification.get("state").get("value")
+            ]
 
     @classmethod
     def from_dict(

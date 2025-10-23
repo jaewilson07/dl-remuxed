@@ -178,7 +178,7 @@ class DomoDataset_Schema(DomoSubEntity):
         debug_prn: bool = False,
         is_update_schema: bool = True,
         debug_api: bool = False,
-        session: httpx.AsncClient = None,
+        session: httpx.AsyncClient = None,
     ):
         if col in self.columns and debug_prn:
             print(

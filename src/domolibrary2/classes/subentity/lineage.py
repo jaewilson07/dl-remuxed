@@ -20,7 +20,8 @@ from typing import Any, Callable, List
 import httpx
 from aenum import NoAlias
 
-from ...client import DomoEntity
+from ...client.auth import DomoAuth
+from ...entities.base import DomoEnumMixin
 from ...entities.entities import DomoEntity
 from ...routes import datacenter as datacenter_routes
 from ...utils import chunk_execution as dmce
@@ -240,8 +241,6 @@ class DomoLineageLinkTypeFactory_Enum(DomoEnumMixin, Enum):
 
 
 class DomoLineage_ParentTypeEnum(DomoEnumMixin, Enum):
-    _settings_ = NoAlias
-
     DomoDataflow = "DATAFLOW"
     DomoPublication = "PUBLICATION"
     DomoDataset = "DATA_SOURCE"

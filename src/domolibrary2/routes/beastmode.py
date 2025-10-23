@@ -16,7 +16,8 @@ from typing import List
 import httpx
 
 from ..client import exceptions as dmde, get_data as gd, response as rgd
-from ..entities.entities import DomoEnumMixin
+from ..client.auth import DomoAuth
+from ..entities.base import DomoEnumMixin
 from ..utils import chunk_execution as dmce
 
 

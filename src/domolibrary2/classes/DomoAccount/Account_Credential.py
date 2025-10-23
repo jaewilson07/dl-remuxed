@@ -18,7 +18,7 @@ from ...client import auth as dmda, exceptions as dmde
 from ...client.auth import DomoAuth
 from ...utils import convert as dmcv
 from . import Account_Default as dmacb
-from ..subentity.DomoAccess import DomoAccessToken as dmact
+from ..subentity.access import DomoAccessToken as dmact
 from ..DomoUser import DomoUser as dmdu
 
 

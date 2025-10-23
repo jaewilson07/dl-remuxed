@@ -9,38 +9,23 @@ __all__ = [
 
 
 import asyncio
-import datetime as dt
 import io
-import json
-from dataclasses import dataclass, field
-from typing import Callable, List, Optional
+from dataclasses import dataclass
+from typing import List, Optional
 
 import httpx
 import pandas as pd
 
-from ...client.auth import DomoAuth
+
 from ...client.exceptions import DomoError
-from ...entities.entities import (
-    DomoEntity_w_Lineage,
-    DomoFederatedEntity,
-    DomoPublishedEntity,
-    DomoSubEntity,
-)
+from ...entities.entities import DomoSubEntity
+
 from ...routes import dataset as dataset_routes
 from ...routes.dataset import (
     DatasetNotFoundError,
     QueryRequestError,
-    ShareDataset_AccessLevelEnum,
 )
-from ...utils import chunk_execution as dmce, convert as dmcv
-
-from ..subentity import DomoTag as dmtg, DomoLineage as dmdl, DomoCertification as dmdc
-
-from . import (
-    PDP as dmpdp,
-    Schema as dmdsc,
-    Stream as dmdst,
-)
+from ...utils import chunk_execution as dmce
 
 
 @dataclass

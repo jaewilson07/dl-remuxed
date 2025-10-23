@@ -8,39 +8,27 @@ __all__ = [
 ]
 
 
-import asyncio
 import datetime as dt
-import io
-import json
 from dataclasses import dataclass, field
-from typing import Callable, List, Optional
 
 import httpx
-import pandas as pd
 
 from ...client.auth import DomoAuth
-from ...client.exceptions import DomoError
-from ...entities.entities import (
-    DomoEntity_w_Lineage,
-    DomoFederatedEntity,
-    DomoPublishedEntity,
-)
+from ...entities.entities import DomoEntity_w_Lineage
 from ...routes import dataset as dataset_routes
 from ...routes.dataset import (
-    DatasetNotFoundError,
-    QueryRequestError,
     ShareDataset_AccessLevelEnum,
 )
 
 from .dataset_data import DomoDataset_Data
-from ...utils import chunk_execution as dmce, convert as dmcv
+from ...utils import convert as dmcv
 
-from ..subentity import DomoTag as dmtg, DomoLineage as dmdl, DomoCertification as dmdc
+from ..subentity import certification as dmdc, tags as dmtg
 
 from . import (
-    PDP as dmpdp,
-    Schema as dmdsc,
-    Stream as dmdst,
+    pdp as dmpdp,
+    schema as dmdsc,
+    stream as dmdst,
 )
 
 
@@ -72,10 +60,14 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
     Schema: dmdsc.DomoDataset_Schema = field(default=None)
     Stream: dmdst.DomoStream = field(default=None)
     Tags: dmtg.DomoTags = field(default=None)
-    PDP: dmpdp.Dataset_PDP_Policies = field(default=None)
+    PDP: dmpdp.DatasetPDPPolicies = field(default=None)
 
     Certification: dmdc.DomoCertification = field(default=None)
     # Lineage: dmdl.DomoLineage = field(default=None, repr=False)
+
+    @property
+    def entity_type(self):
+        return "DATASET"
 
     @staticmethod
     def _is_federated_dataset_obj(obj: dict) -> bool:
@@ -110,10 +102,13 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
         self.Data = DomoDataset_Data.from_parent(parent=self)
         self.Schema = dmdsc.DomoDataset_Schema.from_parent(parent=self)
         self.Tags = dmtg.DomoTags.from_parent(parent=self)
-        self.Stream = dmdst.DomoStream.from_parent(parent=self)
-        self.PDP = dmpdp.Dataset_PDP_Policies(dataset=self)
+        self.Stream = dmdst.DomoStream.from_parent(
+            parent=self, stream_id=self.stream_id
+        )
+        self.PDP = dmpdp.DatasetPDPPolicies.from_parent(parent=self)
 
         self.Certification = dmdc.DomoCertification.from_parent(parent=self)
+        self.Relations = None
 
     def display_url(self) -> str:
         return f"https://{self.auth.domo_instance}.domo.com/datasources/{self.id}/details/overview"
@@ -158,6 +153,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
             column_count=int(obj.get("columnCount") or 0),
             formulas=formulas,
             Lineage=None,
+            Relations=None,
             **kwargs,
         )
 
@@ -201,7 +197,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
         )
 
     @classmethod
-    async def _get_entity_by_id(cls, entity_id: str, auth: DomoAuth, **kwargs):
+    async def get_entity_by_id(cls, entity_id: str, auth: DomoAuth, **kwargs):
         return await cls.get_by_id(dataset_id=entity_id, auth=auth, **kwargs)
 
     async def delete(

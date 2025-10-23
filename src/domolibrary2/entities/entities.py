@@ -46,15 +46,9 @@ class DomoEntity(DomoBase):
     id: str
     raw: dict = field(repr=False)  # api representation of the class
 
-    Relations: Any = field(repr=False, default=None)
+    Relations: Any = field(repr=False)
 
     # logger: Logger = field(repr=False) ## pass global logger
-
-    def __post_init__(self):
-        """Initialize entity with relationship controller."""
-        from .relationships import DomoRelationshipController
-
-        self.Relations = DomoRelationshipController(auth=self.auth, parent_entity=self)
 
     @property
     def _name(self) -> str:
@@ -190,12 +184,10 @@ class DomoEntity_w_Lineage(DomoEntity):
 
     def __post_init__(self):
         """Initialize lineage tracking after entity creation."""
-        from ..classes.subentity import DomoLineage as dmdl
+        from ..classes.subentity import lineage as dmdl
 
         # Using protected method until public interface is available
         self.Lineage = dmdl.DomoLineage.from_parent(auth=self.auth, parent=self)
-
-        super().__post_init__()
 
 
 @dataclass
@@ -229,7 +221,7 @@ class DomoManager(DomoBase):
 
 
 @dataclass
-class DomoSubEntity(DomoEntity):
+class DomoSubEntity(DomoBase):
     """Base class for entities that belong to a parent entity.
 
     Handles entities that are sub-components of other entities,
@@ -242,7 +234,6 @@ class DomoSubEntity(DomoEntity):
     """
 
     parent: DomoEntity
-    auth: dmda.DomoAuth = field(repr=False)
 
     @property
     def parent_id(self):

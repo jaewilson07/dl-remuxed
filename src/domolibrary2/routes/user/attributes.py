@@ -41,7 +41,7 @@ import httpx
 
 from ...client import get_data as gd, response as rgd
 from ...client.auth import DomoAuth
-from ...entities.entities import DomoEnumMixin
+from ...entities.base import DomoEnumMixin
 from .exceptions import UserAttributes_CRUD_Error, UserAttributes_GET_Error
 
 
