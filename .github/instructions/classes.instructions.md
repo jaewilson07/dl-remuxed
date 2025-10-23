@@ -43,17 +43,17 @@ class DomoExample(DomoEntity):
     id: str
     auth: DomoAuth = field(repr=False)
     raw: dict = field(default_factory=dict, repr=False)
-    
+
     # Optional attributes
     display_name: Optional[str] = None
     created_dt: Optional[dt.datetime] = None
-    
+
     # REQUIRED: display_url property or method
     @property
     def display_url(self):
         """Return the Domo web URL for this entity."""
         return f"https://{self.auth.domo_instance}.domo.com/path/{self.id}"
-    
+
     # REQUIRED: from_dict classmethod
     @classmethod
     def from_dict(cls, auth: DomoAuth, obj: dict):
@@ -64,7 +64,7 @@ class DomoExample(DomoEntity):
             display_name=obj.get("displayName"),
             raw=obj,
         )
-    
+
     # REQUIRED: get_by_id classmethod
     @classmethod
     async def get_by_id(
@@ -83,10 +83,10 @@ class DomoExample(DomoEntity):
             debug_api=debug_api,
             session=session,
         )
-        
+
         if return_raw:
             return res
-        
+
         return cls.from_dict(auth=auth, obj=res.response)
 ```
 
@@ -110,13 +110,13 @@ class DomoDataset(DomoEntity_w_Lineage):
     Tags: dmtg.DomoTags = field(default=None)
     Certification: dmdc.DomoCertification = field(default=None)
     Schema: dmdsc.DomoDataset_Schema = field(default=None)
-    
+
     def __post_init__(self):
         # Initialize subentities
         self.Tags = dmtg.DomoTags.from_parent(parent=self)
         self.Lineage = dmdl.DomoLineage.from_parent(auth=self.auth, parent=self)
         self.Schema = dmdsc.DomoDataset_Schema.from_parent(parent=self)
-        
+
         if self.raw.get("certification"):
             self.Certification = dmdc.DomoCertification.from_parent(parent=self)
 ```
@@ -144,15 +144,15 @@ async def method_name(
     return_raw: bool = False,     # return_raw on methods that call routes
 ) -> ReturnType:
     """Docstring describing method.
-    
+
     Args:
         auth: Authentication object
         required_param: Description
         optional_param: Description
-        
+
     Returns:
         Description of return value
-        
+
     Raises:
         ExceptionName: When error occurs
     """
@@ -163,10 +163,10 @@ async def method_name(
         debug_api=debug_api,
         session=session,
     )
-    
+
     if return_raw:
         return res
-    
+
     # Process and return
     return self.from_dict(auth=auth, obj=res.response)
 ```
@@ -240,9 +240,9 @@ For entity collections (DomoUsers, DomoDatasets, etc.):
 @dataclass
 class DomoEntities(DomoManager):
     """Manager class for DomoEntity collection."""
-    
+
     auth: DomoAuth = field(repr=False)
-    
+
     async def get(
         self,
         limit: int = 500,
@@ -259,7 +259,7 @@ class DomoEntities(DomoManager):
             session=session,
         )
         return [DomoEntity.from_dict(auth=self.auth, obj=obj) for obj in res.response]
-    
+
     async def search(
         self,
         search_term: str,
@@ -273,13 +273,13 @@ class DomoEntities(DomoManager):
             debug_api=debug_api,
             session=session,
         )
-        
+
         if not res.response:
             raise SearchEntity_NotFound(
                 domo_instance=self.auth.domo_instance,
                 search_term=search_term,
             )
-        
+
         return [DomoEntity.from_dict(auth=self.auth, obj=obj) for obj in res.response]
 ```
 

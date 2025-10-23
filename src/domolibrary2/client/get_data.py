@@ -21,7 +21,11 @@ from dc_logger.client.base import Logger, get_global_logger
 from dc_logger.client.decorators import log_call
 
 from ..utils import chunk_execution as dmce
-from . import Logger as dl, auth as dmda, response as rgd
+from . import (
+    Logger as dl,
+    auth as dmda,
+    response as rgd,
+)
 from .exceptions import DomoError
 
 logger: Logger = get_global_logger()
@@ -574,7 +578,6 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
         session: Optional[httpx.AsyncClient] = None,
         **kwargs: Any,
     ) -> Any:
-
         result = await func(
             *args,
             parent_class=parent_class,

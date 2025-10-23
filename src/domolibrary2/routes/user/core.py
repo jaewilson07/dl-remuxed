@@ -29,22 +29,24 @@ __all__ = [
 ]
 
 import asyncio
-import base64
-import os
 from typing import Optional
 
 import httpx
 
-from ...client import get_data as gd, response as rgd
+from ...client import (
+    get_data as gd,
+    response as rgd,
+)
 from ...client.auth import DomoAuth
-from ...utils import Image as uimg, chunk_execution as ce
+from ...utils import (
+    chunk_execution as ce,
+)
 from ...utils.convert import test_valid_email
 from .exceptions import (
     DeleteUser_Error,
     SearchUser_NotFound,
     User_CRUD_Error,
     User_GET_Error,
-    UserSharing_Error,
 )
 
 

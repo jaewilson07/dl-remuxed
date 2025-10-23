@@ -19,7 +19,12 @@ from typing import List
 
 import httpx
 
-from ..client import auth as dmda, exceptions as dmde, get_data as gd, response as rgd
+from ..client import (
+    auth as dmda,
+    exceptions as dmde,
+    get_data as gd,
+    response as rgd,
+)
 
 
 class SSO_AddUserDirectSignonError(dmde.RouteError):

@@ -16,7 +16,6 @@ class DomoCertificationState(DomoEnumMixin, Enum):
 
 @dataclass
 class DomoCertification(DomoSubEntity):
-
     certification_state: DomoCertificationState = None
     last_updated: dt.datetime = None
     certification_type: str = None
@@ -24,7 +23,6 @@ class DomoCertification(DomoSubEntity):
 
     @classmethod
     def from_parent(cls, parent):
-
         return cls(
             parent=parent,
         )

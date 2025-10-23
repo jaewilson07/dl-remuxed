@@ -6,12 +6,15 @@ from typing import List
 
 import httpx
 
-from . import DomoUser as dmdu
 from ..client.auth import DomoAuth
-from .subentity.lineage import DomoLineage
 from ..entities.entities import DomoEntity_w_Lineage
 from ..routes import appstudio as appstudio_routes
-from ..utils import DictDot as util_dd, chunk_execution as ce
+from ..utils import (
+    DictDot as util_dd,
+    chunk_execution as ce,
+)
+from . import DomoUser as dmdu
+from .subentity.lineage import DomoLineage
 
 
 @dataclass

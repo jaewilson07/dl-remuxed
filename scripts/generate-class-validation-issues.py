@@ -125,7 +125,7 @@ DomoSubEntity (for composition - entities that belong to parents)
 1. **Dataclass Pattern**: All entities use `@dataclass` decorator
 2. **Composition over Inheritance**: Use `DomoSubEntity` for related entities (e.g., `DomoTags`, `DomoLineage`, `DomoCertification`)
 3. **Route Function Delegation**: Class methods should call route functions, not implement API logic
-4. **Standardized Signatures**: 
+4. **Standardized Signatures**:
    - `auth` parameter always comes first
    - Optional parameters properly typed with defaults
    - All methods include docstrings
@@ -135,8 +135,8 @@ DomoSubEntity (for composition - entities that belong to parents)
 
 ## 📍 Class Location
 
-**File**: `{class_info.module_name}`  
-**Route Module**: `src/domolibrary2/routes/{class_info.route_name}/`  
+**File**: `{class_info.module_name}`
+**Route Module**: `src/domolibrary2/routes/{class_info.route_name}/`
 **Test File**: `{test_file}`
 
 ---

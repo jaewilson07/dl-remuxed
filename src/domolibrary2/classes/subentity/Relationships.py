@@ -23,14 +23,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from enum import Enum
-from typing import Any, Dict, List, Optional, Set, Union
-
-import httpx
+from typing import Any, Dict, List, Optional
 
 from ...client.auth import DomoAuth
-from ...entities.entities import DomoEntity, DomoEnum, DomoSubEntity
-from ...client.exceptions import DomoError
+from ...entities.entities import DomoEntity, DomoEnum
 
 
 class EntityType(DomoEnum):

@@ -5,12 +5,12 @@
 if (Test-Path ".venv\Scripts\Activate.ps1") {
     Write-Host "Activating local virtual environment..." -ForegroundColor Green
     & .\.venv\Scripts\Activate.ps1
-    
+
     # Add src directory to Python path for development
     $env:PYTHONPATH = "$(Get-Location)\src;$env:PYTHONPATH"
     Write-Host "Virtual environment activated!" -ForegroundColor Green
     Write-Host "Python path includes src directory" -ForegroundColor Blue
-    
+
     # Show Python version and virtual env info
     Write-Host "Python executable: $(python -c 'import sys; print(sys.executable)')" -ForegroundColor Cyan
 } else {

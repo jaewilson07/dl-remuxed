@@ -14,9 +14,8 @@ from typing import Any, List
 import httpx
 import pandas as pd
 
-
-from ...entities.entities import DomoSubEntity
 from ...client.exceptions import ClassError
+from ...entities.entities import DomoSubEntity
 from ...routes import dataset as dataset_routes
 
 
@@ -152,8 +151,6 @@ class DomoDataset_Schema(DomoSubEntity):
         is_update_schema: bool = True,
         debug_api: bool = False,
     ):
-        from ...routes import dataset as dataset_routes
-
         await self.get()
 
         if len(self.columns) != len(df.columns):

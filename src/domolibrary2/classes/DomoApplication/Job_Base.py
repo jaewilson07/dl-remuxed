@@ -167,11 +167,11 @@ class DomoJob_Base(DomoEntity):
         obj: dict,
     ):
         """Create a DomoJob_Base instance from an API response dictionary.
-        
+
         Args:
             auth: Authentication object for API requests
             obj: Dictionary representation of the job from API response
-            
+
         Returns:
             DomoJob_Base instance
         """
@@ -199,12 +199,12 @@ class DomoJob_Base(DomoEntity):
     ):
         """
         Internal method to retrieve a job by ID with support for inheritance.
-        
+
         This function receives the parent_class as an input_parameter (instead of relying on the actual class DomoJob_Base)
         to call the `new_class.from_dict()`
-        
+
         This process handles converting the JSON obj into 'the correct' class
-        
+
         Args:
             auth: Authentication object for API requests
             application_id: The ID of the application containing the job
@@ -215,10 +215,10 @@ class DomoJob_Base(DomoEntity):
             parent_class: Name of the calling class for error reporting
             return_raw: Return raw response without processing
             new_cls: Child class to instantiate (defaults to cls)
-            
+
         Returns:
             DomoJob_Base instance or ResponseGetData if return_raw=True
-            
+
         Raises:
             ApplicationError_NoJobRetrieved: If job retrieval fails
         """
@@ -241,7 +241,11 @@ class DomoJob_Base(DomoEntity):
                 domo_instance=auth.domo_instance,
                 application_id=application_id,
                 parent_class=parent_class or cls.__name__,
-                function_name=res.traceback_details.function_name if res.traceback_details else None,
+                function_name=(
+                    res.traceback_details.function_name
+                    if res.traceback_details
+                    else None
+                ),
             )
 
         cls = new_cls or cls
@@ -264,7 +268,7 @@ class DomoJob_Base(DomoEntity):
     ):
         """
         Retrieve a job by its ID from a specific application.
-        
+
         Args:
             auth: Authentication object for API requests
             application_id: The ID of the application containing the job
@@ -273,10 +277,10 @@ class DomoJob_Base(DomoEntity):
             debug_api: Enable API debugging output
             debug_num_stacks_to_drop: Number of stack frames to drop in debugging
             return_raw: Return raw response without processing
-            
+
         Returns:
             DomoJob_Base instance or ResponseGetData if return_raw=True
-            
+
         Raises:
             ApplicationError_NoJobRetrieved: If job retrieval fails
         """

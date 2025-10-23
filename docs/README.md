@@ -46,7 +46,7 @@ The library uses a hierarchical error system:
 ```
 DomoError (base)
 ├── RouteError (API route/endpoint errors)
-├── ClassError (Class instance errors)  
+├── ClassError (Class instance errors)
 └── AuthError (Authentication-specific errors)
 ```
 
@@ -130,5 +130,5 @@ See [Route Refactoring Dashboard](./route-refactoring-dashboard.md) for current 
 
 ---
 
-*Last Updated: 2025-10-22*  
+*Last Updated: 2025-10-22*
 *For questions or issues, refer to the [GitHub repository](https://github.com/jaewilson07/dl-remuxed)*

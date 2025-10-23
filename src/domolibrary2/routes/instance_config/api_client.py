@@ -20,7 +20,10 @@ from typing import List, Optional
 
 import httpx
 
-from ...client import get_data as gd, response as rgd
+from ...client import (
+    get_data as gd,
+    response as rgd,
+)
 from ...client.auth import DomoAuth, DomoFullAuth
 from ...entities.base import DomoEnumMixin
 from .exceptions import ApiClient_CRUD_Error, ApiClient_GET_Error, ApiClient_RevokeError

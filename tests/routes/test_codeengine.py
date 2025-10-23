@@ -38,7 +38,7 @@ async def test_cell_3(token_auth=token_auth):
     """Test case from cell 3"""
     package = (await get_codeengine_package_by_id(
         auth=auth, package_id=PACKAGE_ID, debug_api=False
-    )).response 
+    )).response
 
     package
 
