@@ -14,16 +14,20 @@ from typing import Any, List
 
 import httpx
 
-from ...client import exceptions as dmde
-from ...client.auth import DomoAuth
-from ...client.entities import DomoEntity
-from ...routes import account as account_routes
 from ...utils import convert as cd
-from ..subentity import DomoAccess as dmas
+
+from ...entities.entities import DomoEntity
+
+from ...client.exceptions import DomoError, ClassError
+from ...client.auth import DomoAuth
+
+from ...routes import account as account_routes
+
+from ..subentity.DomoAccess import DomoAccess_Account
 from .Config import AccountConfig, DomoAccount_Config
 
 
-class Account_CanIModify(dmde.ClassError):
+class Account_CanIModify(ClassError):
     def __init__(self, account_id, domo_instance):
         super().__init__(
             message="`DomoAccount.is_admin_summary` must be `False` to proceed.  Either set the value explicity, or retrieve the account instance using `DomoAccount.get_by_id()`",
@@ -32,7 +36,7 @@ class Account_CanIModify(dmde.ClassError):
         )
 
 
-class UpsertAccount_MatchCriteria(dmde.ClassError):
+class UpsertAccount_MatchCriteria(ClassError):
     def __init__(self, domo_instance):
         super().__init__(
             message="must pass an account_id or account_name to UPSERT",
@@ -40,12 +44,17 @@ class UpsertAccount_MatchCriteria(dmde.ClassError):
         )
 
 
-class DomoAccounConfig_MissingFields(dmde.ClassError):
+class DomoAccounConfig_MissingFields(ClassError):
     def __init__(self, domo_instance, missing_keys, account_id):
         super().__init__(
             domo_instance=domo_instance,
             message=f"{account_id} config class definition is missing the following keys - {', '.join(missing_keys)} extend the AccountConfig",
         )
+
+
+class AccountClass_CRUD_Error(ClassError):
+    def __init__(self, cls_instance, message):
+        super().__init__(cls_instance=cls_instance, message=message)
 
 
 @dataclass
@@ -64,12 +73,12 @@ class DomoAccount_Default(DomoEntity):
     is_admin_summary: bool = True
 
     Config: DomoAccount_Config = field(repr=False, default=None)
-    Access: dmas.DomoAccess_Account = field(repr=False, default=None)
+    Access: DomoAccess_Account = field(repr=False, default=None)
 
     def __post_init__(self):
         self.id = int(self.id)
 
-        self.Access = dmas.DomoAccess_Account.from_parent(
+        self.Access = DomoAccess_Account.from_parent(
             parent=self,
         )
 
@@ -168,7 +177,7 @@ class DomoAccount_Default(DomoEntity):
                 obj=res.response, data_provider_type=self.data_provider_type
             )
 
-        except dmde.DomoError as e:
+        except DomoError as e:
             if not is_suppress_no_config:
                 raise e from e
             print(e)
@@ -398,8 +407,3 @@ class DomoAccount_Default(DomoEntity):
             account_config=deepcopy(self.Config),
             debug_api=debug_api,
         )
-
-
-class AccountClass_CRUD_Error(dmde.ClassError):
-    def __init__(self, cls_instance, message):
-        super().__init__(cls_instance=cls_instance, message=message)
