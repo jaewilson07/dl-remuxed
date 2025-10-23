@@ -127,7 +127,7 @@ class DomoCard(DomoEntity_w_Lineage):
 
         return domo_card
 
-    async def _get_entity_by_id(
+    async def get_entity_by_id(
         cls,
         entity_id: str,
         auth: DomoAuth,

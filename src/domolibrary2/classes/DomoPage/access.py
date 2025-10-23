@@ -2,26 +2,45 @@
 
 __all__ = ["test_page_access", "get_accesslist", "share"]
 
+from typing import Dict, List, Optional, Union
+
 import httpx
 
 from .. import DomoUser as dmu
-
 from ...client.auth import DomoAuth
-from ...routes import page as page_routes, datacenter as datacenter_routes
+from ...client.response import ResponseGetData
+from ...routes import datacenter as datacenter_routes
+from ...routes import page as page_routes
 from ...utils import chunk_execution as dmce
 from .exceptions import Page_NoAccess
 
 
 async def test_page_access(
     self,
-    suppress_no_access_error: bool = False,  # suppresses error if user doesn't have access
+    suppress_no_access_error: bool = False,
     debug_api: bool = False,
     return_raw: bool = False,
-    session: httpx.AsyncClient = None,
-    debug_num_stacks_to_drop=2,
-):
-    """throws an error if user doesn't have access to the page
-    API returns the owners of the page
+    session: Optional[httpx.AsyncClient] = None,
+    debug_num_stacks_to_drop: int = 2,
+) -> ResponseGetData:
+    """Test if the authenticated user has access to the page.
+    
+    This method calls the page access test API endpoint which returns the page owners.
+    If the user doesn't have access, it raises a Page_NoAccess exception unless suppressed.
+    
+    Args:
+        suppress_no_access_error: If True, suppresses the Page_NoAccess exception when
+            user doesn't have access. Defaults to False.
+        debug_api: Enable detailed API request/response logging. Defaults to False.
+        return_raw: Return raw ResponseGetData without processing. Defaults to False.
+        session: Optional httpx client session for connection reuse.
+        debug_num_stacks_to_drop: Number of stack frames to drop in debug output. Defaults to 2.
+    
+    Returns:
+        ResponseGetData object containing page access information and owner list.
+    
+    Raises:
+        Page_NoAccess: If user doesn't have access and suppress_no_access_error is False.
     """
 
     res = await page_routes.get_page_access_test(
@@ -59,12 +78,45 @@ async def test_page_access(
 
 async def get_accesslist(
     self,
-    auth: DomoAuth = None,
+    auth: Optional[DomoAuth] = None,
     return_raw: bool = False,
     debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-    debug_num_stacks_to_drop=2,
-):
+    session: Optional[httpx.AsyncClient] = None,
+    debug_num_stacks_to_drop: int = 2,
+) -> Union[ResponseGetData, Dict[str, Union[int, List]]]:
+    """Retrieve the access list for the page showing users and groups with access.
+    
+    This method fetches the comprehensive access list for a page, including:
+    - Users with explicit share permissions
+    - Groups with access permissions
+    - User ownership information (direct or through group membership)
+    - Group ownership information
+    
+    Args:
+        auth: Authentication object. If not provided, uses self.auth.
+        return_raw: Return raw ResponseGetData without processing. Defaults to False.
+        debug_api: Enable detailed API request/response logging. Defaults to False.
+        session: Optional httpx client session for connection reuse.
+        debug_num_stacks_to_drop: Number of stack frames to drop in debug output. Defaults to 2.
+    
+    Returns:
+        If return_raw is True:
+            ResponseGetData object containing raw access list data.
+        If return_raw is False:
+            Dictionary containing:
+                - explicit_shared_user_count (int): Number of users with explicit shares
+                - total_user_count (int): Total number of users with access
+                - domo_users (List[DomoUser]): List of users with access, enriched with:
+                    - custom_attributes['is_explicit_share']: True if directly shared
+                    - custom_attributes['group_membership']: List of groups user belongs to
+                    - custom_attributes['is_owner']: True if user is an owner
+                - domo_groups (List[DomoGroup]): List of groups with access, enriched with:
+                    - custom_attributes['is_owner']: True if group is an owner
+    
+    Raises:
+        PageSharing_Error: If access list retrieval fails (raised by route function).
+        SearchPage_NotFound: If page with specified ID doesn't exist (raised by route function).
+    """
     auth = auth or self.auth
 
     res = await page_routes.get_page_access_list(
@@ -189,13 +241,35 @@ async def get_accesslist(
 
 async def share(
     self,
-    auth: DomoAuth = None,
-    domo_users: list = None,  # DomoUsers to share page with,
-    domo_groups: list = None,  # DomoGroups to share page with
-    message: str = None,  # message for automated email
+    auth: Optional[DomoAuth] = None,
+    domo_users: Optional[Union[List, object]] = None,
+    domo_groups: Optional[Union[List, object]] = None,
+    message: Optional[str] = None,
     debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-):
+    session: Optional[httpx.AsyncClient] = None,
+) -> ResponseGetData:
+    """Share the page with specified users and/or groups.
+    
+    This method shares the page with one or more users and/or groups. It uses the
+    datacenter share_resource route function to perform the sharing operation.
+    
+    Args:
+        auth: Authentication object. If not provided, uses self.auth.
+        domo_users: DomoUser object(s) to share page with. Can be a single DomoUser
+            or a list of DomoUser objects. Defaults to None.
+        domo_groups: DomoGroup object(s) to share page with. Can be a single DomoGroup
+            or a list of DomoGroup objects. Defaults to None.
+        message: Optional message to include in the automated email notification.
+        debug_api: Enable detailed API request/response logging. Defaults to False.
+        session: Optional httpx client session for connection reuse.
+    
+    Returns:
+        ResponseGetData object containing the sharing operation result.
+    
+    Raises:
+        Exception: Various exceptions may be raised by the datacenter share_resource
+            route function if the sharing operation fails.
+    """
     if domo_groups:
         domo_groups = domo_groups if isinstance(domo_groups, list) else [domo_groups]
     if domo_users:
