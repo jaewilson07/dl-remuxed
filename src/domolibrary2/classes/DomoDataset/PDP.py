@@ -239,22 +239,6 @@ class PDPPolicy(DomoEntity):
 
         return True
 
-    def to_api_dict(self) -> Dict[str, Any]:
-        """Convert policy to API format for Domo requests."""
-        user_relationships = self.get_users()
-        group_relationships = self.get_groups()
-
-        return {
-            "filterGroupId": self.filter_group_id,
-            "name": self.name,
-            "dataSourceId": self.dataset_id,
-            "parameters": [param.to_api_dict() for param in self.parameters],
-            "userIds": [rel.source_entity_id for rel in user_relationships],
-            "groupIds": [rel.source_entity_id for rel in group_relationships],
-            "virtualUserIds": [],  # Legacy field, typically empty
-            "enabled": self.is_enabled,
-            "priority": self.priority,
-        }
 
     @classmethod
     def from_api_dict(cls, data: Dict[str, Any]) -> "PDPPolicy":
