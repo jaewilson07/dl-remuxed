@@ -11,7 +11,7 @@ from typing import Any, Dict, List
 
 import httpx
 
-from ..client.entities import DomoEntity
+from ..entities.entities import DomoEntity
 from ..routes import cloud_amplifier as cloud_amplifier_routes
 
 

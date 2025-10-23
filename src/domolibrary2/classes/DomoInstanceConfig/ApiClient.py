@@ -15,7 +15,7 @@ import httpx
 
 from ...client import response as rgd
 from ...client.auth import DomoAuth
-from ...client.entities import DomoEntity
+from ...entities.entities import DomoEntity
 from ...client.exceptions import DomoError
 from ...routes.instance_config import (
     api_client as client_routes,

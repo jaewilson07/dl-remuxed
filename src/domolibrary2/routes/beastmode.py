@@ -1,5 +1,29 @@
+"""
+BeastMode Route Functions
+
+This module provides functions for managing Domo BeastModes (calculated fields)
+including search, retrieval, locking operations, and finding BeastModes associated
+with cards, datasets, and pages.
+
+Functions:
+    search_beastmodes: Search for BeastModes with filters
+    lock_beastmode: Lock or unlock a BeastMode
+    get_beastmode_by_id: Retrieve a specific BeastMode by ID
+    get_card_beastmodes: Get BeastModes associated with a card
+    get_dataset_beastmodes: Get BeastModes associated with a dataset
+    get_page_beastmodes: Get BeastModes associated with a page
+    generate_beastmode_body: Utility function for building search request body
+
+Exception Classes:
+    BeastMode_GET_Error: Raised when BeastMode retrieval fails
+    BeastMode_CRUD_Error: Raised when BeastMode create/update/delete operations fail
+    SearchBeastMode_NotFound: Raised when BeastMode search returns no results
+"""
+
 __all__ = [
-    "BeastModes_API_Error",
+    "BeastMode_GET_Error",
+    "BeastMode_CRUD_Error",
+    "SearchBeastMode_NotFound",
     "Search_BeastModeLink",
     "generate_beastmode_body",
     "search_beastmodes",
@@ -8,21 +32,102 @@ __all__ = [
     "get_card_beastmodes",
     "get_dataset_beastmodes",
     "get_page_beastmodes",
+    # Legacy export for backward compatibility
+    "BeastModes_API_Error",
 ]
 
 from enum import Enum
-from typing import List
+from typing import List, Optional
 
 import httpx
 
-from ..client import exceptions as dmde, get_data as gd, response as rgd
-from ..client.entities import DomoEnumMixin
+from ..client.exceptions import RouteError
+from ..client import get_data as gd, response as rgd
+from ..client.auth import DomoAuth
+from ..entities.base import DomoEnumMixin
 from ..utils import chunk_execution as dmce
 
 
-class BeastModes_API_Error(dmde.RouteError):
-    def __init__(self, res: rgd.ResponseGetData, message: str = None):
-        super().__init__(res=res, message=message)
+class BeastMode_GET_Error(RouteError):
+    """
+    Raised when BeastMode retrieval operations fail.
+
+    This exception is used for failures during GET operations on BeastModes,
+    including API errors and unexpected response formats.
+    """
+
+    def __init__(
+        self,
+        entity_id: Optional[str] = None,
+        res: Optional[rgd.ResponseGetData] = None,
+        message: Optional[str] = None,
+        **kwargs,
+    ):
+        if not message:
+            if entity_id:
+                message = f"Failed to retrieve BeastMode {entity_id}"
+            else:
+                message = "Failed to retrieve BeastModes"
+
+        super().__init__(message=message, entity_id=entity_id, res=res, **kwargs)
+
+
+class BeastMode_CRUD_Error(RouteError):
+    """
+    Raised when BeastMode create, update, or delete operations fail.
+
+    This exception is used for failures during lock/unlock operations
+    or other modification operations on BeastModes.
+    """
+
+    def __init__(
+        self,
+        operation: str,
+        entity_id: Optional[str] = None,
+        res: Optional[rgd.ResponseGetData] = None,
+        message: Optional[str] = None,
+        **kwargs,
+    ):
+        if not message:
+            if entity_id:
+                message = f"BeastMode {operation} failed for BeastMode {entity_id}"
+            else:
+                message = f"BeastMode {operation} operation failed"
+
+        super().__init__(
+            message=message,
+            entity_id=entity_id,
+            res=res,
+            additional_context={"operation": operation},
+            **kwargs,
+        )
+
+
+class SearchBeastMode_NotFound(RouteError):
+    """
+    Raised when BeastMode search operations return no results.
+
+    This exception is used when searching for specific BeastModes that
+    don't exist or when search criteria match no BeastModes.
+    """
+
+    def __init__(
+        self,
+        search_criteria: str,
+        res: Optional[rgd.ResponseGetData] = None,
+        **kwargs,
+    ):
+        message = f"No BeastModes found matching: {search_criteria}"
+        super().__init__(
+            message=message,
+            res=res,
+            additional_context={"search_criteria": search_criteria},
+            **kwargs,
+        )
+
+
+# Legacy alias for backward compatibility
+BeastModes_API_Error = BeastMode_GET_Error
 
 
 class Search_BeastModeLink(DomoEnumMixin, Enum):
@@ -53,14 +158,41 @@ def generate_beastmode_body(
 @gd.route_function
 async def search_beastmodes(
     auth: DomoAuth,
-    filters: List[dict] = None,
-    session: httpx.AsyncClient = None,
+    filters: Optional[List[dict]] = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
+    debug_num_stacks_to_drop: int = 1,
     debug_loop: bool = False,
-    parent_class=None,
+    parent_class: Optional[str] = None,
     return_raw: bool = False,
-):
+) -> rgd.ResponseGetData:
+    """
+    Search for BeastModes with optional filters.
+
+    Searches for BeastModes (calculated fields) in the Domo instance using
+    optional filter criteria. Returns a paginated list of matching BeastModes.
+
+    Args:
+        auth: Authentication object containing instance and credentials
+        filters: Optional list of filter dictionaries to apply to the search
+        session: Optional HTTP client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to omit in debug output
+        debug_loop: Enable detailed loop iteration logging
+        parent_class: Name of calling class for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing list of BeastModes
+
+    Raises:
+        BeastMode_GET_Error: If search operation fails
+
+    Example:
+        >>> beastmodes_res = await search_beastmodes(auth)
+        >>> for bm in beastmodes_res.response:
+        ...     print(f"BeastMode: {bm['name']}, ID: {bm['id']}")
+    """
     offset_params = {
         "offset": "offset",
         "limit": "limit",
@@ -89,22 +221,52 @@ async def search_beastmodes(
         parent_class=parent_class,
     )
 
+    if return_raw:
+        return res
+
     if not res.is_success:
-        raise BeastModes_API_Error(res=res)
+        raise BeastMode_GET_Error(res=res)
 
     return res
 
 
 @gd.route_function
 async def lock_beastmode(
-    beastmode_id,
-    is_locked: bool,
     auth: DomoAuth,
-    session: httpx.AsyncClient = None,
+    beastmode_id: str,
+    is_locked: bool,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class: str = None,
-):
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
+    """
+    Lock or unlock a BeastMode.
+
+    Sets the lock status of a BeastMode to prevent or allow modifications.
+    Locked BeastModes cannot be edited or deleted.
+
+    Args:
+        auth: Authentication object containing instance and credentials
+        beastmode_id: Unique identifier for the BeastMode
+        is_locked: True to lock the BeastMode, False to unlock it
+        session: Optional HTTP client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to omit in debug output
+        parent_class: Name of calling class for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing the updated BeastMode data
+
+    Raises:
+        BeastMode_CRUD_Error: If lock/unlock operation fails
+
+    Example:
+        >>> result = await lock_beastmode(auth, "beastmode-123", is_locked=True)
+        >>> print(f"BeastMode locked: {result.is_success}")
+    """
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/functions/template/{beastmode_id}"
 
     body = {"locked": is_locked}
@@ -120,21 +282,58 @@ async def lock_beastmode(
         parent_class=parent_class,
     )
 
+    if return_raw:
+        return res
+
     if not res.is_success:
-        raise BeastModes_API_Error(res=res)
+        operation = "lock" if is_locked else "unlock"
+        raise BeastMode_CRUD_Error(
+            operation=operation,
+            entity_id=str(beastmode_id),
+            res=res,
+        )
 
     return res
 
 
 @gd.route_function
 async def get_beastmode_by_id(
-    beastmode_id,
     auth: DomoAuth,
-    session: httpx.AsyncClient = None,
+    beastmode_id: str,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class: str = None,
-):
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
+    """
+    Retrieve a specific BeastMode by its ID.
+
+    Fetches details for a single BeastMode identified by its unique ID.
+    Returns information about the BeastMode including its formula, name,
+    and associated resources.
+
+    Args:
+        auth: Authentication object containing instance and credentials
+        beastmode_id: Unique identifier for the BeastMode to retrieve
+        session: Optional HTTP client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to omit in debug output
+        parent_class: Name of calling class for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing the specific BeastMode data
+
+    Raises:
+        BeastMode_GET_Error: If BeastMode retrieval fails
+        SearchBeastMode_NotFound: If no BeastMode with the specified ID exists
+
+    Example:
+        >>> beastmode_res = await get_beastmode_by_id(auth, "beastmode-123")
+        >>> bm_data = beastmode_res.response
+        >>> print(f"BeastMode: {bm_data['name']}")
+    """
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/functions/template/{beastmode_id}"
 
     res = await gd.get_data(
@@ -147,20 +346,56 @@ async def get_beastmode_by_id(
         parent_class=parent_class,
     )
 
+    if return_raw:
+        return res
+
     if not res.is_success:
-        raise BeastModes_API_Error(res=res)
+        if res.status == 404:
+            raise SearchBeastMode_NotFound(
+                search_criteria=f"ID: {beastmode_id}",
+                res=res,
+            )
+        else:
+            raise BeastMode_GET_Error(
+                entity_id=str(beastmode_id),
+                res=res,
+            )
 
     return res
 
 
 async def get_card_beastmodes(
-    card_id,
     auth: DomoAuth,
+    card_id: str,
     debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-    debug_num_stacks_to_drop=2,
+    session: Optional[httpx.AsyncClient] = None,
+    debug_num_stacks_to_drop: int = 2,
     return_raw: bool = False,
-):
+) -> List[dict]:
+    """
+    Get BeastModes associated with a specific card.
+
+    Retrieves all BeastModes that are linked to the specified card.
+    This function searches all BeastModes and filters for those with
+    links to the given card ID.
+
+    Args:
+        auth: Authentication object containing instance and credentials
+        card_id: Unique identifier for the card
+        debug_api: Enable detailed API request/response logging
+        session: Optional HTTP client session for connection reuse
+        debug_num_stacks_to_drop: Number of stack frames to omit in debug output
+        return_raw: Return raw API response without filtering
+
+    Returns:
+        List of BeastMode dictionaries containing id, name, locked status,
+        legacyId, status, and links
+
+    Example:
+        >>> card_beastmodes = await get_card_beastmodes(auth, "card-123")
+        >>> for bm in card_beastmodes:
+        ...     print(f"BeastMode: {bm['name']}")
+    """
     res = await search_beastmodes(
         auth=auth,
         debug_api=debug_api,
