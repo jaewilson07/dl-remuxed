@@ -42,7 +42,7 @@ import httpx
 import pandas as pd
 
 from ..client import auth as dmda, exceptions as de, get_data as gd, response as rgd
-from ..client.entities import DomoEnumMixin
+from ..entities.entities import DomoEnumMixin
 
 
 class DatasetNotFoundError(de.RouteError):

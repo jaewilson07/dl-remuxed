@@ -31,9 +31,12 @@ from typing import Optional
 
 import httpx
 
-from ...client import get_data as gd, response as rgd
+from ...client import (
+    get_data as gd,
+    response as rgd,
+)
 from ...client.auth import DomoAuth
-from ...client.entities import DomoEnumMixin
+from ...entities.entities import DomoEnumMixin
 from .exceptions import (
     CodeEngine_FunctionCallError,
     CodeEngine_GET_Error,
@@ -98,8 +101,8 @@ async def get_packages(
 
 @gd.route_function
 async def get_codeengine_package_by_id(
-    package_id: str,
     auth: DomoAuth,
+    package_id: str,
     params: Optional[dict] = None,
     session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
@@ -111,8 +114,8 @@ async def get_codeengine_package_by_id(
     Retrieve a specific codeengine package by ID.
 
     Args:
-        package_id: Package identifier
         auth: Authentication object
+        package_id: Package identifier
         params: Query parameters (optional, defaults to {"parts": "versions"})
         session: HTTP client session (optional)
         debug_api: Enable API debugging
@@ -133,7 +136,9 @@ async def get_codeengine_package_by_id(
             auth=auth,
         )
 
-    url = f"https://{auth.domo_instance}.domo.com/api/codeengine/v2/packages/{package_id}"
+    url = (
+        f"https://{auth.domo_instance}.domo.com/api/codeengine/v2/packages/{package_id}"
+    )
 
     params = params or {"parts": "versions"}
 
@@ -220,9 +225,9 @@ async def get_package_versions(
 
 @gd.route_function
 async def get_codeengine_package_by_id_and_version(
+    auth: DomoAuth,
     package_id: str,
     version: str,
-    auth: DomoAuth,
     params: Optional[dict] = None,
     session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
@@ -234,9 +239,9 @@ async def get_codeengine_package_by_id_and_version(
     Retrieve a specific codeengine package by ID and version.
 
     Args:
+        auth: Authentication object
         package_id: Package identifier
         version: Package version
-        auth: Authentication object
         params: Query parameters (optional, defaults to {"parts": "functions,code"})
         session: HTTP client session (optional)
         debug_api: Enable API debugging
@@ -313,11 +318,11 @@ async def test_package_is_released(
         existing_package
         or (
             await get_codeengine_package_by_id_and_version(
+                auth=auth,
                 package_id=package_id,
                 version=version,
-                auth=auth,
-                debug_api=debug_api,
                 params=params,
+                debug_api=debug_api,
                 session=session,
                 parent_class=parent_class,
                 debug_num_stacks_to_drop=debug_num_stacks_to_drop,
@@ -364,10 +369,10 @@ async def test_package_is_identical(
         existing_package
         or (
             await get_codeengine_package_by_id(
-                package_id=package_id,
                 auth=auth,
-                debug_api=debug_api,
+                package_id=package_id,
                 params=params,
+                debug_api=debug_api,
                 session=session,
                 parent_class=parent_class,
                 debug_num_stacks_to_drop=debug_num_stacks_to_drop,
