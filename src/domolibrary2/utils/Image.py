@@ -35,22 +35,24 @@ Note:
     Requires PIL (Pillow) and numpy for full functionality.
 """
 
-__all__ = [
-    "isBase64",
-    "handle_string_to_bytes_and_decode",
-    "handle_string_to_bytes_and_encode",
-    "are_same_image",
-    "ImageUtils",
-]
-
 import base64
 import io
 from typing import Union
 
 import numpy as np
 import PIL
+from PIL import Image
 
 from .exceptions import ImageProcessingError
+
+__all__ = [
+    "isBase64",
+    "handle_string_to_bytes_and_decode",
+    "handle_string_to_bytes_and_encode",
+    "are_same_image",
+    "ImageUtils",
+    "Image",
+]
 
 
 def isBase64(s: Union[str, bytes]) -> bool:
@@ -169,7 +171,7 @@ def are_same_image(image1, image2) -> bool:
         print(f"Image comparison error: {e}")
         return False
     except Exception as e:
-        raise ImageProcessingError("compare images", str(e))
+        raise ImageProcessingError("compare images", str(e)) from e
 
 
 class ImageUtils:
@@ -210,7 +212,7 @@ class ImageUtils:
             return byte_arr.getvalue()
 
         except Exception as e:
-            raise ImageProcessingError("convert image to bytes", str(e))
+            raise ImageProcessingError("convert image to bytes", str(e)) from e
 
     @staticmethod
     def crop_square(image):
@@ -245,7 +247,7 @@ class ImageUtils:
             return image.crop((left, top, right, bottom))
 
         except Exception as e:
-            raise ImageProcessingError("crop image to square", str(e))
+            raise ImageProcessingError("crop image to square", str(e)) from e
 
     @classmethod
     def from_image_file(cls, image_path: str):
@@ -276,7 +278,9 @@ class ImageUtils:
             return PIL.Image.open(io.BytesIO(data))
 
         except Exception as e:
-            raise ImageProcessingError(f"load image from file {image_path}", str(e))
+            raise ImageProcessingError(
+                f"load image from file {image_path}", str(e)
+            ) from e
 
     @classmethod
     def from_bytestr(cls, data: Union[str, bytes]):
@@ -308,4 +312,4 @@ class ImageUtils:
             return PIL.Image.open(io.BytesIO(data))
 
         except Exception as e:
-            raise ImageProcessingError("load image from bytes/string", str(e))
+            raise ImageProcessingError("load image from bytes/string", str(e)) from e

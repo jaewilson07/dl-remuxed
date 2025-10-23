@@ -19,8 +19,8 @@ from ...client.exceptions import ClassError, DomoError
 from ...entities.entities import DomoEntity
 from ...routes import account as account_routes
 from ...utils import convert as cd
-from ..subentity.DomoAccess import DomoAccess_Account
-from .Config import AccountConfig, DomoAccount_Config
+from .access import DomoAccess_Account
+from .config import AccountConfig, DomoAccount_Config
 
 
 class Account_CanIModify(ClassError):
@@ -71,6 +71,10 @@ class DomoAccount_Default(DomoEntity):
     Config: DomoAccount_Config = field(repr=False, default=None)
     Access: DomoAccess_Account = field(repr=False, default=None)
 
+    @property
+    def entity_type(self):
+        return "ACCOUNT"
+
     def __post_init__(self):
         self.id = int(self.id)
 
@@ -89,19 +93,11 @@ class DomoAccount_Default(DomoEntity):
         obj: dict,
         is_admin_summary: bool = True,
         new_cls: Any = None,
-        is_use_default_account_class: bool = False,  # allows for subclassing
         **kwargs,
     ):
         """converts data_v1_accounts API response into an accounts class object"""
 
-        if not is_use_default_account_class:
-            if not new_cls:
-                raise NotImplementedError(
-                    "must pass new_cls if not using default class"
-                )
-            cls = new_cls
-
-        return cls(
+        return new_cls(
             id=obj.get("id") or obj.get("databaseId"),
             name=obj.get("displayName"),
             data_provider_type=obj.get("dataProviderId") or obj.get("dataProviderType"),
@@ -115,6 +111,7 @@ class DomoAccount_Default(DomoEntity):
             is_admin_summary=is_admin_summary,
             owners=obj.get("owners"),
             raw=obj,
+            Relations=None,
             **kwargs,
         )
 

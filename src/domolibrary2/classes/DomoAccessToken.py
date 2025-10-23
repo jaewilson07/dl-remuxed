@@ -7,18 +7,19 @@ from typing import Any, List
 
 import httpx
 
-from ..client import entities as dmee
-from ..client.auth import DomoAuth
-from ..client.entities import DomoManager
-from ..routes import access_token as access_token_routes
 from ..utils import (
-    chunk_execution as ce,
+    chunk_execution as dmce,
     convert as dmcv,
 )
 
+from ..entities.entities import DomoEntity, DomoManager
+from ..client.auth import DomoAuth
+
+from ..routes import access_token as access_token_routes
+
 
 @dataclass
-class DomoAccessToken(dmee.DomoEntity):
+class DomoAccessToken(DomoEntity):
     auth: DomoAuth = field(repr=False)
     id: int
     name: str
@@ -36,19 +37,16 @@ class DomoAccessToken(dmee.DomoEntity):
     def days_till_expiration(self):
         return (self.expiration_date - dt.datetime.now()).days
 
-    @property
     def display_url(self):
         return f"https://{self.auth.domo_instance}.domo.com/admin/security/accesstokens"
 
     @classmethod
-    async def from_dict(
+    def from_dict(
         cls,
         auth: DomoAuth,
         obj: dict,
+        owner: Any = None,
     ):
-        from . import DomoUser as dmu
-
-        owner = await dmu.DomoUser.get_by_id(user_id=obj["ownerId"], auth=auth)
 
         return cls(
             id=obj["id"],
@@ -58,7 +56,14 @@ class DomoAccessToken(dmee.DomoEntity):
             auth=auth,
             token=obj.get("token"),
             raw=obj,
+            Relations=None,
         )
+
+    @staticmethod
+    async def _get_owner(owner_id, auth: DomoAuth):
+        from . import DomoUser as dmu
+
+        return await dmu.DomoUser.get_by_id(user_id=owner_id, auth=auth)
 
     @classmethod
     async def get_by_id(
@@ -70,6 +75,7 @@ class DomoAccessToken(dmee.DomoEntity):
         debug_num_stacks_to_drop: int = 2,
         return_raw: bool = False,
     ):
+
         res = await access_token_routes.get_access_token_by_id(
             auth=auth,
             access_token_id=access_token_id,
@@ -82,7 +88,11 @@ class DomoAccessToken(dmee.DomoEntity):
         if return_raw:
             return res
 
-        return await cls.from_dict(obj=res.response, auth=auth)
+        obj = res.response
+
+        owner = await cls._get_owner(owner_id=obj["ownerId"], auth=auth)
+
+        return cls.from_dict(obj=obj, auth=auth, owner=owner)
 
     @classmethod
     async def generate(
@@ -110,7 +120,7 @@ class DomoAccessToken(dmee.DomoEntity):
         if return_raw:
             return res
 
-        return await cls.from_dict(obj=res.response, auth=auth)
+        return cls.from_dict(obj=res.response, auth=auth, owner=owner)
 
     async def revoke(
         self,
@@ -148,7 +158,6 @@ class DomoAccessToken(dmee.DomoEntity):
             session=session,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
             return_raw=return_raw,
-            parent_class=self.__class__.__name__,
         )
 
         self.id = new_token.id
@@ -182,9 +191,12 @@ class DomoAccessTokens(DomoManager):
         if return_raw:
             return res
 
-        return await ce.gather_with_concurrency(
+        return await dmce.gather_with_concurrency(
             *[
-                DomoAccessToken.from_dict(obj=obj, auth=self.auth)
+                DomoAccessToken.get_by_id(
+                    access_token_id=obj["id"],
+                    auth=self.auth,
+                )
                 for obj in res.response
             ],
             n=10,
@@ -208,7 +220,6 @@ class DomoAccessTokens(DomoManager):
             debug_api=debug_api,
             session=session,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-            parent_class=self.__class__.__name__,
             return_raw=return_raw,
         )
 

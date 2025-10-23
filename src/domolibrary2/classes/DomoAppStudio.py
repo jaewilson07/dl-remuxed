@@ -11,7 +11,7 @@ from ..entities.entities import DomoEntity_w_Lineage
 from ..routes import appstudio as appstudio_routes
 from ..utils import (
     DictDot as util_dd,
-    chunk_execution as ce,
+    chunk_execution as dmce,
 )
 from . import DomoUser as dmdu
 from .subentity.lineage import DomoLineage
@@ -94,7 +94,7 @@ class DomoAppStudio(DomoEntity_w_Lineage):
         ]
 
         if len(owner_group_ls) > 0:
-            domo_groups = await ce.gather_with_concurrency(
+            domo_groups = await dmce.gather_with_concurrency(
                 n=60,
                 *[
                     dmg.DomoGroup.get_by_id(group_id=group_id, auth=self.auth)
@@ -186,7 +186,7 @@ class DomoAppStudio(DomoEntity_w_Lineage):
         group_ls = res.response.get("groups", None)
         domo_groups = []
         if group_ls and isinstance(group_ls, list) and len(group_ls) > 0:
-            domo_groups = await ce.gather_with_concurrency(
+            domo_groups = await dmce.gather_with_concurrency(
                 n=60,
                 *[
                     dmg.DomoGroup.get_by_id(group_id=group.get("id"), auth=auth)
@@ -283,7 +283,7 @@ class DomoAppStudios:
             if not res.is_success:
                 raise Exception("unable to retrieve appstudios")
 
-            return await ce.gather_with_concurrency(
+            return await dmce.gather_with_concurrency(
                 n=60,
                 *[
                     DomoAppStudio._from_adminsummary(page_obj, auth=auth)

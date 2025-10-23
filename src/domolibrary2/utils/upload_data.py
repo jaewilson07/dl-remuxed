@@ -5,6 +5,8 @@ import pandas as pd
 
 from ..classes import dataset as dmds
 
+from dc_logger import Logger
+
 
 async def loop_upload(
     upload_df: pd.DataFrame,
