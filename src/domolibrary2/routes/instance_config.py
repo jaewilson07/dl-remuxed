@@ -310,6 +310,7 @@ async def get_allowlist_is_filter_all_traffic_enabled(
     return res
 
 
+@gd.route_function
 async def toggle_allowlist_is_filter_all_traffic_enabled(
     auth: dmda.DomoFullAuth,
     is_enabled: bool,

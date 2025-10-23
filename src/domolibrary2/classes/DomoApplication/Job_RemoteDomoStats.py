@@ -10,12 +10,13 @@ from typing import List, Optional
 
 import httpx
 
-from ..classes.DomoApplication_Job_Base import (
+from ...client.auth import DomoAuth
+from .Job_Base import (
     DomoJob_Base,
     DomoTrigger,
     DomoTrigger_Schedule,
 )
-from ..routes import application as application_routes
+from ...routes import application as application_routes
 
 
 @dataclass

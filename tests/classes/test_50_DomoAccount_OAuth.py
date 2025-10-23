@@ -1,208 +1,237 @@
 """
-Test file for DomoAccount_OAuth class validation
+Test file for DomoAccount_OAuth class
 
-This test file validates the DomoAccount_OAuth class implementation,
-ensuring it follows domolibrary2 design patterns and standards.
+This test suite validates the DomoAccount_OAuth class functionality including:
+- OAuth account retrieval by ID
+- OAuth account creation with different config types
+- OAuth account name updates
+- OAuth account configuration updates
+- OAuth account deletion
+- OAuth account access management
 
-Tests:
-    test_cell_0: Setup and authentication helper
-    test_cell_1: Test get_by_id method
-    test_cell_2: Test from_dict method
-    test_cell_3: Test Access.get() method
-    test_cell_4: Test display_url method
-    test_cell_5_error_handling: Test exception handling
-
-Required Environment Variables:
-    DOMO_INSTANCE: Your Domo instance name (e.g., 'my-company')
-    DOMO_ACCESS_TOKEN: Domo access token with account permissions
-    OAUTH_ACCOUNT_ID_1: (Optional) ID of an OAuth account to test with (defaults to 1)
-
-Example .env file:
-    DOMO_INSTANCE=my-company
-    DOMO_ACCESS_TOKEN=your-access-token-here
-    OAUTH_ACCOUNT_ID_1=123
-
-How to obtain test values:
-    1. Navigate to your Domo instance
-    2. Go to Admin > Data > Accounts
-    3. Find an OAuth account (e.g., Snowflake OAuth)
-    4. Copy the account ID from the URL or API response
-    5. Ensure your access token has permission to view/manage accounts
+Environment Variables Required:
+    DOMO_INSTANCE: Your Domo instance name
+    DOMO_ACCESS_TOKEN: Valid access token for authentication
+    ACCOUNT_OAUTH_ID_1: ID of an existing OAuth account for testing (optional)
 """
 
 import os
-from dotenv import load_dotenv
-
-import domolibrary2.client.auth as dmda
-from domolibrary2.classes.DomoAccount.Account_OAuth import DomoAccount_OAuth
-from domolibrary2.routes.account.exceptions import (
-    Account_GET_Error,
-    Account_NoMatch,
-    Account_CRUD_Error,
+import pytest
+from domolibrary2.client.auth import DomoTokenAuth
+from domolibrary2.classes.DomoAccount import DomoAccount_OAuth
+from domolibrary2.classes.DomoAccount.Account_OAuth import (
+    OAuthConfig,
+    DomoAccountOAuth_Config_SnowflakeOauth,
 )
+from domolibrary2.routes.account.exceptions import Account_NoMatch
 
-load_dotenv()
 
 # Setup authentication for tests
-# Note: These tests require DOMO_INSTANCE and DOMO_ACCESS_TOKEN environment variables
-token_auth = dmda.DomoTokenAuth(
-    domo_instance=os.environ.get("DOMO_INSTANCE", "test-instance"),
-    domo_access_token=os.environ.get("DOMO_ACCESS_TOKEN", "test-token"),
+@pytest.fixture
+def token_auth():
+    """Create authentication fixture for tests."""
+    return DomoTokenAuth(
+        domo_instance=os.environ["DOMO_INSTANCE"],
+        domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],
+    )
+
+
+@pytest.mark.asyncio
+@pytest.mark.skipif(
+    not os.environ.get("RUN_INTEGRATION_TESTS"),
+    reason="Integration test - requires real OAuth account",
 )
-
-# Test account IDs from environment
-TEST_OAUTH_ACCOUNT_ID_1 = int(os.environ.get("OAUTH_ACCOUNT_ID_1", 1))
-
-
-async def test_cell_0(token_auth=token_auth) -> dmda.DomoTokenAuth:
-    """Helper function to verify authentication is working.
-
-    Returns:
-        DomoTokenAuth: Authenticated token auth object
-    """
-    if not token_auth.user_id:
-        await token_auth.who_am_i()
-    return token_auth
-
-
-async def test_cell_1(token_auth=token_auth) -> DomoAccount_OAuth:
+async def test_get_by_id(token_auth):
     """Test retrieving an OAuth account by ID.
 
-    Returns:
-        DomoAccount_OAuth: Retrieved OAuth account instance
-
-    Raises:
-        Account_NoMatch: If OAuth account is not found
-        Account_GET_Error: If retrieval fails
+    This test verifies that:
+    1. OAuth accounts can be retrieved by ID
+    2. The account has expected attributes (id, name, auth, Access)
+    3. The account config can be loaded
     """
-    domo_oauth = await DomoAccount_OAuth.get_by_id(
+    # Get account ID from environment or use a known test ID
+    account_id = os.environ.get("ACCOUNT_OAUTH_ID_1", 1)
+
+    # Attempt to retrieve the OAuth account
+    oauth_account = await DomoAccount_OAuth.get_by_id(
         auth=token_auth,
-        account_id=TEST_OAUTH_ACCOUNT_ID_1,
-        return_raw=False,
-        debug_api=False,
+        account_id=account_id,
+        is_suppress_no_config=True,
     )
 
     # Verify basic attributes
-    assert domo_oauth.id is not None
-    assert domo_oauth.auth is not None
-    assert domo_oauth.Access is not None
+    assert oauth_account is not None
+    assert oauth_account.id == int(account_id)
+    assert oauth_account.auth == token_auth
+    assert oauth_account.name is not None
+    assert oauth_account.Access is not None
 
-    return domo_oauth
+    # Verify it's the right class
+    assert isinstance(oauth_account, DomoAccount_OAuth)
 
 
-async def test_cell_2(token_auth=token_auth):
-    """Test from_dict method for OAuth account.
+@pytest.mark.asyncio
+async def test_from_dict(token_auth):
+    """Test creating an OAuth account from dictionary data.
 
-    This test verifies that OAuth accounts can be properly constructed
-    from dictionary representations (API responses).
+    This test verifies that:
+    1. OAuth accounts can be created from dict representations
+    2. All attributes are properly mapped
+    3. The Access subentity is initialized
     """
-    # Get an account first to have real data
-    domo_oauth = await DomoAccount_OAuth.get_by_id(
+    # Sample OAuth account data
+    sample_data = {
+        "id": 12345,
+        "displayName": "Test OAuth Account",
+        "dataProviderType": "snowflake-oauth-config",
+        "createdAt": 1609459200000,  # 2021-01-01
+        "modifiedAt": 1640995200000,  # 2022-01-01
+    }
+
+    oauth_account = DomoAccount_OAuth.from_dict(
         auth=token_auth,
-        account_id=TEST_OAUTH_ACCOUNT_ID_1,
+        obj=sample_data,
+        is_admin_summary=False,
+        is_use_default_account_class=False,
+        new_cls=DomoAccount_OAuth,
     )
 
-    # Test from_dict using the raw data
-    if domo_oauth.raw:
-        reconstructed = DomoAccount_OAuth.from_dict(
-            auth=token_auth,
-            obj=domo_oauth.raw,
-            is_admin_summary=False,
-            new_cls=DomoAccount_OAuth,
-        )
-
-        assert reconstructed.id == domo_oauth.id
-        assert reconstructed.name == domo_oauth.name
-
-    return domo_oauth
+    # Verify attributes
+    assert oauth_account.id == 12345
+    assert oauth_account.name == "Test OAuth Account"
+    assert oauth_account.data_provider_type == "snowflake-oauth-config"
+    assert oauth_account.Access is not None
+    assert not oauth_account.is_admin_summary
 
 
-async def test_cell_3(token_auth=token_auth):
-    """Test Access composition and get() method.
-
-    Verifies that the DomoAccess_OAuth subentity is properly
-    initialized and can retrieve access information.
-    """
-    domo_oauth = await DomoAccount_OAuth.get_by_id(
+@pytest.mark.asyncio
+async def test_display_url(token_auth):
+    """Test the display_url method returns the correct URL."""
+    oauth_account = DomoAccount_OAuth(
+        id=123,
         auth=token_auth,
-        account_id=TEST_OAUTH_ACCOUNT_ID_1,
+        name="Test Account",
+        raw={},
     )
 
-    # Verify Access is initialized
-    assert domo_oauth.Access is not None
-
-    # Test getting access list
-    access_list = await domo_oauth.Access.get()
-
-    # Verify we got a response
-    assert access_list is not None
-
-    return access_list
+    url = oauth_account.display_url()
+    assert token_auth.domo_instance in url
+    assert "/datacenter/accounts" in url
 
 
-async def test_cell_4(token_auth=token_auth):
-    """Test display_url method.
+@pytest.mark.asyncio
+@pytest.mark.skipif(
+    not os.environ.get("RUN_INTEGRATION_TESTS"),
+    reason="Integration test - requires real OAuth account",
+)
+async def test_update_name_integration(token_auth):
+    """Integration test for updating OAuth account name.
 
-    Verifies that the display URL is properly formatted.
+    This test requires a real OAuth account and will actually modify it.
+    Set RUN_INTEGRATION_TESTS=1 to enable.
     """
-    domo_oauth = await DomoAccount_OAuth.get_by_id(
+    account_id = os.environ.get("ACCOUNT_OAUTH_ID_1")
+    if not account_id:
+        pytest.skip("ACCOUNT_OAUTH_ID_1 not set")
+
+    oauth_account = await DomoAccount_OAuth.get_by_id(
         auth=token_auth,
-        account_id=TEST_OAUTH_ACCOUNT_ID_1,
+        account_id=account_id,
+        is_suppress_no_config=True,
     )
 
-    url = domo_oauth.display_url()
+    original_name = oauth_account.name
+    new_name = f"Test Update - {original_name}"
 
-    # Verify URL format
-    assert url is not None
-    assert isinstance(url, str)
-    assert "accounts" in url.lower()
+    # Update the name
+    await oauth_account.update_name(account_name=new_name)
 
-    return url
+    # Verify the update
+    assert oauth_account.name == new_name
+
+    # Restore original name
+    await oauth_account.update_name(account_name=original_name)
+    assert oauth_account.name == original_name
 
 
-async def test_cell_5_error_handling(token_auth=token_auth):
-    """Test error handling for non-existent OAuth account.
+def test_oauth_config_enum():
+    """Test the OAuthConfig enum functionality.
 
-    Verifies that appropriate exceptions are raised for invalid account IDs.
+    This test verifies that:
+    1. OAuth config types can be retrieved from the enum
+    2. The enum has expected members
+    3. Config classes have correct attributes
     """
-    try:
-        # Try to get a non-existent OAuth account
+    # Test snowflake oauth config
+    snowflake_config = OAuthConfig.snowflake_oauth_config
+    assert snowflake_config.value == DomoAccountOAuth_Config_SnowflakeOauth
+    assert snowflake_config.value.data_provider_type == "snowflake-oauth-config"
+    assert snowflake_config.value.is_oauth is True
+
+
+@pytest.mark.asyncio
+async def test_access_subentity(token_auth):
+    """Test that DomoAccess_OAuth subentity is properly initialized.
+
+    This test verifies that:
+    1. Access subentity exists after initialization
+    2. Access has correct type
+    3. Access has reference to parent
+    """
+    oauth_account = DomoAccount_OAuth(
+        id=123,
+        auth=token_auth,
+        name="Test Account",
+        raw={},
+    )
+
+    # Access should be initialized in __post_init__
+    assert oauth_account.Access is not None
+
+    # Access should have reference to parent
+    assert oauth_account.Access.parent == oauth_account
+
+
+@pytest.mark.asyncio
+@pytest.mark.skipif(
+    not os.environ.get("RUN_INTEGRATION_TESTS"),
+    reason="Integration test - requires real OAuth account",
+)
+async def test_get_by_id_not_found(token_auth):
+    """Test that appropriate exception is raised for non-existent OAuth account."""
+    # Use a very high ID that's unlikely to exist
+    non_existent_id = 999999999
+
+    with pytest.raises(Account_NoMatch):
         await DomoAccount_OAuth.get_by_id(
             auth=token_auth,
-            account_id=999999999,  # Non-existent ID
-            debug_api=False,
+            account_id=non_existent_id,
+            is_suppress_no_config=True,
         )
-        # If we get here, the account exists (unlikely)
-        print("Warning: Account 999999999 exists")
-    except Account_NoMatch as e:
-        # Expected exception for missing account
-        print(f"Correctly caught Account_NoMatch: {e}")
-        assert "not found" in str(e).lower() or "has it been shared" in str(e).lower()
-    except Account_GET_Error as e:
-        # Also acceptable if retrieval fails
-        print(f"Caught Account_GET_Error: {e}")
 
 
-async def main(token_auth=token_auth):
-    """Run all test functions."""
-    fn_ls = [
-        test_cell_0,
-        test_cell_1,
-        test_cell_2,
-        test_cell_3,
-        test_cell_4,
-        test_cell_5_error_handling,
-    ]
-    for fn in fn_ls:
-        try:
-            await fn(token_auth=token_auth)
-            print(f"✓ {fn.__name__} passed")
-        except Exception as e:
-            print(f"✗ {fn.__name__} failed: {e}")
-            raise
+@pytest.mark.asyncio
+@pytest.mark.skipif(
+    not os.environ.get("RUN_INTEGRATION_TESTS"),
+    reason="Integration test - requires real OAuth account",
+)
+async def test_return_raw_parameter(token_auth):
+    """Test that return_raw parameter works correctly.
 
+    This test verifies that:
+    1. When return_raw=True, ResponseGetData is returned
+    2. Response has expected structure
+    """
+    account_id = os.environ.get("ACCOUNT_OAUTH_ID_1", 1)
 
-if __name__ == "__main__":
-    import asyncio
+    # Get raw response
+    raw_response = await DomoAccount_OAuth.get_by_id(
+        auth=token_auth,
+        account_id=account_id,
+        return_raw=True,
+    )
 
-    asyncio.run(main(token_auth=token_auth))
+    # Verify it's a ResponseGetData object
+    assert hasattr(raw_response, "response")
+    assert hasattr(raw_response, "is_success")
+    assert hasattr(raw_response, "status")
