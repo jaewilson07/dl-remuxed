@@ -77,13 +77,13 @@ class DomoInstanceConfig:
         self.SSO = dicsso.SSO(auth=self.auth)
 
 
-async def get_applications(
+    async def get_applications(
     self,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
     return_raw: bool = False,
     debug_num_stacks_to_drop=2,
-):
+        ):
     from . import DomoApplication as dmapp
 
     res = await application_routes.get_applications(
@@ -102,13 +102,13 @@ async def get_applications(
     ]
 
 
-async def generate_applications_report(
+    async def generate_applications_report(
     self,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
     return_raw: bool = False,
     debug_num_stacks_to_drop=2,
-):
+        ):
     domo_apps = await self.get_applications(
         debug_api=debug_api,
         session=session,
@@ -136,12 +136,12 @@ async def generate_applications_report(
     return df.sort_index(axis=1)
 
 
-async def get_authorized_domains(
+    async def get_authorized_domains(
     self: DomoInstanceConfig,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
     return_raw: bool = False,
-) -> List[str]:
+        ) -> List[str]:
     """returns a list of authorized domains (str) does not update instance_config"""
 
     res = await instance_config_routes.get_authorized_domains(
@@ -154,13 +154,13 @@ async def get_authorized_domains(
     return res.response
 
 
-async def set_authorized_domains(
+    async def set_authorized_domains(
     self: DomoInstanceConfig,
     authorized_domains: List[str],
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
     session: httpx.AsyncClient = None,
-):
+        ):
     res = await instance_config_routes.set_authorized_domains(
         auth=self.auth,
         authorized_domain_ls=authorized_domains,
@@ -173,13 +173,13 @@ async def set_authorized_domains(
     return res
 
 
-async def upsert_authorized_domains(
+    async def upsert_authorized_domains(
     self: DomoInstanceConfig,
     authorized_domains: List[str],
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
     debug_num_stacks_to_drop=2,
-):
+        ):
     existing_domains = await self.get_authorized_domains(
         debug_api=debug_api,
         session=session,
@@ -196,13 +196,13 @@ async def upsert_authorized_domains(
     )
 
 
-async def get_authorized_custom_app_domains(
+    async def get_authorized_custom_app_domains(
     self: DomoInstanceConfig,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
     return_raw: bool = False,
     debug_num_stacks_to_drop=2,
-) -> List[str]:
+        ) -> List[str]:
     res = await instance_config_routes.get_authorized_custom_app_domains(
         auth=self.auth,
         debug_api=debug_api,
@@ -218,14 +218,14 @@ async def get_authorized_custom_app_domains(
     return res.response
 
 
-# | exporti
-async def set_authorized_custom_app_domains(
+        # | exporti
+    async def set_authorized_custom_app_domains(
     self: DomoInstanceConfig,
     authorized_domains: List[str],
     debug_api: bool = False,
     debug_num_stacks_to_drop=2,
     session: httpx.AsyncClient = None,
-):
+        ):
     res = await instance_config_routes.set_authorized_custom_app_domains(
         auth=self.auth,
         authorized_custom_app_domain_ls=authorized_domains,
@@ -238,13 +238,13 @@ async def set_authorized_custom_app_domains(
     return res
 
 
-async def upsert_authorized_custom_app_domains(
+    async def upsert_authorized_custom_app_domains(
     self: DomoInstanceConfig,
     authorized_domains: List[str],
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 2,
     session: httpx.AsyncClient = None,
-):
+        ):
     existing_domains = await self.get_authorized_custom_app_domains(
         debug_api=debug_api,
         session=session,
@@ -261,13 +261,13 @@ async def upsert_authorized_custom_app_domains(
     )
 
 
-async def get_sandbox_is_same_instance_promotion_enabled(
+    async def get_sandbox_is_same_instance_promotion_enabled(
     self: DomoInstanceConfig,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
     return_raw: bool = False,
     debug_num_stacks_to_drop=2,
-):
+        ):
     res = await sandbox_routes.get_is_allow_same_instance_promotion_enabled(
         auth=self.auth,
         session=session,
@@ -284,14 +284,14 @@ async def get_sandbox_is_same_instance_promotion_enabled(
     return res.response
 
 
-async def toggle_sandbox_allow_same_instance_promotion(
+    async def toggle_sandbox_allow_same_instance_promotion(
     self: DomoInstanceConfig,
     is_enabled: bool,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
     return_raw: bool = False,
     debug_num_stacks_to_drop=2,
-):
+        ):
     """will enable or disable same instance promotion for sandbox"""
 
     res = await sandbox_routes.toggle_allow_same_instance_promotion(
@@ -311,13 +311,13 @@ async def toggle_sandbox_allow_same_instance_promotion(
     return res_is_enabled
 
 
-async def get_is_user_invite_notification_enabled(
+    async def get_is_user_invite_notification_enabled(
     self: DomoInstanceConfig,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
     debug_num_stacks_to_drop: int = 2,
     return_raw: bool = False,
-):
+        ):
     """
     Admin > Company Settings > Admin Notifications
     Toggles whether user recieves 'You've been Domo'ed email
@@ -339,14 +339,14 @@ async def get_is_user_invite_notification_enabled(
     return res.response
 
 
-async def toggle_is_user_invite_notification_enabled(
+    async def toggle_is_user_invite_notification_enabled(
     self: DomoInstanceConfig,
     is_enabled: bool,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
     debug_num_stacks_to_drop: int = 2,
     return_raw: bool = False,
-):
+        ):
     res_is_enabled = await self.get_is_user_invite_notification_enabled()
 
     if is_enabled == self.is_user_invite_notification_enabled:
@@ -369,7 +369,7 @@ async def toggle_is_user_invite_notification_enabled(
     return res_is_enabled
 
 
-class InstanceConfig_ClassError(dmde.ClassError):
+    class InstanceConfig_ClassError(dmde.ClassError):
     def __init__(self, cls_instance, message):
         super().__init__(
             cls_instance=cls_instance,
@@ -378,14 +378,14 @@ class InstanceConfig_ClassError(dmde.ClassError):
         )
 
 
-async def get_is_invite_social_users_enabled(
+    async def get_is_invite_social_users_enabled(
     self: DomoInstanceConfig,
     customer_id: str = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=2,
     session: httpx.AsyncClient = None,
     return_raw: bool = False,
-):
+        ):
     """checks if users can be invited as social users to the instaance"""
 
     if not customer_id:
@@ -418,14 +418,14 @@ async def get_is_invite_social_users_enabled(
     return res.response
 
 
-async def toggle_is_invite_social_users_enabled(
+    async def toggle_is_invite_social_users_enabled(
     self: DomoInstanceConfig,
     is_enabled: bool,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
     debug_num_stacks_to_drop=2,
     return_raw: bool = False,
-):
+        ):
     """enables or disables the ability to invite users to instance as social users"""
 
     res_is_enabled = await self.get_is_invite_social_users_enabled()
@@ -450,13 +450,13 @@ async def toggle_is_invite_social_users_enabled(
     return res_is_enabled
 
 
-async def get_is_weekly_digest_enabled(
+    async def get_is_weekly_digest_enabled(
     self: DomoInstanceConfig,
     return_raw: bool = False,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 2,
     session: httpx.AsyncClient = None,
-):
+        ):
     """the weekly digest is a weekly email from Domo of changes to the instance"""
 
     res = await instance_config_routes.get_is_weekly_digest_enabled(
@@ -475,7 +475,7 @@ async def get_is_weekly_digest_enabled(
     return res.response
 
 
-async def toggle_is_weekly_digest_enabled(
+    async def toggle_is_weekly_digest_enabled(
     self: DomoInstanceConfig,
     is_enabled: bool,
     return_raw: bool = False,
@@ -483,7 +483,7 @@ async def toggle_is_weekly_digest_enabled(
     debug_api: bool = False,
     debug_prn: bool = False,
     debug_num_stacks_to_drop=2,
-):
+        ):
     """toggles if weekly digest is enabled or disabled"""
 
     res_is_enabled = await self.get_is_weekly_digest_enabled()
@@ -517,14 +517,14 @@ async def toggle_is_weekly_digest_enabled(
     return res_is_enabled
 
 
-async def toggle_is_left_nav_enabled(
+    async def toggle_is_left_nav_enabled(
     self: DomoInstanceConfig,
     is_use_left_nav: bool = True,
     return_raw: bool = False,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
-):
+        ):
     """toggles the use of the left nav in Domo"""
 
     res = await instance_config_routes.toggle_is_left_nav_enabled(
@@ -544,13 +544,13 @@ async def toggle_is_left_nav_enabled(
     return res
 
 
-async def get_is_left_nav_enabled(
+    async def get_is_left_nav_enabled(
     self: DomoInstanceConfig,
     return_raw: bool = False,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
-):
+        ):
     """gets the use of the left nav in Domo"""
 
     res = await instance_config_routes.get_is_left_nav_enabled(
@@ -569,14 +569,14 @@ async def get_is_left_nav_enabled(
     return res
 
 
-async def toggle_is_left_nav_enabled(
+    async def toggle_is_left_nav_enabled(
     self: DomoInstanceConfig,
     is_use_left_nav: bool = True,
     return_raw: bool = False,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
-):
+        ):
     """toggles the use of the left nav in Domo"""
 
     res = await instance_config_routes.toggle_is_left_nav_enabled(
@@ -596,13 +596,13 @@ async def toggle_is_left_nav_enabled(
     return res
 
 
-async def get_is_left_nav_enabled(
+    async def get_is_left_nav_enabled(
     self: DomoInstanceConfig,
     return_raw: bool = False,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
-):
+        ):
     """gets the use of the left nav in Domo"""
 
     res = await instance_config_routes.get_is_left_nav_enabled(
