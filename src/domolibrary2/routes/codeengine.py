@@ -14,6 +14,7 @@ __all__ = [
     "SearchCodeEngine_NotFound",
     "CodeEngine_InvalidPackage",
     "CodeEngine_FunctionCallError",
+    "CodeEngine_API_Error",  # Backward compatibility alias
     "get_packages",
     "CodeEngine_Package_Parts",
     "get_codeengine_package_by_id",

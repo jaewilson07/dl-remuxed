@@ -28,7 +28,10 @@ from typing import Optional
 
 import httpx
 
-from ...client import get_data as gd, response as rgd
+from ...client import (
+    get_data as gd,
+    response as rgd,
+)
 from ...client.auth import DomoAuth
 from . import core as codeengine_routes
 from .exceptions import (
@@ -47,9 +50,9 @@ class CodeEnginePackageBuilder:
 
 @gd.route_function
 async def deploy_code_engine_package(
+    auth: DomoAuth,
     package_id: str,
     version: str,
-    auth: DomoAuth,
     session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -60,9 +63,9 @@ async def deploy_code_engine_package(
     Deploy a specific codeengine package version.
 
     Args:
+        auth: Authentication object
         package_id: Package identifier
         version: Package version to deploy
-        auth: Authentication object
         session: HTTP client session (optional)
         debug_api: Enable API debugging
         debug_num_stacks_to_drop: Stack frames to drop for debugging
@@ -100,8 +103,8 @@ async def deploy_code_engine_package(
 
 @gd.route_function
 async def create_code_engine_package(
-    payload: dict,
     auth: DomoAuth,
+    payload: dict,
     session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -112,8 +115,8 @@ async def create_code_engine_package(
     Create a new codeengine package.
 
     Args:
-        payload: Package data dictionary
         auth: Authentication object
+        payload: Package data dictionary
         session: HTTP client session (optional)
         debug_api: Enable API debugging
         debug_num_stacks_to_drop: Stack frames to drop for debugging
@@ -209,9 +212,9 @@ async def upsert_code_engine_package_version(
 
     try:
         existing_pkg = await codeengine_routes.get_codeengine_package_by_id_and_version(
-            package_id,
-            version,
             auth=auth,
+            package_id=package_id,
+            version=version,
             params={"parts": "code"},
             debug_api=debug_api,
             session=session,
@@ -247,8 +250,8 @@ async def upsert_code_engine_package_version(
         pass  # Not found, continue to create
 
     return await create_code_engine_package(
-        payload=payload,
         auth=auth,
+        payload=payload,
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
@@ -259,8 +262,8 @@ async def upsert_code_engine_package_version(
 
 @gd.route_function
 async def upsert_package(
-    payload: dict,
     auth: DomoAuth,
+    payload: dict,
     check_different: bool = True,
     create_new_version: bool = False,
     session: Optional[httpx.AsyncClient] = None,
@@ -276,8 +279,8 @@ async def upsert_package(
     If the package doesn't exist, create it. If it exists, update the version.
 
     Args:
-        payload: Package data dictionary
         auth: Authentication object
+        payload: Package data dictionary
         check_different: Check if package is different before updating
         create_new_version: Create a new version instead of updating existing
         session: HTTP client session (optional)
@@ -300,8 +303,8 @@ async def upsert_package(
             print("No Package ID found, creating new package...")
 
         return await create_code_engine_package(
-            payload=payload,
             auth=auth,
+            payload=payload,
             debug_api=debug_api,
             session=session,
             parent_class=parent_class,
@@ -311,8 +314,8 @@ async def upsert_package(
 
     try:
         await codeengine_routes.get_codeengine_package_by_id(
-            package_id,
             auth=auth,
+            package_id=package_id,
             debug_api=debug_api,
             session=session,
             parent_class=parent_class,
@@ -320,8 +323,8 @@ async def upsert_package(
         )
     except CodeEngine_GET_Error:
         return await create_code_engine_package(
-            payload,
             auth=auth,
+            payload=payload,
             debug_api=debug_api,
             session=session,
             parent_class=parent_class,
