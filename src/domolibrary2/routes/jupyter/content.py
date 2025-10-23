@@ -30,7 +30,7 @@ from typing import Any, Optional
 import httpx
 
 from ...client import auth as dmda, get_data as gd, response as rgd
-from ...entities.entities import DomoEnumMixin
+from ...entities.base import DomoEnumMixin
 from ...utils import chunk_execution as dmce
 from .exceptions import Jupyter_CRUD_Error, Jupyter_GET_Error, SearchJupyter_NotFound
 

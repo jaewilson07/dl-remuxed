@@ -11,15 +11,16 @@ Classes:
     DomoSubEntity: Entity that belongs to a parent entity
 """
 
-from ..client.auth import DomoAuth
 from .base import DomoBase
-import abc
-from dataclasses import dataclass, field, fields
-
-from typing import Any, Callable, Optional
+from .relationships import DomoRelationshipController
 
 from ..utils.convert import convert_snake_to_pascal
-from ..client import auth as dmda
+from ..client.auth import DomoAuth
+
+
+from dataclasses import dataclass, field, fields
+from typing import Any, Callable, Optional
+import abc
 
 
 @dataclass
@@ -42,19 +43,13 @@ class DomoEntity(DomoBase):
         'https://mycompany.domo.com/...'
     """
 
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
     id: str
     raw: dict = field(repr=False)  # api representation of the class
 
-    Relations: Any = field(repr=False, default=None)
+    Relations: DomoRelationshipController = field(repr=False)
 
     # logger: Logger = field(repr=False) ## pass global logger
-
-    def __post_init__(self):
-        """Initialize entity with relationship controller."""
-        from .relationships import DomoRelationshipController
-
-        self.Relations = DomoRelationshipController(auth=self.auth, parent_entity=self)
 
     @property
     def _name(self) -> str:
@@ -143,7 +138,7 @@ class DomoEntity(DomoBase):
 
     @classmethod
     @abc.abstractmethod
-    async def get_entity_by_id(cls, auth: dmda.DomoAuth, entity_id: str):
+    async def get_entity_by_id(cls, auth: DomoAuth, entity_id: str):
         """Fetch an entity by its ID
 
         This method should be implemented by subclasses to fetch the specific
@@ -190,12 +185,10 @@ class DomoEntity_w_Lineage(DomoEntity):
 
     def __post_init__(self):
         """Initialize lineage tracking after entity creation."""
-        from ..classes.subentity import DomoLineage as dmdl
+        from ..classes.subentity import lineage as dmdl
 
         # Using protected method until public interface is available
         self.Lineage = dmdl.DomoLineage.from_parent(auth=self.auth, parent=self)
-
-        super().__post_init__()
 
 
 @dataclass
@@ -209,7 +202,7 @@ class DomoManager(DomoBase):
         auth: Authentication object for API requests (hidden in repr)
     """
 
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
 
     @abc.abstractmethod
     async def get(self, *args, **kwargs):
@@ -229,7 +222,7 @@ class DomoManager(DomoBase):
 
 
 @dataclass
-class DomoSubEntity(DomoEntity):
+class DomoSubEntity(DomoBase):
     """Base class for entities that belong to a parent entity.
 
     Handles entities that are sub-components of other entities,
@@ -242,7 +235,6 @@ class DomoSubEntity(DomoEntity):
     """
 
     parent: DomoEntity
-    auth: dmda.DomoAuth = field(repr=False)
 
     @property
     def parent_id(self):

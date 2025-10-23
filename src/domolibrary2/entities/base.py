@@ -89,6 +89,39 @@ class DomoBase(abc.ABC):
     across the inheritance hierarchy.
     """
 
+    def to_dict(self):
+        """Convert dataclass to dictionary, excluding fields with repr=False.
+
+        Recursively converts nested dataclasses by calling their to_dict() method.
+        """
+        result = {}
+        for fld in fields(self):
+            if not fld.repr:
+                continue
+
+            value = getattr(self, fld.name)
+
+            # Handle nested dataclasses
+            if hasattr(value, "__dataclass_fields__") and hasattr(value, "to_dict"):
+                result[fld.name] = value.to_dict()
+            # Handle lists/tuples that might contain dataclasses
+            elif isinstance(value, (list, tuple)):
+                result[fld.name] = [
+                    (
+                        item.to_dict()
+                        if (
+                            hasattr(item, "__dataclass_fields__")
+                            and hasattr(item, "to_dict")
+                        )
+                        else item
+                    )
+                    for item in value
+                ]
+            else:
+                result[fld.name] = value
+
+        return result
+
 
 __all__ = [
     "DomoEnum",

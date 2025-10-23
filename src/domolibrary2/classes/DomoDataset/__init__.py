@@ -35,7 +35,7 @@ from .dataset import (
     DomoPublishDataset,
     FederatedDomoDataset,
 )
-from .pdp import Dataset_PDP_Policies, PDP_Parameter, PDP_Policy, SearchPDP_NotFound
+from .pdp import DatasetPdpPolicies, PdpParameter, PDPPolicy
 from .schema import (
     DatasetSchema_InvalidSchema,
     DatasetSchema_Types,
@@ -79,10 +79,9 @@ __all__ = [
     "DatasetSchema_Types",
     "DatasetSchema_InvalidSchema",
     # PDP functionality
-    "PDP_Policy",
-    "PDP_Parameter",
-    "Dataset_PDP_Policies",
-    "SearchPDP_NotFound",
+    "PDPPolicy",
+    "PdpParameter",
+    "DatasetPdpPolicies",
     # Streaming
     "DomoStream",
     "DomoStreams",

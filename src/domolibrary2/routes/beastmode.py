@@ -41,10 +41,10 @@ from typing import List, Optional
 
 import httpx
 
+from ..client.exceptions import RouteError
 from ..client import get_data as gd, response as rgd
 from ..client.auth import DomoAuth
-from ..client.exceptions import RouteError
-from ..client.entities import DomoEnumMixin
+from ..entities.base import DomoEnumMixin
 from ..utils import chunk_execution as dmce
 
 

@@ -36,7 +36,7 @@ from ...client import (
     response as rgd,
 )
 from ...client.auth import DomoAuth
-from ...entities.entities import DomoEnumMixin
+from ...entities.base import DomoEnumMixin
 from .exceptions import (
     CodeEngine_FunctionCallError,
     CodeEngine_GET_Error,

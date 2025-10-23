@@ -43,7 +43,7 @@ class DomoConnector(DomoBase):
             writeback_enabled=obj.get("writebackEnabled"),
             tags=obj.get("tags", []),
             capabilities=obj.get("capabilities", []),
-            obj=obj,
+            raw=obj,
         )
 
 
@@ -62,7 +62,7 @@ class DomoConnectors(DomoManager):
         debug_num_stacks_to_drop=2,
         session: httpx.AsyncClient = None,
     ):
-        from .. import datacenter as datacenter_routes
+        from ...routes import datacenter as datacenter_routes
 
         res = await datacenter_routes.get_connectors(
             auth=self.auth,

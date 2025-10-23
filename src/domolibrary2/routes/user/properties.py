@@ -49,7 +49,7 @@ import httpx
 
 from ...client import get_data as gd, response as rgd
 from ...client.auth import DomoAuth
-from ...entities.entities import DomoEnumMixin
+from ...entities.base import DomoEnumMixin
 from ...client.exceptions import DomoError
 from ...utils import Image as uimg
 from .exceptions import (
