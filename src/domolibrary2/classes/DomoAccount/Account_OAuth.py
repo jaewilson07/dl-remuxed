@@ -16,8 +16,8 @@ from typing import Any
 
 import httpx
 
-from ...entities import entities as dmee
 from ...client.auth import DomoAuth
+from ...entities import entities as dmee
 from ...routes import account as account_routes
 from ...routes.account.exceptions import (
     Account_Config_Error,
@@ -25,11 +25,11 @@ from ...routes.account.exceptions import (
     Account_GET_Error,
     Account_NoMatch,
 )
+from ..subentity.DomoAccess import DomoAccess_OAuth
 from . import (
     Account_Default as dmacb,
     Config as dmacnfg,
 )
-from ..subentity.DomoAccess import DomoAccess_OAuth
 
 
 @dataclass

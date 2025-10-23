@@ -27,7 +27,10 @@ from typing import Optional
 
 import httpx
 
-from ...client import get_data as gd, response as rgd
+from ...client import (
+    get_data as gd,
+    response as rgd,
+)
 from ...client.auth import DomoAuth
 from ...entities.base import DomoEnumMixin
 from .exceptions import AppDb_CRUD_Error, AppDb_GET_Error, SearchAppDb_NotFound

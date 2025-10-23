@@ -15,16 +15,14 @@ from typing import Optional
 
 import httpx
 
-from ...utils import convert as dmcv
-
+from ...client.auth import AuthError, DomoAuth, DomoFullAuth, DomoTokenAuth
 from ...client.exceptions import ClassError, DomoError
-from ...client.auth import DomoAuth, DomoFullAuth, AuthError, DomoTokenAuth
-
+from ...utils import convert as dmcv
+from ..DomoAccessToken import DomoAccessToken
 from ..DomoUser import (
     DomoUser,
     DomoUsers,
 )
-from ..DomoAccessToken import DomoAccessToken
 from .Account_Default import DomoAccount_Default
 
 

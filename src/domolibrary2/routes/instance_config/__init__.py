@@ -9,14 +9,6 @@ Modules:
     api_client: API client (developer token) management functions
 """
 
-# Import exception classes
-from .exceptions import (
-    ApiClient_CRUD_Error,
-    ApiClient_GET_Error,
-    ApiClient_RevokeError,
-    SearchApiClient_NotFound,
-)
-
 # Import API client functions and enums
 from .api_client import (
     ApiClient_ScopeEnum,
@@ -24,6 +16,14 @@ from .api_client import (
     get_api_clients,
     get_client_by_id,
     revoke_api_client,
+)
+
+# Import exception classes
+from .exceptions import (
+    ApiClient_CRUD_Error,
+    ApiClient_GET_Error,
+    ApiClient_RevokeError,
+    SearchApiClient_NotFound,
 )
 
 __all__ = [

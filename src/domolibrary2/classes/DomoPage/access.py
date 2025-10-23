@@ -6,12 +6,14 @@ from typing import Dict, List, Optional, Union
 
 import httpx
 
-from .. import DomoUser as dmu
 from ...client.auth import DomoAuth
 from ...client.response import ResponseGetData
-from ...routes import datacenter as datacenter_routes
-from ...routes import page as page_routes
+from ...routes import (
+    datacenter as datacenter_routes,
+    page as page_routes,
+)
 from ...utils import chunk_execution as dmce
+from .. import DomoUser as dmu
 from .exceptions import Page_NoAccess
 
 

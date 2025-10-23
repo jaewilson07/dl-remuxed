@@ -88,7 +88,10 @@ class DomoPage(DomoEntity_w_Lineage):
         if not owners or len(owners) == 0:
             return []
 
-        from . import DomoGroup as dmg, DomoUser as dmu
+        from . import (
+            DomoGroup as dmg,
+            DomoUser as dmu,
+        )
 
         domo_groups = []
         domo_users = []
@@ -481,7 +484,10 @@ class DomoPage(DomoEntity_w_Lineage):
         if return_raw:
             return res
 
-        from . import DomoGroup as dmg, DomoUser as dmu
+        from . import (
+            DomoGroup as dmg,
+            DomoUser as dmu,
+        )
 
         s = {
             "explicit_shared_user_count": res.response.get("explicitSharedUserCount"),

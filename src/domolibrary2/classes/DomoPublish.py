@@ -8,17 +8,16 @@ from typing import Any, Callable, List, Optional
 
 import httpx
 
-from .subentity import DomoLineage as dmdl
-
-from ..utils import chunk_execution as dmce
-
-from ..entities import entities as dmen
-from ..entities import DomoEntity_w_Lineage, DomoEnumMixin
-
 from ..client import exceptions as dmde
 from ..client.auth import DomoAuth
-
+from ..entities import (
+    DomoEntity_w_Lineage,
+    DomoEnumMixin,
+    entities as dmen,
+)
 from ..routes import publish as publish_routes
+from ..utils import chunk_execution as dmce
+from .subentity import DomoLineage as dmdl
 
 __all__ = [
     "DomoPublication_Content_Enum",
@@ -52,10 +51,10 @@ class DomoSubscription_NoParent(dmde.ClassError):
 
 class DomoPublication_Content_Enum(DomoEnumMixin, Enum):
     from . import (
-        DomoPage as dmpg,
+        DomoAppStudio as dmas,
         DomoCard as dmac,
         DomoDataset as dmds,
-        DomoAppStudio as dmas,
+        DomoPage as dmpg,
     )
 
     CARD = dmac.DomoCard

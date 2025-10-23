@@ -31,7 +31,10 @@ from typing import Dict, List, Optional, TypedDict, Union
 
 import httpx
 
-from ...client import get_data as gd, response as rgd
+from ...client import (
+    get_data as gd,
+    response as rgd,
+)
 from ...client.auth import DomoAuth
 from ...entities.base import DomoEnumMixin
 from .exceptions import (

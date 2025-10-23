@@ -5,12 +5,11 @@ from typing import List
 
 import httpx
 
-from ._base import DomoLineage as dmdl
-
 from ..client.entities import DomoEntity_w_Lineage
 from ..routes import dataflow as dataflow_routes
 from ..utils import chunk_execution as dmce
 from . import DomoJupyter as dmdj
+from ._base import DomoLineage as dmdl
 
 __all__ = ["DomoDataflow", "DomoDataflows"]
 

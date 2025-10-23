@@ -7,7 +7,10 @@ from typing import List
 import httpx
 
 from ..routes import dataflow as dataflow_routes
-from ..utils import chunk_execution as ce, convert as ct
+from ..utils import (
+    chunk_execution as ce,
+    convert as ct,
+)
 
 __all__ = ["DomoDataflow_History_Execution", "DomoDataflow_History"]
 

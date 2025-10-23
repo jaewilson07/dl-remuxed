@@ -29,10 +29,12 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
-from ...entities import entities as dmee
-
 from ...client import exceptions as dmde
-from ...utils import DictDot as util_dd, convert as dmcv
+from ...entities import entities as dmee
+from ...utils import (
+    DictDot as util_dd,
+    convert as dmcv,
+)
 
 
 @dataclass

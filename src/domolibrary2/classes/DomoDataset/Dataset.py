@@ -13,8 +13,8 @@ from typing import Callable
 
 import httpx
 
-from ...entities.entities_federated import DomoFederatedEntity, DomoPublishedEntity
 from ...client.auth import DomoAuth
+from ...entities.entities_federated import DomoFederatedEntity, DomoPublishedEntity
 from .dataset_default import DomoDataset_Default
 
 

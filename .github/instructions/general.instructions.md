@@ -30,7 +30,7 @@ tests/
 
 ## Key Design Principles
 
-1. **Separation of Concerns**: 
+1. **Separation of Concerns**:
    - **Routes**: Handle API calls and HTTP logic
    - **Classes**: Provide user-friendly interface, delegate to routes
    - **Client**: Core authentication and error handling
@@ -100,17 +100,17 @@ from ..subentity import DomoTag as dmtg
 ```python
 def function_name(param1: str, param2: int = 10) -> ReturnType:
     """Brief description of function.
-    
+
     Longer description if needed. Explain what the function does,
     not how it does it.
-    
+
     Args:
         param1: Description of param1
         param2: Description of param2 (default: 10)
-        
+
     Returns:
         Description of return value
-        
+
     Raises:
         ExceptionName: When this error occurs
     """
@@ -201,10 +201,10 @@ async def get_something(
     return_raw: bool = False,
 ):
     res = await route_function(auth=auth)
-    
+
     if return_raw:
         return res  # Return ResponseGetData object
-    
+
     return SomeClass.from_dict(auth=auth, obj=res.response)
 ```
 

@@ -13,11 +13,8 @@ import httpx
 
 from domolibrary2.entities.relationships import DomoRelationshipController
 
-
-from ...entities import DomoSubEntity, DomoEntity, DomoRelationship, DomoEnum
-
 from ...client import exceptions as dmde
-
+from ...entities import DomoEntity, DomoEnum, DomoRelationship, DomoSubEntity
 from ...routes import account as account_routes
 from ...routes.account import (
     ShareAccount,
@@ -112,7 +109,6 @@ class DomoAccess(DomoRelationshipController, DomoSubEntity):
         debug_num_stacks_to_drop=2,
         session: httpx.AsyncClient = None,
     ):
-
         raise NotImplementedError("DomoAccess.share not implemented")
 
 

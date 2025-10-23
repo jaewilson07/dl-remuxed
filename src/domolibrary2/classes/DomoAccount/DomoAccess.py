@@ -8,15 +8,14 @@ from dataclasses import dataclass, field
 
 import httpx
 
-from ...utils import chunk_execution as dmce
+from ...classes.subentity.access import Access_Entity, DomoAccess
 from ...routes import account as account_routes
 from ...routes.account import (
     ShareAccount,
     ShareAccount_AccessLevel,
     ShareAccount_V1_AccessLevel,
 )
-
-from ...classes.subentity.access import DomoAccess, Access_Entity
+from ...utils import chunk_execution as dmce
 
 
 @dataclass

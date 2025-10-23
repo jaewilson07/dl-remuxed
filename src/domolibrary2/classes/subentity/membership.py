@@ -6,12 +6,11 @@ from typing import Any, List
 
 import httpx
 
-
 from ...client import exceptions as dmde
 from ...entities.entities import DomoSubEntity
 from ...entities.relationships import (
-    DomoRelationshipController,
     DomoRelationship,
+    DomoRelationshipController,
     RelationshipType,
 )
 from ...routes import group as group_routes
@@ -44,8 +43,10 @@ class Membership_Entity(DomoRelationship):
         return self.relationship_type
 
     def to_dict(self):
-        from .. import DomoGroup as dmdg
-        from .. import DomoUser as dmdu
+        from .. import (
+            DomoGroup as dmdg,
+            DomoUser as dmdu,
+        )
 
         if isinstance(self.entity, dmdu.DomoUser):
             return {"type": "USER", "id": str(self.entity.id)}

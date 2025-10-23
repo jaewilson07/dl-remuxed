@@ -10,7 +10,6 @@ import httpx
 
 from ...client import exceptions as dmde
 from ...entities.entities import DomoSubEntity
-
 from ...routes import dataset as dataset_routes
 
 

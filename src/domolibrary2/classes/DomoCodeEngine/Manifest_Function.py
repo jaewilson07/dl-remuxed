@@ -11,7 +11,11 @@ from dataclasses import dataclass, field
 from pprint import pprint
 from typing import List
 
-from ..utils import compare as dmcp, convert as dmcv, files as defi
+from ..utils import (
+    compare as dmcp,
+    convert as dmcv,
+    files as defi,
+)
 from .Manifest_Argument import CodeEngineManifest_Argument
 
 

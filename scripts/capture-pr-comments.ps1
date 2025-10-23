@@ -20,7 +20,7 @@ Write-Host "Capturing comments from PR #$PRNumber..." -ForegroundColor Green
 
 try {
     python scripts\capture_pr_comments.py --pr $PRNumber
-    
+
     if ($LASTEXITCODE -eq 0) {
         Write-Host ""
         Write-Host "Success! Comments saved to ToDo.md" -ForegroundColor Green

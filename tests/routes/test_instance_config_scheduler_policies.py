@@ -23,7 +23,7 @@ async def test_cell_2(token_auth=token_auth):
     """Test case from cell 2"""
     token_auth = dmda.DomoTokenAuth(
         domo_instance=os.environ["DOMO_INSTANCE"],
-        domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],                                                                                 
+        domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],
     )
 
     # await token_auth.who_am_i()

@@ -1,16 +1,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List, Optional, Any
+from typing import Any, List, Optional
 
 import httpx
 
-from ...utils import chunk_execution as dmce
 from ...client.auth import DomoAuth
-from ...entities import DomoSubEntity, DomoManager, DomoEntity
-
+from ...entities import DomoEntity, DomoManager
 from ...routes import stream as stream_routes
-
+from ...utils import chunk_execution as dmce
 from .stream_config import StreamConfig
 
 __all__ = [
@@ -218,7 +216,6 @@ class DomoStreams(DomoManager):
         session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
     ):
-
         from ...routes import datacenter as datacenter_routes
 
         res = await datacenter_routes.search_datasets(

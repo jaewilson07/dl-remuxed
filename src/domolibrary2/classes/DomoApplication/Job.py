@@ -24,7 +24,6 @@ from ...routes.application import (
     ApplicationError_NoneRetrieved,
     CRUD_ApplicationJob_Error,
 )
-from ...utils import convert as cc
 from .Job_Base import DomoJob_Base, DomoTrigger, DomoTrigger_Schedule
 
 

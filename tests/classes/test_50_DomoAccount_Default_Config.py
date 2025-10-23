@@ -17,7 +17,7 @@ token_auth = dmda.DomoTokenAuth(
 async def test_cell_1(token_auth=token_auth):
     """Test case from cell 1"""
     try:
-        dc = DomoAccount_NoConfig_OAuth._from_dict(obj = {}, 
+        dc = DomoAccount_NoConfig_OAuth._from_dict(obj = {},
                                             data_provider_type='abc',
                                             parent = {}
                                             )
@@ -39,7 +39,7 @@ async def test_cell_2(token_auth=token_auth):
 
         dnc
 
-    except dmde.DomoError as e: 
+    except dmde.DomoError as e:
         print(e)
 
 
@@ -133,7 +133,7 @@ async def test_cell_15(token_auth=token_auth):
 async def test_cell_16(token_auth=token_auth):
     """Test case from cell 16"""
     domo_config = AccountConfig("ABSTRACT-CREDENTIAL-STORE").value
-    domo_config._from_dict( 
+    domo_config._from_dict(
         obj = {"credentials" : "abc123"})
 
 

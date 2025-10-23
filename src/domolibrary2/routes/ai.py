@@ -19,10 +19,13 @@ from typing import List, Optional, TypedDict
 
 import httpx
 
-from ..client import get_data as gd, response as rgd
+from ..client import (
+    get_data as gd,
+    response as rgd,
+)
 from ..client.auth import DomoAuth
-from ..entities.base import DomoEnumMixin
 from ..client.exceptions import RouteError
+from ..entities.base import DomoEnumMixin
 
 
 class AI_GET_Error(RouteError):

@@ -6,9 +6,10 @@ using DomoEnum for operators and the relationship system for user/group associat
 """
 
 from dataclasses import dataclass, field
-from typing import List, Optional, Dict, Any
 from datetime import datetime
 from enum import Enum
+from typing import Any, Dict, List, Optional
+
 from domolibrary2.entities.base import DomoEnumMixin
 from domolibrary2.entities.entities import DomoEntity, DomoSubEntity
 from domolibrary2.entities.relationships import (
@@ -119,7 +120,7 @@ class PdpParameter(DomoSubEntity):
         )
 
     def find_relationship(self):
-        raise NotImplemented("find relationship not implemented yet")
+        raise NotImplementedError("find relationship not implemented yet")
 
 
 @dataclass

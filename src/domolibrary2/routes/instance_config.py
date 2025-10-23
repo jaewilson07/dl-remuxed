@@ -29,7 +29,12 @@ from typing import List
 
 import httpx
 
-from ..client import auth as dmda, exceptions as dmde, get_data as gd, response as rgd
+from ..client import (
+    auth as dmda,
+    exceptions as dmde,
+    get_data as gd,
+    response as rgd,
+)
 from ..utils.convert import convert_string_to_bool
 from . import user as user_routes
 
