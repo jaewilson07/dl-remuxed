@@ -31,17 +31,17 @@ from .Job_Base import DomoJob_Base, DomoTrigger, DomoTrigger_Schedule
 @dataclass
 class DomoJob(DomoEntity):
     """A class for interacting with Domo Application Jobs.
-    
+
     This class represents a job within a Domo application, providing methods
     for retrieving, creating, updating, and executing jobs.
-    
+
     Attributes:
         auth: Authentication object for API requests
         id: Unique identifier for the job (job_id)
         application_id: ID of the parent application
         name: Name of the job
         raw: Raw API response data
-        
+
         # Additional Job-specific attributes
         user_id: ID of the user who created the job
         logs_dataset_id: Dataset ID where job logs are stored
@@ -61,11 +61,11 @@ class DomoJob(DomoEntity):
     auth: DomoAuth = field(repr=False)
     id: str  # job_id
     raw: dict = field(default_factory=dict, repr=False)
-    
+
     # Job-specific required attributes
     application_id: str = None
     name: str = None
-    
+
     # Job-specific optional attributes
     user_id: str = None
     logs_dataset_id: str = None
@@ -83,7 +83,7 @@ class DomoJob(DomoEntity):
     @property
     def display_url(self) -> str:
         """Generate the URL to display this job in the Domo interface.
-        
+
         Returns:
             str: URL to view the job in Domo
         """
@@ -92,17 +92,17 @@ class DomoJob(DomoEntity):
     @classmethod
     def from_dict(cls, auth: DomoAuth, obj: dict):
         """Create a DomoJob instance from a dictionary representation.
-        
+
         Args:
             auth: Authentication object
             obj: Dictionary containing job data from API
-            
+
         Returns:
             DomoJob: New instance with populated attributes
         """
         # Use DomoJob_Base conversion logic
         base_obj = DomoJob_Base._convert_API_res_to_DomoJob_base_obj(obj=obj)
-        
+
         return cls(
             auth=auth,
             raw=obj,
@@ -121,7 +121,7 @@ class DomoJob(DomoEntity):
         debug_num_stacks_to_drop: int = 2,
     ):
         """Retrieve a job by its ID.
-        
+
         Args:
             auth: Authentication object
             application_id: ID of the parent application
@@ -130,10 +130,10 @@ class DomoJob(DomoEntity):
             debug_api: Enable API debugging
             session: Optional httpx session for request pooling
             debug_num_stacks_to_drop: Number of stack frames to drop in debug output
-            
+
         Returns:
             DomoJob or ResponseGetData: The job object or raw response
-            
+
         Raises:
             ApplicationError_NoneRetrieved: If job retrieval fails
         """
@@ -161,23 +161,23 @@ class DomoJob(DomoEntity):
         debug_num_stacks_to_drop: int = 2,
     ):
         """Update this job's configuration.
-        
+
         Args:
             body: Dictionary containing job update data (uses to_dict if None)
             return_raw: Return raw ResponseGetData instead of DomoJob
             debug_api: Enable API debugging
             session: Optional httpx session for request pooling
             debug_num_stacks_to_drop: Number of stack frames to drop in debug output
-            
+
         Returns:
             DomoJob or ResponseGetData: Updated job object or raw response
-            
+
         Raises:
             CRUD_ApplicationJob_Error: If update fails
         """
         if body is None:
             body = self.to_dict()
-            
+
         res = await application_routes.update_application_job(
             auth=self.auth,
             body=body,
@@ -209,16 +209,16 @@ class DomoJob(DomoEntity):
         debug_num_stacks_to_drop: int = 2,
     ):
         """Execute this job.
-        
+
         Args:
             return_raw: Return raw ResponseGetData
             debug_api: Enable API debugging
             session: Optional httpx session for request pooling
             debug_num_stacks_to_drop: Number of stack frames to drop in debug output
-            
+
         Returns:
             ResponseGetData: Response from job execution
-            
+
         Raises:
             CRUD_ApplicationJob_Error: If execution fails
         """
@@ -239,7 +239,7 @@ class DomoJob(DomoEntity):
 
     def to_dict(self) -> dict:
         """Convert the job to a dictionary for API requests.
-        
+
         Returns:
             dict: Dictionary representation of the job
         """
@@ -282,7 +282,7 @@ class DomoJob(DomoEntity):
         debug_num_stacks_to_drop: int = 2,
     ):
         """Create a new job in the application.
-        
+
         Args:
             auth: Authentication object
             application_id: ID of the parent application
@@ -296,10 +296,10 @@ class DomoJob(DomoEntity):
             debug_api: Enable API debugging
             session: Optional httpx session for request pooling
             debug_num_stacks_to_drop: Number of stack frames to drop in debug output
-            
+
         Returns:
             DomoJob or ResponseGetData: Created job object or raw response
-            
+
         Raises:
             CRUD_ApplicationJob_Error: If creation fails
         """

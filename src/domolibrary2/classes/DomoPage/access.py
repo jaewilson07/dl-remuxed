@@ -24,10 +24,10 @@ async def test_page_access(
     debug_num_stacks_to_drop: int = 2,
 ) -> ResponseGetData:
     """Test if the authenticated user has access to the page.
-    
+
     This method calls the page access test API endpoint which returns the page owners.
     If the user doesn't have access, it raises a Page_NoAccess exception unless suppressed.
-    
+
     Args:
         suppress_no_access_error: If True, suppresses the Page_NoAccess exception when
             user doesn't have access. Defaults to False.
@@ -35,10 +35,10 @@ async def test_page_access(
         return_raw: Return raw ResponseGetData without processing. Defaults to False.
         session: Optional httpx client session for connection reuse.
         debug_num_stacks_to_drop: Number of stack frames to drop in debug output. Defaults to 2.
-    
+
     Returns:
         ResponseGetData object containing page access information and owner list.
-    
+
     Raises:
         Page_NoAccess: If user doesn't have access and suppress_no_access_error is False.
     """
@@ -85,20 +85,20 @@ async def get_accesslist(
     debug_num_stacks_to_drop: int = 2,
 ) -> Union[ResponseGetData, Dict[str, Union[int, List]]]:
     """Retrieve the access list for the page showing users and groups with access.
-    
+
     This method fetches the comprehensive access list for a page, including:
     - Users with explicit share permissions
     - Groups with access permissions
     - User ownership information (direct or through group membership)
     - Group ownership information
-    
+
     Args:
         auth: Authentication object. If not provided, uses self.auth.
         return_raw: Return raw ResponseGetData without processing. Defaults to False.
         debug_api: Enable detailed API request/response logging. Defaults to False.
         session: Optional httpx client session for connection reuse.
         debug_num_stacks_to_drop: Number of stack frames to drop in debug output. Defaults to 2.
-    
+
     Returns:
         If return_raw is True:
             ResponseGetData object containing raw access list data.
@@ -112,7 +112,7 @@ async def get_accesslist(
                     - custom_attributes['is_owner']: True if user is an owner
                 - domo_groups (List[DomoGroup]): List of groups with access, enriched with:
                     - custom_attributes['is_owner']: True if group is an owner
-    
+
     Raises:
         PageSharing_Error: If access list retrieval fails (raised by route function).
         SearchPage_NotFound: If page with specified ID doesn't exist (raised by route function).
@@ -249,10 +249,10 @@ async def share(
     session: Optional[httpx.AsyncClient] = None,
 ) -> ResponseGetData:
     """Share the page with specified users and/or groups.
-    
+
     This method shares the page with one or more users and/or groups. It uses the
     datacenter share_resource route function to perform the sharing operation.
-    
+
     Args:
         auth: Authentication object. If not provided, uses self.auth.
         domo_users: DomoUser object(s) to share page with. Can be a single DomoUser
@@ -262,10 +262,10 @@ async def share(
         message: Optional message to include in the automated email notification.
         debug_api: Enable detailed API request/response logging. Defaults to False.
         session: Optional httpx client session for connection reuse.
-    
+
     Returns:
         ResponseGetData object containing the sharing operation result.
-    
+
     Raises:
         Exception: Various exceptions may be raised by the datacenter share_resource
             route function if the sharing operation fails.

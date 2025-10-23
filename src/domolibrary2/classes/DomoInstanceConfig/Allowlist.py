@@ -36,14 +36,14 @@ def validate_ip_or_cidr(ip: str):
 @dataclass
 class DomoAllowlist:
     """A class for managing the Domo instance IP allowlist configuration.
-    
+
     This class provides methods to get, set, add, and remove IP addresses/CIDR ranges
     from the instance allowlist, as well as manage the filter all traffic setting.
-    
+
     Note: Unlike most Domo entities, the allowlist is a singleton configuration per instance
     and does not have an 'id' field.
     """
-    
+
     auth: DomoAuth = field(repr=False)
     allowlist: Optional[List[str]] = None
     is_filter_all_traffic_enabled: Optional[bool] = None
@@ -57,11 +57,11 @@ class DomoAllowlist:
     @classmethod
     def from_dict(cls, auth: DomoAuth, obj: dict) -> "DomoAllowlist":
         """Create a DomoAllowlist instance from a dictionary representation.
-        
+
         Args:
             auth: Authentication object for API requests
             obj: Dictionary containing allowlist data
-            
+
         Returns:
             DomoAllowlist instance
         """
