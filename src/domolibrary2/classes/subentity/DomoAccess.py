@@ -16,21 +16,7 @@ from .. import DomoUser as dmdu
 
 from ...client import exceptions as dmde
 from ...client.auth import DomoAuth
-from ...entities.entities import DomoSubEntity, Entity_Relation
-
-# Import unified access control system
-try:
-    from .AccessControl import (
-        AccessLevel,
-        EntityType,
-        AccessGrant,
-        DomoAccountAccessController,
-        DomoObjectAccessManager,
-    )
-
-    UNIFIED_ACCESS_AVAILABLE = True
-except ImportError:
-    UNIFIED_ACCESS_AVAILABLE = False
+from ...client.entities import DomoSubEntity, Entity_Relation
 from ...routes import account as account_routes
 from ...routes.account import (
     ShareAccount,
