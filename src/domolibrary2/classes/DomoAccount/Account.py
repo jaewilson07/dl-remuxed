@@ -38,6 +38,9 @@ class DomoAccount(DomoAccount_Default):
 
         if is_use_default_account_class:
             new_cls = cls
+
+        if obj.get("credentialsType") == "oauth":
+            new_cls = DomoAccount_OAuth
         else:
             new_cls = DomoAccount_Credential
 
