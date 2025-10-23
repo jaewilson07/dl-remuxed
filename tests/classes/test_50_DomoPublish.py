@@ -44,7 +44,7 @@ async def test_cell_2(token_auth=token_auth):
 async def test_cell_3(token_auth=token_auth):
     """Test case from cell 3"""
     domo_publication = await DomoPublication.get_by_id(
-        publication_id=publication['id'], 
+        publication_id=publication['id'],
         auth=auth,
         return_raw = False
     )

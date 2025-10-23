@@ -4,7 +4,10 @@ __all__ = ["share_domo_account_with_domo_group"]
 
 from typing import List
 
-from ..classes import DomoAccount as dmacc, DomoGroup as dmdg
+from ..classes import (
+    DomoAccount as dmacc,
+    DomoGroup as dmdg,
+)
 
 
 async def share_domo_account_with_domo_group(

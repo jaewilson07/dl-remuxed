@@ -12,13 +12,15 @@ __all__ = [
     "get_workspace_auth_token_params",
 ]
 
-import asyncio
 import urllib
 from typing import Optional
 
 import httpx
 
-from ...client import auth as dmda, get_data as gd, response as rgd
+from ...client import (
+    get_data as gd,
+    response as rgd,
+)
 from ...client.auth import DomoAuth
 from .exceptions import Jupyter_GET_Error, JupyterWorkspace_Error
 

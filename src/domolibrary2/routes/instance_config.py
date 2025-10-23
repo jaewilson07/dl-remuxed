@@ -29,7 +29,12 @@ from typing import List
 
 import httpx
 
-from ..client import auth as dmda, exceptions as dmde, get_data as gd, response as rgd
+from ..client import (
+    auth as dmda,
+    exceptions as dmde,
+    get_data as gd,
+    response as rgd,
+)
 from ..utils.convert import convert_string_to_bool
 from . import user as user_routes
 
@@ -310,6 +315,7 @@ async def get_allowlist_is_filter_all_traffic_enabled(
     return res
 
 
+@gd.route_function
 async def toggle_allowlist_is_filter_all_traffic_enabled(
     auth: dmda.DomoFullAuth,
     is_enabled: bool,

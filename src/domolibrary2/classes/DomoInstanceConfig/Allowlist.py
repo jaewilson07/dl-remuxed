@@ -1,12 +1,23 @@
-__all__ = ["validate_ip_or_cidr", "DomoAllowlist"]
+__all__ = [
+    "validate_ip_or_cidr",
+    "DomoAllowlist",
+    # Allowlist Route Exceptions
+    "Config_GET_Error",
+    "Allowlist_UnableToUpdate",
+]
 
 import ipaddress
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Optional
 
 import httpx
 
+from ...client.auth import DomoAuth
 from ...routes import instance_config as instance_config_routes
+from ...routes.instance_config import (
+    Allowlist_UnableToUpdate,
+    Config_GET_Error,
+)
 
 
 def validate_ip_or_cidr(ip: str):
@@ -24,10 +35,42 @@ def validate_ip_or_cidr(ip: str):
 
 @dataclass
 class DomoAllowlist:
-    auth: DomoAuth = field(repr=False)
-    allowlist: List[str] = None
+    """A class for managing the Domo instance IP allowlist configuration.
 
-    is_filter_all_traffic_enabled: bool = None
+    This class provides methods to get, set, add, and remove IP addresses/CIDR ranges
+    from the instance allowlist, as well as manage the filter all traffic setting.
+
+    Note: Unlike most Domo entities, the allowlist is a singleton configuration per instance
+    and does not have an 'id' field.
+    """
+
+    auth: DomoAuth = field(repr=False)
+    allowlist: Optional[List[str]] = None
+    is_filter_all_traffic_enabled: Optional[bool] = None
+    raw: dict = field(default_factory=dict, repr=False)
+
+    @property
+    def display_url(self) -> str:
+        """Return the URL to the allowlist configuration page in Domo."""
+        return f"https://{self.auth.domo_instance}.domo.com/admin/security/settings"
+
+    @classmethod
+    def from_dict(cls, auth: DomoAuth, obj: dict) -> "DomoAllowlist":
+        """Create a DomoAllowlist instance from a dictionary representation.
+
+        Args:
+            auth: Authentication object for API requests
+            obj: Dictionary containing allowlist data
+
+        Returns:
+            DomoAllowlist instance
+        """
+        return cls(
+            auth=auth,
+            allowlist=obj.get("allowlist") or obj.get("addresses", []),
+            is_filter_all_traffic_enabled=obj.get("is_filter_all_traffic_enabled"),
+            raw=obj,
+        )
 
     async def get(
         self,

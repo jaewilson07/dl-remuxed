@@ -44,8 +44,8 @@ async def test_cell_3(token_auth=token_auth):
     """Test case from cell 3"""
     import domolibrary.classes.DomoCard as dmdc
 
-    domo_card = await dmdc.DomoCard.get_by_id(card_id = CARD_ID, 
-                                              auth = token_auth, 
+    domo_card = await dmdc.DomoCard.get_by_id(card_id = CARD_ID,
+                                              auth = token_auth,
                                               debug_api = False,
                                               return_raw= False)
 
