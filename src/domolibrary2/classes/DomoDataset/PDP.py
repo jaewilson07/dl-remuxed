@@ -118,6 +118,9 @@ class PDPParameter(DomoSubEntity):
             trusted_attribute_key=data.get("trustedAttributeKey"),
         )
 
+    def find_relationship(self):
+        raise NotImplemented("find relationship not implemented yet")
+
 
 @dataclass
 class PDPPolicy(DomoEntity):
@@ -179,6 +182,106 @@ class PDPPolicy(DomoEntity):
             metadata={"policy_type": "pdp", "dataset_id": self.dataset_id},
             created_by=created_by,
         )
+
+    def get_users(self) -> List[DomoRelationship]:
+        """Get all users associated with this policy."""
+        return self.relationship_controller.find_relationships(
+            target_entity_id=self.id or self.filter_group_id,
+            relationship_type=RelationshipType.MEMBER,
+            active_only=True,
+        )
+
+    def get_groups(self) -> List[DomoRelationship]:
+        """Get all groups associated with this policy."""
+        return self.relationship_controller.find_relationships(
+            target_entity_id=self.id or self.filter_group_id,
+            relationship_type=RelationshipType.GROUP_MEMBER,
+            active_only=True,
+        )
+
+    def remove_user(self, user_id: str) -> List[DomoRelationship]:
+        """Remove a user from this policy."""
+        return self.relationship_controller.revoke_relationship(
+            source_entity_id=user_id,
+            target_entity_id=self.id or self.filter_group_id,
+            relationship_type=RelationshipType.MEMBER,
+        )
+
+    def remove_group(self, group_id: str) -> List[DomoRelationship]:
+        """Remove a group from this policy."""
+        return self.relationship_controller.revoke_relationship(
+            source_entity_id=group_id,
+            target_entity_id=self.id or self.filter_group_id,
+            relationship_type=RelationshipType.GROUP_MEMBER,
+        )
+
+    def add_parameter(self, parameter: PDPParameter) -> None:
+        """Add a filter parameter to this policy."""
+        parameter.parent_id = self.id or self.filter_group_id
+        self.parameters.append(parameter)
+
+    def remove_parameter(self, parameter_id: str) -> None:
+        """Remove a parameter from this policy."""
+        self.parameters = [p for p in self.parameters if p.id != parameter_id]
+
+    def is_active(self) -> bool:
+        """Check if the policy is currently active and effective."""
+        if not self.is_enabled or self.policy_status != PDPPolicyStatus.ACTIVE:
+            return False
+
+        now = datetime.now()
+
+        if self.effective_date and self.effective_date > now:
+            return False
+
+        if self.expiration_date and self.expiration_date < now:
+            return False
+
+        return True
+
+    def to_api_dict(self) -> Dict[str, Any]:
+        """Convert policy to API format for Domo requests."""
+        user_relationships = self.get_users()
+        group_relationships = self.get_groups()
+
+        return {
+            "filterGroupId": self.filter_group_id,
+            "name": self.name,
+            "dataSourceId": self.dataset_id,
+            "parameters": [param.to_api_dict() for param in self.parameters],
+            "userIds": [rel.source_entity_id for rel in user_relationships],
+            "groupIds": [rel.source_entity_id for rel in group_relationships],
+            "virtualUserIds": [],  # Legacy field, typically empty
+            "enabled": self.is_enabled,
+            "priority": self.priority,
+        }
+
+    @classmethod
+    def from_api_dict(cls, data: Dict[str, Any]) -> "PDPPolicy":
+        """Create policy from API response data."""
+        policy = cls(
+            id=data.get("filterGroupId"),
+            filter_group_id=data.get("filterGroupId"),
+            name=data.get("name"),
+            dataset_id=data.get("dataSourceId"),
+            is_enabled=data.get("enabled", True),
+            priority=data.get("priority", 1),
+        )
+
+        # Add parameters
+        for param_data in data.get("parameters", []):
+            parameter = PDPParameter.from_api_dict(param_data)
+            policy.add_parameter(parameter)
+
+        # Add user relationships
+        for user_id in data.get("userIds", []):
+            policy.add_user(user_id)
+
+        # Add group relationships
+        for group_id in data.get("groupIds", []):
+            policy.add_group(group_id)
+
+        return policy
 
     def add_group(
         self, group_id: str, created_by: Optional[str] = None
@@ -317,7 +420,6 @@ class DatasetPDPPolicies(DomoSubEntity):
         is_pdp_enabled: Whether PDP is enabled for this dataset
     """
 
-    dataset_id: Optional[str] = None
     policies: List[PDPPolicy] = field(default_factory=list)
     is_pdp_enabled: bool = False
 
@@ -379,7 +481,6 @@ class DatasetPDPPolicies(DomoSubEntity):
             group_relationships = policy.get_groups()
             if any(rel.source_entity_id == group_id for rel in group_relationships):
                 applicable_policies.append(policy)
-
         return applicable_policies
 
 

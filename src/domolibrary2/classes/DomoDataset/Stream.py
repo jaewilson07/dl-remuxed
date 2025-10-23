@@ -24,7 +24,6 @@ class DomoStream(DomoEntity):
     """A class for interacting with a Domo Stream (dataset connector)"""
 
     id: str
-    dataset_id: str = None
 
     transport_description: str = None
     transport_version: int = None
@@ -41,6 +40,10 @@ class DomoStream(DomoEntity):
     configuration_query: str = None
 
     parent: Any = None  # DomoDataset
+
+    @property
+    def dataset_id(self) -> str:
+        return self.parent.id
 
     @classmethod
     def from_parent(cls, parent, stream_id):
@@ -66,15 +69,17 @@ class DomoStream(DomoEntity):
         account = obj.get("account", {})
 
         sd = cls(
+            auth=auth,
             parent=None,  # Will be set by caller if needed
             id=obj["id"],
-            raw=obj,
             transport_description=transport.get("description"),
             transport_version=transport.get("version"),
             update_method=obj.get("updateMethod"),
             data_provider_name=data_provider.get("name"),
             data_provider_key=data_provider.get("key"),
             dataset_id=datasource.get("id"),
+            raw=obj,
+            Relations=None,
         )
 
         if account:

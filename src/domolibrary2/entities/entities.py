@@ -11,15 +11,16 @@ Classes:
     DomoSubEntity: Entity that belongs to a parent entity
 """
 
-from ..client.auth import DomoAuth
 from .base import DomoBase
-import abc
-from dataclasses import dataclass, field, fields
-
-from typing import Any, Callable, Optional
+from .relationships import DomoRelationshipController
 
 from ..utils.convert import convert_snake_to_pascal
-from ..client import auth as dmda
+from ..client.auth import DomoAuth
+
+
+from dataclasses import dataclass, field, fields
+from typing import Any, Callable, Optional
+import abc
 
 
 @dataclass
@@ -42,11 +43,11 @@ class DomoEntity(DomoBase):
         'https://mycompany.domo.com/...'
     """
 
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
     id: str
     raw: dict = field(repr=False)  # api representation of the class
 
-    Relations: Any = field(repr=False)
+    Relations: DomoRelationshipController = field(repr=False)
 
     # logger: Logger = field(repr=False) ## pass global logger
 
@@ -137,7 +138,7 @@ class DomoEntity(DomoBase):
 
     @classmethod
     @abc.abstractmethod
-    async def get_entity_by_id(cls, auth: dmda.DomoAuth, entity_id: str):
+    async def get_entity_by_id(cls, auth: DomoAuth, entity_id: str):
         """Fetch an entity by its ID
 
         This method should be implemented by subclasses to fetch the specific
@@ -201,7 +202,7 @@ class DomoManager(DomoBase):
         auth: Authentication object for API requests (hidden in repr)
     """
 
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
 
     @abc.abstractmethod
     async def get(self, *args, **kwargs):
