@@ -11,7 +11,7 @@ from typing import Any
 
 import httpx
 
-from ...client import entities as dmee
+from ...entities import entities as dmee
 from ...client.auth import DomoAuth
 from ...routes import account as account_routes
 from . import (

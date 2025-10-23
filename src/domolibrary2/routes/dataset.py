@@ -41,8 +41,10 @@ from typing import List, Optional
 import httpx
 import pandas as pd
 
+
+from ..entities.base import DomoEnumMixin
 from ..client import auth as dmda, exceptions as de, get_data as gd, response as rgd
-from ..client.entities import DomoEnumMixin
+from ..client.auth import DomoAuth
 
 
 class DatasetNotFoundError(de.RouteError):
