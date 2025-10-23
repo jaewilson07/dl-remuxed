@@ -9,7 +9,7 @@ import httpx
 from . import DomoUser as dmu
 
 from .subentity.DomoLineage import DomoLineage
-from ..client.entities import DomoEntity_w_Lineage
+from ..entities.entities import DomoEntity_w_Lineage
 from ..routes import appstudio as appstudio_routes
 from ..utils import DictDot as util_dd, chunk_execution as ce
 

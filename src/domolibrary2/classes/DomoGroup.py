@@ -6,7 +6,7 @@ from typing import List, Union
 import httpx
 
 from ..client import exceptions as dmde
-from ..client.entities import DomoEntity
+from ..entities.entities import DomoEntity
 from ..routes import group as group_routes
 from ..routes.group import Group_CRUD_Error, GroupType_Enum
 from .subentity import DomoMembership as dmgm

@@ -10,7 +10,7 @@ from .. import DomoUser as dmdu
 
 from ...client import exceptions as dmde
 from ...client import DomoSubEntity, Entity_Relation
-from ...client.entities import DomoSubEntity, Entity_Relation
+from ...entities.entities import DomoSubEntity, Entity_Relation
 from ...routes import group as group_routes
 from ...utils import chunk_execution as dmce
 
