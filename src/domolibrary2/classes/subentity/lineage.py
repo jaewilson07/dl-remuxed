@@ -18,10 +18,10 @@ from enum import Enum
 from typing import Any, Callable, List
 
 import httpx
-from aenum import NoAlias
 
-from ...client import DomoEntity
-from ...client.entities import DomoEntity
+from ...client.auth import DomoAuth
+from ...entities.base import DomoEnumMixin
+from ...entities.entities import DomoEntity
 from ...routes import datacenter as datacenter_routes
 from ...utils import chunk_execution as dmce
 
@@ -240,8 +240,6 @@ class DomoLineageLinkTypeFactory_Enum(DomoEnumMixin, Enum):
 
 
 class DomoLineage_ParentTypeEnum(DomoEnumMixin, Enum):
-    _settings_ = NoAlias
-
     DomoDataflow = "DATAFLOW"
     DomoPublication = "PUBLICATION"
     DomoDataset = "DATA_SOURCE"
@@ -519,7 +517,7 @@ class DomoLineage_Publication(DomoLineage):
                     f"Lineage is not implemented for this entity type - {pc.entity.__class__.__name__}"
                 )
 
-            await pc._get_entity_by_id(entity_id=pc.entity_id, auth=pc.auth)
+            await pc.get_entity_by_id(entity_id=pc.entity_id, auth=pc.auth)
 
             return pc.entity.Lineage.get(session=session, debug_api=debug_api)
 
@@ -528,7 +526,7 @@ class DomoLineage_Publication(DomoLineage):
         if not self.parent:
             from .. import DomoPublish as dmpb
 
-            self.parent = await dmpb.DomoPublication._get_entity_by_id(
+            self.parent = await dmpb.DomoPublication.get_entity_by_id(
                 entity_id=self.parent_id,
                 auth=self.auth,
                 session=session,

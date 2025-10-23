@@ -11,7 +11,6 @@ organized into three main categories:
 All user-related functionality is accessible through this unified interface.
 """
 
-from .exceptions import *  # All exception classes
 from .attributes import (  # Attribute functions
     UserAttributes_IssuerType,
     clean_attribute_id,
@@ -33,6 +32,7 @@ from .core import (  # Core user functions
     search_users_by_id,
     search_virtual_user_by_subscriber_instance,
 )
+from .exceptions import *  # All exception classes
 from .properties import (  # Property-related classes and functions; Property functions
     UserProperty,
     UserProperty_Type,

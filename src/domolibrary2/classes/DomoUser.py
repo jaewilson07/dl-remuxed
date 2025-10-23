@@ -23,13 +23,17 @@ from typing import Any, List, Optional, Union
 import httpx
 
 from ..client.auth import DomoAuth
-from ..client.entities import DomoEntity, DomoManager
 from ..client.exceptions import ClassError, DomoError
 from ..client.Logger import Logger
 from ..client.response import ResponseGetData
-from ..routes import instance_config_sso as sso_routes, user as user_routes
+from ..entities.entities import DomoEntity, DomoManager
+from ..routes import (
+    instance_config_sso as sso_routes,
+    user as user_routes,
+)
 from ..routes.user import UserProperty
 from ..routes.user.exceptions import (
+    DeleteUser_Error,
     DownloadAvatar_Error,
     ResetPassword_PasswordUsed,
     SearchUser_NotFound,
@@ -38,12 +42,10 @@ from ..routes.user.exceptions import (
     UserAttributes_CRUD_Error,
     UserAttributes_GET_Error,
     UserSharing_Error,
-    DeleteUser_Error,
 )
 from ..utils import DictDot
 from ..utils.convert import convert_epoch_millisecond_to_datetime, test_valid_email
 from ..utils.Image import Image, ImageUtils, are_same_image
-
 
 # User route exceptions are now imported from ..routes.user.exceptions
 
@@ -120,7 +122,6 @@ class DomoUser(DomoEntity):
 
     @classmethod
     def from_dict(cls, auth, obj: dict):
-
         return cls(
             auth=auth,
             id=str(obj.get("id") or obj.get("userId")),
@@ -146,7 +147,6 @@ class DomoUser(DomoEntity):
 
     @classmethod
     def _from_virtual_json(cls, auth, obj: dict):
-
         return cls(
             id=obj["id"],
             auth=auth,

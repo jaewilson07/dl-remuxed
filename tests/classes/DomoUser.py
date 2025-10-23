@@ -7,9 +7,9 @@ Generated on: C:\GitHub\domolibrary
 import os
 from dotenv import load_dotenv
 import domolibrary2.client.auth as dmda
-import domolibrary2.routes.user as user_routes
 import domolibrary2.classes.DomoUser as dmdu
-from domolibrary2.routes.user import UserProperty_Type, UserProperty, User_CRUD_Error
+from domolibrary2.routes.user import UserProperty_Type, UserProperty
+import domolibrary2.utils.chunk_execution as dmce
 
 load_dotenv()
 
@@ -22,15 +22,23 @@ token_auth = dmda.DomoTokenAuth(
 TEST_USER_ID_1 = int(os.environ.get("USER_ID_1", 0))
 
 
-async def test_cell_0(token_auth=token_auth) -> str:
-    """Helper function to get the user ID of the authenticated user."""
+async def test_cell_0(token_auth=token_auth, debug_prn: bool = False) -> bool:
+
+    if debug_prn:
+        print("""Helper function to get the user ID of the authenticated user.""")
+
     if not token_auth.user_id:
         await token_auth.who_am_i()
-    return token_auth.user_id
+
+    assert token_auth.user_id
+    return True
 
 
-async def test_cell_1(token_auth=token_auth) -> dmdu.DomoUser:
-    """Test case from cell 1"""
+async def test_cell_1(token_auth=token_auth, debug_prn: bool = False) -> bool:
+
+    if debug_prn:
+        print("""Test case from cell 1""")
+
     if not token_auth.user_id:
         await token_auth.who_am_i()
     user_id = token_auth.user_id
@@ -38,11 +46,14 @@ async def test_cell_1(token_auth=token_auth) -> dmdu.DomoUser:
     domo_user = await dmdu.DomoUser.get_by_id(
         user_id=user_id, auth=token_auth, return_raw=False
     )
-    return domo_user
+    assert domo_user
+
+    return True
 
 
-async def test_cell_2(token_auth=token_auth):
-    """Test case from cell 2"""
+async def test_cell_2(token_auth=token_auth, debug_prn: bool = False) -> bool:
+    if debug_prn:
+        print("""Test case from cell 2""")
     if not token_auth.user_id:
         await token_auth.who_am_i()
 
@@ -52,22 +63,21 @@ async def test_cell_2(token_auth=token_auth):
         user_id=user_id, auth=token_auth, return_raw=False
     )
 
-    img = await domo_user.download_avatar(
+    assert await domo_user.download_avatar(
         folder_path="./EXPORTS/classes/DomoUser",
         img_name="cls_sample.png",
         return_raw=False,
         debug_api=False,
     )
 
-    return img
+    return True
 
 
-async def test_cell_3(token_auth=token_auth):
-    """Test case from cell 3"""
+async def test_cell_3(token_auth=token_auth, debug_prn: bool = False) -> bool:
+    if debug_prn:
+        print("""Test case from cell 3""")
 
     domo_user = await dmdu.DomoUser.get_by_id(user_id=TEST_USER_ID_1, auth=token_auth)
-
-    print(domo_user.display_url)
 
     property_ls = [
         UserProperty(UserProperty_Type.display_name, "test 3"),
@@ -75,49 +85,43 @@ async def test_cell_3(token_auth=token_auth):
         UserProperty(UserProperty_Type.role_id, 5),
     ]
 
-    try:
-        await domo_user.update_properties(property_ls=property_ls, debug_api=False)
-    except User_CRUD_Error as e:
-        print(e)
+    assert await domo_user.update_properties(property_ls=property_ls, debug_api=False)
+    return True
 
 
-async def test_cell_4(token_auth=token_auth):
+async def test_cell_4(token_auth=token_auth, debug_prn: bool = False) -> bool:
     """Test case from cell 4"""
 
-    domo_user = None
-    try:
-        domo_user = await dmdu.DomoUser.create(
-            auth=token_auth,
-            email_address="test4@test.com",
-            display_name="tony the tiger",
-            role_id=3,
-            debug_api=False,
-        )
+    if debug_prn:
+        print("""Test case from cell 4""")
 
-        print(domo_user)
+    domo_user = await dmdu.DomoUser.create(
+        auth=token_auth,
+        email_address="test4@test.com",
+        display_name="tony the tiger",
+        role_id=3,
+        debug_api=False,
+    )
 
-    except dmdu.User_CRUD_Error as e:
-        print(e)
+    await domo_user.delete()
 
-    try:
-        if domo_user:
-            await domo_user.delete()
-
-    except dmdu.User_CRUD_Error as e:
-        print(e)
+    return True
 
 
-async def test_cell_7(token_auth=token_auth):
-    """Test case from cell 7"""
-    assert await token_auth.who_am_i()
+async def test_cell_7(token_auth=token_auth, debug_prn: bool = False) -> bool:
+
+    if debug_prn:
+        print("""Test case from cell 7""")
+
+    print(await token_auth.who_am_i())
 
     domo_user = await dmdu.DomoUser.get_by_id(
         user_id=token_auth.user_id, auth=token_auth
     )
 
-    tokens = await domo_user.get_access_tokens(return_raw=False, debug_api=True)
+    print(await domo_user.get_access_tokens(return_raw=False, debug_api=True))
 
-    print({"Tokens": len(tokens), "user_id": domo_user.id})
+    return True
 
 
 async def main(token_auth=token_auth):
@@ -129,8 +133,18 @@ async def main(token_auth=token_auth):
         test_cell_4,
         test_cell_7,
     ]
-    for fn in fn_ls:
-        await fn(token_auth=token_auth)
+
+    print(f"there are {len(fn_ls)} test functions in DomoUser")
+
+    res = await dmce.gather_with_concurrency(
+        *[fn(token_auth=token_auth, debug_prn=True) for fn in fn_ls], n=10
+    )
+
+    print(len(res))
+
+    print(f"Test Results: {sum(res)} / {len(res)} tests passed in DomoUser")
+
+    return all(res)
 
 
 if __name__ == "__main__":

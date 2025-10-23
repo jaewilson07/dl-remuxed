@@ -117,7 +117,7 @@ async def test_cell_10(token_auth=token_auth):
 async def test_cell_11(token_auth=token_auth):
     """Test case from cell 11"""
     try:
-        await search_dataflows_to_jupyter_workspaces(auth = token_auth, 
+        await search_dataflows_to_jupyter_workspaces(auth = token_auth,
                                                     dataflow_id = 86,
                                                     debug_api = False,
         )

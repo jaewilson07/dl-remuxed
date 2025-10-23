@@ -8,8 +8,13 @@ from typing import Any, List
 import httpx
 
 from ..client import entities as dmee
+from ..client.auth import DomoAuth
+from ..client.entities import DomoManager
 from ..routes import access_token as access_token_routes
-from ..utils import chunk_execution as ce, convert as dmcv
+from ..utils import (
+    chunk_execution as ce,
+    convert as dmcv,
+)
 
 
 @dataclass

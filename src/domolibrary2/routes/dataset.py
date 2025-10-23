@@ -41,8 +41,14 @@ from typing import List, Optional
 import httpx
 import pandas as pd
 
-from ..client import auth as dmda, exceptions as de, get_data as gd, response as rgd
-from ..client.entities import DomoEnumMixin
+from ..client import (
+    auth as dmda,
+    exceptions as de,
+    get_data as gd,
+    response as rgd,
+)
+from ..client.auth import DomoAuth
+from ..entities.base import DomoEnumMixin
 
 
 class DatasetNotFoundError(de.RouteError):
@@ -119,9 +125,7 @@ async def query_dataset_public(
     return res
 
 
-gd.route_function
-
-
+@gd.route_function
 async def query_dataset_private(
     auth: DomoAuth,
     dataset_id: str,
