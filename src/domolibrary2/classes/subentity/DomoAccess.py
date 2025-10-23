@@ -13,7 +13,9 @@ import httpx
 
 from .. import DomoUser as dmdu
 
+
 from ...client import exceptions as dmde
+from ...client.auth import DomoAuth
 from ...client.entities import DomoSubEntity, Entity_Relation
 from ...routes import account as account_routes
 from ...routes.account import (
@@ -94,6 +96,78 @@ class DomoAccess(DomoSubEntity):
                 ]
 
         return self.accesslist_all_users
+
+    async def get_unified_access_summary(self):
+        """Get access summary using the unified access control system."""
+        if not UNIFIED_ACCESS_AVAILABLE:
+            raise NotImplementedError("Unified access control system not available")
+
+        # Create a mock parent object for the access controller
+        from ...entities.entities import DomoEntity
+
+        @dataclass
+        class MockParent(DomoEntity):
+            def display_url(self) -> str:
+                return f"https://{self.auth.domo_instance}.domo.com/accounts/{self.id}"
+
+            @classmethod
+            def from_dict(cls, auth, obj: dict):
+                return cls(auth=auth, id=obj.get("id"), raw=obj)
+
+            @classmethod
+            async def get_by_id(cls, auth, entity_id: str):
+                return cls(auth=auth, id=entity_id, raw={})
+
+        mock_parent = MockParent(auth=self.auth, id=self.parent_id, raw={})
+        controller = DomoAccountAccessController(self.auth, mock_parent)
+
+        return await controller.get_all_access_summaries()
+
+    async def get_access_grants(self) -> List:
+        """Get access grants in unified format."""
+        if not UNIFIED_ACCESS_AVAILABLE:
+            return []
+
+        # Convert existing access list to unified format
+        grants = []
+        for access_entity in self.accesslist:
+            entity_type = (
+                EntityType.USER
+                if hasattr(access_entity.entity, "email")
+                else EntityType.GROUP
+            )
+
+            # Map relation_type to AccessLevel
+            access_level = self._map_relation_type_to_access_level(
+                access_entity.relation_type
+            )
+
+            grant = AccessGrant(
+                entity_id=access_entity.entity.id,
+                entity_type=entity_type,
+                access_level=access_level,
+            )
+            grants.append(grant)
+
+        return grants
+
+    def _map_relation_type_to_access_level(self, relation_type) -> "AccessLevel":
+        """Map ShareAccount relation type to unified AccessLevel."""
+        if not UNIFIED_ACCESS_AVAILABLE:
+            return None
+
+        # This mapping depends on your ShareAccount enum values
+        # Adjust based on actual ShareAccount_AccessLevel values
+        mapping = {
+            "OWNER": AccessLevel.OWNER,
+            "ADMIN": AccessLevel.ADMIN,
+            "EDIT": AccessLevel.EDITOR,
+            "VIEW": AccessLevel.VIEWER,
+        }
+
+        # Get string representation of relation_type
+        relation_str = getattr(relation_type, "value", str(relation_type))
+        return mapping.get(relation_str, AccessLevel.VIEWER)
 
     async def share(
         self,
@@ -177,6 +251,14 @@ class DomoAccess(DomoSubEntity):
 
 @dataclass
 class DomoAccess_Account(DomoAccess):
+    """
+    Account access management with unified access control integration.
+
+    This class provides backward compatibility while integrating with
+    the new unified access control system. Use get_unified_access_summary()
+    for access to the standardized access control interface.
+    """
+
     version: int = None  # api version - aligns to feature switch
 
     share_enum: ShareAccount = field(repr=False, default=ShareAccount_AccessLevel)

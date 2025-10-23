@@ -17,10 +17,10 @@ import httpx
 from .Config import AccountConfig, DomoAccount_Config
 from ...client import exceptions as dmde
 from ...client.auth import DomoAuth
-from ...client.entities import DomoEntity
+from ...entities.entities import DomoEntity
 from ...routes import account as account_routes
 from ...utils import convert as cd
-from . import DomoAccess as dmas
+from ..subentity.DomoAccess import DomoAccess_Account as dmas_account
 
 
 class Account_CanIModify(dmde.ClassError):
@@ -64,12 +64,12 @@ class DomoAccount_Default(DomoEntity):
     is_admin_summary: bool = True
 
     Config: DomoAccount_Config = field(repr=False, default=None)
-    Access: dmas.DomoAccess_Account = field(repr=False, default=None)
+    Access: dmas_account = field(repr=False, default=None)
 
     def __post_init__(self):
         self.id = int(self.id)
 
-        self.Access = dmas.DomoAccess_Account.from_parent(
+        self.Access = dmas_account.from_parent(
             parent=self,
         )
 
