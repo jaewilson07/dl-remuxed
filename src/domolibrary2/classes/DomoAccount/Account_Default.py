@@ -20,7 +20,7 @@ from ...client.auth import DomoAuth
 from ...entities.entities import DomoEntity
 from ...routes import account as account_routes
 from ...utils import convert as cd
-from . import DomoAccess as dmas
+from ..subentity import DomoAccess as dmas
 
 
 class Account_CanIModify(dmde.ClassError):
