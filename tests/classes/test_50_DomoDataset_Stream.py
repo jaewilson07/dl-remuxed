@@ -5,7 +5,12 @@ Generated on: C:\GitHub\domolibrary
 """
 
 import os
-import domolibrary.client.DomoAuth as dmda
+from dotenv import load_dotenv
+import domolibrary2.client.auth as dmda
+import domolibrary2.routes.stream as stream_routes
+from domolibrary2.classes.DomoDataset.Stream import DomoStream, StreamConfig_Mappings
+
+load_dotenv()
 
 # Setup authentication for tests
 token_auth = dmda.DomoTokenAuth(
@@ -21,23 +26,33 @@ async def test_cell_1(token_auth=token_auth):
         domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],
     )
 
-    await auth.print_is_token()
-
+    if not auth.user_id:
+        await auth.who_am_i()
 
     res = await stream_routes.get_streams(auth=auth, maximum=5, loop_until_end=False)
 
     stream = res.response[0]
     stream_id = stream["id"]
-    stream
+    return stream
 
 
 async def test_cell_2(token_auth=token_auth):
     """Test case from cell 2"""
     data_provider_type = "aws-athena"
-    StreamConfig_Mappings.search(data_provider_type)
-    # StreamConfig_Mappings('hello world')
+    result = StreamConfig_Mappings.search(data_provider_type)
+    print(f"Mapping found: {result}")
+    return result
 
 
 async def test_cell_3(token_auth=token_auth):
     """Test case from cell 3"""
-    await DomoStream.get_stream_by_id(auth=auth, stream_id=stream_id)
+    # Get a stream ID first
+    res = await stream_routes.get_streams(auth=token_auth, maximum=1, loop_until_end=False)
+    if res.response:
+        stream_id = res.response[0]["id"]
+        domo_stream = await DomoStream.get_by_id(auth=token_auth, stream_id=stream_id)
+        print(f"Retrieved stream: {domo_stream.id}")
+        return domo_stream
+    else:
+        print("No streams found to test")
+        return None
