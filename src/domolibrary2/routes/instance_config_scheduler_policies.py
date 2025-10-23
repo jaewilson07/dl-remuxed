@@ -267,7 +267,7 @@ async def create_scheduler_policy(
     """
     # Basic input validation for clearer error messages
     if not isinstance(create_body.get("frequencies"), dict) or not all(
-        isinstance(v, int) for v in create_body["frequencies"].values()
+        isinstance(v, int) for v in create_body.get("frequencies", {}).values()
     ):
         raise SchedulerPolicy_CRUD_Error(
             operation="create",
