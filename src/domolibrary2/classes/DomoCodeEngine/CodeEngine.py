@@ -192,9 +192,9 @@ class DomoCodeEngine_PackageVersion:
         params = params or {"parts": "functions,code"}
 
         res = await codeengine_routes.get_codeengine_package_by_id_and_version(
+            auth=auth,
             package_id=package_id,
             version=version,
-            auth=auth,
             params=params,
             debug_api=debug_api,
             session=session,
@@ -350,10 +350,10 @@ class DomoCodeEngine_Package:
         debug_num_stacks_to_drop=2,
     ):
         res = await codeengine_routes.get_codeengine_package_by_id(
-            package_id,
             auth=auth,
-            debug_api=debug_api,
+            package_id=package_id,
             params=None,
+            debug_api=debug_api,
             session=session,
             parent_class=cls.__name__,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
