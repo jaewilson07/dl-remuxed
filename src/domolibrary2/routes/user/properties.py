@@ -47,10 +47,13 @@ from typing import List, Optional
 
 import httpx
 
-from ...client import get_data as gd, response as rgd
+from ...client import (
+    get_data as gd,
+    response as rgd,
+)
 from ...client.auth import DomoAuth
-from ...entities.base import DomoEnumMixin
 from ...client.exceptions import DomoError
+from ...entities.base import DomoEnumMixin
 from ...utils import Image as uimg
 from .exceptions import (
     DownloadAvatar_Error,

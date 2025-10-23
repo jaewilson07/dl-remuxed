@@ -41,12 +41,13 @@ Usage:
     relationships = await controller.get()
 """
 
-from .base import DomoBase, DomoEnum
-from .entities import DomoEntity
 from abc import abstractmethod
-from ..utils import chunk_execution as dmce
 from dataclasses import dataclass, field
 from typing import Any, Dict, List
+
+from ..utils import chunk_execution as dmce
+from .base import DomoBase, DomoEnum
+from .entities import DomoEntity
 
 RelationshipType = DomoEnum
 """Types of relationships between Domo entities."""

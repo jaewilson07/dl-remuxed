@@ -37,7 +37,10 @@ from typing import Optional
 
 import httpx
 
-from ..client import get_data as gd, response as rgd
+from ..client import (
+    get_data as gd,
+    response as rgd,
+)
 from ..client.auth import DomoAuth
 from ..client.exceptions import RouteError
 from ..utils import files as dmfi
@@ -198,7 +201,9 @@ async def get_all_designs(
         return res
 
     if not res.is_success:
-        raise EnterpriseApp_GET_Error(res=res, message="Failed to retrieve enterprise app designs")
+        raise EnterpriseApp_GET_Error(
+            res=res, message="Failed to retrieve enterprise app designs"
+        )
 
     return res
 
@@ -315,7 +320,11 @@ async def get_design_versions(
         return res
 
     if not res.is_success:
-        raise EnterpriseApp_GET_Error(entity_id=design_id, res=res, message=f"Failed to retrieve versions for design {design_id}")
+        raise EnterpriseApp_GET_Error(
+            entity_id=design_id,
+            res=res,
+            message=f"Failed to retrieve versions for design {design_id}",
+        )
 
     return res
 
@@ -359,7 +368,7 @@ async def get_design_source_code_by_version(
 
     Example:
         >>> asset_response = await get_design_source_code_by_version(
-        ...     auth, 
+        ...     auth,
         ...     design_id="8c16c8ab-c068-4110-940b-f738d7146efc",
         ...     version="1",
         ...     download_path="/tmp/app_source"
@@ -386,7 +395,7 @@ async def get_design_source_code_by_version(
             raise EnterpriseAppAssets_GET_Error(
                 entity_id=design_id,
                 res=res,
-                message=f"Assets not found for design {design_id} version {version}"
+                message=f"Assets not found for design {design_id} version {version}",
             )
         raise EnterpriseAppAssets_GET_Error(entity_id=design_id, res=res)
 

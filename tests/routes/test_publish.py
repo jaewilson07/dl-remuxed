@@ -24,8 +24,8 @@ async def test_cell_1(token_auth=token_auth):
 
 async def test_cell_2(token_auth=token_auth):
     """Test case from cell 2"""
-    res = await search_publications(auth=token_auth, 
-                                    debug_loop = True, 
+    res = await search_publications(auth=token_auth,
+                                    debug_loop = True,
                                     )
 
     publication = res.response[0]

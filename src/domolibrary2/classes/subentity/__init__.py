@@ -37,8 +37,8 @@ Migration Path:
 # Import relationship types from entities module
 try:
     from ...entities.relationships import (
-        DomoRelationshipController,
         DomoRelationship as Relationship,
+        DomoRelationshipController,
         RelationshipType,
     )
 except ImportError:
@@ -59,16 +59,16 @@ from .access import (
     DomoAccess_Account,
     DomoAccess_OAuth,
 )
-from .membership import (
-    DomoMembership_Group,
-    DomoMembership,
-    Membership_Entity,
-    UpdateMembership,
-)
 
 # Other subentity classes
 from .certification import DomoCertification
 from .lineage import DomoLineage
+from .membership import (
+    DomoMembership,
+    DomoMembership_Group,
+    Membership_Entity,
+    UpdateMembership,
+)
 from .tags import DomoTags
 
 __all__ = [

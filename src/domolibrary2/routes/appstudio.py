@@ -15,8 +15,12 @@ from typing import List, Optional
 
 import httpx
 
+from ..client import (
+    exceptions as dmde,
+    get_data as gd,
+    response as rgd,
+)
 from ..client.auth import DomoAuth
-from ..client import exceptions as dmde, get_data as gd, response as rgd
 
 
 class AppStudio_GET_Error(dmde.RouteError):
@@ -27,13 +31,13 @@ class AppStudio_GET_Error(dmde.RouteError):
         appstudio_id: Optional[str] = None,
         res: Optional[rgd.ResponseGetData] = None,
         message: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(
             message=message or "AppStudio retrieval failed",
             entity_id=appstudio_id,
             res=res,
-            **kwargs
+            **kwargs,
         )
 
 
@@ -46,13 +50,13 @@ class AppStudio_CRUD_Error(dmde.RouteError):
         appstudio_id: Optional[str] = None,
         res: Optional[rgd.ResponseGetData] = None,
         message: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(
             message=message or f"AppStudio {operation} operation failed",
             entity_id=appstudio_id,
             res=res,
-            **kwargs
+            **kwargs,
         )
 
 
@@ -64,13 +68,13 @@ class AppStudioSharing_Error(dmde.RouteError):
         appstudio_id: Optional[str] = None,
         res: Optional[rgd.ResponseGetData] = None,
         message: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(
             message=message or "AppStudio sharing operation failed",
             entity_id=appstudio_id,
             res=res,
-            **kwargs
+            **kwargs,
         )
 
 

@@ -18,7 +18,6 @@ from enum import Enum
 from typing import Any, Callable, List
 
 import httpx
-from aenum import NoAlias
 
 from ...client.auth import DomoAuth
 from ...entities.base import DomoEnumMixin

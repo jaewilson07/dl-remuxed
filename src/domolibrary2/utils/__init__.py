@@ -52,8 +52,8 @@ from . import (
 # Import legacy exception names from convert module for backwards compatibility
 from .convert import (
     ConcatDataframe_InvalidElement,  # Legacy alias for ConcatDataframeError
+    InvalidEmail,  # Legacy alias for InvalidEmailError
 )
-from .convert import InvalidEmail  # Legacy alias for InvalidEmailError
 from .exceptions import (
     ConcatDataframeError,
     CredentialsError,

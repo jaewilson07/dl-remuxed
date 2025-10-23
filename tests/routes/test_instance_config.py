@@ -64,6 +64,6 @@ async def test_cell_6(token_auth=token_auth):
 async def test_cell_7(token_auth=token_auth):
     """Test case from cell 7"""
     await toggle_is_left_nav_enabled(
-        is_use_left_nav = True, 
+        is_use_left_nav = True,
         auth=token_auth, return_raw=False, debug_api=False
     )

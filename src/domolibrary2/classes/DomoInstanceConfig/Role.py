@@ -16,8 +16,8 @@ import httpx
 
 from ...client import exceptions as dmde
 from ...client.auth import DomoAuth
-from ...entities.entities import DomoEntity, DomoManager
 from ...client.exceptions import ClassError, DomoError
+from ...entities.entities import DomoEntity, DomoManager
 from ...routes import role as role_routes
 
 

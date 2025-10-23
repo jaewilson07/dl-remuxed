@@ -45,17 +45,12 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest",
-    "pre-commit",
-    "isort"]
-
-[dependency-groups]
-dev = [
+    "bandit",
     "pylint",
     "ruff",
     "black",
     "isort",
     "mypy",
-    "pytest",
     "pytest-cov",
     "pre-commit",
 ]
