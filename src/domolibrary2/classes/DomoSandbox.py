@@ -15,7 +15,7 @@ import httpx
 import pandas as pd
 
 from ..client.auth import DomoAuth
-from ..client.entities import DomoEntity_w_Lineage, DomoManager
+from ..entities import entities as dmee
 from ..routes import sandbox as sandbox_routes
 from ..routes.sandbox import Sandbox_CRUD_Error, Sandbox_GET_Error
 from .subentity import DomoLineage as dmdl
@@ -113,7 +113,7 @@ class DomoRepository(DomoEntity_w_Lineage):
         return cls.from_dict(obj=res.response, auth=auth)
 
     @classmethod
-    async def _get_entity_by_id(
+    def get_entity_by_id(
         cls,
         auth: DomoAuth,
         entity_id: str,
