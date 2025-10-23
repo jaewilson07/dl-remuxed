@@ -118,7 +118,7 @@ class DomoPublication_Content:
         if not self.entity:
             self.entity = DomoPublication_Content_Enum[self.entity_type].value
 
-        self.entity = await self.entity._get_entity_by_id(
+        self.entity = await self.entity.get_entity_by_id(
             auth=self.auth,
             entity_id=self.entity_id,
             debug_api=debug_api,
@@ -243,7 +243,7 @@ class DomoPublication(DomoEntity_w_Lineage):
         return cls.from_dict(obj=res.response, auth=auth)
 
     @classmethod
-    async def _get_entity_by_id(cls, entity_id, **kwargs):
+    async def get_entity_by_id(cls, entity_id, **kwargs):
         return await cls.get_by_id(publication_id=entity_id, **kwargs)
 
     def display_url(self):
@@ -301,7 +301,7 @@ class DomoPublication(DomoEntity_w_Lineage):
                 #     )
             return None
 
-        return await subscriber._get_entity_by_id(
+        return await subscriber.get_entity_by_id(
             entity_id=obj["publisherObjectId"], auth=self.auth
         )
 

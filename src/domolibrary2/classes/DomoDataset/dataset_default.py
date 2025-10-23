@@ -60,7 +60,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
     Schema: dmdsc.DomoDataset_Schema = field(default=None)
     Stream: dmdst.DomoStream = field(default=None)
     Tags: dmtg.DomoTags = field(default=None)
-    PDP: dmpdp.DatasetPDPPolicies = field(default=None)
+    PDP: dmpdp.DatasetPdpPolicies = field(default=None)
 
     Certification: dmdc.DomoCertification = field(default=None)
     # Lineage: dmdl.DomoLineage = field(default=None, repr=False)
@@ -105,7 +105,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
         self.Stream = dmdst.DomoStream.from_parent(
             parent=self, stream_id=self.stream_id
         )
-        self.PDP = dmpdp.DatasetPDPPolicies.from_parent(parent=self)
+        self.PDP = dmpdp.DatasetPdpPolicies.from_parent(parent=self)
 
         self.Certification = dmdc.DomoCertification.from_parent(parent=self)
         self.Relations = None

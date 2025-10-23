@@ -30,7 +30,7 @@ class UpdateMembership(dmde.ClassError):
         super().__init__(
             entity_id=entity_id,
             cls_instance=cls_instance,
-            message=f"unable to alter mmbership {member_name if member_name else ''}",
+            message=f"unable to alter membership {member_name if member_name else ''}",
         )
 
 
@@ -216,8 +216,9 @@ class DomoMembership(DomoRelationshipController, DomoSubEntity):
             )
             membership_entities.append(membership_entity)
 
-        return membership_entities @ staticmethod
+        return membership_entities
 
+    @staticmethod
     def _list_to_dict(entity_ls):
         return [parent.to_dict() for parent in entity_ls]
 

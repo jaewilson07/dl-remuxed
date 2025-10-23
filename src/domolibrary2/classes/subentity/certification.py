@@ -29,7 +29,7 @@ class DomoCertification(DomoSubEntity):
             parent=parent,
         )
 
-    def get(self):
+    async def get(self):
         certification = self.parent.raw.get("certification")
 
         if not certification:
@@ -46,6 +46,8 @@ class DomoCertification(DomoSubEntity):
             self.certification_state = DomoCertificationState[
                 certification.get("state").get("value")
             ]
+
+        return self.to_dict()
 
     @classmethod
     def from_dict(

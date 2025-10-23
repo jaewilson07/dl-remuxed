@@ -35,7 +35,7 @@ from .dataset import (
     DomoPublishDataset,
     FederatedDomoDataset,
 )
-from .pdp import DatasetPDPPolicies, PDPParameter, PDPPolicy
+from .pdp import DatasetPdpPolicies, PdpParameter, PDPPolicy
 from .schema import (
     DatasetSchema_InvalidSchema,
     DatasetSchema_Types,
@@ -80,8 +80,8 @@ __all__ = [
     "DatasetSchema_InvalidSchema",
     # PDP functionality
     "PDPPolicy",
-    "PDPParameter",
-    "DatasetPDPPolicies",
+    "PdpParameter",
+    "DatasetPdpPolicies",
     # Streaming
     "DomoStream",
     "DomoStreams",
