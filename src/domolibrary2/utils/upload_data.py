@@ -2,10 +2,9 @@ __all__ = ["upload_data"]
 
 import httpx
 import pandas as pd
+from dc_logger import Logger
 
 from ..classes import dataset as dmds
-
-from dc_logger import Logger
 
 
 async def loop_upload(

@@ -74,7 +74,6 @@ class DomoAccess_Account(DomoAccess):
     share_enum: ShareAccount = field(repr=False, default=ShareAccount_AccessLevel)
 
     def __post_init__(self):
-
         super().__post_init__()
 
         if isinstance(self.share_enum, ShareAccount_AccessLevel):

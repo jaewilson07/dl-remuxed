@@ -7,15 +7,13 @@ from typing import Any, List
 
 import httpx
 
+from ..client.auth import DomoAuth
+from ..entities.entities import DomoEntity, DomoManager
+from ..routes import access_token as access_token_routes
 from ..utils import (
     chunk_execution as dmce,
     convert as dmcv,
 )
-
-from ..entities.entities import DomoEntity, DomoManager
-from ..client.auth import DomoAuth
-
-from ..routes import access_token as access_token_routes
 
 
 @dataclass
@@ -47,7 +45,6 @@ class DomoAccessToken(DomoEntity):
         obj: dict,
         owner: Any = None,
     ):
-
         return cls(
             id=obj["id"],
             name=obj["name"],
@@ -75,7 +72,6 @@ class DomoAccessToken(DomoEntity):
         debug_num_stacks_to_drop: int = 2,
         return_raw: bool = False,
     ):
-
         res = await access_token_routes.get_access_token_by_id(
             auth=auth,
             access_token_id=access_token_id,

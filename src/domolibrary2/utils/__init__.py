@@ -40,11 +40,11 @@ License: MIT
 # Import main utility modules
 from . import (
     DictDot,
-    image,
     chunk_execution,
     compare,
     convert,
     files,
+    image,
     read_creds_from_dotenv,
     xkcd_password,
 )

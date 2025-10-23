@@ -10,7 +10,7 @@ from typing import List
 from domolibrary2.entities.relationships import DomoRelationshipController
 
 from ..client.exceptions import ClassError
-from . import DomoEntity, DomoEnum, DomoRelationship, DomoSubEntity, DomoEnumMixin
+from . import DomoEntity, DomoEnumMixin, DomoRelationship, DomoSubEntity
 
 # from .. import DomoUser as dmdu
 
@@ -20,7 +20,6 @@ RelationshipType = DomoEnumMixin
 
 class Access_Config_Error(ClassError):
     def __init__(self, cls_instance=None, account_id=None, message=None):
-
         super().__init__(
             cls_instance=cls_instance,
             entity_id=account_id,
@@ -68,7 +67,6 @@ class DomoAccess(DomoRelationshipController, DomoSubEntity):
         # super().__post_init__()
 
         if self.share_enum and not issubclass(self.share_enum, RelationshipType):
-
             print(self.share_enum)
             raise Access_Config_Error(
                 cls_instance=self,
