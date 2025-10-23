@@ -73,7 +73,7 @@ class DomoRepository(dmee.DomoEntity_w_Lineage):
         return cls.from_dict(obj=res.response, auth=auth)
 
     @classmethod
-    def _get_entity_by_id(
+    def get_entity_by_id(
         cls,
         entity_id: str,
         auth: DomoAuth,

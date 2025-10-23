@@ -57,8 +57,8 @@ def get_users(self) -> List[DomoRelationship]:
 
 ### **3. Clean Entity Hierarchy**
 - ✅ `PDPPolicy` extends `DomoEntity`
-- ✅ `PDPParameter` extends `DomoSubEntity`
-- ✅ `DatasetPDPPolicies` manages collections
+- ✅ `PdpParameter` extends `DomoSubEntity`
+- ✅ `DatasetPdpPolicies` manages collections
 - ✅ Consistent interface across all entities
 
 ### **4. Enhanced Functionality**
@@ -75,14 +75,14 @@ def get_users(self) -> List[DomoRelationship]:
 class PDPPolicy(DomoEntity):
     """A policy is a rule that applies to a dataset"""
     dataset_id: str  # The dataset this rule applies to
-    parameters: List[PDPParameter]  # The filters (conditions)
+    parameters: List[PdpParameter]  # The filters (conditions)
     relationship_controller: DomoRelationshipController  # User/group associations
 ```
 
 ### **Parameters as SubEntities**
 ```python
 @dataclass 
-class PDPParameter(DomoSubEntity):
+class PdpParameter(DomoSubEntity):
     """A parameter is a filter condition within a policy"""
     column_name: str
     column_values: List[str]
@@ -105,7 +105,7 @@ relationships = policy.get_users()  # Full relationship objects with metadata
 
 ### **Creating a Policy with the New System**
 ```python
-from domolibrary2.entities import PDPPolicy, PDPParameter, PDPOperator
+from domolibrary2.entities import PDPPolicy, PdpParameter, PDPOperator
 
 # Create policy
 policy = PDPPolicy(
@@ -114,7 +114,7 @@ policy = PDPPolicy(
 )
 
 # Add filter parameter
-param = PDPParameter(
+param = PdpParameter(
     column_name="department",
     column_values=["Sales", "Marketing"],
     operator=PDPOperator.IN,  # Proper enum validation

@@ -34,68 +34,48 @@ Migration Path:
 """
 
 # New unified relationship system (recommended)
-from .Relationships import (
-    DomoAccessRelationshipController,
-    DomoMembershipRelationshipController,
-    DomoRelationshipController,
-    DomoRelationshipManager,
-    EntityType as RelationshipEntityType,
-    Relationship,
-    RelationshipSummary,
-    RelationshipType,
-)
+# Import relationship types from entities module
+try:
+    from ...entities.relationships import (
+        DomoRelationshipController,
+        DomoRelationship as Relationship,
+        RelationshipType,
+    )
+except ImportError:
+    # Fallback if relationships module not available
+    DomoRelationshipController = None
+    Relationship = None
+    RelationshipType = None
 
 # Transitional access control system
-from .AccessControl import (
-    AccessGrant,
-    AccessLevel,
-    AccessSummary,
-    DomoAccessController,
-    DomoAccountAccessController,
-    DomoGroupAccessController,
-    DomoObjectAccessManager,
-    EntityType,
-)
+# AccessControl module not yet implemented
+# from .AccessControl import (...)
 
 # Legacy access and membership classes
-from .DomoAccess import (
+from .access import (
     Access_Config_Error,
     Access_Entity,
     DomoAccess,
     DomoAccess_Account,
     DomoAccess_OAuth,
 )
-from .DomoMembership import (
-    GroupMembership,
-    Membership,
+from .membership import (
+    DomoMembership_Group,
+    DomoMembership,
     Membership_Entity,
     UpdateMembership,
 )
 
 # Other subentity classes
-from .DomoCertification import DomoCertification
-from .DomoLineage import DomoLineage
-from .DomoTag import DomoTag
+from .certification import DomoCertification
+from .lineage import DomoLineage
+from .tags import DomoTags
 
 __all__ = [
     # New unified relationship system (recommended)
     "RelationshipType",
-    "RelationshipEntityType",
     "Relationship",
-    "RelationshipSummary",
     "DomoRelationshipController",
-    "DomoRelationshipManager",
-    "DomoAccessRelationshipController",
-    "DomoMembershipRelationshipController",
-    # Transitional access control system
-    "AccessLevel",
-    "EntityType",
-    "AccessGrant",
-    "AccessSummary",
-    "DomoAccessController",
-    "DomoObjectAccessManager",
-    "DomoAccountAccessController",
-    "DomoGroupAccessController",
     # Legacy access classes (deprecated)
     "DomoAccess",
     "DomoAccess_Account",
@@ -103,12 +83,12 @@ __all__ = [
     "Access_Entity",
     "Access_Config_Error",
     # Legacy membership classes (deprecated)
-    "Membership",
-    "GroupMembership",
+    "DomoMembership",
+    "DomoMembership_Group",
     "Membership_Entity",
     "UpdateMembership",
     # Other subentities
     "DomoCertification",
     "DomoLineage",
-    "DomoTag",
+    "DomoTags",
 ]

@@ -125,7 +125,7 @@ class DomoGroup(DomoEntity):
         return dg
 
     @classmethod
-    async def _get_entity_by_id(cls, entity_id, **kwargs):
+    async def get_entity_by_id(cls, entity_id, **kwargs):
         """
         Internal method to get an entity by ID.
         """

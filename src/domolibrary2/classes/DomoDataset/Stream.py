@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, List, Optional
+from typing import List, Optional, Any
 
 import httpx
 
 from ...utils import chunk_execution as dmce
 from ...client.auth import DomoAuth
-from ...entities import DomoSubEntity, DomoManager
+from ...entities import DomoSubEntity, DomoManager, DomoEntity
 
 from ...routes import stream as stream_routes
 
@@ -20,12 +20,10 @@ __all__ = [
 
 
 @dataclass
-class DomoStream(DomoSubEntity):
+class DomoStream(DomoEntity):
     """A class for interacting with a Domo Stream (dataset connector)"""
 
     id: str
-    raw: dict = field(default_factory=dict, repr=False)
-    dataset_id: str = None
 
     transport_description: str = None
     transport_version: int = None
@@ -41,6 +39,22 @@ class DomoStream(DomoSubEntity):
     configuration_tables: List[str] = field(default_factory=list)
     configuration_query: str = None
 
+    parent: Any = None  # DomoDataset
+
+    @property
+    def dataset_id(self) -> str:
+        return self.parent.id
+
+    @classmethod
+    def from_parent(cls, parent, stream_id):
+        return cls(
+            parent=parent, auth=parent.auth, id=stream_id, Relations=None, raw=None
+        )
+
+    @property
+    def entity_type(self):
+        return "STREAM"
+
     @property
     def display_url(self):
         """Generate URL to view this stream in the Domo UI"""
@@ -55,15 +69,17 @@ class DomoStream(DomoSubEntity):
         account = obj.get("account", {})
 
         sd = cls(
+            auth=auth,
             parent=None,  # Will be set by caller if needed
             id=obj["id"],
-            raw=obj,
             transport_description=transport.get("description"),
             transport_version=transport.get("version"),
             update_method=obj.get("updateMethod"),
             data_provider_name=data_provider.get("name"),
             data_provider_key=data_provider.get("key"),
             dataset_id=datasource.get("id"),
+            raw=obj,
+            Relations=None,
         )
 
         if account:
@@ -130,6 +146,10 @@ class DomoStream(DomoSubEntity):
             return res
 
         return cls.from_dict(auth=auth, obj=res.response)
+
+    @classmethod
+    async def get_entity_by_id(cls, entity_id: str, auth: DomoAuth, **kwargs):
+        return await cls.get_by_id(stream_id=entity_id, auth=auth, **kwargs)
 
     @classmethod
     async def create(

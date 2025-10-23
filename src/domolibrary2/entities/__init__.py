@@ -24,6 +24,12 @@ from .entities import (
     DomoSubEntity,
 )
 
+# Import federated entities
+from .entities_federated import (
+    DomoFederatedEntity,
+    DomoPublishedEntity,
+)
+
 # Import relationship system
 from .relationships import (
     DomoRelationship,
@@ -41,6 +47,9 @@ __all__ = [
     "DomoEntity_w_Lineage",
     "DomoManager",
     "DomoSubEntity",
+    # Federated entities
+    "DomoFederatedEntity",
+    "DomoPublishedEntity",
     # Relationships
     "DomoRelationship",
     "DomoRelationshipController",

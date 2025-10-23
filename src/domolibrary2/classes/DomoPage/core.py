@@ -199,7 +199,7 @@ class DomoPage(DomoEntity_w_Lineage):
         return pg
 
     @classmethod
-    async def _get_entity_by_id(cls, entity_id: str, **kwargs):
+    async def get_entity_by_id(cls, entity_id: str, **kwargs):
         return await cls.get_by_id(page_id=entity_id, **kwargs)
 
     @classmethod
