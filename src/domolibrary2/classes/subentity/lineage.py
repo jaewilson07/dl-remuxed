@@ -14,6 +14,7 @@ __all__ = [
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+<<<<<<<< HEAD:src/domolibrary2/classes/subentity/DomoLineage.py
 <<<<<<<< HEAD:src/classes/DomoLineage.py
 from typing import Any, Callable, List
 
@@ -41,6 +42,21 @@ from ...utils import chunk_execution as dmce
 >>>>>>>> test:src/domolibrary2/classes/subentity/DomoLineage.py
 
 
+========
+from enum import Enum
+from typing import Any, Callable, List
+
+import httpx
+from aenum import NoAlias
+
+from ...client.auth import DomoAuth
+from ...entities.base import DomoEnumMixin
+from ...entities.entities import DomoEntity
+from ...routes import datacenter as datacenter_routes
+from ...utils import chunk_execution as dmce
+
+
+>>>>>>>> main:src/domolibrary2/classes/subentity/lineage.py
 @dataclass
 class DomoLineage_Link(ABC):
     auth: DomoAuth = field(repr=False)
@@ -116,11 +132,15 @@ class DomoLineageLink_Dataflow(DomoLineage_Link):
     async def get_entity(
         entity_id, auth, session: httpx.AsyncClient = None, debug_api: bool = False
     ):
+<<<<<<<< HEAD:src/domolibrary2/classes/subentity/DomoLineage.py
 <<<<<<<< HEAD:src/classes/DomoLineage.py
         from . import DomoDataflow as dmdf
 ========
         from .. import DomoDataflow as dmdf
 >>>>>>>> test:src/domolibrary2/classes/subentity/DomoLineage.py
+========
+        from .. import DomoDataflow as dmdf
+>>>>>>>> main:src/domolibrary2/classes/subentity/lineage.py
 
         return await dmdf.DomoDataflow.get_by_id(dataflow_id=entity_id, auth=auth)
 
@@ -156,11 +176,15 @@ class DomoLineageLink_Publication(DomoLineage_Link):
         Get the entity associated with this lineage link.
         This method should be implemented by subclasses to return the appropriate entity.
         """
+<<<<<<<< HEAD:src/domolibrary2/classes/subentity/DomoLineage.py
 <<<<<<<< HEAD:src/classes/DomoLineage.py
         from . import DomoPublish as dmpb
 ========
         from .. import DomoPublish as dmpb
 >>>>>>>> test:src/domolibrary2/classes/subentity/DomoLineage.py
+========
+        from .. import DomoPublish as dmpb
+>>>>>>>> main:src/domolibrary2/classes/subentity/lineage.py
 
         return await dmpb.DomoPublication.get_by_id(
             publication_id=entity_id, auth=auth, session=session, debug_api=debug_api
@@ -194,11 +218,15 @@ class DomoLineageLink_Card(DomoLineage_Link):
         Get the entity associated with this lineage link.
         This method should be implemented by subclasses to return the appropriate entity.
         """
+<<<<<<<< HEAD:src/domolibrary2/classes/subentity/DomoLineage.py
 <<<<<<<< HEAD:src/classes/DomoLineage.py
         from . import DomoCard as dmcd
 ========
         from .. import DomoCard as dmcd
 >>>>>>>> test:src/domolibrary2/classes/subentity/DomoLineage.py
+========
+        from .. import DomoCard as dmcd
+>>>>>>>> main:src/domolibrary2/classes/subentity/lineage.py
 
         return await dmcd.DomoCard.get_by_id(
             card_id=entity_id, auth=auth, session=session, debug_api=debug_api
@@ -235,11 +263,15 @@ class DomoLineageLink_Dataset(DomoLineage_Link):
         Get the entity associated with this lineage link.
         This method should be implemented by subclasses to return the appropriate entity.
         """
+<<<<<<<< HEAD:src/domolibrary2/classes/subentity/DomoLineage.py
 <<<<<<<< HEAD:src/classes/DomoLineage.py
         from . import DomoDataset as dmds
 ========
         from .. import dataset as dmds
 >>>>>>>> test:src/domolibrary2/classes/subentity/DomoLineage.py
+========
+        from .. import dataset as dmds
+>>>>>>>> main:src/domolibrary2/classes/subentity/lineage.py
 
         return await dmds.DomoDataset.get_by_id(
             dataset_id=entity_id, auth=auth, session=session, debug_api=debug_api
@@ -270,6 +302,7 @@ class DomoLineageLinkTypeFactory_Enum(DomoEnumMixin, Enum):
     CARD = DomoLineageLink_Card
 
 
+<<<<<<<< HEAD:src/domolibrary2/classes/subentity/DomoLineage.py
 <<<<<<<< HEAD:src/classes/DomoLineage.py
 class DomoLineage_ParentTypeEnum(DomoEnum):
 ========
@@ -277,6 +310,9 @@ class DomoLineage_ParentTypeEnum(DomoEnumMixin, Enum):
 >>>>>>>> test:src/domolibrary2/classes/subentity/DomoLineage.py
     _settings_ = NoAlias
 
+========
+class DomoLineage_ParentTypeEnum(DomoEnumMixin, Enum):
+>>>>>>>> main:src/domolibrary2/classes/subentity/lineage.py
     DomoDataflow = "DATAFLOW"
     DomoPublication = "PUBLICATION"
     DomoDataset = "DATA_SOURCE"
@@ -471,11 +507,15 @@ class DomoLineage_Page(DomoLineage):
         return_raw: bool = False,
     ):
         if not self.parent:
+<<<<<<<< HEAD:src/domolibrary2/classes/subentity/DomoLineage.py
 <<<<<<<< HEAD:src/classes/DomoLineage.py
             from . import DomoPage as dmpg
 ========
             from .. import DomoPage as dmpg
 >>>>>>>> test:src/domolibrary2/classes/subentity/DomoLineage.py
+========
+            from .. import DomoPage as dmpg
+>>>>>>>> main:src/domolibrary2/classes/subentity/lineage.py
 
             self.parent = await dmpg.DomoPage.get_by_id(
                 page_id=self.parent_id,
@@ -558,20 +598,24 @@ class DomoLineage_Publication(DomoLineage):
                     f"Lineage is not implemented for this entity type - {pc.entity.__class__.__name__}"
                 )
 
-            await pc._get_entity_by_id(entity_id=pc.entity_id, auth=pc.auth)
+            await pc.get_entity_by_id(entity_id=pc.entity_id, auth=pc.auth)
 
             return pc.entity.Lineage.get(session=session, debug_api=debug_api)
 
         session = session or httpx.AsyncClient()
 
         if not self.parent:
+<<<<<<<< HEAD:src/domolibrary2/classes/subentity/DomoLineage.py
 <<<<<<<< HEAD:src/classes/DomoLineage.py
             from . import DomoPublish as dmpb
 ========
             from .. import DomoPublish as dmpb
 >>>>>>>> test:src/domolibrary2/classes/subentity/DomoLineage.py
+========
+            from .. import DomoPublish as dmpb
+>>>>>>>> main:src/domolibrary2/classes/subentity/lineage.py
 
-            self.parent = await dmpb.DomoPublication._get_entity_by_id(
+            self.parent = await dmpb.DomoPublication.get_entity_by_id(
                 entity_id=self.parent_id,
                 auth=self.auth,
                 session=session,

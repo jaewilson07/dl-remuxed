@@ -19,6 +19,7 @@ from typing import List
 
 import httpx
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/instance_config_sso.py
 from ..client import auth as dmda
 from ..client import exceptions as dmde
@@ -49,6 +50,19 @@ class SSO_AddUserDirectSignonError(dmde.RouteError):
 
 
 >>>>>>>> test:src/domolibrary2/routes/instance_config_sso.py
+=======
+from ..client import auth as dmda, exceptions as dmde, get_data as gd, response as rgd
+
+
+class SSO_AddUserDirectSignonError(dmde.RouteError):
+    def __init__(self, res: rgd.ResponseGetData, user_id_ls: List[str], message=None):
+        message = (
+            message or f"unable to add {', '.join(user_id_ls)} to DSO {res.response}"
+        )
+        super().__init__(res=res, message=message)
+
+
+>>>>>>> main
 @gd.route_function
 async def toggle_user_direct_signon_access(
     auth: dmda.DomoAuth,

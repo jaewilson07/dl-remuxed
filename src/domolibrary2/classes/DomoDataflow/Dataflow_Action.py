@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import List
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoDataflow_Action.py
 from ..utils import convert as ct
 from ..utils import DictDot as util_dd
@@ -13,6 +14,10 @@ from ..client.entities import DomoEnum
 from ..client.entities import DomoEnumMixin
 from ..utils import DictDot as util_dd, convert as ct
 >>>>>>>> test:src/domolibrary2/classes/DomoDataflow/Dataflow_Action.py
+=======
+from ..client.entities import DomoEnumMixin
+from ..utils import DictDot as util_dd, convert as ct
+>>>>>>> main
 
 __all__ = [
     "DomoDataflow_Action_Type",
@@ -22,11 +27,15 @@ __all__ = [
 ]
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoDataflow_Action.py
 class DomoDataflow_Action_Type(DomoEnum):
 ========
 class DomoDataflow_Action_Type(DomoEnumMixin, Enum):
 >>>>>>>> test:src/domolibrary2/classes/DomoDataflow/Dataflow_Action.py
+=======
+class DomoDataflow_Action_Type(DomoEnumMixin, Enum):
+>>>>>>> main
     LoadFromVault = "LoadFromVault"
     PublishToVault = "PublishToVault"
     GenerateTableAction = "GenerateTableAction"
@@ -71,11 +80,15 @@ class DomoDataflow_Action(DomoAction):
 
         return action
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoDataflow_Action.py
     def get_parents(self, domo_actions: List["DomoDataflow_Action"]):
 ========
     def get_parents(self, domo_actions: List[DomoDataflow_Action]):
 >>>>>>>> test:src/domolibrary2/classes/DomoDataflow/Dataflow_Action.py
+=======
+    def get_parents(self, domo_actions: List[DomoDataflow_Action]):
+>>>>>>> main
         if self.depends_on and len(self.depends_on) > 0:
             self.parent_actions = [
                 parent_action

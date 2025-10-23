@@ -9,8 +9,8 @@ import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
 token_auth = dmda.DomoTokenAuth(
-    domo_instance=os.environ['DOMO_INSTANCE'],
-    domo_access_token=os.environ['DOMO_ACCESS_TOKEN'],
+    domo_instance=os.environ["DOMO_INSTANCE"],
+    domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],
 )
 
 
@@ -31,9 +31,9 @@ async def test_cell_2(token_auth=token_auth):
     ARGUMENT_INDEX = 1
 
     res = await code_engine_routes.get_codeengine_package_by_id_and_version(
+        auth=token_auth,
         package_id=PACKAGE_ID,
         version=VERSION_ID,
-        auth=token_auth,
         debug_api=False,
     )
     compare_obj = res.response["functions"][FUNCTION_INDEX]
@@ -56,14 +56,18 @@ async def test_cell_3(token_auth=token_auth):
     pprint(
         {
             **test_arg.__dict__,
-            "🚀 extract_ast_arg_type_annotation": extract_ast_arg_type_annotation(test_arg),
+            "🚀 extract_ast_arg_type_annotation": extract_ast_arg_type_annotation(
+                test_arg
+            ),
         }
     )
 
 
 async def test_cell_4(token_auth=token_auth):
     """Test case from cell 4"""
-    pprint({**test_arg.__dict__, "🚀 extract_ast_arg_name": extract_ast_arg_name(test_arg)})
+    pprint(
+        {**test_arg.__dict__, "🚀 extract_ast_arg_name": extract_ast_arg_name(test_arg)}
+    )
 
 
 async def test_cell_5(token_auth=token_auth):

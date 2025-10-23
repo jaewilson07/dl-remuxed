@@ -9,14 +9,19 @@ __all__ = [
 
 from dataclasses import dataclass, field
 from datetime import datetime
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoInstanceConfig_Scheduler_Policies.py
 ========
 from enum import Enum
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/Scheduler_Policies.py
+=======
+from enum import Enum
+>>>>>>> main
 from typing import List, Literal, Optional
 
 import httpx
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoInstanceConfig_Scheduler_Policies.py
 from ..client import auth as dmda
 from ..routes import instance_config_scheduler_policies as scheduler_policies_routes
@@ -25,6 +30,10 @@ from ..client.entities import DomoBase, DomoEnum, DomoSubEntity
 from ..client.entities import DomoBase, DomoSubEntity
 from ..routes import instance_config_scheduler_policies as scheduler_policies_routes
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/Scheduler_Policies.py
+=======
+from ..client.entities import DomoBase, DomoSubEntity
+from ..routes import instance_config_scheduler_policies as scheduler_policies_routes
+>>>>>>> main
 
 
 def parse_dt(dt: str) -> datetime:
@@ -112,11 +121,15 @@ class DomoScheduler_Policy(DomoBase):
 
 @dataclass
 class DomoScheduler_Policies(DomoSubEntity):
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoInstanceConfig_Scheduler_Policies.py
     auth: dmda.DomoAuth
 ========
     auth: DomoAuth
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/Scheduler_Policies.py
+=======
+    auth: DomoAuth
+>>>>>>> main
     policies: List[DomoScheduler_Policy] = field(default_factory=list)
 
     async def get(

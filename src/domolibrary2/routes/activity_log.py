@@ -10,6 +10,7 @@ from typing import Optional
 
 import httpx
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/activity_log.py
 from ..client.auth import DomoAuth
 from ..client.exceptions import RouteError
@@ -20,11 +21,17 @@ from ..client import get_data as gd, response as rgd
 from ..client.auth import DomoAuth
 from ..client.exceptions import RouteError
 >>>>>>>> test:src/domolibrary2/routes/activity_log.py
+=======
+from ..client import get_data as gd, response as rgd
+from ..client.auth import DomoAuth
+from ..client.exceptions import RouteError
+>>>>>>> main
 
 
 class ActivityLog_GET_Error(RouteError):
     """Raised when activity log retrieval operations fail."""
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/activity_log.py
     def __init__(
         self, message: Optional[str] = None, response_data=None, **kwargs
@@ -33,11 +40,16 @@ class ActivityLog_GET_Error(RouteError):
             message=message or "Activity log retrieval failed",
             response_data=response_data,
 ========
+=======
+>>>>>>> main
     def __init__(self, message: Optional[str] = None, res=None, **kwargs):
         super().__init__(
             message=message or "Activity log retrieval failed",
             res=res,
+<<<<<<< HEAD
 >>>>>>>> test:src/domolibrary2/routes/activity_log.py
+=======
+>>>>>>> main
             **kwargs,
         )
 
@@ -66,11 +78,15 @@ async def get_activity_log_object_types(
 
     if not res.is_success:
         raise ActivityLog_GET_Error(
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/activity_log.py
             message="Failed to get activity log object types", response_data=res
 ========
             message="Failed to get activity log object types", res=res
 >>>>>>>> test:src/domolibrary2/routes/activity_log.py
+=======
+            message="Failed to get activity log object types", res=res
+>>>>>>> main
         )
 
     return res
@@ -129,11 +145,15 @@ async def search_activity_log(
     )
 
     if not res.is_success:
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/activity_log.py
         raise ActivityLog_GET_Error(response_data=res)
 ========
         raise ActivityLog_GET_Error(res=res)
 >>>>>>>> test:src/domolibrary2/routes/activity_log.py
+=======
+        raise ActivityLog_GET_Error(res=res)
+>>>>>>> main
 
     if is_close_session:
         await session.aclose()

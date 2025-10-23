@@ -29,6 +29,7 @@ from typing import List
 
 import httpx
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/instance_config.py
 from ..client import auth as dmda
 from ..client import exceptions as dmde
@@ -38,6 +39,9 @@ from . import user as user_routes
 ========
 from ..client import auth as dmda, exceptions as dmde, get_data as gd, response as rgd
 >>>>>>>> test:src/domolibrary2/routes/instance_config.py
+=======
+from ..client import auth as dmda, exceptions as dmde, get_data as gd, response as rgd
+>>>>>>> main
 from ..utils.convert import convert_string_to_bool
 from . import user as user_routes
 
@@ -318,6 +322,10 @@ async def get_allowlist_is_filter_all_traffic_enabled(
     return res
 
 
+<<<<<<< HEAD
+=======
+@gd.route_function
+>>>>>>> main
 async def toggle_allowlist_is_filter_all_traffic_enabled(
     auth: dmda.DomoFullAuth,
     is_enabled: bool,
@@ -535,11 +543,15 @@ async def toggle_is_weekly_digest_enabled(
     )
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/instance_config.py
 class GetAppDomains_NotFound(dmde.DomoError):
 ========
 class GetAppDomains_NotFound(DomoError):
 >>>>>>>> test:src/domolibrary2/routes/instance_config.py
+=======
+class GetAppDomains_NotFound(DomoError):
+>>>>>>> main
     def __init__(self, res: rgd.ResponseGetData, message: str = None):
         super().__init__(res=res, message=message)
 

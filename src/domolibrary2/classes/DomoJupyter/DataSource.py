@@ -6,11 +6,15 @@ __all__ = ["DomoJupyter_DataSource"]
 from dataclasses import dataclass, field
 from typing import Any
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoJupyter_DataSource.py
 from . import DomoDataset as dmds
 ========
 from . import dataset as dmds
 >>>>>>>> test:src/domolibrary2/classes/DomoJupyter/DataSource.py
+=======
+from . import dataset as dmds
+>>>>>>> main
 
 
 @dataclass

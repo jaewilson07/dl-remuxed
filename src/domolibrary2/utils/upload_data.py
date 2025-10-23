@@ -3,13 +3,9 @@ __all__ = ["upload_data"]
 import httpx
 import pandas as pd
 
-<<<<<<<< HEAD:src/utils/upload_data.py
-from ..classes import DomoDataset as dmds
 from ..client import auth as dmda
-from ..client import Logger as lc
-========
-from ..classes import dataset as dmds
->>>>>>>> test:src/domolibrary2/utils/upload_data.py
+from ..classes import DomoDataset as dmds
+from dc_logger import Logger
 
 
 async def loop_upload(
@@ -72,7 +68,7 @@ async def loop_upload(
 async def upload_data(
     # instance where the data_fn function will execute against
     data_fn,  # data function to execute
-    instance_auth: DomoAuth,  # instance to run the data function against
+    instance_auth: dmda.DomoAuth,  # instance to run the data function against
     consol_ds: dmds.DomoDataset,  # dataset where data should be accumulated
     # if partition key supplied, will replace existing partition
     partition_key: str = None,

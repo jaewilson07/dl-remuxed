@@ -6,6 +6,7 @@ from typing import List
 
 import httpx
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoInstanceConfig_UserAttribute.py
 from ..client import auth as dmda
 from ..routes import user_attributes as user_attribute_routes
@@ -14,6 +15,10 @@ from ..client.entities import DomoEntity, DomoManager
 from ..client.entities import DomoEntity, DomoManager
 from ..routes import user_attributes as user_attribute_routes
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/UserAttribute.py
+=======
+from ..client.entities import DomoEntity, DomoManager
+from ..routes import user_attributes as user_attribute_routes
+>>>>>>> main
 from ..routes.user_attributes import (
     UserAttributes_CRUD_Error,
     UserAttributes_GET_Error,
@@ -86,6 +91,7 @@ class UserAttribute(DomoEntity):
         if return_raw:
             return res
         return cls.from_dict(obj=res.response, auth=auth)
+<<<<<<< HEAD
 
     async def update(
         self,
@@ -123,6 +129,41 @@ class UserAttribute(DomoEntity):
 @patch_to(UserAttribute)
 ========
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/UserAttribute.py
+=======
+
+    async def update(
+        self,
+        name=None,
+        description=None,
+        issuer_type: UserAttributes_IssuerType = None,
+        data_type: str = None,
+        security_voter=None,
+        session: httpx.AsyncClient = None,
+        debug_api: bool = False,
+        debug_num_stacks_to_drop=2,
+    ):
+        await user_attribute_routes.update_user_attribute(
+            auth=self.auth,
+            attribute_id=self.id,
+            name=name,
+            description=description,
+            issuer_type=issuer_type,
+            data_type=data_type,
+            security_voter=security_voter,
+            session=session,
+            debug_api=debug_api,
+            parent_class=self.__class__.__name__,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        )
+
+        new = await UserAttribute.get_by_id(attribute_id=self.id, auth=self.auth)
+
+        [setattr(self, key, value) for key, value in new.__dict__.items()]
+
+        return self
+
+
+>>>>>>> main
 async def update(
     self: UserAttribute,
     name=None,
@@ -203,10 +244,13 @@ class UserAttributes(DomoManager):
         debug_num_stacks_to_drop=2,
         return_raw: bool = False,
     ):
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoInstanceConfig_UserAttribute.py
 
 ========
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/UserAttribute.py
+=======
+>>>>>>> main
         auth = self.auth
         attribute_id = user_attribute_routes.clean_attribute_id(attribute_id)
 
@@ -232,10 +276,13 @@ class UserAttributes(DomoManager):
         return await UserAttribute.get_by_id(auth=auth, attribute_id=attribute_id)
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoInstanceConfig_UserAttribute.py
 @patch_to(UserAttributes)
 ========
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/UserAttribute.py
+=======
+>>>>>>> main
 async def create(
     self: UserAttributes,
     attribute_id: str,
@@ -274,10 +321,13 @@ async def create(
     return await UserAttribute.get_by_id(auth=auth, attribute_id=attribute_id)
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoInstanceConfig_UserAttribute.py
 @patch_to(UserAttributes)
 ========
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/UserAttribute.py
+=======
+>>>>>>> main
 async def upsert(
     self: UserAttributes,
     attribute_id,
@@ -342,10 +392,13 @@ async def upsert(
         await self.get()
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoInstanceConfig_UserAttribute.py
 @patch_to(UserAttributes)
 ========
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/UserAttribute.py
+=======
+>>>>>>> main
 async def delete(
     self: UserAttributes,
     attribute_id: str,

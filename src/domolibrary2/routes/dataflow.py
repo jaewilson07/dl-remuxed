@@ -20,6 +20,7 @@ from typing import List
 
 import httpx
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/dataflow.py
 from ..client import auth as dmda
 from ..client import exceptions as dmde
@@ -28,6 +29,9 @@ from ..client import response as rgd
 ========
 from ..client import exceptions as dmde, get_data as gd, response as rgd
 >>>>>>>> test:src/domolibrary2/routes/dataflow.py
+=======
+from ..client import exceptions as dmde, get_data as gd, response as rgd
+>>>>>>> main
 
 
 class GET_Dataflow_Error(dmde.RouteError):
@@ -99,11 +103,15 @@ async def get_dataflow_by_id(
 
 @gd.route_function
 async def update_dataflow_definition(
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/dataflow.py
     auth: dmda.DomoAuth,
 ========
     auth: DomoAuth,
 >>>>>>>> test:src/domolibrary2/routes/dataflow.py
+=======
+    auth: DomoAuth,
+>>>>>>> main
     dataflow_id: int,
     dataflow_definition: dict,
     debug_api: bool = False,
@@ -386,11 +394,15 @@ def generate_search_dataflows_to_jupyter_workspaces_body(
 
 @gd.route_function
 async def search_dataflows_to_jupyter_workspaces(
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/dataflow.py
     auth: dmda.DomoAuth,
 ========
     auth: DomoAuth,
 >>>>>>>> test:src/domolibrary2/routes/dataflow.py
+=======
+    auth: DomoAuth,
+>>>>>>> main
     dataflow_id: int = None,
     return_raw: bool = False,
     debug_api: bool = False,

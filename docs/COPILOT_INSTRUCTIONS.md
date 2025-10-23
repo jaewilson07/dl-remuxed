@@ -1,19 +1,16 @@
 # Domo Library Project Conventions & Type Hints Instructions
 
 ## Project Overview
-
 This is `domolibrary2`, a Python library for interacting with Domo APIs. The project uses:
-
--   **Async/await patterns** throughout
--   **nbdev-style architecture** with `@patch_to` decorators
--   **Dataclasses** for data models
--   **httpx** for HTTP requests
--   **Modern Python packaging** with hatchling and src/ layout
+- **Async/await patterns** throughout
+- **nbdev-style architecture** with `@patch_to` decorators
+- **Dataclasses** for data models
+- **httpx** for HTTP requests
+- **Modern Python packaging** with hatchling and src/ layout
 
 ## Code Structure & Conventions
 
 ### 1. Directory Structure
-
 ```
 src/
 ├── classes/          # Main Domo entity classes (DomoUser, DomoDataset, etc.)
@@ -24,28 +21,24 @@ src/
 ```
 
 ### 2. Import Conventions
-
--   Use **relative imports** within the package: `from ..client import DomoAuth as dmda`
--   **Aliased imports** for commonly used modules:
-    -   `DomoAuth as dmda`
-    -   `DomoError as dmde`
-    -   `Logger as lc`
-    -   `DictDot as util_dd`
--   Group imports: stdlib → third-party → local
+- Use **relative imports** within the package: `from ..client import DomoAuth as dmda`
+- **Aliased imports** for commonly used modules:
+  - `DomoAuth as dmda`
+  - `DomoError as dmde`
+  - `Logger as lc`
+  - `DictDot as util_dd`
+- Group imports: stdlib → third-party → local
 
 ### 3. Class & Method Patterns
 
 #### **Main Entity Classes** (in `classes/`)
-
--   Use `@dataclass` with `field(repr=False)` for auth objects
--   Include `auth: dmda.DomoAuth = field(repr=False)` as first field
--   Implement `__post_init__()` for ID string conversion: `self.id = str(self.id)`
--   Implement `__eq__()` for object comparison by ID
+- Use `@dataclass` with `field(repr=False)` for auth objects
+- Include `auth: dmda.DomoAuth = field(repr=False)` as first field
+- Implement `__post_init__()` for ID string conversion: `self.id = str(self.id)`
+- Implement `__eq__()` for object comparison by ID
 
 #### **nbdev @patch_to Pattern**
-
 All methods are added to classes using `@patch_to` decorators:
-
 ```python
 @patch_to(DomoUser)
 async def method_name(self: DomoUser, ...):
@@ -57,24 +50,21 @@ async def class_method_name(cls: DomoUser, ...):
 ```
 
 #### **Async Methods**
-
--   All API-calling methods are `async`
--   Standard parameters for async methods:
-    -   `debug_api: bool = False`
-    -   `debug_num_stacks_to_drop: int = 2`
-    -   `session: httpx.AsyncClient = None`
-    -   `return_raw: bool = False`
+- All API-calling methods are `async`
+- Standard parameters for async methods:
+  - `debug_api: bool = False`
+  - `debug_num_stacks_to_drop: int = 2`
+  - `session: httpx.AsyncClient = None`
+  - `return_raw: bool = False`
 
 ### 4. Type Hint Standards
 
 #### **Required Type Hints**
-
--   **All function parameters** must have type hints
--   **All function return types** must be annotated
--   **Use modern typing** (Python 3.9+ style)
+- **All function parameters** must have type hints
+- **All function return types** must be annotated
+- **Use modern typing** (Python 3.9+ style)
 
 #### **Common Type Patterns**
-
 ```python
 from typing import Any, List, Optional, Union, Dict
 import datetime as dt
@@ -115,7 +105,6 @@ async def search_user(
 ```
 
 #### **Dataclass Type Hints**
-
 ```python
 @dataclass
 class DomoUser:
@@ -129,7 +118,6 @@ class DomoUser:
 ```
 
 #### **Route Functions**
-
 ```python
 async def api_route_function(
     auth: dmda.DomoAuth,
@@ -145,7 +133,6 @@ async def api_route_function(
 ### 5. Error Handling Patterns
 
 #### **Custom Exception Classes**
-
 ```python
 class CustomError(dmde.DomoError):
     def __init__(self, domo_instance: str, additional_param: str):
@@ -156,7 +143,6 @@ class CustomError(dmde.DomoError):
 ```
 
 #### **Route Error Classes**
-
 ```python
 class RouteError(de.RouteError):
     def __init__(
@@ -175,44 +161,39 @@ class RouteError(de.RouteError):
 ### 6. Specific Type Requirements
 
 #### **Common Parameter Types**
-
--   `domo_instance: str`
--   `email_address: str` (validate with `test_valid_email()`)
--   `session: Optional[httpx.AsyncClient] = None`
--   `debug_api: bool = False`
--   `return_raw: bool = False`
--   `debug_num_stacks_to_drop: int = 2`
+- `domo_instance: str`
+- `email_address: str` (validate with `test_valid_email()`)
+- `session: Optional[httpx.AsyncClient] = None`
+- `debug_api: bool = False`
+- `return_raw: bool = False`
+- `debug_num_stacks_to_drop: int = 2`
 
 #### **Return Type Patterns**
-
--   Single entity: `Optional[DomoUser]` or `DomoUser`
--   Multiple entities: `List[DomoUser]`
--   Raw API response: `ResponseGetData`
--   Flexible returns: `Union[DomoUser, ResponseGetData, None]`
--   Boolean success: `bool`
+- Single entity: `Optional[DomoUser]` or `DomoUser`
+- Multiple entities: `List[DomoUser]`
+- Raw API response: `ResponseGetData`
+- Flexible returns: `Union[DomoUser, ResponseGetData, None]`
+- Boolean success: `bool`
 
 #### **Complex Types**
-
--   Use `Any` for circular import situations
--   Use `Union[str, List[str]]` for flexible string/list parameters
--   Use `Dict[str, Any]` for JSON-like data
--   Use `Optional[T]` instead of `Union[T, None]`
+- Use `Any` for circular import situations
+- Use `Union[str, List[str]]` for flexible string/list parameters
+- Use `Dict[str, Any]` for JSON-like data
+- Use `Optional[T]` instead of `Union[T, None]`
 
 ### 7. Documentation & Comments
 
 #### **Docstrings**
-
 ```python
 async def method_name(self, param: str) -> DomoUser:
     """Brief description of what the method does.
+
     More detailed explanation if needed.
     """
 ```
 
-#### ****all** Declarations**
-
+#### **__all__ Declarations**
 Every module should start with `__all__` listing public exports:
-
 ```python
 __all__ = [
     "MainClass",
@@ -224,7 +205,6 @@ __all__ = [
 ### 8. Async/Await Patterns
 
 #### **Session Management**
-
 ```python
 # Don't create sessions in methods, pass them in
 async def method(
@@ -236,7 +216,6 @@ async def method(
 ```
 
 #### **Error Handling in Async**
-
 ```python
 try:
     result = await async_operation()
@@ -260,7 +239,6 @@ except SomeError as e:
 8. **Test that imports still work** after changes
 
 ### Priority Order:
-
 1. Core classes in `classes/` directory
 2. Client classes in `client/` directory
 3. Route functions in `routes/` directory
@@ -268,9 +246,8 @@ except SomeError as e:
 5. Integration functions in `integrations/` directory
 
 ### Quality Checks:
-
--   All functions have parameter type hints (except `self`/`cls`)
--   All functions have return type annotations
--   Imports include necessary typing modules
--   No breaking changes to existing functionality
--   Consistent with project patterns
+- All functions have parameter type hints (except `self`/`cls`)
+- All functions have return type annotations
+- Imports include necessary typing modules
+- No breaking changes to existing functionality
+- Consistent with project patterns

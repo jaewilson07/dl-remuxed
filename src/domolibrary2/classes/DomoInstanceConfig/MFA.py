@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from typing import List
 
 import httpx
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoInstanceConfig_MFA.py
 from nbdev.showdoc import patch_to
 
@@ -11,16 +12,23 @@ from ..client import auth as dmda
 ========
 
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/MFA.py
+=======
+
+>>>>>>> main
 from ..client import exceptions as dmde
 from ..routes import instance_config_mfa as mfa_routes
 
 
 class MFAConfig_InstantiationError(dmde.ClassError):
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoInstanceConfig_MFA.py
     def __init__(self, message, auth: dmda.DomoAuth, cls):
 ========
     def __init__(self, message, auth: DomoAuth, cls):
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/MFA.py
+=======
+    def __init__(self, message, auth: DomoAuth, cls):
+>>>>>>> main
         super().__init__(domo_instance=auth.domo_instance, message=message, cls=cls)
 
 
@@ -32,11 +40,15 @@ class MFA_Config:
     num_days_valid: int = None
 
     @classmethod
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoInstanceConfig_MFA.py
     def from_dict(cls, auth: dmda.DomoAuth, obj: List[dict]):
 ========
     def from_dict(cls, auth: DomoAuth, obj: List[dict]):
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/MFA.py
+=======
+    def from_dict(cls, auth: DomoAuth, obj: List[dict]):
+>>>>>>> main
         return cls(
             auth=auth,
             is_multifactor_required=obj.get("is_multifactor_required"),
@@ -107,10 +119,13 @@ class MFA_Config:
         return self
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoInstanceConfig_MFA.py
 @patch_to(MFA_Config)
 ========
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/MFA.py
+=======
+>>>>>>> main
 def _test_need_update_config(
     self, attr_name, new_value, is_ignore_test: bool = False, debug_prn: bool = False
 ):
@@ -265,10 +280,13 @@ async def set_num_days_valid(
     return await self.get()
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoInstanceConfig_MFA.py
 @patch_to(MFA_Config)
 ========
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/MFA.py
+=======
+>>>>>>> main
 async def update(
     self,
     is_enable_MFA: bool = None,

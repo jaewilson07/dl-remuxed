@@ -9,8 +9,8 @@ import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
 token_auth = dmda.DomoTokenAuth(
-    domo_instance=os.environ['DOMO_INSTANCE'],
-    domo_access_token=os.environ['DOMO_ACCESS_TOKEN'],
+    domo_instance=os.environ["DOMO_INSTANCE"],
+    domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],
 )
 
 
@@ -22,23 +22,24 @@ async def test_cell_1(token_auth=token_auth):
     )
     auth
 
-
     PACKAGE_ID = "517ca12c-3459-4e66-b0bb-40f000720a84"
     VERSION_ID = "1.0.0"
 
 
 async def test_cell_2(token_auth=token_auth):
     """Test case from cell 2"""
-    packages = (await get_packages(auth=auth, debug_api= False)).response
+    packages = (await get_packages(auth=auth, debug_api=False)).response
 
     packages[0:1]
 
 
 async def test_cell_3(token_auth=token_auth):
     """Test case from cell 3"""
-    package = (await get_codeengine_package_by_id(
-        package_id=PACKAGE_ID, auth=auth, debug_api=False
-    )).response 
+    package = (
+        await get_codeengine_package_by_id(
+            auth=auth, package_id=PACKAGE_ID, debug_api=False
+        )
+    ).response
 
     package
 
@@ -52,14 +53,14 @@ async def test_cell_4(token_auth=token_auth):
 async def test_cell_5(token_auth=token_auth):
     """Test case from cell 5"""
     token_auth = dmda.DomoTokenAuth(
-        domo_instance=os.environ['DOMO_INSTANCE'],
+        domo_instance=os.environ["DOMO_INSTANCE"],
         domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],
     )
 
     res = await get_codeengine_package_by_id_and_version(
+        auth=token_auth,
         package_id=PACKAGE_ID,
         version=VERSION_ID,
-        auth=token_auth,
         debug_api=False,
     )
 
@@ -69,7 +70,7 @@ async def test_cell_5(token_auth=token_auth):
 async def test_cell_6(token_auth=token_auth):
     """Test case from cell 6"""
     res = await get_codeengine_package_by_id_and_version(
-        package_id=PACKAGE_ID, version=VERSION_ID, auth=auth, debug_api=False
+        auth=auth, package_id=PACKAGE_ID, version=VERSION_ID, debug_api=False
     )
 
     res.response

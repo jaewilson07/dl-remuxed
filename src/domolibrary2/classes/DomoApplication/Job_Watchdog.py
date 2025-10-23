@@ -18,6 +18,7 @@ from enum import Enum
 from typing import List, Optional
 
 import httpx
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoApplication_Job_Watchdog.py
 from nbdev.showdoc import patch_to
 
@@ -33,6 +34,11 @@ from ..client import DomoAuth as dmda
 from ..classes.DomoApplication_Job_Base import DomoJob_Base, DomoTrigger_Schedule
 from ..routes import application as application_routes
 >>>>>>>> test:src/domolibrary2/classes/DomoApplication/Job_Watchdog.py
+=======
+
+from ..classes.DomoApplication_Job_Base import DomoJob_Base, DomoTrigger_Schedule
+from ..routes import application as application_routes
+>>>>>>> main
 
 
 @dataclass
@@ -244,11 +250,15 @@ class DomoJob_Watchdog(DomoJob_Base):
     @classmethod
     async def create(
         cls,
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoApplication_Job_Watchdog.py
         auth: dmda.DomoAuth,
 ========
         auth: DomoAuth,
 >>>>>>>> test:src/domolibrary2/classes/DomoApplication/Job_Watchdog.py
+=======
+        auth: DomoAuth,
+>>>>>>> main
         name: str,
         application_id: str,
         config: Watchdog_Config,
@@ -267,6 +277,7 @@ class DomoJob_Watchdog(DomoJob_Base):
         session: Optional[httpx.AsyncClient] = None,
         return_raw: bool = False,
     ):
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoApplication_Job_Watchdog.py
 
 ========
@@ -309,6 +320,42 @@ class DomoJob_Watchdog(DomoJob_Base):
 @patch_to(DomoJob_Base)
 ========
 >>>>>>>> test:src/domolibrary2/classes/DomoApplication/Job_Watchdog.py
+=======
+        domo_job = cls(
+            auth=auth,
+            name=name,
+            description=description,
+            application_id=application_id,
+            execution_timeout=execution_timeout,
+            notify_user_ids=notify_user_ids or [],
+            notify_group_ids=notify_group_ids or [],
+            notify_emails=notify_emails or [],
+            triggers=triggers or [],
+            accounts=accounts or [],
+            logs_dataset_id=logs_dataset_id,
+            remote_instance=remote_instance,
+            Config=config,
+            custom_message=custom_message,
+            webhooks=webhooks,
+        )
+
+        body = domo_job.to_dict()
+
+        res = await application_routes.create_application_job(
+            auth=auth,
+            application_id=application_id,
+            body=body,
+            debug_api=debug_api,
+            session=session,
+        )
+
+        if return_raw:
+            return res
+
+        return cls.from_dict(res.response, auth=auth)
+
+
+>>>>>>> main
 async def update(
     self: DomoJob_Base,
     debug_api: bool = False,
@@ -329,10 +376,13 @@ async def update(
     return res
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoApplication_Job_Watchdog.py
 @patch_to(DomoJob_Base)
 ========
 >>>>>>>> test:src/domolibrary2/classes/DomoApplication/Job_Watchdog.py
+=======
+>>>>>>> main
 async def execute(
     self,
     debug_api: bool = False,

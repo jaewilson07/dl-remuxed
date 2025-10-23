@@ -3,6 +3,7 @@ __all__ = ["CodeEngineManifest"]
 from dataclasses import dataclass
 from typing import Any, Dict, List
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/CodeEngineManifest.py
 from ..utils import convert as dmcv
 from ..utils import files as dmfi
@@ -11,6 +12,10 @@ from .CodeEngineManifest_Function import CodeEngineManifest_Function
 from ..utils import convert as dmcv, files as dmfi
 from .Manifest_Function import CodeEngineManifest_Function
 >>>>>>>> test:src/domolibrary2/classes/DomoCodeEngine/Manifest.py
+=======
+from ..utils import convert as dmcv, files as dmfi
+from .Manifest_Function import CodeEngineManifest_Function
+>>>>>>> main
 
 
 @dataclass

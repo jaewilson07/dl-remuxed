@@ -11,6 +11,7 @@ from typing import Optional
 
 import httpx
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/bootstrap.py
 from ..client.auth import DomoAuth, DomoFullAuth
 from ..client.exceptions import RouteError
@@ -21,11 +22,17 @@ from ..client import get_data as gd, response as rgd
 from ..client.auth import DomoAuth, DomoFullAuth
 from ..client.exceptions import RouteError
 >>>>>>>> test:src/domolibrary2/routes/bootstrap.py
+=======
+from ..client import get_data as gd, response as rgd
+from ..client.auth import DomoAuth, DomoFullAuth
+from ..client.exceptions import RouteError
+>>>>>>> main
 
 
 class Bootstrap_GET_Error(RouteError):
     """Raised when bootstrap retrieval operations fail."""
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/bootstrap.py
     def __init__(
         self, message: Optional[str] = None, response_data=None, **kwargs
@@ -34,11 +41,16 @@ class Bootstrap_GET_Error(RouteError):
             message=message or "Bootstrap retrieval failed",
             response_data=response_data,
 ========
+=======
+>>>>>>> main
     def __init__(self, message: Optional[str] = None, res=None, **kwargs):
         super().__init__(
             message=message or "Bootstrap retrieval failed",
             res=res,
+<<<<<<< HEAD
 >>>>>>>> test:src/domolibrary2/routes/bootstrap.py
+=======
+>>>>>>> main
             **kwargs,
         )
 
@@ -75,20 +87,28 @@ async def get_bootstrap(
     )
 
     if not res.is_success:
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/bootstrap.py
         raise Bootstrap_GET_Error(response_data=res)
 ========
         raise Bootstrap_GET_Error(res=res)
 >>>>>>>> test:src/domolibrary2/routes/bootstrap.py
+=======
+        raise Bootstrap_GET_Error(res=res)
+>>>>>>> main
 
     if res.response == "":
         raise Bootstrap_GET_Error(
             message="BSR_Features:  no features returned - is there a VPN?",
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/bootstrap.py
             response_data=res,
 ========
             res=res,
 >>>>>>>> test:src/domolibrary2/routes/bootstrap.py
+=======
+            res=res,
+>>>>>>> main
         )
 
     return res
@@ -103,6 +123,7 @@ async def get_bootstrap_customerid(
     debug_api: bool = False,  # pass True to see the parameters sent to the Domo API
     return_raw: bool = False,  # pass True to return the raw API response
     debug_num_stacks_to_drop: int = 2,  # number frames to drop off the stacktrace.  retrieved from `res.traceback_details`
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/bootstrap.py
     parent_class: Optional[str] = None,  # Optional parent class that calls the route function
 ========
@@ -110,6 +131,11 @@ async def get_bootstrap_customerid(
         str
     ] = None,  # Optional parent class that calls the route function
 >>>>>>>> test:src/domolibrary2/routes/bootstrap.py
+=======
+    parent_class: Optional[
+        str
+    ] = None,  # Optional parent class that calls the route function
+>>>>>>> main
 ) -> (
     rgd.ResponseGetData
 ):  # the response contains the string representation of the customer_id

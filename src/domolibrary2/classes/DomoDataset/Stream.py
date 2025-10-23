@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+<<<<<<< HEAD
 from dataclasses import asdict, dataclass, field
 from enum import Enum
 from typing import Any, List, Optional, Union
@@ -39,10 +40,29 @@ __all__ = [
     "StreamConfig",
     "Dataset_Stream_GET_Error",
     "DomoStream",
+=======
+from dataclasses import dataclass, field
+from typing import List, Optional, Any
+
+import httpx
+
+from ...utils import chunk_execution as dmce
+from ...client.auth import DomoAuth
+from ...entities import DomoSubEntity, DomoManager, DomoEntity
+
+from ...routes import stream as stream_routes
+
+from .stream_config import StreamConfig
+
+__all__ = [
+    "DomoStream",
+    "DomoStreams",
+>>>>>>> main
 ]
 
 
 @dataclass
+<<<<<<< HEAD
 class StreamConfig_Mapping:
     data_provider_type: str
 
@@ -300,6 +320,12 @@ class DomoStream:
     dataset_id: str
 
     parent: Any = field(repr=False, default=None)
+=======
+class DomoStream(DomoEntity):
+    """A class for interacting with a Domo Stream (dataset connector)"""
+
+    id: str
+>>>>>>> main
 
     transport_description: str = None
     transport_version: int = None
@@ -315,6 +341,7 @@ class DomoStream:
     configuration_tables: List[str] = field(default_factory=list)
     configuration_query: str = None
 
+<<<<<<< HEAD
     @classmethod
     def from_parent(cls, parent):
         st = cls(
@@ -322,6 +349,28 @@ class DomoStream:
         )
 
         return st
+=======
+    parent: Any = None  # DomoDataset
+
+    @property
+    def dataset_id(self) -> str:
+        return self.parent.id
+
+    @classmethod
+    def from_parent(cls, parent, stream_id):
+        return cls(
+            parent=parent, auth=parent.auth, id=stream_id, Relations=None, raw=None
+        )
+
+    @property
+    def entity_type(self):
+        return "STREAM"
+
+    @property
+    def display_url(self):
+        """Generate URL to view this stream in the Domo UI"""
+        return f"https://{self.auth.domo_instance}.domo.com/datasources/{self.dataset_id}/details/data/table"
+>>>>>>> main
 
     @classmethod
     def from_dict(cls, auth, obj):
@@ -333,6 +382,7 @@ class DomoStream:
 
         sd = cls(
             auth=auth,
+<<<<<<< HEAD
             id=obj["id"],
             transport_description=transport["description"],
             transport_version=transport["version"],
@@ -340,6 +390,18 @@ class DomoStream:
             data_provider_name=data_provider["name"],
             data_provider_key=data_provider["key"],
             dataset_id=datasource["id"],
+=======
+            parent=None,  # Will be set by caller if needed
+            id=obj["id"],
+            transport_description=transport.get("description"),
+            transport_version=transport.get("version"),
+            update_method=obj.get("updateMethod"),
+            data_provider_name=data_provider.get("name"),
+            data_provider_key=data_provider.get("key"),
+            dataset_id=datasource.get("id"),
+            raw=obj,
+            Relations=None,
+>>>>>>> main
         )
 
         if account:
@@ -351,7 +413,11 @@ class DomoStream:
             StreamConfig.from_json(
                 obj=c_obj, data_provider_type=data_provider.get("key"), parent_stream=sd
             )
+<<<<<<< HEAD
             for c_obj in obj["configuration"]
+=======
+            for c_obj in obj.get("configuration", [])
+>>>>>>> main
         ]
 
         return sd
@@ -367,6 +433,7 @@ class DomoStream:
         return res
 
     @classmethod
+<<<<<<< HEAD
     async def get_stream_by_id(
         cls,
         auth: DomoAuth,
@@ -378,6 +445,34 @@ class DomoStream:
         parent: Any = None,
         session: Optional[httpx.AsyncClient] = None,
     ):
+=======
+    async def get_by_id(
+        cls,
+        auth: DomoAuth,
+        stream_id: str,
+        return_raw: bool = False,
+        debug_num_stacks_to_drop=2,
+        debug_api: bool = False,
+        session: Optional[httpx.AsyncClient] = None,
+    ):
+        """Get a stream by its ID.
+
+        Args:
+            auth: Authentication object
+            stream_id: Unique stream identifier
+            return_raw: Return raw response without processing
+            debug_num_stacks_to_drop: Stack frames to drop for debugging
+            debug_api: Enable API debugging
+            parent: Parent dataset entity
+            session: HTTP client session
+
+        Returns:
+            DomoStream instance or ResponseGetData if return_raw=True
+
+        Raises:
+            Stream_GET_Error: If stream retrieval fails
+        """
+>>>>>>> main
         res = await stream_routes.get_stream_by_id(
             auth=auth,
             stream_id=stream_id,
@@ -390,6 +485,7 @@ class DomoStream:
         if return_raw:
             return res
 
+<<<<<<< HEAD
         st = cls.from_dict(auth=auth, obj=res.response)
         st.parent = parent
         return st
@@ -409,6 +505,16 @@ class DomoStream:
 
     @classmethod
     async def create_stream(
+=======
+        return cls.from_dict(auth=auth, obj=res.response)
+
+    @classmethod
+    async def get_entity_by_id(cls, entity_id: str, auth: DomoAuth, **kwargs):
+        return await cls.get_by_id(stream_id=entity_id, auth=auth, **kwargs)
+
+    @classmethod
+    async def create(
+>>>>>>> main
         cls,
         cnfg_body,
         auth: DomoAuth = None,
@@ -419,6 +525,7 @@ class DomoStream:
             auth=auth, body=cnfg_body, session=session, debug_api=debug_api
         )
 
+<<<<<<< HEAD
     @classmethod
     async def update_stream(
         cls,
@@ -431,29 +538,95 @@ class DomoStream:
         return await stream_routes.update_stream(
             auth=auth,
             stream_id=stream_id,
+=======
+    async def update(
+        self,
+        cnfg_body,
+        session: Optional[httpx.AsyncClient] = None,
+        debug_api: bool = False,
+    ):
+        res = await stream_routes.update_stream(
+            auth=self.auth,
+            stream_id=self.id,
+>>>>>>> main
             body=cnfg_body,
             session=session,
             debug_api=debug_api,
         )
+<<<<<<< HEAD
 
     @classmethod
     async def upsert_connector(
         cls,
+=======
+        return res
+
+
+@dataclass
+class DomoStreams(DomoManager):
+    streams: List[DomoStream] = field(default=None)
+
+    async def get(
+        self,
+        search_dataset_name: str = None,
+        debug_api: bool = False,
+        session: Optional[httpx.AsyncClient] = None,
+    ):
+        from ...routes import datacenter as datacenter_routes
+
+        res = await datacenter_routes.search_datasets(
+            auth=self.auth,
+            entity_type=datacenter_routes.Datacenter_Enum.DATASET.value,
+            session=session,
+            search_text=search_dataset_name,
+            debug_api=debug_api,
+            parent_class=self.__class__.__name__,
+        )
+
+        self.streams = await dmce.gather_with_concurrency(
+            *[
+                DomoStream.get_by_id(self.auth, stream_id=obj["streamId"])
+                for obj in res.response
+            ],
+            n=10,
+        )
+
+        return self.streams
+
+    async def upsert(
+        self,
+>>>>>>> main
         cnfg_body,
         match_name=None,
         auth: DomoAuth = None,
         session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
     ):
+<<<<<<< HEAD
         from . import DomoDatacenter as dmdc
 
         datasets = await dmdc.DomoDatacenter.search_datasets(
             auth=auth, search_text=match_name, session=session, debug_api=debug_api
         )
+=======
+
+        from ...routes import datacenter as datacenter_routes
+
+        res = await datacenter_routes.search_datasets(
+            auth=auth or self.auth,
+            entity_type=datacenter_routes.Datacenter_Enum.DATASET.value,
+            session=session,
+            search_text=match_name,
+            debug_api=debug_api,
+            parent_class=self.__class__.__name__,
+        )
+        datasets = res.response
+>>>>>>> main
 
         existing_ds = next((ds for ds in datasets if ds.name == match_name), None)
 
         if existing_ds:
+<<<<<<< HEAD
             return await cls.update_stream(
                 cnfg_body,
                 stream_id=existing_ds.stream_id,
@@ -463,5 +636,19 @@ class DomoStream:
             )
         else:
             return await cls.create_stream(
+=======
+            domo_stream = await DomoStream.get_by_id(
+                auth=auth, stream_id=existing_ds.stream_id
+            )
+
+            return await domo_stream.update(
+                cnfg_body,
+                session=session,
+                debug_api=False,
+            )
+
+        else:
+            return await DomoStream.create(
+>>>>>>> main
                 cnfg_body, auth=auth, session=session, debug_api=debug_api
             )

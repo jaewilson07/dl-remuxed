@@ -1,28 +1,20 @@
 from __future__ import annotations
 
+from ...utils import convert as ct
+from ...utils import chunk_execution as ce
+
+from ...client.auth import DomoAuth
+from ...routes import dataflow as dataflow_routes
+
 import datetime as dt
 from dataclasses import dataclass, field
 from typing import List
 
 import httpx
 
-<<<<<<<< HEAD:src/classes/DomoDataflow_History.py
-from ..client import auth as dmda
-from ..routes import dataflow as dataflow_routes
-from ..utils import chunk_execution as ce
-from ..utils import convert as ct
-
-__all__ = ["DomoDataflow_History_Execution", "DomoDataflow_History"]
-
-from .DomoDataflow_Action import DomoDataflow_ActionResult
-========
-from ..routes import dataflow as dataflow_routes
-from ..utils import chunk_execution as ce, convert as ct
-
-__all__ = ["DomoDataflow_History_Execution", "DomoDataflow_History"]
-
 from .Dataflow_Action import DomoDataflow_ActionResult
->>>>>>>> test:src/domolibrary2/classes/DomoDataflow/Dataflow_History.py
+
+__all__ = ["DomoDataflow_History_Execution", "DomoDataflow_History"]
 
 
 @dataclass
@@ -47,11 +39,8 @@ class DomoDataflow_History_Execution:
     action_results: List[DomoDataflow_ActionResult] = None
 
     @classmethod
-<<<<<<<< HEAD:src/classes/DomoDataflow_History.py
-    def from_dict(cls, de_obj, auth: dmda.DomoAuth):
-========
     def from_dict(cls, de_obj, auth: DomoAuth):
->>>>>>>> test:src/domolibrary2/classes/DomoDataflow/Dataflow_History.py
+
         action_results = None
         if de_obj.get("actionResults"):
             action_results = [
@@ -90,11 +79,7 @@ class DomoDataflow_History_Execution:
     @classmethod
     async def get_by_id(
         cls,
-<<<<<<<< HEAD:src/classes/DomoDataflow_History.py
-        auth: dmda.DomoAuth,
-========
         auth: DomoAuth,
->>>>>>>> test:src/domolibrary2/classes/DomoDataflow/Dataflow_History.py
         dataflow_id: int,
         execution_id: int,
         debug_api: bool = False,
@@ -152,75 +137,6 @@ class DomoDataflow_History_Execution:
         return self.action_results
 
 
-<<<<<<<< HEAD:src/classes/DomoDataflow_History.py
-@patch_to(DomoDataflow_History_Execution, cls_method=True)
-========
->>>>>>>> test:src/domolibrary2/classes/DomoDataflow/Dataflow_History.py
-async def get_by_id(
-    cls,
-    auth: DomoAuth,
-    dataflow_id: int,
-    execution_id: int,
-    debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    session: httpx.AsyncClient = None,
-    return_raw: bool = False,
-):
-    """retrieves details about a dataflow execution including actions"""
-
-    res = await dataflow_routes.get_dataflow_execution_by_id(
-        auth=auth,
-        dataflow_id=dataflow_id,
-        execution_id=execution_id,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=cls.__name__,
-        session=session,
-    )
-
-    if return_raw:
-        return res
-
-    return cls.from_dict(auth=auth, de_obj=res.response)
-
-
-<<<<<<<< HEAD:src/classes/DomoDataflow_History.py
-@patch_to(DomoDataflow_History_Execution)
-========
->>>>>>>> test:src/domolibrary2/classes/DomoDataflow/Dataflow_History.py
-async def get_actions(
-    self: DomoDataflow_History_Execution,
-    debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    session: httpx.AsyncClient = None,
-    return_raw: bool = False,
-):
-    """retrieves details execution action results"""
-
-    res = await dataflow_routes.get_dataflow_execution_by_id(
-        auth=self.auth,
-        dataflow_id=self.dataflow_id,
-        execution_id=self.id,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=self.__class__.__name__,
-        session=session,
-    )
-
-    if return_raw:
-        return res
-
-    action_results = res.response.get("actionResults")
-    if action_results:
-        action_results = [
-            DomoDataflow_ActionResult.from_dict(action_obj)
-            for action_obj in action_results
-        ]
-
-    self.action_results = action_results
-    return self.action_results
-
-
 @dataclass
 class DomoDataflow_History:
     auth: DomoAuth = field(repr=False)
@@ -232,11 +148,7 @@ class DomoDataflow_History:
 
     async def get_execution_history(
         self,
-<<<<<<<< HEAD:src/classes/DomoDataflow_History.py
-        auth: dmda.DomoAuth = None,
-========
         auth: DomoAuth = None,
->>>>>>>> test:src/domolibrary2/classes/DomoDataflow/Dataflow_History.py
         maximum=10,  # maximum number of execution histories to retrieve
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
@@ -273,47 +185,3 @@ class DomoDataflow_History:
         self.execution_history = execution_history
 
         return self.execution_history
-
-
-<<<<<<<< HEAD:src/classes/DomoDataflow_History.py
-@patch_to(DomoDataflow_History)
-========
->>>>>>>> test:src/domolibrary2/classes/DomoDataflow/Dataflow_History.py
-async def get_execution_history(
-    self: DomoDataflow_History,
-    auth: DomoAuth = None,
-    maximum=10,  # maximum number of execution histories to retrieve
-    debug_api: bool = False,
-    debug_num_stacks_to_drop=2,
-    return_raw: bool = False,
-):
-    """retrieves metadata about execution history.
-    includes details like execution status.
-    """
-
-    auth = auth or self.auth or self.dataflow.auth
-
-    res = await dataflow_routes.get_dataflow_execution_history(
-        auth=auth,
-        dataflow_id=self.dataflow_id,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=self.__class__.__name__,
-        maximum=maximum,
-    )
-
-    if return_raw:
-        return res
-
-    execution_history = [
-        DomoDataflow_History_Execution.from_dict(df_obj, auth)
-        for df_obj in res.response
-    ]
-
-    await ce.gather_with_concurrency(
-        *[domo_execution.get_actions() for domo_execution in execution_history], n=20
-    )
-
-    self.execution_history = execution_history
-
-    return self.execution_history

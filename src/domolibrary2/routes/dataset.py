@@ -35,15 +35,20 @@ __all__ = [
 ]
 
 import io
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/dataset.py
 ========
 from enum import Enum
 >>>>>>>> test:src/domolibrary2/routes/dataset.py
+=======
+from enum import Enum
+>>>>>>> main
 from typing import List, Optional
 
 import httpx
 import pandas as pd
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/dataset.py
 from ..client import auth as dmda
 from ..client import DomoError as de
@@ -54,6 +59,12 @@ from ..client.entities import DomoEnum
 from ..client import auth as dmda, exceptions as de, get_data as gd, response as rgd
 from ..client.entities import DomoEnumMixin
 >>>>>>>> test:src/domolibrary2/routes/dataset.py
+=======
+
+from ..entities.base import DomoEnumMixin
+from ..client import auth as dmda, exceptions as de, get_data as gd, response as rgd
+from ..client.auth import DomoAuth
+>>>>>>> main
 
 
 class DatasetNotFoundError(de.RouteError):
@@ -130,9 +141,7 @@ async def query_dataset_public(
     return res
 
 
-gd.route_function
-
-
+@gd.route_function
 async def query_dataset_private(
     auth: DomoAuth,
     dataset_id: str,
@@ -796,11 +805,15 @@ def generate_remote_domostats_body(
 
 @gd.route_function
 async def create_dataset_enterprise_tookit(
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/dataset.py
     auth: dmda.DomoAuth,
 ========
     auth: DomoAuth,
 >>>>>>>> test:src/domolibrary2/routes/dataset.py
+=======
+    auth: DomoAuth,
+>>>>>>> main
     payload: dict,  # call generate_enterprise_toolkit_body
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
@@ -920,11 +933,15 @@ async def delete(
     return res
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/dataset.py
 class ShareDataset_AccessLevelEnum(DomoEnum):
 ========
 class ShareDataset_AccessLevelEnum(DomoEnumMixin, Enum):
 >>>>>>>> test:src/domolibrary2/routes/dataset.py
+=======
+class ShareDataset_AccessLevelEnum(DomoEnumMixin, Enum):
+>>>>>>> main
     CO_OWNER = "CO_OWNER"
     CAN_EDIT = "CAN_EDIT"
     CAN_SHARE = "CAN_SHARE"

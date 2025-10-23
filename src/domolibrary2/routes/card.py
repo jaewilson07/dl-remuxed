@@ -10,14 +10,19 @@ __all__ = [
     "search_cards_admin_summary",
 ]
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/card.py
 ========
 from enum import Enum
 >>>>>>>> test:src/domolibrary2/routes/card.py
+=======
+from enum import Enum
+>>>>>>> main
 from typing import List, Union
 
 import httpx
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/card.py
 from ..client import auth as dmda
 from ..client import DomoError as de
@@ -28,6 +33,11 @@ from ..client.entities import DomoEnum
 from ..client import exceptions as de, get_data as gd, response as rgd
 from ..client.entities import DomoEnumMixin
 >>>>>>>> test:src/domolibrary2/routes/card.py
+=======
+from ..client import exceptions as de, get_data as gd, response as rgd
+from ..client.auth import DomoAuth
+from ..entities.base import DomoEnumMixin
+>>>>>>> main
 
 
 class Cards_API_Exception(de.DomoError):
@@ -126,11 +136,15 @@ async def get_kpi_definition(
     return res
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/card.py
 class Card_OptionalParts_Enum(DomoEnum):
 ========
 class Card_OptionalParts_Enum(DomoEnumMixin, Enum):
 >>>>>>>> test:src/domolibrary2/routes/card.py
+=======
+class Card_OptionalParts_Enum(DomoEnumMixin, Enum):
+>>>>>>> main
     CERTIFICATION = "certification"
     DATASOURCES = "datasources"
     DOMOAPP = "domoapp"

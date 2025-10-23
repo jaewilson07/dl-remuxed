@@ -13,6 +13,7 @@ from dataclasses import dataclass, field
 from typing import Any, List
 
 import httpx
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoJupyter.py
 from nbdev.showdoc import patch_to
 
@@ -53,6 +54,20 @@ from .DataSource import DomoJupyter_DataSource
 
 
 >>>>>>>> test:src/domolibrary2/classes/DomoJupyter/Jupyter.py
+=======
+
+from ..client import auth as dmda, exceptions as dmde
+from ..client.entities import DomoEntity, DomoManager
+from ..routes import jupyter as jupyter_routes
+from ..routes.jupyter import JupyterAPI_Error
+from ..utils import chunk_execution as dmce, files as defi
+from . import Account as dmac, dataset as dmds, DomoUser as dmdu
+from .Account import DomoJupyter_Account
+from .Content import DomoJupyter_Content
+from .DataSource import DomoJupyter_DataSource
+
+
+>>>>>>> main
 class DJW_Search_Error(dmde.ClassError):
     def __init__(
         self,
@@ -279,10 +294,13 @@ class DomoJupyterWorkspace(DomoEntity):
         return djw
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoJupyter.py
 @patch_to(DomoJupyterWorkspace, cls_method=True)
 ========
 >>>>>>>> test:src/domolibrary2/classes/DomoJupyter/Jupyter.py
+=======
+>>>>>>> main
 async def get_current_workspace(
     cls: DomoJupyterWorkspace,
     auth: dmda.DomoJupyterAuth,
@@ -358,10 +376,13 @@ async def get_output_configuration(
     return self.output_configuration
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoJupyter.py
 @patch_to(DomoJupyterWorkspace)
 ========
 >>>>>>>> test:src/domolibrary2/classes/DomoJupyter/Jupyter.py
+=======
+>>>>>>> main
 def _add_config(self, config, attribute):
     # print(config.alias)
     config_ls = getattr(self, attribute)
@@ -493,10 +514,13 @@ class DomoJupyterWorkspaces(DomoManager):
         )
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoJupyter.py
 @patch_to(DomoJupyterWorkspace)
 ========
 >>>>>>>> test:src/domolibrary2/classes/DomoJupyter/Jupyter.py
+=======
+>>>>>>> main
 def _test_config_duplicates(self, config_name):
     configuration = getattr(self, config_name)
 
@@ -690,10 +714,13 @@ async def add_output_dataset(
             retry += 1
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoJupyter.py
 @patch_to(DomoJupyterWorkspace)
 ========
 >>>>>>>> test:src/domolibrary2/classes/DomoJupyter/Jupyter.py
+=======
+>>>>>>> main
 async def get_content(
     self,
     debug_api: bool = False,
@@ -720,10 +747,13 @@ async def get_content(
     return self.content
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoJupyter.py
 @patch_to(DomoJupyterWorkspace)
 ========
 >>>>>>>> test:src/domolibrary2/classes/DomoJupyter/Jupyter.py
+=======
+>>>>>>> main
 async def download_workspace_content(
     self, base_export_folder=None, replace_folder: bool = True
 ) -> str:

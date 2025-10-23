@@ -2,11 +2,15 @@
 
 __all__ = ["extract_role_hierarchy", "get_roles_w_hierarchy", "calc_role"]
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/integrations/RoleHierarchy.py
 from ..classes import DomoRole as dmdr
 ========
 from ..classes.DomoInstanceConfig import Role as dmdr
 >>>>>>>> test:src/domolibrary2/integrations/RoleHierarchy.py
+=======
+from ..classes.DomoInstanceConfig import Role as dmdr
+>>>>>>> main
 
 
 def extract_role_hierarchy(

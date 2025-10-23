@@ -3,12 +3,11 @@
 ## Overview
 
 This testing framework provides comprehensive tools for testing Domo Library route functions with:
-
--   **Mock responses** for isolated unit testing
--   **Error scenario testing** for robust error handling validation
--   **Performance testing** for optimization
--   **Integration testing** for real API validation
--   **Async support** for modern Python patterns
+- **Mock responses** for isolated unit testing
+- **Error scenario testing** for robust error handling validation
+- **Performance testing** for optimization
+- **Integration testing** for real API validation
+- **Async support** for modern Python patterns
 
 ## Quick Start
 

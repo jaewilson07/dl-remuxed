@@ -14,6 +14,7 @@ from typing import Any, List
 
 import httpx
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoAccount_Default.py
 from . import DomoAccess as dmas
 from ..client import auth as dmda
@@ -34,6 +35,15 @@ from ...routes import account as account_routes
 from ...utils import convert as cd
 from . import DomoAccess as dmas
 >>>>>>>> test:src/domolibrary2/classes/DomoAccount/Account_Default.py
+=======
+from .Config import AccountConfig, DomoAccount_Config
+from ...client import exceptions as dmde
+from ...client.auth import DomoAuth
+from ...entities.entities import DomoEntity
+from ...routes import account as account_routes
+from ...utils import convert as cd
+from ..subentity.DomoAccess import DomoAccess_Account as dmas_account
+>>>>>>> main
 
 
 class Account_CanIModify(dmde.ClassError):
@@ -77,12 +87,20 @@ class DomoAccount_Default(DomoEntity):
     is_admin_summary: bool = True
 
     Config: DomoAccount_Config = field(repr=False, default=None)
+<<<<<<< HEAD
     Access: dmas.DomoAccess_Account = field(repr=False, default=None)
+=======
+    Access: dmas_account = field(repr=False, default=None)
+>>>>>>> main
 
     def __post_init__(self):
         self.id = int(self.id)
 
+<<<<<<< HEAD
         self.Access = dmas.DomoAccess_Account.from_parent(
+=======
+        self.Access = dmas_account.from_parent(
+>>>>>>> main
             parent=self,
         )
 
@@ -252,18 +270,25 @@ class DomoAccount_Default(DomoEntity):
         cls,
         account_name: str,
         config: DomoAccount_Config,
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoAccount_Default.py
         auth: dmda.DomoAuth,
 ========
         auth: DomoAuth,
 >>>>>>>> test:src/domolibrary2/classes/DomoAccount/Account_Default.py
+=======
+        auth: DomoAuth,
+>>>>>>> main
         debug_api: bool = False,
         return_raw: bool = False,
         session: httpx.AsyncClient = None,
         debug_num_stacks_to_drop: int = 2,
     ):
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoAccount_Default.py
 
+=======
+>>>>>>> main
         res = await account_routes.create_account(
             account_name=account_name,
             data_provider_type=config.data_provider_type,
@@ -275,6 +300,7 @@ class DomoAccount_Default(DomoEntity):
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         )
 
+<<<<<<< HEAD
 ========
         res = await account_routes.create_account(
             account_name=account_name,
@@ -288,6 +314,8 @@ class DomoAccount_Default(DomoEntity):
         )
 
 >>>>>>>> test:src/domolibrary2/classes/DomoAccount/Account_Default.py
+=======
+>>>>>>> main
         if return_raw:
             return res
 
@@ -298,11 +326,15 @@ class DomoAccount_Default(DomoEntity):
     async def update_name(
         self,
         account_name: str = None,
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoAccount_Default.py
         auth: dmda.DomoAuth = None,
 ========
         auth: DomoAuth = None,
 >>>>>>>> test:src/domolibrary2/classes/DomoAccount/Account_Default.py
+=======
+        auth: DomoAuth = None,
+>>>>>>> main
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
         return_raw: bool = False,
@@ -333,11 +365,15 @@ class DomoAccount_Default(DomoEntity):
 
     async def delete_account(
         self,
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoAccount_Default.py
         auth: dmda.DomoAuth = None,
 ========
         auth: DomoAuth = None,
 >>>>>>>> test:src/domolibrary2/classes/DomoAccount/Account_Default.py
+=======
+        auth: DomoAuth = None,
+>>>>>>> main
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
         debug_num_stacks_to_drop=2,
@@ -363,11 +399,15 @@ class DomoAccount_Default(DomoEntity):
 
     async def update_config(
         self,
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoAccount_Default.py
         auth: dmda.DomoAuth = None,
 ========
         auth: DomoAuth = None,
 >>>>>>>> test:src/domolibrary2/classes/DomoAccount/Account_Default.py
+=======
+        auth: DomoAuth = None,
+>>>>>>> main
         debug_api: bool = False,
         config: DomoAccount_Config = None,
         is_suppress_no_config=False,
@@ -424,11 +464,15 @@ class DomoAccount_Default(DomoEntity):
 
     async def upsert_target_account(
         self,
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoAccount_Default.py
         target_auth: dmda.DomoAuth,  # valid auth for target destination
 ========
         target_auth: DomoAuth,  # valid auth for target destination
 >>>>>>>> test:src/domolibrary2/classes/DomoAccount/Account_Default.py
+=======
+        target_auth: DomoAuth,  # valid auth for target destination
+>>>>>>> main
         account_name: str = None,  # defaults to self.name
         debug_api: bool = False,
     ):
@@ -438,6 +482,7 @@ class DomoAccount_Default(DomoEntity):
         from copy import deepcopy
 
         # Import here to avoid circular import
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoAccount_Default.py
         from . import DomoAccount
 
@@ -447,6 +492,11 @@ class DomoAccount_Default(DomoEntity):
 
         return await Account.DomoAccounts.upsert_account(
 >>>>>>>> test:src/domolibrary2/classes/DomoAccount/Account_Default.py
+=======
+        from . import Account
+
+        return await Account.DomoAccounts.upsert_account(
+>>>>>>> main
             auth=target_auth,
             account_name=account_name or self.name,
             account_config=deepcopy(self.Config),

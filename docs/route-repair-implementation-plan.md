@@ -5,22 +5,20 @@
 After analyzing the route functions, I've identified several categories of issues that need systematic repair. **Progress Update**: access_token.py has been successfully completed and now serves as a template for other route repairs.
 
 ### ✅ Completed Routes (Templates)
-
--   **auth.py** - Clean, modern implementation (already completed)
--   **access_token.py** - ✅ **NEWLY COMPLETED** - Fully standardized with:
-    -   Standardized imports (`from ..client.exceptions import RouteError`)
-    -   Proper exception classes (`AccessToken_GET_Error`, `SearchAccessToken_NotFound`, `AccessToken_CRUD_Error`)
-    -   All functions use `@gd.route_function` decorator
-    -   Consistent function signatures with `return_raw: bool = False` parameter
-    -   Comprehensive docstrings with Args/Returns/Raises sections
-    -   Zero lint errors - validated and ready for use
+- **auth.py** - Clean, modern implementation (already completed)
+- **access_token.py** - ✅ **NEWLY COMPLETED** - Fully standardized with:
+  - Standardized imports (`from ..client.exceptions import RouteError`)
+  - Proper exception classes (`AccessToken_GET_Error`, `SearchAccessToken_NotFound`, `AccessToken_CRUD_Error`)
+  - All functions use `@gd.route_function` decorator
+  - Consistent function signatures with `return_raw: bool = False` parameter
+  - Comprehensive docstrings with Args/Returns/Raises sections
+  - Zero lint errors - validated and ready for use
 
 ## Standard Template Pattern (from access_token.py)
 
 All route repairs should follow this exact pattern:
 
 ### 1. Module Structure Template
-
 ```python
 """
 {Module} Route Functions
@@ -67,7 +65,6 @@ from ..client import response as rgd
 ```
 
 ### 2. Exception Classes Template
-
 ```python
 class {Module}_GET_Error(RouteError):
     """Raised when {module} retrieval operations fail."""
@@ -144,7 +141,6 @@ class {Module}Sharing_Error(RouteError):
 ```
 
 ### 3. Function Signature Template
-
 ```python
 @gd.route_function
 async def get_{module}_by_id(
@@ -204,54 +200,45 @@ async def get_{module}_by_id(
 ## Route Classification and Repair Strategy
 
 ### Simple Routes (Apply template directly - 1-2 hours each)
-
 Apply access_token.py template directly with minimal customization:
 
 1. **beastmode.py** (272 lines)
-
-    - Current: `BeastModes_API_Error`
-    - Needed: `BeastMode_GET_Error`, `BeastMode_CRUD_Error`
+   - Current: `BeastModes_API_Error`
+   - Needed: `BeastMode_GET_Error`, `BeastMode_CRUD_Error`
 
 2. **codeengine.py** (243 lines)
-
-    - Current: `CodeEngine_API_Error`
-    - Needed: `CodeEngine_GET_Error`, `CodeEngine_CRUD_Error`
+   - Current: `CodeEngine_API_Error`
+   - Needed: `CodeEngine_GET_Error`, `CodeEngine_CRUD_Error`
 
 3. **enterprise_apps.py** (263 lines)
-
-    - Current: `App_API_Exception`
-    - Needed: `EnterpriseApp_GET_Error`, `EnterpriseApp_CRUD_Error`
+   - Current: `App_API_Exception`
+   - Needed: `EnterpriseApp_GET_Error`, `EnterpriseApp_CRUD_Error`
 
 4. **pdp.py** (307 lines)
-
-    - Current: `PDP_NotRetrieved`
-    - Needed: `PDP_GET_Error`, `PDP_CRUD_Error`
+   - Current: `PDP_NotRetrieved`
+   - Needed: `PDP_GET_Error`, `PDP_CRUD_Error`
 
 5. **instance_config_mfa.py** (261 lines)
-    - Current: `MFA_UPDATE_Error`, `MFA_UPDATE_Value_Error`
-    - Needed: `MFA_GET_Error`, `MFA_CRUD_Error`
+   - Current: `MFA_UPDATE_Error`, `MFA_UPDATE_Value_Error`
+   - Needed: `MFA_GET_Error`, `MFA_CRUD_Error`
 
 ### Medium Complexity Routes (Apply template with customization - 2-4 hours each)
 
 6. **card.py** (266 lines)
-
-    - Current: `Cards_API_Exception`, `CardSearch_NotFoundError`
-    - Needed: `Card_GET_Error`, `Card_CRUD_Error`, `SearchCard_NotFound`
+   - Current: `Cards_API_Exception`, `CardSearch_NotFoundError`
+   - Needed: `Card_GET_Error`, `Card_CRUD_Error`, `SearchCard_NotFound`
 
 7. **application.py** (462 lines)
-
-    - Current: `Application_GET_Error`, `ApplicationError_NoneRetrieved`
-    - Needed: Add `Application_CRUD_Error`, `SearchApplication_NotFound`
+   - Current: `Application_GET_Error`, `ApplicationError_NoneRetrieved`
+   - Needed: Add `Application_CRUD_Error`, `SearchApplication_NotFound`
 
 8. **group.py** (646 lines)
-
-    - Current: `Group_GET_Error`, `SearchGroups_Error`
-    - Needed: Add `Group_CRUD_Error`, `SearchGroup_NotFound`, `GroupSharing_Error`
+   - Current: `Group_GET_Error`, `SearchGroups_Error`
+   - Needed: Add `Group_CRUD_Error`, `SearchGroup_NotFound`, `GroupSharing_Error`
 
 9. **role.py** (435 lines) - **PRIORITY for user.py dependency**
-
-    - Current: `Role_NotRetrieved`, `Role_CRUD_Error`
-    - Needed: Rename `Role_NotRetrieved` to `Role_GET_Error`
+   - Current: `Role_NotRetrieved`, `Role_CRUD_Error`
+   - Needed: Rename `Role_NotRetrieved` to `Role_GET_Error`
 
 10. **page.py** (370 lines)
     - Current: `Page_GET_Error`, `PageRetrieval_byId_Error`
@@ -260,9 +247,7 @@ Apply access_token.py template directly with minimal customization:
 ### Complex Routes (May need restructuring - 4-8 hours each)
 
 11. **dataset.py** (900+ lines) - **HIGHEST PRIORITY**
-
-    -   **Strategy**: Split into submodules following account/ pattern:
-
+    - **Strategy**: Split into submodules following account/ pattern:
     ```
     dataset/
     ├── __init__.py          # Main exports
@@ -275,26 +260,23 @@ Apply access_token.py template directly with minimal customization:
     ```
 
 12. **user.py** (953+ lines) - **Complex, depends on role.py**
-
-    -   Current: Multiple error patterns
-    -   Strategy: Apply template after role.py completion
-    -   Dependencies: role.py must be completed first
+    - Current: Multiple error patterns
+    - Strategy: Apply template after role.py completion
+    - Dependencies: role.py must be completed first
 
 13. **instance_config.py** (684 lines)
-
-    -   Current: `ToggleSocialUsers_Error`
-    -   Needed: `InstanceConfig_GET_Error`, `InstanceConfig_CRUD_Error`
+    - Current: `ToggleSocialUsers_Error`
+    - Needed: `InstanceConfig_GET_Error`, `InstanceConfig_CRUD_Error`
 
 14. **instance_config_sso.py** (539 lines)
-    -   Current: `SSO_AddUserDirectSignonError`
-    -   Needed: `SSO_GET_Error`, `SSO_CRUD_Error`
+    - Current: `SSO_AddUserDirectSignonError`
+    - Needed: `SSO_GET_Error`, `SSO_CRUD_Error`
 
 ## Step-by-Step Repair Process
 
 ### Phase 1: Validate Infrastructure (Before route repairs)
 
 **Validate Core Components**:
-
 ```python
 # Test basic functionality:
 from src.client import get_data as gd
@@ -305,7 +287,6 @@ from src.client.auth import DomoAuth
 ```
 
 **Test Exception Integration**:
-
 ```python
 # Test exception construction:
 from src.client.exceptions import RouteError
@@ -319,7 +300,6 @@ print(error)  # Should work without issues
 For each route file, follow this exact process:
 
 #### Step 1: Import Standardization
-
 ```python
 # Replace ALL imports with standard pattern
 from typing import Any, List, Optional, Union
@@ -333,20 +313,17 @@ from ..client import response as rgd
 ```
 
 #### Step 2: Exception Class Standardization
-
--   Replace all existing error classes with standard pattern
--   Use exact naming: `{Module}_GET_Error`, `Search{Module}_NotFound`, `{Module}_CRUD_Error`
--   Follow constructor pattern from access_token.py exactly
+- Replace all existing error classes with standard pattern
+- Use exact naming: `{Module}_GET_Error`, `Search{Module}_NotFound`, `{Module}_CRUD_Error`
+- Follow constructor pattern from access_token.py exactly
 
 #### Step 3: Function Signature Standardization
-
--   Add `@gd.route_function` decorator to ALL route functions
--   Add `return_raw: bool = False` parameter to ALL functions
--   Ensure parameter order: auth, entity*id, operation_params, session, debug*\*, return_raw
--   Add complete type hints following access_token.py pattern
+- Add `@gd.route_function` decorator to ALL route functions
+- Add `return_raw: bool = False` parameter to ALL functions
+- Ensure parameter order: auth, entity_id, operation_params, session, debug_*, return_raw
+- Add complete type hints following access_token.py pattern
 
 #### Step 4: Function Body Updates
-
 ```python
 @gd.route_function
 async def function_name(..., return_raw: bool = False) -> rgd.ResponseGetData:
@@ -366,13 +343,11 @@ async def function_name(..., return_raw: bool = False) -> rgd.ResponseGetData:
 ```
 
 #### Step 5: Documentation Updates
-
--   Add comprehensive module docstring listing all functions and exceptions
--   Add complete function docstrings with Args/Returns/Raises sections
--   Update `__all__` exports to include all new exception classes
+- Add comprehensive module docstring listing all functions and exceptions
+- Add complete function docstrings with Args/Returns/Raises sections
+- Update `__all__` exports to include all new exception classes
 
 #### Step 6: Validation
-
--   Run type checking to ensure zero lint errors
--   Test basic import functionality
--   Verify exception handling works correctly
+- Run type checking to ensure zero lint errors
+- Test basic import functionality
+- Verify exception handling works correctly

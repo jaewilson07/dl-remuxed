@@ -14,14 +14,19 @@ __all__ = [
 ]
 
 import json
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/ai.py
 ========
 from enum import Enum
 >>>>>>>> test:src/domolibrary2/routes/ai.py
+=======
+from enum import Enum
+>>>>>>> main
 from typing import List, Optional, TypedDict
 
 import httpx
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/ai.py
 from ..client.auth import DomoAuth
 from ..client.exceptions import RouteError
@@ -34,11 +39,18 @@ from ..client.auth import DomoAuth
 from ..client.entities import DomoEnumMixin
 from ..client.exceptions import RouteError
 >>>>>>>> test:src/domolibrary2/routes/ai.py
+=======
+from ..client import get_data as gd, response as rgd
+from ..client.auth import DomoAuth
+from ..entities.base import DomoEnumMixin
+from ..client.exceptions import RouteError
+>>>>>>> main
 
 
 class AI_GET_Error(RouteError):
     """Raised when AI service retrieval operations fail."""
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/ai.py
     def __init__(
         self, message: Optional[str] = None, response_data=None, **kwargs
@@ -47,11 +59,16 @@ class AI_GET_Error(RouteError):
             message=message or "AI service retrieval failed",
             response_data=response_data,
 ========
+=======
+>>>>>>> main
     def __init__(self, message: Optional[str] = None, res=None, **kwargs):
         super().__init__(
             message=message or "AI service retrieval failed",
             res=res,
+<<<<<<< HEAD
 >>>>>>>> test:src/domolibrary2/routes/ai.py
+=======
+>>>>>>> main
             **kwargs,
         )
 
@@ -63,20 +80,28 @@ class AI_CRUD_Error(RouteError):
         self,
         operation: str,
         message: Optional[str] = None,
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/ai.py
         response_data=None,
 ========
         res=None,
 >>>>>>>> test:src/domolibrary2/routes/ai.py
+=======
+        res=None,
+>>>>>>> main
         **kwargs,
     ):
         super().__init__(
             message=message or f"AI service {operation} operation failed",
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/ai.py
             response_data=response_data,
 ========
             res=res,
 >>>>>>>> test:src/domolibrary2/routes/ai.py
+=======
+            res=res,
+>>>>>>> main
             **kwargs,
         )
 
@@ -121,22 +146,30 @@ async def llm_generate_text(
         return res
 
     if not res.is_success:
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/ai.py
         raise AI_CRUD_Error(operation="generate text", response_data=res)
 ========
         raise AI_CRUD_Error(operation="generate text", res=res)
 >>>>>>>> test:src/domolibrary2/routes/ai.py
+=======
+        raise AI_CRUD_Error(operation="generate text", res=res)
+>>>>>>> main
 
     res.response["output"] = res.response["choices"][0]["output"]
 
     return res
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/ai.py
 class OutputStyleEnum(DomoEnum):
 ========
 class OutputStyleEnum(DomoEnumMixin, Enum):
 >>>>>>>> test:src/domolibrary2/routes/ai.py
+=======
+class OutputStyleEnum(DomoEnumMixin, Enum):
+>>>>>>> main
     BULLETED = "BULLETED"
     NUMBERED = "Numbered"
     PARAGRAPH = "PARAGRAPH"
@@ -207,11 +240,15 @@ async def llm_summarize_text(
         return res
 
     if not res.is_success:
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/ai.py
         raise AI_CRUD_Error(operation="summarize text", response_data=res)
 ========
         raise AI_CRUD_Error(operation="summarize text", res=res)
 >>>>>>>> test:src/domolibrary2/routes/ai.py
+=======
+        raise AI_CRUD_Error(operation="summarize text", res=res)
+>>>>>>> main
 
     res.response["ouptput"] = res.response["choices"][0]["output"]
 
@@ -240,11 +277,15 @@ async def get_dataset_ai_readiness(
     )
 
     if not res.is_success:
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/ai.py
         raise AI_GET_Error(response_data=res, entity_id=dataset_id)
 ========
         raise AI_GET_Error(res=res, entity_id=dataset_id)
 >>>>>>>> test:src/domolibrary2/routes/ai.py
+=======
+        raise AI_GET_Error(res=res, entity_id=dataset_id)
+>>>>>>> main
 
     return res
 
@@ -292,6 +333,7 @@ async def create_dataset_ai_readiness(
     )
 
     if not res.is_success:
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/ai.py
         raise AI_CRUD_Error(
             operation="create", response_data=res, entity_id=dataset_id
@@ -299,6 +341,9 @@ async def create_dataset_ai_readiness(
 ========
         raise AI_CRUD_Error(operation="create", res=res, entity_id=dataset_id)
 >>>>>>>> test:src/domolibrary2/routes/ai.py
+=======
+        raise AI_CRUD_Error(operation="create", res=res, entity_id=dataset_id)
+>>>>>>> main
 
     return res
 
@@ -349,6 +394,7 @@ async def update_dataset_ai_readiness(
     )
 
     if not res.is_success:
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/ai.py
         raise AI_CRUD_Error(
             operation="update", response_data=res, entity_id=dataset_id
@@ -356,5 +402,8 @@ async def update_dataset_ai_readiness(
 ========
         raise AI_CRUD_Error(operation="update", res=res, entity_id=dataset_id)
 >>>>>>>> test:src/domolibrary2/routes/ai.py
+=======
+        raise AI_CRUD_Error(operation="update", res=res, entity_id=dataset_id)
+>>>>>>> main
 
     return res

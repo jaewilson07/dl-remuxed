@@ -14,6 +14,7 @@ from typing import List
 
 import pandas as pd
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/integrations/Automation.py
 from ..classes import DomoAccount as dmacc
 from ..classes import DomoDataset as dmds
@@ -22,6 +23,9 @@ from ..client import auth as dmda
 ========
 from ..classes import DomoAccount as dmacc, DomoGroup as dmdg, dataset as dmds
 >>>>>>>> test:src/domolibrary2/integrations/Automation.py
+=======
+from ..classes import DomoAccount as dmacc, DomoGroup as dmdg, dataset as dmds
+>>>>>>> main
 from ..client import exceptions as dmde
 
 

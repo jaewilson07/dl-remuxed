@@ -20,14 +20,19 @@ __all__ = [
     "update_group_owners",
 ]
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/group.py
 ========
 from enum import Enum
 >>>>>>>> test:src/domolibrary2/routes/group.py
+=======
+from enum import Enum
+>>>>>>> main
 from typing import List, Union
 
 import httpx
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/group.py
 from ..client import auth as dmda
 from ..client import exceptions as dmde
@@ -40,6 +45,12 @@ from ..client import exceptions as dmde, get_data as gd, response as rgd
 from ..client.entities import DomoEnumMixin
 from ..utils import convert as dmcv
 >>>>>>>> test:src/domolibrary2/routes/group.py
+=======
+from ..client import exceptions as dmde, get_data as gd, response as rgd
+from ..client.auth import DomoAuth
+from ..entities.base import DomoEnumMixin
+from ..utils import convert as dmcv
+>>>>>>> main
 
 
 class Group_GET_Error(dmde.RouteError):
@@ -261,11 +272,15 @@ async def toggle_system_group_visibility(
     )
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/group.py
 class GroupType_Enum(DomoEnum):
 ========
 class GroupType_Enum(DomoEnumMixin, Enum):
 >>>>>>>> test:src/domolibrary2/routes/group.py
+=======
+class GroupType_Enum(DomoEnumMixin, Enum):
+>>>>>>> main
     OPEN = "open"
     ADHOC = "adHoc"
     CLOSED = "closed"

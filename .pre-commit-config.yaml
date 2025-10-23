@@ -16,7 +16,7 @@ repos:
             entry: python -m py_compile
             language: system
             files: ^src/.*\.py$
-
+            
           # Black formatting
           - id: black
             name: Black Python Formatter
@@ -25,21 +25,14 @@ repos:
             types: [python]
             files: ^src/
             require_serial: false
-
+            
           # Import sorting
           - id: isort
             name: Sort Python Imports
             entry: python -m isort
             language: system
             types: [python]
-            args:
-                [
-                    "--profile=black",
-                    "--multi-line=3",
-                    "--combine-as",
-                    "--remove-redundant-aliases",
-                    "--force-grid-wrap=0",
-                ]
+            args: ["--profile=black", "--multi-line=3", "--combine-as", "--remove-redundant-aliases", "--force-grid-wrap=0"]
             files: ^src/
 
     # Minimal external hooks - only essential ones that are stable

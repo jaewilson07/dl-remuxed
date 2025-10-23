@@ -17,6 +17,7 @@ from typing import Any, Callable
 
 import httpx
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoInstanceConfig_SSO.py
 from ..client import auth as dmda
 from ..client import exceptions as dmde
@@ -25,11 +26,16 @@ from ..routes import instance_config_sso as sso_routes
 from ..utils import convert as dmcv
 from ..client.entities import DomoEntity
 ========
+=======
+>>>>>>> main
 from ..client import exceptions as dmde, response as rgd
 from ..client.entities import DomoEntity
 from ..routes import instance_config_sso as sso_routes
 from ..utils import convert as dmcv
+<<<<<<< HEAD
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/SSO.py
+=======
+>>>>>>> main
 
 
 class SSOConfig_InstantiationError(dmde.ClassError):
@@ -216,11 +222,15 @@ class SSO_OIDC_Config(SSO_Config):
     public_key: str = None
 
     @classmethod
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoInstanceConfig_SSO.py
     def from_dict(cls, auth: dmda.DomoAuth, obj: dict, debug_prn: bool = False):
 ========
     def from_dict(cls, auth: DomoAuth, obj: dict, debug_prn: bool = False):
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/SSO.py
+=======
+    def from_dict(cls, auth: DomoAuth, obj: dict, debug_prn: bool = False):
+>>>>>>> main
         raw = deepcopy(obj)
 
         override_sso = obj.pop("overrideSSO")
@@ -300,11 +310,15 @@ class SSO_SAML_Config(SSO_Config):
     sign_auth_request: Any = None
 
     @classmethod
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoInstanceConfig_SSO.py
     def from_dict(cls, auth: dmda.DomoAuth, obj: dict, debug_prn: bool = False):
 ========
     def from_dict(cls, auth: DomoAuth, obj: dict, debug_prn: bool = False):
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/SSO.py
+=======
+    def from_dict(cls, auth: DomoAuth, obj: dict, debug_prn: bool = False):
+>>>>>>> main
         raw = deepcopy(obj)
 
         is_enabled = obj.pop("enabled")

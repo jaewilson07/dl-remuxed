@@ -16,6 +16,7 @@ __all__ = [
 
 import httpx
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/routes/role.py
 from ..client import auth as dmda
 from ..client import DomoError as de
@@ -24,6 +25,9 @@ from ..client import response as rgd
 ========
 from ..client import auth as dmda, exceptions as de, get_data as gd, response as rgd
 >>>>>>>> test:src/domolibrary2/routes/role.py
+=======
+from ..client import auth as dmda, exceptions as de, get_data as gd, response as rgd
+>>>>>>> main
 
 
 class Role_NotRetrieved(de.DomoError):

@@ -8,6 +8,7 @@ __all__ = [
 ]
 
 
+<<<<<<< HEAD
 import asyncio
 import datetime as dt
 import io
@@ -929,6 +930,16 @@ def _is_federated_dataset_obj(obj: dict) -> bool:
 
     has_federate = any(["FEDERAT" in dpt, "FEDERAT" in disp])
     return has_hint or has_federate
+=======
+from dataclasses import dataclass
+from typing import Callable
+
+import httpx
+
+from ...entities.entities_federated import DomoFederatedEntity, DomoPublishedEntity
+from ...client.auth import DomoAuth
+from .dataset_default import DomoDataset_Default
+>>>>>>> main
 
 
 @dataclass
@@ -937,12 +948,17 @@ class FederatedDomoDataset(DomoDataset_Default, DomoFederatedEntity):
 
     async def get_federated_parent(
         self,
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoDataset.py
         parent_auth: dmda.DomoAuth = None,
 ========
         parent_auth: DomoAuth = None,
 >>>>>>>> test:src/domolibrary2/classes/DomoDataset/Dataset.py
         parent_auth_retrieval_fn: Callable = None,
+=======
+        parent_auth: DomoAuth = None,
+        parent_auth_retrieval_fn: Callable[[], DomoAuth] = None,
+>>>>>>> main
     ):
         raise NotImplementedError("To Do")
 
@@ -954,6 +970,7 @@ class FederatedDomoDataset(DomoDataset_Default, DomoFederatedEntity):
         debug_api: bool = False,
         return_raw: bool = False,
         session: httpx.AsyncClient = None,
+<<<<<<< HEAD
         debug_num_stacks_to_drop=2,
         is_use_default_dataset_class: bool = False,
         parent_class: str = None,
@@ -979,6 +996,23 @@ class FederatedDomoDataset(DomoDataset_Default, DomoFederatedEntity):
             auth=auth,
             new_cls=cls,
             is_use_default_dataset_class=is_use_default_dataset_class,
+=======
+        debug_num_stacks_to_drop: int = 2,
+        is_use_default_dataset_class: bool = False,
+        parent_class: str = None,
+    ):
+        """retrieves federated dataset metadata"""
+        # Use parent implementation to avoid code duplication
+        return await super().get_by_id(
+            dataset_id=dataset_id,
+            auth=auth,
+            debug_api=debug_api,
+            return_raw=return_raw,
+            session=session,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            is_use_default_dataset_class=is_use_default_dataset_class,
+            parent_class=parent_class or cls.__name__,
+>>>>>>> main
         )
 
 
@@ -993,20 +1027,31 @@ class DomoPublishDataset(FederatedDomoDataset, DomoPublishedEntity):
 
 @dataclass
 class DomoDataset(DomoDataset_Default):
+<<<<<<< HEAD
     # def __post_init__(self):
     #     super().__init__(**self.__dict__)
 
+=======
+>>>>>>> main
     @classmethod
     def from_dict(
         cls,
         obj: dict,
         # is_admin_summary: bool = True,
         auth: DomoAuth = None,
+<<<<<<< HEAD
         is_use_default_dataset_class=False,
         new_cls=None,
         **kwargs,
     ):
         """converts data_v1_accounts API response into an accounts class object"""
+=======
+        is_use_default_dataset_class: bool = False,
+        new_cls=None,
+        **kwargs,
+    ) -> "DomoDataset":
+        """converts dataset API response into a dataset class object"""
+>>>>>>> main
 
         is_federated = cls._is_federated_dataset_obj(obj)
 

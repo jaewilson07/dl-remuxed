@@ -11,6 +11,7 @@ from dataclasses import dataclass, field
 from pprint import pprint
 from typing import List
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/CodeEngineManifest_Function.py
 from ..utils import compare as dmcp
 from ..utils import convert as dmcv
@@ -20,6 +21,10 @@ from .CodeEngineManifest_Argument import CodeEngineManifest_Argument
 from ..utils import compare as dmcp, convert as dmcv, files as defi
 from .Manifest_Argument import CodeEngineManifest_Argument
 >>>>>>>> test:src/domolibrary2/classes/DomoCodeEngine/Manifest_Function.py
+=======
+from ..utils import compare as dmcp, convert as dmcv, files as defi
+from .Manifest_Argument import CodeEngineManifest_Argument
+>>>>>>> main
 
 
 def calculate_character_index_of_line_number(line_num: int, full_text: str) -> int:

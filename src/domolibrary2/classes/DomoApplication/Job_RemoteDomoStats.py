@@ -10,21 +10,30 @@ from typing import List, Optional
 
 import httpx
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoApplication_Job_RemoteDomoStats.py
 from ..client import auth as dmda
 from ..routes import application as application_routes
 ========
 >>>>>>>> test:src/domolibrary2/classes/DomoApplication/Job_RemoteDomoStats.py
 from ..classes.DomoApplication_Job_Base import (
+=======
+from ...client.auth import DomoAuth
+from .Job_Base import (
+>>>>>>> main
     DomoJob_Base,
     DomoTrigger,
     DomoTrigger_Schedule,
 )
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoApplication_Job_RemoteDomoStats.py
 from ..client import DomoAuth as dmda
 ========
 >>>>>>>> test:src/domolibrary2/classes/DomoApplication/Job_RemoteDomoStats.py
 from ..routes import application as application_routes
+=======
+from ...routes import application as application_routes
+>>>>>>> main
 
 
 @dataclass
@@ -139,11 +148,15 @@ class DomoJob_RemoteDomoStats(DomoJob_Base):
     @classmethod
     async def create(
         cls,
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoApplication_Job_RemoteDomoStats.py
         auth: dmda.DomoAuth,
 ========
         auth: DomoAuth,
 >>>>>>>> test:src/domolibrary2/classes/DomoApplication/Job_RemoteDomoStats.py
+=======
+        auth: DomoAuth,
+>>>>>>> main
         name: str,
         config: RemoteDomoStats_Config,
         application_id: str,
@@ -158,8 +171,11 @@ class DomoJob_RemoteDomoStats(DomoJob_Base):
         debug_num_stacks_to_drop=2,
         session: Optional[httpx.AsyncClient] = None,
     ):
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoApplication_Job_RemoteDomoStats.py
 
+=======
+>>>>>>> main
         triggers_ls = []
         if triggers is not None and len(triggers) > 0:
             triggers_ls = [
@@ -195,6 +211,7 @@ class DomoJob_RemoteDomoStats(DomoJob_Base):
         if return_raw:
             return res
 
+<<<<<<< HEAD
 ========
         triggers_ls = []
         if triggers is not None and len(triggers) > 0:
@@ -232,4 +249,6 @@ class DomoJob_RemoteDomoStats(DomoJob_Base):
             return res
 
 >>>>>>>> test:src/domolibrary2/classes/DomoApplication/Job_RemoteDomoStats.py
+=======
+>>>>>>> main
         return cls.from_dict(res.response, auth=auth)

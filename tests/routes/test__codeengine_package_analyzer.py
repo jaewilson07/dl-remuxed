@@ -9,8 +9,8 @@ import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
 token_auth = dmda.DomoTokenAuth(
-    domo_instance=os.environ['DOMO_INSTANCE'],
-    domo_access_token=os.environ['DOMO_ACCESS_TOKEN'],
+    domo_instance=os.environ["DOMO_INSTANCE"],
+    domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],
 )
 
 
@@ -22,7 +22,6 @@ async def test_cell_1(token_auth=token_auth):
     )
     auth
 
-
     PACKAGE_ID = "517ca12c-3459-4e66-b0bb-40f000720a84"
     VERSION_ID = "1.0.0"
 
@@ -30,12 +29,20 @@ async def test_cell_1(token_auth=token_auth):
 async def test_cell_2(token_auth=token_auth):
     """Test case from cell 2"""
     ca = CodeEngineScriptAnalyzer()
-    with open('../test/int_package.py', 'r') as f:
+    with open("../test/int_package.py", "r") as f:
         code_content = f.read()
 
     ca = CodeEngineScriptAnalyzer()
     manifest = ca.generate_manifest_from_string(code_content)
-    int_package_builder = CodeEnginePackageBuilder().set_code(code_content).set_environment("LAMBDA").set_language("PYTHON").set_name("GM Int Package").set_version("1.0.0").set_manifest(manifest)
+    int_package_builder = (
+        CodeEnginePackageBuilder()
+        .set_code(code_content)
+        .set_environment("LAMBDA")
+        .set_language("PYTHON")
+        .set_name("GM Int Package")
+        .set_version("1.0.0")
+        .set_manifest(manifest)
+    )
     res = await create_package(int_package_builder, auth=auth, debug_api=False)
 
 
@@ -50,12 +57,12 @@ async def test_cell_4(token_auth=token_auth):
     version = "2.0.5"
 
     token_auth = dmda.DomoTokenAuth(
-        domo_instance=os.environ['DOMO_INSTANCE'],
+        domo_instance=os.environ["DOMO_INSTANCE"],
         domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],
     )
 
     res = await get_codeengine_package_by_id_and_version(
-        package_id=package_id, version=version, auth=token_auth, debug_api=False
+        auth=token_auth, package_id=package_id, version=version, debug_api=False
     )
 
     package = res.response
@@ -71,12 +78,12 @@ async def test_cell_5(token_auth=token_auth):
     version = "1.0.0"
 
     token_auth = dmda.DomoTokenAuth(
-        domo_instance=os.environ['DOMO_INSTANCE'],
+        domo_instance=os.environ["DOMO_INSTANCE"],
         domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],
     )
 
     res = await get_codeengine_package_by_id_and_version(
-        package_id=package_id, version=version, auth=token_auth, debug_api=False
+        auth=token_auth, package_id=package_id, version=version, debug_api=False
     )
 
     package = res.response

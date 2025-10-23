@@ -12,10 +12,14 @@ __all__ = [
 import ast
 import re
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/CodeEngineManifest_Argument.py
 ========
 from enum import Enum
 >>>>>>>> test:src/domolibrary2/classes/DomoCodeEngine/Manifest_Argument.py
+=======
+from enum import Enum
+>>>>>>> main
 from typing import Any, Dict, List
 
 from ..client import entities as dmen
@@ -90,11 +94,15 @@ def extract_ast_arg_default_value(arg, ast_fn: ast.FunctionDef) -> Dict[str, boo
     return {"default_value": None, "has_default_value": False}
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/CodeEngineManifest_Argument.py
 class PythonTypeToSchemaType(dmen.DomoEnum):
 ========
 class PythonTypeToSchemaType(dmen.DomoEnumMixin, Enum):
 >>>>>>>> test:src/domolibrary2/classes/DomoCodeEngine/Manifest_Argument.py
+=======
+class PythonTypeToSchemaType(dmen.DomoEnumMixin, Enum):
+>>>>>>> main
     STR = "str"
     STRING = "string"
     INT = "int"

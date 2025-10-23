@@ -12,16 +12,10 @@ from typing import Optional
 
 import httpx
 
-<<<<<<<< HEAD:src/routes/workflows.py
-from ..client.auth import DomoAuth
-from ..client.exceptions import RouteError
-from ..client import get_data as gd
 from ..client import response as rgd
-========
 from ..client import get_data as gd, response as rgd
 from ..client.auth import DomoAuth
 from ..client.exceptions import RouteError
->>>>>>>> test:src/domolibrary2/routes/workflows.py
 
 
 class Workflow_GET_Error(RouteError):
@@ -31,21 +25,13 @@ class Workflow_GET_Error(RouteError):
         self,
         workflow_id: Optional[str] = None,
         message: Optional[str] = None,
-<<<<<<<< HEAD:src/routes/workflows.py
-        response_data=None,
-========
         res=None,
->>>>>>>> test:src/domolibrary2/routes/workflows.py
         **kwargs,
     ):
         super().__init__(
             message=message or "Workflow retrieval failed",
             entity_id=workflow_id,
-<<<<<<<< HEAD:src/routes/workflows.py
-            response_data=response_data,
-========
             res=res,
->>>>>>>> test:src/domolibrary2/routes/workflows.py
             **kwargs,
         )
 
@@ -58,21 +44,13 @@ class Workflow_CRUD_Error(RouteError):
         operation: str,
         workflow_id: Optional[str] = None,
         message: Optional[str] = None,
-<<<<<<<< HEAD:src/routes/workflows.py
-        response_data=None,
-========
         res=None,
->>>>>>>> test:src/domolibrary2/routes/workflows.py
         **kwargs,
     ):
         super().__init__(
             message=message or f"Workflow {operation} operation failed",
             entity_id=workflow_id,
-<<<<<<<< HEAD:src/routes/workflows.py
-            response_data=response_data,
-========
             res=res,
->>>>>>>> test:src/domolibrary2/routes/workflows.py
             **kwargs,
         )
 
@@ -99,11 +77,7 @@ async def get_workflow(
     )
 
     if not res.is_success:
-<<<<<<<< HEAD:src/routes/workflows.py
-        raise Workflow_GET_Error(workflow_id=model_id, response_data=res)
-========
         raise Workflow_GET_Error(workflow_id=model_id, res=res)
->>>>>>>> test:src/domolibrary2/routes/workflows.py
 
     return res
 
@@ -152,13 +126,7 @@ async def trigger_workflow(
     )
 
     if not res.is_success:
-<<<<<<<< HEAD:src/routes/workflows.py
-        raise Workflow_CRUD_Error(
-            operation="trigger", workflow_id=model_id, response_data=res
-        )
-========
         raise Workflow_CRUD_Error(operation="trigger", workflow_id=model_id, res=res)
->>>>>>>> test:src/domolibrary2/routes/workflows.py
 
     return res
 
@@ -185,11 +153,7 @@ async def get_workflow_trigger_history(
     )
 
     if not res.is_success:
-<<<<<<<< HEAD:src/routes/workflows.py
-        raise Workflow_GET_Error(workflow_id=model_id, response_data=res)
-========
         raise Workflow_GET_Error(workflow_id=model_id, res=res)
->>>>>>>> test:src/domolibrary2/routes/workflows.py
 
     return res
 
@@ -225,10 +189,6 @@ async def get_workflow_executions(
     )
 
     if not res.is_success:
-<<<<<<<< HEAD:src/routes/workflows.py
-        raise Workflow_GET_Error(workflow_id=model_id, response_data=res)
-========
         raise Workflow_GET_Error(workflow_id=model_id, res=res)
->>>>>>>> test:src/domolibrary2/routes/workflows.py
 
     return res

@@ -38,19 +38,17 @@ class RouteError(DomoError):
 ```
 
 **Key Parameters:**
-
--   `res`: The `ResponseGetData` object from the failed API call
--   `message`: Optional custom error message (defaults to response content)
--   `entity_id`: ID of the specific entity that failed (dataset_id, user_id, etc.)
--   `**kwargs`: Additional context passed to the base DomoError class
+- `res`: The `ResponseGetData` object from the failed API call
+- `message`: Optional custom error message (defaults to response content)
+- `entity_id`: ID of the specific entity that failed (dataset_id, user_id, etc.)
+- `**kwargs`: Additional context passed to the base DomoError class
 
 **Automatic Context Extraction:**
 When a `res` object is provided, RouteError automatically extracts:
-
--   `status`: HTTP status code from the response
--   `message`: API response content (if no custom message provided)
--   `domo_instance`: Domo instance from the auth object
--   `parent_class`: Calling class name (if available)
+- `status`: HTTP status code from the response
+- `message`: API response content (if no custom message provided)
+- `domo_instance`: Domo instance from the auth object
+- `parent_class`: Calling class name (if available)
 
 This means you typically only need to provide the `res` object and any specific entity IDs or custom messages.
 
@@ -59,18 +57,15 @@ This means you typically only need to provide the `res` object and any specific 
 For most API routes, implement these four core error types:
 
 ### 1. GET Errors - `{Module}_GET_Error`
-
 **Purpose**: Failed retrieval operations
 **When to Use**:
-
--   API returns 4xx/5xx status codes during GET requests
--   Data parsing failures
--   Malformed responses
+- API returns 4xx/5xx status codes during GET requests
+- Data parsing failures
+- Malformed responses
 
 **Naming Convention**: `{ModuleName}_GET_Error`
 
 **Examples**:
-
 ```python
 class Dataset_GET_Error(RouteError): pass
 class User_GET_Error(RouteError): pass
@@ -78,18 +73,15 @@ class Card_GET_Error(RouteError): pass
 ```
 
 ### 2. Search Not Found - `Search{Module}_NotFound`
-
 **Purpose**: Specific searches that return no results
 **When to Use**:
-
--   Search operations return empty results when results were expected
--   Entity lookups fail to find matching records
--   Distinguishes between "no permission" vs "doesn't exist"
+- Search operations return empty results when results were expected
+- Entity lookups fail to find matching records
+- Distinguishes between "no permission" vs "doesn't exist"
 
 **Naming Convention**: `Search{ModuleName}_NotFound` or `{ModuleName}_SearchNotFound`
 
 **Examples**:
-
 ```python
 class SearchDataset_NotFound(RouteError): pass
 class SearchUser_NotFound(RouteError): pass
@@ -97,18 +89,15 @@ class SearchRole_NotFound(RouteError): pass
 ```
 
 ### 3. CRUD Errors - `{Module}_CRUD_Error`
-
 **Purpose**: Create, Update, Delete operation failures
 **When to Use**:
-
--   POST/PUT/DELETE operations fail
--   Data validation errors during mutations
--   Permission denied for modifications
+- POST/PUT/DELETE operations fail
+- Data validation errors during mutations
+- Permission denied for modifications
 
 **Naming Convention**: `{ModuleName}_CRUD_Error`
 
 **Examples**:
-
 ```python
 class Dataset_CRUD_Error(RouteError): pass
 class User_CRUD_Error(RouteError): pass
@@ -116,18 +105,15 @@ class Card_CRUD_Error(RouteError): pass
 ```
 
 ### 4. Sharing Errors - `{Module}Sharing_Error`
-
 **Purpose**: Permission and sharing-related failures
 **When to Use**:
-
--   Share/unshare operations fail
--   Permission grant/revoke failures
--   Access control violations
+- Share/unshare operations fail
+- Permission grant/revoke failures
+- Access control violations
 
 **Naming Convention**: `{ModuleName}Sharing_Error`
 
 **Examples**:
-
 ```python
 class DatasetSharing_Error(RouteError): pass
 class CardSharing_Error(RouteError): pass
@@ -139,14 +125,12 @@ class PageSharing_Error(RouteError): pass
 Authentication requires a more granular approach due to various failure modes:
 
 ### Base Auth Error
-
 ```python
 class AuthError(RouteError):
     """Base for all authentication-related errors"""
 ```
 
 ### Specific Auth Errors
-
 ```python
 class InvalidCredentialsError(AuthError):
     """Username/password, tokens, or API keys are invalid"""
@@ -179,7 +163,6 @@ class RateLimitExceededError(AuthError):
 ## Specialized Error Categories
 
 ### Data Operation Errors
-
 ```python
 class DataUploadError(RouteError):
     """Specific to data upload failures"""
@@ -192,10 +175,10 @@ class SchemaValidationError(RouteError):
 ```
 
 ### Configuration Errors
-
 ```python
 class ConfigurationError(RouteError):
     """Instance configuration issues"""
+
 class FeatureNotAvailableError(RouteError):
     """Requested feature not available in instance"""
 ```
@@ -205,16 +188,14 @@ class FeatureNotAvailableError(RouteError):
 ### When to Create New Error Types
 
 **CREATE** a new error type when:
-
--   The error represents a distinct failure mode requiring different handling
--   Users need to catch and handle this specific error differently
--   The error provides additional context not covered by base classes
+- The error represents a distinct failure mode requiring different handling
+- Users need to catch and handle this specific error differently
+- The error provides additional context not covered by base classes
 
 **DON'T CREATE** a new error type when:
-
--   The error is just a different message for the same underlying issue
--   It's a one-off error that won't be reused
--   The base RouteError or existing category is sufficient
+- The error is just a different message for the same underlying issue
+- It's a one-off error that won't be reused
+- The base RouteError or existing category is sufficient
 
 ### Error Message Best Practices
 
@@ -224,7 +205,6 @@ class FeatureNotAvailableError(RouteError):
 4. **Preserve Original**: Include API response when helpful
 
 **Good Examples**:
-
 ```python
 # Specific and actionable
 "Failed to retrieve dataset 'abc123'. Verify dataset exists and you have read permission."
@@ -241,7 +221,6 @@ class FeatureNotAvailableError(RouteError):
 All RouteError subclasses should follow these standardized constructor patterns:
 
 #### Standard Route Error
-
 ```python
 class Dataset_GET_Error(RouteError):
     """Raised when dataset retrieval operations fail."""
@@ -256,7 +235,6 @@ class Dataset_GET_Error(RouteError):
 ```
 
 #### Search Not Found with Context
-
 ```python
 class SearchDataset_NotFound(RouteError):
     """Raised when dataset search operations return no results."""
@@ -270,7 +248,6 @@ class SearchDataset_NotFound(RouteError):
 ```
 
 #### Auth Error with Specific Context
-
 ```python
 class InvalidAuthTypeError(AuthError):
     """Raised when wrong authentication method is used for an API endpoint."""
@@ -342,14 +319,14 @@ except SearchUser_NotFound:
 
 For each new route module, implement:
 
--   [ ] `{Module}_GET_Error` - for retrieval failures
--   [ ] `Search{Module}_NotFound` - for empty search results
--   [ ] `{Module}_CRUD_Error` - for create/update/delete failures
--   [ ] `{Module}Sharing_Error` - for permission/sharing issues (if applicable)
--   [ ] Specific errors for unique failure modes
--   [ ] Comprehensive docstrings with examples
--   [ ] Unit tests for error scenarios
--   [ ] Error recovery examples in documentation
+- [ ] `{Module}_GET_Error` - for retrieval failures
+- [ ] `Search{Module}_NotFound` - for empty search results
+- [ ] `{Module}_CRUD_Error` - for create/update/delete failures
+- [ ] `{Module}Sharing_Error` - for permission/sharing issues (if applicable)
+- [ ] Specific errors for unique failure modes
+- [ ] Comprehensive docstrings with examples
+- [ ] Unit tests for error scenarios
+- [ ] Error recovery examples in documentation
 
 ## Migration Strategy
 
@@ -374,17 +351,16 @@ When working with this library, follow these patterns:
 
 This error strategy provides:
 
--   **Consistent**: Predictable error types across all modules
--   **Debuggable**: Rich context for troubleshooting
--   **Recoverable**: Specific errors enable targeted recovery
--   **Maintainable**: Clear patterns for adding new error types
--   **User-Friendly**: Actionable error messages
--   **Monitorable**: Structured errors enable better observability
+- **Consistent**: Predictable error types across all modules
+- **Debuggable**: Rich context for troubleshooting
+- **Recoverable**: Specific errors enable targeted recovery
+- **Maintainable**: Clear patterns for adding new error types
+- **User-Friendly**: Actionable error messages
+- **Monitorable**: Structured errors enable better observability
 
 ## Examples in Practice
 
 ### Dataset Route Errors
-
 ```python
 # /src/routes/dataset.py
 class Dataset_GET_Error(RouteError):
@@ -413,7 +389,6 @@ class SchemaValidationError(RouteError): pass
 ```
 
 ### User Route Errors
-
 ```python
 # /src/routes/user.py
 class User_GET_Error(RouteError):
@@ -445,7 +420,6 @@ class DownloadAvatar_Error(RouteError): pass
 ```
 
 ### Application Route Errors
-
 ```python
 # /src/routes/application.py
 class Application_GET_Error(RouteError):

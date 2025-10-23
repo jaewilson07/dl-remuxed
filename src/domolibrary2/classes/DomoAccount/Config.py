@@ -26,6 +26,7 @@ __all__ = [
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoAccount_Config.py
 from typing import Any
 
@@ -40,6 +41,15 @@ from typing import Any
 from ...client import entities as dmee, exceptions as dmde
 from ...utils import DictDot as util_dd, convert as dmcv
 >>>>>>>> test:src/domolibrary2/classes/DomoAccount/Config.py
+=======
+from enum import Enum
+from typing import Any
+
+from ...entities import entities as dmee
+
+from ...client import exceptions as dmde
+from ...utils import DictDot as util_dd, convert as dmcv
+>>>>>>> main
 
 
 @dataclass
@@ -72,11 +82,15 @@ class DomoAccount_Config(dmee.DomoBase, ABC):
         return self.allow_external_use
 
     @classmethod
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoAccount_Config.py
     def _from_parent(cls, parent, **kwargs):
 ========
     def from_parent(cls, parent, **kwargs):
 >>>>>>>> test:src/domolibrary2/classes/DomoAccount/Config.py
+=======
+    def from_parent(cls, parent, **kwargs):
+>>>>>>> main
         return cls(parent=parent, **kwargs)
 
     @classmethod
@@ -113,11 +127,15 @@ class DomoAccount_NoConfig_OAuth(DomoAccount_Config):
     def from_dict(
         cls, obj: dict, data_provider_type: str, parent: Any = None, **kwargs
     ):
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoAccount_Config.py
         return cls._from_parent(
 ========
         return cls.from_parent(
 >>>>>>>> test:src/domolibrary2/classes/DomoAccount/Config.py
+=======
+        return cls.from_parent(
+>>>>>>> main
             data_provider_type=data_provider_type,
             raw=obj,
             parent=parent,
@@ -142,11 +160,15 @@ class DomoAccount_NoConfig(DomoAccount_Config):
     def from_dict(
         cls, data_provider_type: str, obj: dict, parent: Any = None, **kwargs
     ):
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoAccount_Config.py
         return cls._from_parent(
 ========
         return cls.from_parent(
 >>>>>>>> test:src/domolibrary2/classes/DomoAccount/Config.py
+=======
+        return cls.from_parent(
+>>>>>>> main
             data_provider_type=data_provider_type, parent=parent, raw=obj
         )
 
@@ -164,11 +186,15 @@ class DomoAccount_Config_AbstractCredential(DomoAccount_Config):
 
     @classmethod
     def from_dict(cls, obj, parent=None, **kwargs):
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoAccount_Config.py
         return cls._from_parent(
 ========
         return cls.from_parent(
 >>>>>>>> test:src/domolibrary2/classes/DomoAccount/Config.py
+=======
+        return cls.from_parent(
+>>>>>>> main
             parent=parent,
             raw=obj,
             credentials=obj["credentials"],
@@ -708,11 +734,16 @@ class DomoAccount_Config_SnowflakeKeyPairAuthentication(DomoAccount_Config):
                 "passPhrase": self.passphrase,
             }
         )
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoAccount_Config.py
 ========
 
 >>>>>>>> test:src/domolibrary2/classes/DomoAccount/Config.py
 
+=======
+
+
+>>>>>>> main
 class AccountConfig(dmee.DomoEnumMixin, Enum):
     """
     Enum provides appropriate spelling for data_provider_type and config object.

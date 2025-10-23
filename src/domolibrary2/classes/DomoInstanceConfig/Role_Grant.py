@@ -5,6 +5,7 @@ from typing import List, Optional
 
 import httpx
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoGrant.py
 from ..client.auth import DomoAuth as dmda
 from ..routes import grant as grant_routes
@@ -14,6 +15,11 @@ from ...client.auth import DomoAuth as dmda
 from ...routes import grant as grant_routes
 from ...utils import DictDot as util_dd
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/Role_Grant.py
+=======
+from ...client.auth import DomoAuth as dmda
+from ...routes import grant as grant_routes
+from ...utils import DictDot as util_dd
+>>>>>>> main
 
 
 @dataclass

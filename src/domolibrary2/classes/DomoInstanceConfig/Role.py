@@ -13,6 +13,7 @@ from dataclasses import dataclass, field
 from typing import Any, List, Optional
 
 import httpx
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoRole.py
 from nbdev.showdoc import patch_to
 
@@ -64,6 +65,42 @@ class SetRoleGrants_MissingGrants(ClassError):
 @dataclass
 class DomoRole(DomoEntity):
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/Role.py
+=======
+
+from ...client import exceptions as dmde
+from ...client.auth import DomoAuth
+from ...entities.entities import DomoEntity, DomoManager
+from ...client.exceptions import ClassError, DomoError
+from ...routes import role as role_routes
+
+
+class SetRoleGrants_MissingGrants(ClassError):
+    def __init__(
+        self, cls_instance, message: str = None, missing_grants: List[str] = None
+    ):
+        # from . import Role_Grant as dmgt
+
+        # # validate if grants is a list of DomoGrant objects
+        # if not isinstance(grants[0], dmgt.DomoGrant):
+        #     message = f"grants must be a list of DomoGrant objects.  provided grants are {type(grants[0])}"
+        #     super().__init__(message)
+
+        # missing_grants = []
+
+        # role_grants = [g.grant for g in role.grants]
+
+        # for grant in grants:
+        #     if grant.grant not in role_grants:
+        #         missing_grants.append(grant.grant)
+
+        if missing_grants:
+            message = f"role {cls_instance.name} is missing the following grants: {missing_grants}"
+        super().__init__(cls_instance=cls_instance, message=message)
+
+
+@dataclass
+class DomoRole(DomoEntity):
+>>>>>>> main
     id: str
     name: Optional[str] = None
     description: Optional[str] = None
@@ -295,11 +332,15 @@ class DomoRoles:
     #             )
 
     @classmethod
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoRole.py
     def from_dict(cls, obj: dict, auth=dmda.DomoAuth, is_default_role=None):
 ========
     def from_dict(cls, obj: dict, auth=DomoAuth, is_default_role=None):
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/Role.py
+=======
+    def from_dict(cls, obj: dict, auth=DomoAuth, is_default_role=None):
+>>>>>>> main
         return cls(
             id=obj.get("id"),
             name=obj.get("name"),
@@ -335,12 +376,17 @@ class DomoRoles:
             return res.response
 
         return cls.from_dict(obj=res.response, auth=auth)
+<<<<<<< HEAD
 
 
 <<<<<<<< HEAD:src/classes/DomoRole.py
 @patch_to(DomoRole)
 ========
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/Role.py
+=======
+
+
+>>>>>>> main
 async def get_grants(
     self: DomoRole,
     auth: DomoAuth = None,
@@ -380,10 +426,13 @@ class SetRoleGrants_MissingGrants(dmde.ClassError):
         )
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoRole.py
 @patch_to(DomoRole)
 ========
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/Role.py
+=======
+>>>>>>> main
 async def set_grants(
     self: DomoRole,
     grants: List["DomoGrant"],
@@ -428,6 +477,7 @@ async def set_grants(
     return self.grants
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoRole.py
 @patch_to(DomoRole, cls_method=True)
 async def create(
@@ -438,6 +488,11 @@ async def create(
     cls,
     auth: DomoAuth,
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/Role.py
+=======
+async def create(
+    cls,
+    auth: DomoAuth,
+>>>>>>> main
     name: str,
     description,
     grants: List[Any],  # DomoGrants
@@ -467,10 +522,13 @@ async def create(
     return domo_role
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoRole.py
 @patch_to(DomoRole)
 ========
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/Role.py
+=======
+>>>>>>> main
 async def get_membership(
     self,
     role_id=None,
@@ -514,10 +572,13 @@ class AddUser_Error(dmde.ClassError):
         )
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoRole.py
 @patch_to(DomoRole)
 ========
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/Role.py
+=======
+>>>>>>> main
 async def add_user(
     self,
     user: "DomoUser",
@@ -557,10 +618,13 @@ async def add_user(
     return domo_members
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoRole.py
 @patch_to(DomoRole)
 ========
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/Role.py
+=======
+>>>>>>> main
 async def update(
     self: DomoRole,
     name=None,
@@ -596,21 +660,28 @@ async def update(
     return self
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoRole.py
 class DeleteRole_Error(dmde.DomoError):
 ========
 class DeleteRole_Error(DomoError):
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/Role.py
+=======
+class DeleteRole_Error(DomoError):
+>>>>>>> main
     def __init__(self, cls_instance):
         super().__init__(
             cls_instance=cls_instance, message="role not deleted -- does it exist?"
         )
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoRole.py
 @patch_to(DomoRole)
 ========
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/Role.py
+=======
+>>>>>>> main
 async def delete(
     self: DomoRole,
     debug_api: bool = False,
@@ -627,10 +698,13 @@ async def delete(
     )
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoRole.py
 @patch_to(DomoRole, cls_method=True)
 ========
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/Role.py
+=======
+>>>>>>> main
 async def delete_role(
     cls: DomoRole,
     role_id: int,
@@ -670,11 +744,15 @@ class SearchRole_NotFound(dmde.ClassError):
 
 
 @dataclass
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoRole.py
 class DomoRoles(dmee.DomoManager):
 ========
 class DomoRoles(DomoManager):
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/Role.py
+=======
+class DomoRoles(DomoManager):
+>>>>>>> main
     roles: List[DomoRole] = field(default=None)
 
     default_role: DomoRole = field(default=None)
@@ -766,10 +844,13 @@ class DomoRoles(DomoManager):
         return domo_role
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoRole.py
 @patch_to(DomoRoles)
 ========
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/Role.py
+=======
+>>>>>>> main
 async def create(
     self: DomoRoles,
     name: str,
@@ -797,11 +878,15 @@ async def upsert(
     self: DomoRoles,
     name: str,
     description: str = None,
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoRole.py
     grants: List[dmgt.DomoGrant] = None,
 ========
     grants: List["DomoGrant"] = None,
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/Role.py
+=======
+    grants: List["DomoGrant"] = None,
+>>>>>>> main
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     debug_prn: bool = False,
@@ -850,10 +935,13 @@ async def upsert(
     return domo_role
 
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoRole.py
 @patch_to(DomoRole)
 ========
 >>>>>>>> test:src/domolibrary2/classes/DomoInstanceConfig/Role.py
+=======
+>>>>>>> main
 async def set_as_default_role(
     self: DomoRole,
     debug_api: bool = False,

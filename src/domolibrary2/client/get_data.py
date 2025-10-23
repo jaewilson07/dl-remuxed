@@ -8,10 +8,14 @@ __all__ = [
     "route_function",
 ]
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/get_data.py
 ========
 import json
 >>>>>>>> test:src/domolibrary2/client/get_data.py
+=======
+import json
+>>>>>>> main
 import time
 from functools import wraps
 from pprint import pprint
@@ -19,6 +23,7 @@ from typing import Any, Callable, Optional, Tuple, Union
 
 import httpx
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/get_data.py
 from . import auth as dmda
 from .exceptions import DomoError
@@ -28,6 +33,8 @@ from ..utils import chunk_execution as dmce
 
 
 ========
+=======
+>>>>>>> main
 # import dc_logger
 from dc_logger.client.base import Logger, get_global_logger
 from dc_logger.client.decorators import log_call
@@ -40,13 +47,17 @@ logger: Logger = get_global_logger()
 # assert logger, "A global logger must be set before using get_data functions."
 
 
+<<<<<<< HEAD
 >>>>>>>> test:src/domolibrary2/client/get_data.py
+=======
+>>>>>>> main
 class GetData_Error(DomoError):
     def __init__(self, message, url):
         super().__init__(message=message, domo_instance=url)
 
 
 def create_headers(
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/get_data.py
     auth: dmda.DomoAuth,  # The authentication object containing the Domo API token.
 ========
@@ -54,6 +65,11 @@ def create_headers(
         "dmda.DomoAuth"
     ],  # The authentication object containing the Domo API token.
 >>>>>>>> test:src/domolibrary2/client/get_data.py
+=======
+    auth: Optional[
+        "dmda.DomoAuth"
+    ],  # The authentication object containing the Domo API token.
+>>>>>>> main
     content_type: Optional[
         str
     ] = None,  # The content type for the request. Defaults to None.
@@ -104,11 +120,15 @@ def create_httpx_session(
 async def get_data(
     url: str,
     method: str,
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/get_data.py
     auth: dmda.DomoAuth,
 ========
     auth: Optional["dmda.DomoAuth"] = None,
 >>>>>>>> test:src/domolibrary2/client/get_data.py
+=======
+    auth: Optional["dmda.DomoAuth"] = None,
+>>>>>>> main
     content_type: Optional[str] = None,
     headers: Optional[dict] = None,
     body: Union[dict, list, str, None] = None,
@@ -143,6 +163,7 @@ async def get_data(
     request_metadata = rgd.RequestMetadata(
         url=url,
         headers=headers,
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/get_data.py
         body=body if isinstance(body, str) else (str(body) if body else None),
         params=params,
@@ -159,6 +180,8 @@ async def get_data(
             parent_class=parent_class or "",
             debug_traceback=debug_traceback,
 ========
+=======
+>>>>>>> main
         body=body,
         params=params,
     )
@@ -170,9 +193,13 @@ async def get_data(
         await logger.info(
             message=request_metadata.to_dict(),
             extra={"level_name": "get_data"},
+<<<<<<< HEAD
 >>>>>>>> test:src/domolibrary2/client/get_data.py
         )
         additional_information["traceback_details"] = traceback_details
+=======
+        )
+>>>>>>> main
 
     # Create additional information with parent_class and traceback_details
     additional_information = {}
@@ -218,41 +245,57 @@ async def get_data(
 
         # Return raw response if requested
         if return_raw:
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/get_data.py
             return rgd.ResponseGetData(
 ========
             res = rgd.ResponseGetData(
 >>>>>>>> test:src/domolibrary2/client/get_data.py
+=======
+            res = rgd.ResponseGetData(
+>>>>>>> main
                 status=response.status_code,
                 response=response,
                 is_success=True,
                 request_metadata=request_metadata,
                 additional_information=additional_information,
             )
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/get_data.py
 
         # Process response into ResponseGetData using from_httpx_response
         return rgd.ResponseGetData.from_httpx_response(
 ========
+=======
+>>>>>>> main
             if logger:
                 await logger.info(message=res.to_dict())
 
         # Process response into ResponseGetData using from_httpx_response
         res = rgd.ResponseGetData.from_httpx_response(
+<<<<<<< HEAD
 >>>>>>>> test:src/domolibrary2/client/get_data.py
+=======
+>>>>>>> main
             res=response,
             request_metadata=request_metadata,
             additional_information=additional_information,
         )
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/get_data.py
 ========
+=======
+>>>>>>> main
         if logger:
             await logger.info(message=res.response)
 
         return res
 
+<<<<<<< HEAD
 >>>>>>>> test:src/domolibrary2/client/get_data.py
+=======
+>>>>>>> main
     except httpx.HTTPStatusError as http_err:
         print(f"HTTP error occurred: {http_err}")
         raise
@@ -272,11 +315,15 @@ async def get_data_stream(
     url: str,
     auth: dmda.DomoAuth,
     method: str = "GET",
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/get_data.py
     content_type: Optional[str] = None,
 ========
     content_type: Optional[str] = "application/json",
 >>>>>>>> test:src/domolibrary2/client/get_data.py
+=======
+    content_type: Optional[str] = "application/json",
+>>>>>>> main
     headers: Optional[dict] = None,
     # body: Union[dict, str, None] = None,
     params: Optional[dict] = None,
@@ -340,6 +387,7 @@ async def get_data_stream(
     if parent_class:
         additional_information["parent_class"] = parent_class
 
+<<<<<<< HEAD
     # Create request metadata
     request_metadata = rgd.RequestMetadata(
         url=url,
@@ -353,6 +401,8 @@ async def get_data_stream(
     if parent_class:
         additional_information["parent_class"] = parent_class
 
+=======
+>>>>>>> main
     traceback_details = dl.get_traceback(
         num_stacks_to_drop=num_stacks_to_drop,
         root_module="<module>",
@@ -374,6 +424,7 @@ async def get_data_stream(
         )
 
     try:
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/get_data.py
         async with session or httpx.AsyncClient(verify=False) as client:
             async with client.stream(
@@ -403,6 +454,8 @@ async def get_data_stream(
                     request_metadata=request_metadata,
                     additional_information=additional_information,
 ========
+=======
+>>>>>>> main
         if not session:
             session = httpx.AsyncClient(verify=is_verify)
 
@@ -416,7 +469,10 @@ async def get_data_stream(
             if res.status_code != 200:
                 response_text = (
                     res.text if hasattr(res, "text") else str(await res.aread())
+<<<<<<< HEAD
 >>>>>>>> test:src/domolibrary2/client/get_data.py
+=======
+>>>>>>> main
                 )
                 res_obj = rgd.ResponseGetData(
                     status=res.status_code,
@@ -429,8 +485,11 @@ async def get_data_stream(
                     await logger.info(message=res_obj.to_dict())
                 return res_obj
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/get_data.py
 ========
+=======
+>>>>>>> main
             content = bytearray()
             async for chunk in res.aiter_bytes():
                 content += chunk
@@ -447,7 +506,10 @@ async def get_data_stream(
 
             return res_obj
 
+<<<<<<< HEAD
 >>>>>>>> test:src/domolibrary2/client/get_data.py
+=======
+>>>>>>> main
     except httpx.TransportError as e:
         raise GetData_Error(url=url, message=e) from e
 
@@ -455,6 +517,7 @@ async def get_data_stream(
 class LooperError(DomoError):
     def __init__(self, loop_stage: str, message):
         super().__init__(message=f"{loop_stage} - {message}")
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/get_data.py
 
 
@@ -463,6 +526,11 @@ class LooperError(DomoError):
 
 @log_call(logger=logger, action_name="looper")
 >>>>>>>> test:src/domolibrary2/client/get_data.py
+=======
+
+
+@log_call(logger=logger, action_name="looper")
+>>>>>>> main
 async def looper(
     auth: dmda.DomoAuth,
     session: Optional[httpx.AsyncClient],

@@ -15,6 +15,7 @@ from typing import Any, Callable, Union
 
 import httpx
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoJupyter_Account.py
 from ..client import DomoAuth as dmda
 from ..client import exceptions as dmde
@@ -31,6 +32,14 @@ from . import Account as dmac
 
 class DJW_PermissionToAccountDenied(DomoError):
 >>>>>>>> test:src/domolibrary2/classes/DomoJupyter/Account.py
+=======
+from ..client import exceptions as dmde
+from ..utils import xkcd_password as dmxkcd
+from . import Account as dmac
+
+
+class DJW_PermissionToAccountDenied(DomoError):
+>>>>>>> main
     def __init__(self, message, account_name):
         super().__init__(message=message, entity_id=account_name)
 
@@ -258,11 +267,15 @@ class DomoJupyter_Account:
         debug_prn: bool = False,
         new_password: str = None,  # only used if current password does not validate will autogenerate if no passwordd provided
         target_account_name: str = None,
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoJupyter_Account.py
         target_auth: dmda.DomoAuth = None,
 ========
         target_auth: DomoAuth = None,
 >>>>>>>> test:src/domolibrary2/classes/DomoJupyter/Account.py
+=======
+        target_auth: DomoAuth = None,
+>>>>>>> main
         is_deploy_account_to_target_instance: bool = True,
         is_force_reset: bool = False,
     ) -> dmac.DomoAccount:
@@ -325,11 +338,15 @@ class DomoJupyter_Account:
         debug_api: bool = False,
         debug_prn: bool = False,
         target_account_name: str = None,
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/classes/DomoJupyter_Account.py
         target_auth: dmda.DomoAuth = None,
 ========
         target_auth: DomoAuth = None,
 >>>>>>>> test:src/domolibrary2/classes/DomoJupyter/Account.py
+=======
+        target_auth: DomoAuth = None,
+>>>>>>> main
         is_deploy_account_to_target_instance: bool = True,
         is_force_reset: bool = False,
     ) -> dict:
