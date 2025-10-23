@@ -12,7 +12,7 @@ from ..subentity import DomoLineage as dmdl
 
 from ...client import exceptions as dmde
 from ...client.auth import DomoAuth
-from ...client.entities import DomoEntity_w_Lineage
+from ...entities.entities import DomoEntity_w_Lineage
 from ...routes import page as page_routes
 from ...utils import DictDot as util_dd, chunk_execution as dmce, convert as dmcv
 from .. import DomoPage_Content as dmpg_c, DomoUser as dmu
@@ -199,7 +199,7 @@ class DomoPage(DomoEntity_w_Lineage):
         return pg
 
     @classmethod
-    async def _get_entity_by_id(cls, entity_id: str, **kwargs):
+    async def get_entity_by_id(cls, entity_id: str, **kwargs):
         return await cls.get_by_id(page_id=entity_id, **kwargs)
 
     @classmethod
