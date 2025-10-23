@@ -3,6 +3,11 @@ __all__ = [
     "DomoAccountOAuth_Config_JiraOnPremOauth",
     "OAuthConfig",
     "DomoAccount_OAuth",
+    # Route exceptions
+    "Account_GET_Error",
+    "Account_CRUD_Error",
+    "Account_NoMatch",
+    "Account_Config_Error",
 ]
 
 from dataclasses import dataclass, field
@@ -14,6 +19,12 @@ import httpx
 from ...entities import entities as dmee
 from ...client.auth import DomoAuth
 from ...routes import account as account_routes
+from ...routes.account.exceptions import (
+    Account_Config_Error,
+    Account_CRUD_Error,
+    Account_GET_Error,
+    Account_NoMatch,
+)
 from . import (
     Account_Default as dmacb,
     Config as dmacnfg,
@@ -97,8 +108,28 @@ class DomoAccount_OAuth(dmacb.DomoAccount_Default):
         return_raw: bool = False,
         debug_api: bool = None,
         debug_num_stacks_to_drop=2,
-        is_suppress_no_config: bool = False,  # can be used to suppress cases where the config is not defined, either because the account_config is OAuth, and therefore not stored in Domo OR because the AccountConfig class doesn't cover the data_type
+        is_suppress_no_config: bool = False,
     ):
+        """Retrieve OAuth account configuration.
+
+        Internal method to fetch and parse OAuth account configuration.
+        Can be used to suppress cases where the config is not defined, either
+        because the account_config is OAuth and not stored in Domo, OR because
+        the AccountConfig class doesn't cover the data_type.
+
+        Args:
+            session: HTTP client session (optional)
+            return_raw: Return raw response without processing
+            debug_api: Enable API debugging
+            debug_num_stacks_to_drop: Stack frames to drop for debugging
+            is_suppress_no_config: Suppress errors when config is not defined
+
+        Returns:
+            DomoAccount_Config: OAuth account configuration object
+
+        Raises:
+            Account_Config_Error: If configuration retrieval or parsing fails
+        """
         if not self.data_provider_type:
             res = await account_routes.get_account_by_id(
                 auth=self.auth,
@@ -162,7 +193,26 @@ class DomoAccount_OAuth(dmacb.DomoAccount_Default):
         debug_num_stacks_to_drop=2,
         **kwargs,
     ):
-        """retrieves account metadata and attempts to retrieve config"""
+        """Retrieve OAuth account metadata and attempt to retrieve configuration.
+
+        Args:
+            auth: Authentication object for API requests
+            account_id: ID of the OAuth account to retrieve
+            is_suppress_no_config: Suppress errors when config is not defined
+            session: HTTP client session (optional)
+            return_raw: Return raw response without processing
+            debug_api: Enable API debugging
+            debug_num_stacks_to_drop: Stack frames to drop for debugging
+            **kwargs: Additional arguments passed to from_dict
+
+        Returns:
+            DomoAccount_OAuth: OAuth account instance with configuration
+
+        Raises:
+            Account_NoMatch: If OAuth account is not found
+            Account_GET_Error: If OAuth account retrieval fails
+            Account_Config_Error: If configuration retrieval fails
+        """
 
         res = await account_routes.get_oauth_account_by_id(
             auth=auth,

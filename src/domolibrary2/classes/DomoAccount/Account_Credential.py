@@ -15,23 +15,20 @@ from typing import Optional
 
 import httpx
 
-from ...client import (
-    auth as dmda,
-    exceptions as dmde,
-)
-from ...client.auth import DomoAuth
 from ...utils import convert as dmcv
-from ..DomoAccessToken import DomoAccessToken as dmact
+
+from ...client.exceptions import ClassError, DomoError
+from ...client.auth import DomoAuth, DomoFullAuth, AuthError, DomoTokenAuth
+
 from ..DomoUser import (
-    DomoUser as dmdu,
+    DomoUser,
     DomoUsers,
 )
-from . import Account_Default as dmacb
 from ..DomoAccessToken import DomoAccessToken
-from .. import DomoUser as dmdu
+from .Account_Default import DomoAccount_Default
 
 
-class DAC_NoTargetInstance(dmde.ClassError):
+class DAC_NoTargetInstance(ClassError):
     def __init__(self, cls_instance):
         super().__init__(
             message=f"no target_instance on class - {cls_instance.name}",
@@ -39,7 +36,7 @@ class DAC_NoTargetInstance(dmde.ClassError):
         )
 
 
-class DAC_NoTargetUser(dmde.ClassError):
+class DAC_NoTargetUser(ClassError):
     def __init__(self, cls_instance):
         super().__init__(
             message=f"no target_user on class - {cls_instance.name}",
@@ -47,7 +44,7 @@ class DAC_NoTargetUser(dmde.ClassError):
         )
 
 
-class DAC_NoPassword(dmde.ClassError):
+class DAC_NoPassword(ClassError):
     def __init__(self, cls_instance):
         super().__init__(
             message=f"no password stored in account - {cls_instance.name}",
@@ -55,7 +52,7 @@ class DAC_NoPassword(dmde.ClassError):
         )
 
 
-class DAC_NoUserName(dmde.ClassError):
+class DAC_NoUserName(ClassError):
     def __init__(self, cls_instance):
         super().__init__(
             message=f"no username stored in account - {cls_instance.name}",
@@ -63,7 +60,7 @@ class DAC_NoUserName(dmde.ClassError):
         )
 
 
-class DAC_NoAccessTokenName(dmde.ClassError):
+class DAC_NoAccessTokenName(ClassError):
     def __init__(self, cls_instance):
         super().__init__(
             message="must pass access token name to retrieve",
@@ -71,7 +68,7 @@ class DAC_NoAccessTokenName(dmde.ClassError):
         )
 
 
-class DAC_NoAccessToken(dmde.ClassError):
+class DAC_NoAccessToken(ClassError):
     def __init__(self, cls_instance):
         super().__init__(
             message=f"no access_token stored in account - {cls_instance.name}",
@@ -79,7 +76,7 @@ class DAC_NoAccessToken(dmde.ClassError):
         )
 
 
-class DAC_ValidAuth(dmde.ClassError):
+class DAC_ValidAuth(ClassError):
     def __init__(self, cls_instance, message=None):
         super().__init__(
             message=message
@@ -89,7 +86,7 @@ class DAC_ValidAuth(dmde.ClassError):
 
 
 @dataclass
-class DomoAccount_Credential(dmacb.DomoAccount_Default):
+class DomoAccount_Credential(DomoAccount_Default):
     """Account credential management class for Domo accounts.
 
     This class extends DomoAccount_Default to provide credential management
@@ -106,9 +103,8 @@ class DomoAccount_Credential(dmacb.DomoAccount_Default):
     """
 
     target_auth: DomoAuth = field(default=None)
-    target_user: dmdu.DomoUser = field(default=None)
+    target_user: DomoUser = field(default=None)
     target_access_token: DomoAccessToken = field(default=None)
-    target_instance: Optional[str] = None
 
     is_valid_full_auth: Optional[bool] = None
     is_valid_token_auth: Optional[bool] = None
@@ -117,8 +113,8 @@ class DomoAccount_Credential(dmacb.DomoAccount_Default):
     _full_auth: Optional[DomoAuth] = field(repr=False, default=None)
 
     target_auth: Optional[DomoAuth] = field(default=None)
-    target_user: Optional[dmdu] = field(default=None)
-    target_access_token: Optional[dmact] = field(default=None)
+    target_user: Optional[DomoUser] = field(default=None)
+    target_access_token: Optional[DomoAccessToken] = field(default=None)
 
     # Note: __post_init__ is inherited from DomoAccount_Default
     # which initializes the Access subentity
@@ -215,7 +211,7 @@ class DomoAccount_Credential(dmacb.DomoAccount_Default):
         if not self.target_instance:
             raise DAC_NoTargetInstance(self)
 
-        self._full_auth = dmda.DomoFullAuth(
+        self._full_auth = DomoFullAuth(
             domo_instance=self.target_instance,
             domo_username=self.Config.username,
             domo_password=self.Config.password,
@@ -225,7 +221,7 @@ class DomoAccount_Credential(dmacb.DomoAccount_Default):
             await self._full_auth.print_is_token(debug_api=debug_api, session=session)
             self.is_valid_full_auth = True
 
-        except dmda.AuthError as e:
+        except AuthError as e:
             dmcv.print_md(f"🤯 test_full_auth for: ***{self.name}*** returned {e}")
 
             self.is_valid_full_auth = False
@@ -259,7 +255,7 @@ class DomoAccount_Credential(dmacb.DomoAccount_Default):
         if not self.target_instance:
             raise DAC_NoTargetInstance(self)
 
-        self._token_auth = dmda.DomoTokenAuth(
+        self._token_auth = DomoTokenAuth(
             domo_instance=self.target_instance,
             domo_access_token=self.Config.domo_access_token,
         )
@@ -269,7 +265,7 @@ class DomoAccount_Credential(dmacb.DomoAccount_Default):
             self.is_valid_token_auth = True
             self.target_auth = self._token_auth
 
-        except dmda.AuthError as e:
+        except AuthError as e:
             dmcv.print_md(f"🤯 test_token_auth for: ***{self.name}*** returned {e}")
             self.is_valid_token_auth = False
 
@@ -373,7 +369,7 @@ class DomoAccount_Credential(dmacb.DomoAccount_Default):
         target_auth: Optional[DomoAuth] = None,
         debug_api: bool = False,
         session: Optional[httpx.AsyncClient] = None,
-    ) -> dmdu:
+    ) -> DomoUser:
         """Retrieve the target user for this account.
 
         Args:
@@ -476,7 +472,7 @@ class DomoAccount_Credential(dmacb.DomoAccount_Default):
         target_auth: Optional[DomoAuth] = None,
         debug_api: bool = False,
         session: Optional[httpx.AsyncClient] = None,
-    ) -> Optional[dmact]:
+    ) -> DomoAccessToken:
         """Retrieve an access token for the target user.
 
         Args:
@@ -527,6 +523,9 @@ class DomoAccount_Credential(dmacb.DomoAccount_Default):
             ),
             None,
         )
+
+        if not self.target_access_token:
+            raise DAC_NoAccessTokenName(self)
 
         return self.target_access_token
 
