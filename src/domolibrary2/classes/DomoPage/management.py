@@ -3,25 +3,63 @@
 __all__ = ["DomoPages"]
 
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Optional
 
 import httpx
 
 from ...client.auth import DomoAuth
+from ...client.entities import DomoManager
 from ...client import exceptions as dmde
 from ...routes import page as page_routes
+from ...routes.page.exceptions import Page_GET_Error, SearchPage_NotFound
 from ...utils import chunk_execution as dmce
 from .core import DomoPage
 
 
 @dataclass
-class DomoPages:
+class DomoPages(DomoManager):
+    """Manager class for Domo Page collections.
+    
+    This class handles operations on collections of pages including retrieval,
+    searching, and hierarchy management.
+    
+    Attributes:
+        auth: Authentication object for API requests (inherited from DomoManager)
+        pages: List of DomoPage objects managed by this instance
+    """
+    
     auth: DomoAuth = field(repr=False)
-    pages: List[DomoPage] = None
+    pages: Optional[List[DomoPage]] = None
 
-    async def get(self, **kwargs):
-        """calls get_admin_summary to retrieve all pages in an instance"""
-        return await self.get_admin_summary(**kwargs)
+    async def get(
+        self,
+        search_title: str = None,
+        parent_page_id: int = None,
+        return_raw: bool = False,
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+    ):
+        """Retrieve all pages in an instance.
+        
+        This is a convenience method that calls get_admin_summary.
+        
+        Args:
+            search_title: Optional title filter
+            parent_page_id: Optional parent page filter
+            return_raw: Return raw response without processing
+            debug_api: Enable API debugging
+            session: Optional HTTP client session
+            
+        Returns:
+            List of DomoPage objects or ResponseGetData if return_raw=True
+        """
+        return await self.get_admin_summary(
+            search_title=search_title,
+            parent_page_id=parent_page_id,
+            return_raw=return_raw,
+            debug_api=debug_api,
+            session=session,
+        )
 
     async def get_admin_summary(
         self,
@@ -31,10 +69,25 @@ class DomoPages:
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
     ):
-        """use admin_summary to retrieve all pages in an instance -- regardless of user access
-        NOTE: some Page APIs will not return results if page access isn't explicitly shared
+        """Retrieve all pages using admin_summary endpoint.
+        
+        This method retrieves pages regardless of user access permissions.
+        Note: Some Page APIs will not return results if page access isn't 
+        explicitly shared with the authenticated user.
+        
+        Args:
+            search_title: Optional title to search for
+            parent_page_id: Optional parent page ID to filter by
+            return_raw: Return raw response without processing
+            debug_api: Enable API debugging
+            session: Optional HTTP client session
+            
+        Returns:
+            List of DomoPage objects or ResponseGetData if return_raw=True
+            
+        Raises:
+            Page_GET_Error: If page retrieval fails
         """
-
         res = await page_routes.get_pages_adminsummary(
             auth=self.auth,
             debug_api=debug_api,
@@ -45,6 +98,12 @@ class DomoPages:
 
         if return_raw:
             return res
+
+        if not res.is_success:
+            raise Page_GET_Error(
+                message="Failed to retrieve pages from admin summary",
+                res=res,
+            )
 
         self.pages = await dmce.gather_with_concurrency(
             n=60,
