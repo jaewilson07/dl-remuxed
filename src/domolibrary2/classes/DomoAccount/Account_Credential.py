@@ -23,7 +23,7 @@ from ..DomoUser import (
     DomoUser,
     DomoUsers,
 )
-from .Account_Default import DomoAccount_Default
+from .account_default import DomoAccount_Default
 
 
 class DAC_NoTargetInstance(ClassError):
@@ -103,6 +103,7 @@ class DomoAccount_Credential(DomoAccount_Default):
     target_auth: DomoAuth = field(default=None)
     target_user: DomoUser = field(default=None)
     target_access_token: DomoAccessToken = field(default=None)
+    target_instance: str = field(default=None)
 
     is_valid_full_auth: Optional[bool] = None
     is_valid_token_auth: Optional[bool] = None
@@ -110,19 +111,16 @@ class DomoAccount_Credential(DomoAccount_Default):
     _token_auth: Optional[DomoAuth] = field(repr=False, default=None)
     _full_auth: Optional[DomoAuth] = field(repr=False, default=None)
 
-    target_auth: Optional[DomoAuth] = field(default=None)
-    target_user: Optional[DomoUser] = field(default=None)
-    target_access_token: Optional[DomoAccessToken] = field(default=None)
-
     # Note: __post_init__ is inherited from DomoAccount_Default
     # which initializes the Access subentity
 
     @classmethod
-    def _classfrom_dict(
+    def from_dict(
         cls,
         obj: dict,
         is_admin_summary: bool = True,
         auth: Optional[DomoAuth] = None,
+        is_use_default_account_class: bool = False,
         **kwargs,
     ):
         """Create Account_Credential from dictionary representation.
@@ -136,10 +134,12 @@ class DomoAccount_Credential(DomoAccount_Default):
         Returns:
             DomoAccount_Credential instance
         """
-        return cls._defaultfrom_dict(
+        return super().from_dict(
             obj=obj,
             is_admin_summary=is_admin_summary,
             auth=auth,
+            new_cls=cls,
+            is_use_default_account_class=is_use_default_account_class,
             target_instance=kwargs.get("target_instance"),
         )
 
@@ -353,13 +353,18 @@ class DomoAccount_Credential(DomoAccount_Default):
         Returns:
             Dictionary containing account ID, alias, instance, and auth validity status
         """
-        return {
-            "account_id": self.id,
-            "alias": self.name,
-            "target_instance": self.target_instance,
-            "is_valid_full_auth": self.is_valid_full_auth,
-            "is_valid_token_auth": self.is_valid_token_auth,
-        }
+
+        s = super().to_dict()
+        s.update(
+            {
+                "account_id": self.id,
+                "alias": self.name,
+                "target_instance": self.target_instance,
+                "is_valid_full_auth": self.is_valid_full_auth,
+                "is_valid_token_auth": self.is_valid_token_auth,
+            }
+        )
+        return s
 
     async def get_target_user(
         self,
@@ -397,9 +402,8 @@ class DomoAccount_Credential(DomoAccount_Default):
                 message="no target_auth, pass a valid backup_auth",
             )
 
-        self.target_user = await DomoUsers.by_email(
-            email_ls=[user_email],
-            auth=target_auth,
+        self.target_user = await DomoUsers(auth=target_auth).search_by_email(
+            email=[user_email],
             debug_api=debug_api,
             session=session,
         )

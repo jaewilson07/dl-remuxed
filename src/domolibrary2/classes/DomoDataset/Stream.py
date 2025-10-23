@@ -75,7 +75,6 @@ class DomoStream(DomoEntity):
             update_method=obj.get("updateMethod"),
             data_provider_name=data_provider.get("name"),
             data_provider_key=data_provider.get("key"),
-            dataset_id=datasource.get("id"),
             raw=obj,
             Relations=None,
         )

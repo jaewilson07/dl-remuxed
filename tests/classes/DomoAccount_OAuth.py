@@ -16,14 +16,18 @@ Environment Variables Required:
 """
 
 import os
+from dotenv import load_dotenv
 import pytest
 from domolibrary2.client.auth import DomoTokenAuth
-from domolibrary2.classes.DomoAccount import DomoAccount_OAuth
-from domolibrary2.classes.DomoAccount.Account_OAuth import (
+
+from domolibrary2.classes.DomoAccount.account_oauth import (
     OAuthConfig,
+    DomoAccount_OAuth,
     DomoAccountOAuth_Config_SnowflakeOauth,
 )
 from domolibrary2.routes.account.exceptions import Account_NoMatch
+
+load_dotenv()
 
 
 # Setup authentication for tests
@@ -92,7 +96,6 @@ async def test_from_dict(token_auth):
         auth=token_auth,
         obj=sample_data,
         is_admin_summary=False,
-        is_use_default_account_class=False,
         new_cls=DomoAccount_OAuth,
     )
 
@@ -108,10 +111,7 @@ async def test_from_dict(token_auth):
 async def test_display_url(token_auth):
     """Test the display_url method returns the correct URL."""
     oauth_account = DomoAccount_OAuth(
-        id=123,
-        auth=token_auth,
-        name="Test Account",
-        raw={},
+        id=123, auth=token_auth, name="Test Account", raw={}, Relations=None
     )
 
     url = oauth_account.display_url()
@@ -179,10 +179,7 @@ async def test_access_subentity(token_auth):
     3. Access has reference to parent
     """
     oauth_account = DomoAccount_OAuth(
-        id=123,
-        auth=token_auth,
-        name="Test Account",
-        raw={},
+        id=123, auth=token_auth, name="Test Account", raw={}, Relations=None
     )
 
     # Access should be initialized in __post_init__
