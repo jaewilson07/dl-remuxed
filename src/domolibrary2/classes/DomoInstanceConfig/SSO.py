@@ -17,13 +17,14 @@ from typing import Any, Callable
 
 import httpx
 
-from ..client import (
+from ...client import (
     exceptions as dmde,
     response as rgd,
 )
-from ..client.entities import DomoEntity
-from ..routes import instance_config_sso as sso_routes
-from ..utils import convert as dmcv
+from ...client.auth import DomoAuth
+from ...client.entities import DomoEntity
+from ...routes.instance_config import sso as sso_routes
+from ...utils import convert as dmcv
 
 
 class SSOConfig_InstantiationError(dmde.ClassError):
