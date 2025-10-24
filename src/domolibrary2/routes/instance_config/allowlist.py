@@ -9,6 +9,7 @@ __all__ = [
 
 
 import httpx
+from typing import Optional
 
 from ...client import (
     auth as dmda,
@@ -22,9 +23,7 @@ from .exceptions import Config_GET_Error
 
 
 class Allowlist_UnableToUpdate(dmde.RouteError):
-    def __init__(
-        self, res: rgd.ResponseGetData, reason: str = None, message: str = None
-    ):
+    def __init__(self, res: rgd.ResponseGetData, reason: str = "", message: str = ""):
         super().__init__(
             res=res,
             message=message or f"unable to update allowlist: {reason}",
@@ -34,7 +33,7 @@ class Allowlist_UnableToUpdate(dmde.RouteError):
 @gd.route_function
 async def get_allowlist(
     auth: DomoAuth,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     return_raw: bool = False,
     debug_api: bool = False,
     parent_class=None,
@@ -74,7 +73,7 @@ async def set_allowlist(
     ip_address_ls: list[str],
     debug_api: bool = False,
     return_raw: bool = False,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     parent_class=None,
     debug_num_stacks_to_drop=1,
 ) -> rgd.ResponseGetData:
@@ -108,10 +107,10 @@ async def set_allowlist(
 @gd.route_function
 async def get_allowlist_is_filter_all_traffic_enabled(
     auth: DomoAuth,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     return_raw: bool = False,
-    parent_class: str = None,
+    parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
 ) -> rgd.ResponseGetData:
     """this endpoint determines if ALL traffic is filtered through the allowlist or just browser traffic
@@ -153,10 +152,10 @@ async def get_allowlist_is_filter_all_traffic_enabled(
 async def toggle_allowlist_is_filter_all_traffic_enabled(
     auth: dmda.DomoFullAuth,
     is_enabled: bool,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     return_raw: bool = False,
-    parent_class: str = None,
+    parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
 ) -> rgd.ResponseGetData:
     """this endpoint determines if ALL traffic is filtered through the allowlist or just browser traffic
@@ -172,7 +171,7 @@ async def toggle_allowlist_is_filter_all_traffic_enabled(
     body = {"value": is_enabled}
 
     res = await gd.get_data(
-        auth=auth,
+        auth=auth,  # type: ignore[arg-type]
         url=url,
         method="PUT",
         body=body,

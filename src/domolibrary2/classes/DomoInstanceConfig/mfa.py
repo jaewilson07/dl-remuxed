@@ -1,33 +1,34 @@
 __all__ = ["MFAConfig_InstantiationError", "MFA_Config"]
 
 from dataclasses import dataclass, field
-from typing import List
+from typing import Any, Optional
 
 import httpx
 
-from ..client import exceptions as dmde
-from ..routes import instance_config_mfa as mfa_routes
+from ...client.exceptions import ClassError
+from ...client.auth import DomoAuth
+from ...routes import instance_config as instance_config_routes
 
 
-class MFAConfig_InstantiationError(dmde.ClassError):
-    def __init__(self, message, auth: DomoAuth, cls):
+class MFAConfig_InstantiationError(ClassError):
+    def __init__(self, auth: DomoAuth, message, cls):
         super().__init__(domo_instance=auth.domo_instance, message=message, cls=cls)
 
 
 @dataclass
 class MFA_Config:
     auth: DomoAuth = field(repr=False)
-    is_multifactor_required: bool = None
-    max_code_attempts: int = None
-    num_days_valid: int = None
+    is_multifactor_required: bool = False
+    max_code_attempts: int = 0
+    num_days_valid: int = 0
 
     @classmethod
-    def from_dict(cls, auth: DomoAuth, obj: List[dict]):
+    def from_dict(cls, auth: DomoAuth, obj: dict[str, Any]):
         return cls(
             auth=auth,
-            is_multifactor_required=obj.get("is_multifactor_required"),
-            num_days_valid=obj.get("num_days_valid"),
-            max_code_attempts=obj.get("max_code_attempts"),
+            is_multifactor_required=obj.get("is_multifactor_required", False),
+            num_days_valid=obj.get("num_days_valid", 0),
+            max_code_attempts=obj.get("max_code_attempts", 0),
         )
 
     @classmethod
@@ -37,12 +38,12 @@ class MFA_Config:
         incl_is_multifactor_required: bool = True,
         incl_num_days_valid: bool = True,
         incl_max_code_attempts: bool = True,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         return_raw: bool = False,
     ):
-        res = await mfa_routes.get_mfa_config(
+        res = await instance_config_routes.get_mfa_config(
             auth=auth,
             incl_is_multifactor_required=incl_is_multifactor_required,
             incl_num_days_valid=incl_num_days_valid,
@@ -61,18 +62,19 @@ class MFA_Config:
             raise MFAConfig_InstantiationError(
                 auth=auth,
                 message=f"must enable MFA to get MFA config from {auth.domo_instance}",
+                cls=cls,
             )
 
         return cls.from_dict(auth=auth, obj=res.response)
 
     async def get(
         self,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
         return_raw: bool = False,
     ):
-        res = await mfa_routes.get_mfa_config(
+        res = await instance_config_routes.get_mfa_config(
             auth=self.auth,
             incl_is_multifactor_required=True,
             incl_num_days_valid=True,
@@ -113,7 +115,7 @@ async def toggle_mfa(
     self,
     is_enable_MFA: bool,
     is_ignore_test: bool = False,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 2,
     suppress_update_self: bool = False,
@@ -129,7 +131,7 @@ async def toggle_mfa(
     if not need_update_config:
         return self
 
-    await mfa_routes.toggle_enable_mfa(
+    await instance_config_routes.toggle_enable_mfa(
         auth=self.auth,
         is_enable_MFA=is_enable_MFA,
         session=session,
@@ -147,7 +149,7 @@ async def toggle_mfa(
 async def enable(
     self,
     is_ignore_test: bool = False,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 2,
 ):
@@ -164,7 +166,7 @@ async def enable(
 async def disable(
     self,
     is_ignore_test: bool = False,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 2,
 ):
@@ -182,7 +184,7 @@ async def set_max_code_attempts(
     self,
     max_code_attempts: int,
     is_ignore_test: bool = False,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 2,
     suppress_update_self: bool = False,
@@ -198,7 +200,7 @@ async def set_max_code_attempts(
     if not need_update_config:
         return self
 
-    await mfa_routes.set_mfa_max_code_attempts(
+    await instance_config_routes.set_mfa_max_code_attempts(
         auth=self.auth,
         max_code_attempts=max_code_attempts,
         session=session,
@@ -217,7 +219,7 @@ async def set_num_days_valid(
     self,
     num_days_valid: int,
     is_ignore_test: bool = False,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 2,
     suppress_update_self: bool = False,
@@ -233,7 +235,7 @@ async def set_num_days_valid(
     if not need_update_config:
         return self
 
-    await mfa_routes.set_mfa_num_days_valid(
+    await instance_config_routes.set_mfa_num_days_valid(
         auth=self.auth,
         num_days_valid=num_days_valid,
         session=session,
@@ -249,10 +251,10 @@ async def set_num_days_valid(
 
 async def update(
     self,
-    is_enable_MFA: bool = None,
-    max_code_attempts: int = None,
-    num_days_valid: int = None,
-    session: httpx.AsyncClient = None,
+    is_enable_MFA: bool = False,
+    max_code_attempts: int = 0,
+    num_days_valid: int = 0,
+    session: Optional[httpx.AsyncClient] = None,
     return_raw: bool = False,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 2,

@@ -14,8 +14,9 @@ from typing import List, Literal, Optional
 
 import httpx
 
-from ..client.entities import DomoBase, DomoSubEntity
-from ..routes import instance_config_scheduler_policies as scheduler_policies_routes
+from ...client.entities import DomoBase, DomoSubEntity, DomoEnumMixin
+from ...client.auth import DomoAuth
+from ...routes import instance_config as instance_config_routes
 
 
 def parse_dt(dt: str) -> datetime:
@@ -114,7 +115,7 @@ class DomoScheduler_Policies(DomoSubEntity):
         debug_num_stacks_to_drop: int = 2,
         **kwargs,
     ):
-        res = await scheduler_policies_routes.get_scheduler_policies(
+        res = await instance_config_routes.get_scheduler_policies(
             auth=self.auth,
             debug_api=debug_api,
             session=session,
@@ -139,7 +140,7 @@ class DomoScheduler_Policies(DomoSubEntity):
         )
         # If the policy is not yet created, create it
         if create_policy:
-            res = await scheduler_policies_routes.create_schdeduler_policy(
+            res = await instance_config_routes.create_scheduler_policy(
                 auth=self.auth,
                 create_body=policy.to_dict(),
                 debug_api=debug_api,
@@ -152,7 +153,7 @@ class DomoScheduler_Policies(DomoSubEntity):
             return policy
         else:
             idx = self.policies.index(policy)
-            res = await scheduler_policies_routes.update_scheduler_policy(
+            res = await instance_config_routes.update_scheduler_policy(
                 auth=self.auth,
                 policy_id=policy.id,
                 update_body=policy.to_dict(),
@@ -173,7 +174,7 @@ class DomoScheduler_Policies(DomoSubEntity):
         session: Optional[httpx.AsyncClient] = None,
         **kwargs,
     ):
-        res = await scheduler_policies_routes.delete_policy(
+        res = await instance_config_routes.delete_scheduler_policy(
             auth=self.auth,
             policy_id=policy_id,
             debug_api=debug_api,

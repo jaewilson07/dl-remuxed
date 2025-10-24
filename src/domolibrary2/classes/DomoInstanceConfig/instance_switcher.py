@@ -14,11 +14,7 @@ from typing import List, Optional
 import httpx
 
 from ...client.auth import DomoAuth
-from ..routes import instance_config_instance_switcher as instance_switcher_routes
-from ..routes.instance_config_instance_switcher import (
-    InstanceSwitcherMapping_CRUD_Error,
-    InstanceSwitcherMapping_GET_Error,
-)
+from ...routes import instance_config as instance_config_routes
 
 
 @dataclass
@@ -163,7 +159,7 @@ class DomoInstanceConfig_InstanceSwitcher:
         Returns:
             List of instance switcher mappings or raw response if return_raw=True
         """
-        res = await instance_switcher_routes.get_instance_switcher_mapping(
+        res = await instance_config_routes.get_instance_switcher_mapping(
             auth=self.auth,
             debug_api=debug_api,
             session=session,
@@ -215,7 +211,7 @@ class DomoInstanceConfig_InstanceSwitcher:
         mapping_payloads = [domo_mapping.to_dict() for domo_mapping in mapping_ls]
 
         # update routing mappings
-        res = await instance_switcher_routes.set_instance_switcher_mapping(
+        res = await instance_config_routes.set_instance_switcher_mapping(
             auth=self.auth,
             mapping_payloads=mapping_payloads,
             session=session,
