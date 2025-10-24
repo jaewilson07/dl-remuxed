@@ -8,8 +8,9 @@ __all__ = [
 ]
 
 
+import abc
+from functools import partial
 import json
-from abc import abstractmethod
 from copy import deepcopy
 from dataclasses import asdict, dataclass, field
 from pprint import pprint  # pprint from_dict
@@ -22,7 +23,7 @@ from ...client import (
     response as rgd,
 )
 from ...client.auth import DomoAuth
-from ...client.entities import DomoEntity
+from ...client.entities import DomoBase, DomoManager
 from ...routes.instance_config import sso as sso_routes
 from ...utils import convert as dmcv
 
@@ -43,9 +44,10 @@ class SSOConfig_UpdateError(dmde.ClassError):
 
 
 @dataclass
-class SSO_Config(DomoEntity):
+class SSO_Config(DomoBase):
     """base class for SAML and OIDC Config"""
 
+    auth: DomoAuth
     idp_enabled: bool  # False
     enforce_allowlist: bool
     idp_certificate: str
@@ -65,12 +67,16 @@ class SSO_Config(DomoEntity):
 
         return self
 
+    @abc.abstractmethod
     @classmethod
-    def _parentfrom_dict(
+    async def get(cls, auth: DomoAuth):
+        raise NotImplementedError()
+
+    @classmethod
+    def from_dict(
         cls,
         auth: DomoAuth,
         obj: dict,
-        raw: dict,  # raw api response
         debug_prn: bool = False,
         **kwargs: dict,  # parameters that will be passed to the class object (must be attributes of the class)
     ):
@@ -100,7 +106,7 @@ class SSO_Config(DomoEntity):
             auth=auth,
             enforce_allowlist=enforce_allowlist,
             idp_enabled=idp_enabled,
-            raw=raw,
+            raw=obj,
             **kwargs,
             **new_obj,
         )
@@ -109,31 +115,7 @@ class SSO_Config(DomoEntity):
 
         return sso_cls
 
-    @classmethod
-    @abstractmethod
-    async def get():
-        raise NotImplementedError("must implement get")
-
-    def _to_dict(
-        self,
-        generate_alternate_body_fn: Callable = None,
-        is_include_undefined: bool = False,
-    ):
-        obj = asdict(self)
-        obj.pop("auth")
-        obj.pop("raw")
-
-        if generate_alternate_body_fn:
-            return generate_alternate_body_fn(
-                **obj, is_include_undefined=is_include_undefined
-            )
-
-        return {key: dmcv.convert_snake_to_pascal(value) for key, value in obj.items()}
-
-    def to_dict(self, is_include_undefined: bool = False):
-        return self._to_dict(is_include_undefined=is_include_undefined)
-
-    async def _update(
+    async def update(
         self,
         update_config_route_fn: Callable,
         session: httpx.AsyncClient = None,
@@ -220,7 +202,7 @@ class SSO_OIDC_Config(SSO_Config):
             obj.pop("certificate") if hasattr(obj, "certificate") else None
         )
 
-        return cls._parentfrom_dict(
+        return super().from_dict(
             auth=auth,
             obj=obj,
             raw=raw,
@@ -229,10 +211,12 @@ class SSO_OIDC_Config(SSO_Config):
             idp_certificate=idp_certificate,
         )
 
-    def to_dict(self, is_include_undefined: bool = False):
-        return self._to_dict(
-            generate_alternate_body_fn=sso_routes.generate_sso_oidc_body,
-            is_include_undefined=is_include_undefined,
+    def to_dict(self, override_fn: Callable = None, is_include_undefined: bool = False):
+        return super().to_dict(
+            override_fn=partial(
+                sso_routes.generate_sso_oidc_body,
+                is_include_undefined=is_include_undefined,
+            )
         )
 
     @classmethod
@@ -244,6 +228,7 @@ class SSO_OIDC_Config(SSO_Config):
         debug_prn: bool = False,
         return_raw: bool = False,
     ):
+
         res = await sso_routes.get_sso_oidc_config(
             auth=auth,
             session=session,
@@ -266,7 +251,7 @@ class SSO_OIDC_Config(SSO_Config):
         return_raw: bool = False,
         **kwargs,
     ):
-        return await self._update(
+        return await super().update(
             update_config_route_fn=sso_routes.update_sso_oidc_config,
             session=session,
             debug_api=debug_api,
@@ -306,7 +291,7 @@ class SSO_SAML_Config(SSO_Config):
             obj.pop("idpCertificate") if obj.get("idpCertificate") else None
         )
 
-        return cls._parentfrom_dict(
+        return super().from_dict(
             auth=auth,
             obj=obj,
             is_enabled=is_enabled,
@@ -317,9 +302,11 @@ class SSO_SAML_Config(SSO_Config):
         )
 
     def to_dict(self, is_include_undefined: bool = False):
-        return self._to_dict(
-            generate_alternate_body_fn=sso_routes.generate_sso_saml_body,
-            is_include_undefined=is_include_undefined,
+        return super().to_dict(
+            override_fn=partial(
+                sso_routes.generate_sso_saml_body,
+                is_include_undefined=is_include_undefined,
+            )
         )
 
     @classmethod
@@ -355,7 +342,7 @@ class SSO_SAML_Config(SSO_Config):
         return_raw: bool = False,
         **kwargs,
     ):
-        return await self._update(
+        return await super().update(
             update_config_route_fn=sso_routes.update_sso_saml_config,
             session=session,
             debug_api=debug_api,
@@ -367,13 +354,11 @@ class SSO_SAML_Config(SSO_Config):
 
 
 @dataclass
-class SSO:
+class SSO(DomoManager):
     """
     class for managing SSO Config.
     Includes both OIDC aand SAML
     """
-
-    auth: DomoAuth = field(repr=False)
 
     OIDC: SSO_OIDC_Config = field(default=None)  # OIDDC config class
     SAML: SSO_SAML_Config = field(default=None)  # SAML config class

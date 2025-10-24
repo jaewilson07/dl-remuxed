@@ -132,6 +132,31 @@ class DomoBase(abc.ABC):
     across the inheritance hierarchy.
     """
 
+    def to_dict(self, override_fn: Optional[Callable] = None) -> dict:
+        """Convert all dataclass attributes to a dictionary in pascalCase.
+
+        This method is useful for serializing entity data for API requests
+        or data export operations.
+
+        Args:
+            override_fn (Optional[Callable]): Custom conversion function to override default behavior
+
+        Returns:
+            dict: Dictionary with pascalCase keys and corresponding attribute values
+
+        Example:
+            >>> entity.to_dict()
+            {'entityId': '123', 'displayName': 'My Entity', ...}
+        """
+
+        if override_fn:
+            return override_fn(self)
+
+        return {
+            convert_snake_to_pascal(field.name): getattr(self, field.name)
+            for field in fields(self)
+        }
+
 
 @dataclass
 class DomoEntity(DomoBase):
@@ -181,31 +206,6 @@ class DomoEntity(DomoBase):
             return self.id == other.id
 
         return False
-
-    def to_dict(self, override_fn: Optional[Callable] = None) -> dict:
-        """Convert all dataclass attributes to a dictionary in pascalCase.
-
-        This method is useful for serializing entity data for API requests
-        or data export operations.
-
-        Args:
-            override_fn (Optional[Callable]): Custom conversion function to override default behavior
-
-        Returns:
-            dict: Dictionary with pascalCase keys and corresponding attribute values
-
-        Example:
-            >>> entity.to_dict()
-            {'entityId': '123', 'displayName': 'My Entity', ...}
-        """
-
-        if override_fn:
-            return override_fn(self)
-
-        return {
-            convert_snake_to_pascal(field.name): getattr(self, field.name)
-            for field in fields(self)
-        }
 
     @classmethod
     @abc.abstractmethod
