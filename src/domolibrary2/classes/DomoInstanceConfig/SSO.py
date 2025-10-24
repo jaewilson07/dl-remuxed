@@ -67,7 +67,6 @@ class SSO_Config(DomoBase):
 
         return self
 
-    @abc.abstractmethod
     @classmethod
     async def get(cls, auth: DomoAuth):
         raise NotImplementedError()
