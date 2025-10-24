@@ -74,12 +74,12 @@ class DomoDatacenter:
             n=20,
             *[
                 dmds.DomoDataset.get_by_id(
-                    dataset_id=json_obj.get("databaseId"),
+                    dataset_id=obj.get("databaseId"),
                     auth=self.auth,
                     debug_api=debug_api,
                     session=session,
                 )
-                for json_obj in json_list
+                for obj in json_list
             ],
         )
 
@@ -125,14 +125,13 @@ class DomoDatacenter:
 
         if search_text:
             json_list = [
-                json_obj
-                for json_obj in json_list
-                if search_text.lower() in json_obj.get("displayName", "").lower()
+                obj
+                for obj in json_list
+                if search_text.lower() in obj.get("displayName", "").lower()
             ]
 
         domo_account_ls = [
-            dmac.DomoAccount.from_dict(json_obj, auth=self.auth)
-            for json_obj in json_list
+            dmac.DomoAccount.from_dict(obj, auth=self.auth) for obj in json_list
         ]
 
         return domo_account_ls
@@ -167,13 +166,13 @@ class DomoDatacenter:
             n=60,
             *[
                 dmc.DomoCard.get_by_id(
-                    card_id=json_obj.get("databaseId"),
+                    card_id=obj.get("databaseId"),
                     auth=self.auth,
                     debug_api=debug_api,
                     session=session,
                     is_suppress_errors=is_suppress_errors,
                 )
-                for json_obj in json_list
+                for obj in json_list
             ],
         )
 
@@ -216,10 +215,7 @@ class DomoDatacenter:
 
         domo_account_ls = await dmce.gather_with_concurrency(
             n=60,
-            *[
-                dmc.DomoCard.from_dict(json_obj, auth=self.auth)
-                for json_obj in res.response
-            ],
+            *[dmc.DomoCard.from_dict(obj, auth=self.auth) for obj in res.response],
         )
 
         return domo_account_ls

@@ -8,14 +8,14 @@ __all__ = [
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
 import httpx
 
 from ...client import response as rgd
 from ...client.auth import DomoAuth
 from ...client.exceptions import DomoError
-from ...entities.entities import DomoEntity
+from ...entities.entities import DomoEntity, DomoManager
 from ...routes.instance_config.api_client import (
     ApiClient_ScopeEnum,
     create_api_client,
@@ -45,6 +45,7 @@ class ApiClient(DomoEntity):
     scopes: List[ApiClient_ScopeEnum]
     description: str = None
 
+    @property
     def display_url(self):
         return f"https://{self.auth.domo_instance}.domo.com/admin/api-clients"
 
@@ -161,12 +162,18 @@ class ApiClient(DomoEntity):
 
 
 @dataclass
-class ApiClients:
+class ApiClients(DomoManager):
     auth: DomoAuth
 
     domo_clients: List[ApiClient] = field(default_factory=lambda: [])
 
     invalid_clients: List[ApiClient] = field(default_factory=lambda: [])
+
+    parent: Any = None
+
+    @classmethod
+    def from_parent(cls, auth: DomoAuth, parent: Any):  # DomoUser
+        return cls(auth=auth, parent=parent)
 
     async def get(
         self,
@@ -211,6 +218,11 @@ class ApiClients:
             ],
             n=10,
         )
+
+        if self.parent:
+            self.domo_clients = [
+                client for client in self.domo_clients if client.owner == self.parent
+            ]
 
         self.invalid_clients = [
             client for client in self.domo_clients if not client.is_valid

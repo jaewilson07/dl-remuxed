@@ -90,13 +90,13 @@ class DomoAccounts(DomoManager):
             n=60,
             *[
                 DomoAccount.get_by_id(
-                    account_id=json_obj.get("id"),
+                    account_id=obj.get("id"),
                     debug_api=debug_api,
                     session=session,
                     auth=self.auth,
                     is_use_default_account_class=is_use_default_account_class,
                 )
-                for json_obj in res.response
+                for obj in res.response
             ],
         )
 

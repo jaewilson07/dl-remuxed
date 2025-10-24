@@ -5,7 +5,7 @@ from . import (
     api_client,
     access_token,
     core,
-    isntance_switcher,
+    instance_switcher,
     mfa,
     role_grant,
     role,

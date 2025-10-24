@@ -16,10 +16,11 @@ import pandas as pd
 
 from ..classes import (
     DomoAccount as dmacc,
+    DomoDataset as dmds,
     DomoGroup as dmdg,
-    dataset as dmds,
 )
-from ..client import exceptions as dmde
+from ..client.auth import DomoAuth
+from ..client.exceptions import DomoError
 
 
 async def search_domo_groups_by_name(

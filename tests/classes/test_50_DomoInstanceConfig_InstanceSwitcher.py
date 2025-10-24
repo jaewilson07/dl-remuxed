@@ -7,7 +7,7 @@ import os
 
 from dotenv import load_dotenv
 
-import domolibrary2.classes.DomoInstanceConfig.isntance_switcher as instance_switcher
+import domolibrary2.classes.DomoInstanceConfig.instance_switcher as instance_switcher
 import domolibrary2.client.auth as dmda
 
 load_dotenv()

@@ -1,9 +1,8 @@
 __all__ = [
     "InstanceSwitcher_Mapping",
     "InstanceSwitcher",
-    # Route exceptions
-    "InstanceSwitcherMapping_GET_Error",
-    "InstanceSwitcherMapping_CRUD_Error",
+    "InstanceSwitcher_GET_Error",
+    "InstanceSwitcher_CRUD_Error",
 ]
 
 
@@ -16,8 +15,8 @@ import httpx
 from ...client.auth import DomoAuth
 from ...routes.instance_config import instance_switcher as instance_switcher_routes
 from ...routes.instance_config.instance_switcher import (
-    InstanceSwitcherMapping_CRUD_Error,
-    InstanceSwitcherMapping_GET_Error,
+    InstanceSwitcher_CRUD_Error,
+    InstanceSwitcher_GET_Error,
 )
 
 
