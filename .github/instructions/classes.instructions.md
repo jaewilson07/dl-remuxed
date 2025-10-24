@@ -53,7 +53,6 @@ class DomoExample(DomoEntity):
     def display_url(self):
         """Return the Domo web URL for this entity."""
         return f"https://{self.auth.domo_instance}.domo.com/path/{self.id}"
-
     # REQUIRED: from_dict classmethod
     @classmethod
     def from_dict(cls, auth: DomoAuth, obj: dict):
@@ -64,7 +63,6 @@ class DomoExample(DomoEntity):
             display_name=obj.get("displayName"),
             raw=obj,
         )
-
     # REQUIRED: get_by_id classmethod
     @classmethod
     async def get_by_id(
@@ -110,13 +108,11 @@ class DomoDataset(DomoEntity_w_Lineage):
     Tags: dmtg.DomoTags = field(default=None)
     Certification: dmdc.DomoCertification = field(default=None)
     Schema: dmdsc.DomoDataset_Schema = field(default=None)
-
     def __post_init__(self):
         # Initialize subentities
         self.Tags = dmtg.DomoTags.from_parent(parent=self)
         self.Lineage = dmdl.DomoLineage.from_parent(auth=self.auth, parent=self)
         self.Schema = dmdsc.DomoDataset_Schema.from_parent(parent=self)
-
         if self.raw.get("certification"):
             self.Certification = dmdc.DomoCertification.from_parent(parent=self)
 ```
@@ -144,7 +140,6 @@ async def method_name(
     return_raw: bool = False,     # return_raw on methods that call routes
 ) -> ReturnType:
     """Docstring describing method.
-
     Args:
         auth: Authentication object
         required_param: Description
@@ -259,7 +254,6 @@ class DomoEntities(DomoManager):
             session=session,
         )
         return [DomoEntity.from_dict(auth=self.auth, obj=obj) for obj in res.response]
-
     async def search(
         self,
         search_term: str,
@@ -273,13 +267,11 @@ class DomoEntities(DomoManager):
             debug_api=debug_api,
             session=session,
         )
-
         if not res.response:
             raise SearchEntity_NotFound(
                 domo_instance=self.auth.domo_instance,
                 search_term=search_term,
             )
-
         return [DomoEntity.from_dict(auth=self.auth, obj=obj) for obj in res.response]
 ```
 
