@@ -12,8 +12,9 @@ __all__ = [
 ]
 
 
-import httpx
 from typing import Optional
+
+import httpx
 
 from ...client import (
     get_data as gd,

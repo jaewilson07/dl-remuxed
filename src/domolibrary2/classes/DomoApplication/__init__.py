@@ -12,6 +12,7 @@ __all__ = [
     "CRUD_ApplicationJob_Error",
 ]
 
+from .Application import DomoApplication
 from .Job import (
     Application_GET_Error,
     ApplicationError_NoJobRetrieved,
@@ -19,5 +20,3 @@ from .Job import (
     DomoJob,
 )
 from .Job_Base import DomoJob_Base, DomoTrigger, DomoTrigger_Schedule
-
-from .Application import DomoApplication

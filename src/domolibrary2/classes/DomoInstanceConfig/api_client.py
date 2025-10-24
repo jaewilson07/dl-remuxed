@@ -31,7 +31,6 @@ from .. import DomoUser as dmdu
 
 @dataclass
 class ApiClient(DomoEntity):
-
     id: int
     name: str
     client_id: str  # will be masked in UI
@@ -60,7 +59,6 @@ class ApiClient(DomoEntity):
 
     @classmethod
     def from_dict(cls, auth: DomoAuth, obj, owner: dmdu.DomoUser):
-
         return cls(
             auth=auth,
             id=obj["id"],

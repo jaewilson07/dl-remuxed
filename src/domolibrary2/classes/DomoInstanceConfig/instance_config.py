@@ -7,9 +7,6 @@ from typing import List, Optional
 import httpx
 import pandas as pd
 
-from .instance_switcher import (
-    DomoInstanceConfig_InstanceSwitcher,
-)
 from ...client.auth import DomoAuth
 from ...client.exceptions import AuthError, ClassError
 from ...routes import (
@@ -17,19 +14,22 @@ from ...routes import (
     instance_config as instance_config_routes,
     sandbox as sandbox_routes,
 )
-from .mfa import MFA_Config
-from .sso import SSO, SSO_Config
-from .allowlist import DomoAllowlist
-from .api_client import ApiClients as ApiClientsClass
-from .user_attribute import UserAttributes as UserAttributesClass
-from .role_grant import DomoGrants
-from .role import DomoRoles
 from ..access_token import DomoAccessTokens
 from ..bootstrap import DomoBootstrap
 from ..DomoAccount.Account import DomoAccounts
+from ..DomoApplication import DomoApplication
 from ..DomoDataset.connector import DomoConnectors
 from ..publish import DomoEverywhere
-from ..DomoApplication import DomoApplication
+from .allowlist import DomoAllowlist
+from .api_client import ApiClients as ApiClientsClass
+from .instance_switcher import (
+    DomoInstanceConfig_InstanceSwitcher,
+)
+from .mfa import MFA_Config
+from .role import DomoRoles
+from .role_grant import DomoGrants
+from .sso import SSO, SSO_Config
+from .user_attribute import UserAttributes as UserAttributesClass
 
 
 @dataclass
@@ -380,7 +380,6 @@ class DomoInstanceConfig:
         """checks if users can be invited as social users to the instaance"""
 
         if not customer_id:
-
             try:
                 bs = DomoBootstrap(auth=self.auth)
                 customer_id = await bs.get_customer_id()
