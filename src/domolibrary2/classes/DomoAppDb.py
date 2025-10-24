@@ -9,7 +9,10 @@ from typing import Callable, List, Optional
 
 from ..client.auth import DomoAuth
 from ..routes import appdb as appdb_routes
-from ..utils import chunk_execution as ce, convert as dlcv
+from ..utils import (
+    chunk_execution as dmce,
+    convert as dlcv,
+)
 
 
 def to_dict(value):
@@ -446,7 +449,7 @@ class AppDbCollection:
             if return_raw:
                 return res
 
-            self.domo_documents = await ce.gather_with_concurrency(
+            self.domo_documents = await dmce.gather_with_concurrency(
                 *[
                     AppDbDocument.get_by_id(
                         collection_id=self.id, document_id=doc["id"], auth=self.auth
@@ -519,7 +522,7 @@ async def query_documents(
         if return_raw:
             return res
 
-        self.domo_documents = await ce.gather_with_concurrency(
+        self.domo_documents = await dmce.gather_with_concurrency(
             *[
                 AppDbDocument.get_by_id(
                     collection_id=self.id, document_id=doc["id"], auth=self.auth
@@ -594,7 +597,7 @@ class AppDbCollections:
         if return_raw:
             return res
 
-        return await ce.gather_with_concurrency(
+        return await dmce.gather_with_concurrency(
             *[
                 AppDbCollection.get_by_id(collection_id=obj["id"], auth=auth)
                 for obj in res.response

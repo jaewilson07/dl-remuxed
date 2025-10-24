@@ -38,7 +38,7 @@ async def test_cell_2(token_auth=token_auth):
 
     # package.Manifest
     await package.download_source_code(
-        download_folder="../../test/CodeEnginePackage_JS/", 
+        download_folder="../../test/CodeEnginePackage_JS/",
         debug_api=True
     )
 

@@ -17,7 +17,10 @@ from typing import Any, Callable
 
 import httpx
 
-from ..client import exceptions as dmde, response as rgd
+from ..client import (
+    exceptions as dmde,
+    response as rgd,
+)
 from ..client.entities import DomoEntity
 from ..routes import instance_config_sso as sso_routes
 from ..utils import convert as dmcv

@@ -47,11 +47,14 @@ from typing import List, Optional
 
 import httpx
 
-from ...client import get_data as gd, response as rgd
+from ...client import (
+    get_data as gd,
+    response as rgd,
+)
 from ...client.auth import DomoAuth
-from ...client.entities import DomoEnumMixin
 from ...client.exceptions import DomoError
-from ...utils import Image as uimg
+from ...entities.base import DomoEnumMixin
+from ...utils import image as uimg
 from .exceptions import (
     DownloadAvatar_Error,
     ResetPassword_PasswordUsed,

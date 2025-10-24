@@ -12,13 +12,12 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, List, Optional
 
+import httpx
 import pandas as pd
 
-from ...client.auth import DomoAuth
-from ...client.entities import DomoSubEntity
-from ...client.exceptions import DomoError
+from ...client.exceptions import ClassError
+from ...entities.entities import DomoSubEntity
 from ...routes import dataset as dataset_routes
-from ...routes.dataset import Dataset_CRUDError, Dataset_GetError
 
 
 class DatasetSchema_Types(Enum):
@@ -27,6 +26,14 @@ class DatasetSchema_Types(Enum):
     LONG = "LONG"
     DATE = "DATE"
     DATETIME = "DATETIME"
+
+
+class DatasetSchema_InvalidSchema(ClassError):
+    def __init__(self, missing_columns: List[str]):
+        message = (
+            f"Dataset schema is missing required columns: {', '.join(missing_columns)}"
+        )
+        super().__init__(message=message)
 
 
 @dataclass
@@ -38,6 +45,7 @@ class DomoDataset_Schema_Column:
     visible: bool = True
     upsert_key: bool = False
     tags: List[Any] = field(default_factory=list)  # DomoTag
+    raw: dict = field(repr=False, default_factory=dict)
 
     def __eq__(self, other):
         return self.id == other.id
@@ -63,6 +71,7 @@ class DomoDataset_Schema_Column:
             upsert_key=obj.get("upsertKey") or False,
             order=obj.get("order") or 0,
             tags=obj.get("tags", []),  # Assuming tags are a list of objects
+            raw=obj,
         )
 
     def to_dict(self):
@@ -76,17 +85,7 @@ class DomoDataset_Schema_Column:
 class DomoDataset_Schema(DomoSubEntity):
     """class for interacting with dataset schemas"""
 
-    auth: DomoAuth = field(repr=False)
-    parent: Any = field(repr=False)
-
-    parent_id: str
-
     columns: List[DomoDataset_Schema_Column] = field(default_factory=list)
-
-    def __post_init__(self):
-        if self.parent:
-            self.auth = self.parent.auth
-            self.parent_id = self.parent.id
 
     # @classmethod
     # def from_parent(cls, parent):
@@ -127,13 +126,10 @@ class DomoDataset_Schema(DomoSubEntity):
 
     async def _test_missing_columns(
         self,
-        df: pd.DataFrame,
-        dataset_id: Optional[str] = None,
-        auth: Optional[DomoAuth] = None,
+        df: pd.DataFrame,  # test dataframe to compare against
     ):
-        """Test if DataFrame columns match schema columns."""
-        dataset_id = dataset_id or self.parent_id
-        auth = auth or self.auth
+        dataset_id = self.parent.id
+        auth = self.parent.auth
 
         await self.get()
 
@@ -143,15 +139,19 @@ class DomoDataset_Schema(DomoSubEntity):
 
         if len(missing_columns) > 0:
             raise DatasetSchema_InvalidSchema(
-                domo_instance=auth.domo_instance,
-                dataset_id=dataset_id,
+                cls_instance=self.parent,
                 missing_columns=missing_columns,
             )
 
         return True
 
-    async def reset_col_order(self, df: pd.DataFrame):
-        """Reset column order to match DataFrame."""
+    async def change_col_order(
+        self,
+        df: pd.DataFrame,
+        session: httpx.AsyncClient = None,
+        is_update_schema: bool = True,
+        debug_api: bool = False,
+    ):
         await self.get()
 
         if len(self.columns) != len(df.columns):
@@ -165,16 +165,18 @@ class DomoDataset_Schema(DomoSubEntity):
         for index, col in enumerate(self.columns):
             col.order = col.order if col.order > 0 else index
 
-        schema_obj = self.to_dict()
-        
-        return await dataset_routes.alter_schema(
-            auth=self.auth, dataset_id=self.parent_id, schema_obj=schema_obj
-        )
+        if not is_update_schema:
+            return self.columns
 
-    def add_col(
+        return await self.alter_schema(debug_api=debug_api, session=session)
+
+    async def add_col(
         self,
         col: DomoDataset_Schema_Column,
         debug_prn: bool = False,
+        is_update_schema: bool = True,
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
     ):
         """Add a column to the schema."""
         if col in self.columns and debug_prn:
@@ -185,12 +187,17 @@ class DomoDataset_Schema(DomoSubEntity):
         if col not in self.columns:
             self.columns.append(col)
 
-        return self.columns
+        if not is_update_schema:
+            return self.columns
 
-    def remove_col(
+        return await self.update_schema(debug_api=debug_api, session=session)
+
+    async def remove_col(
         self,
-        col_to_remove: DomoDataset_Schema_Column,
-        debug_prn: bool = False,
+        col_to_remove: "DomoDataset_Schema_Column",
+        debug_api: bool = False,
+        is_update_schema: bool = True,
+        session: httpx.AsyncClient = None,
     ):
         """Remove a column from the schema."""
         [
@@ -199,45 +206,43 @@ class DomoDataset_Schema(DomoSubEntity):
             if col == col_to_remove
         ]
 
-        return self.columns
+        if not is_update_schema:
+            return self.columns
 
-    async def alter_schema(
+        return await self.update_schema(debug_api=debug_api, session=session)
+
+    async def update_schema(
         self,
-        dataset_id: Optional[str] = None,
-        auth: Optional[DomoAuth] = None,
         return_raw: bool = False,
+        session: httpx.AsyncClient = None,
         debug_api: bool = False,
     ):
-        """Alter the schema for a dataset (does not alter descriptions)."""
-        dataset_id = dataset_id or self.parent_id
-        auth = auth or self.auth
+        dataset_id = self.parent.id
+        auth = self.parent.auth
 
         schema_obj = self.to_dict()
 
-        if return_raw:
-            return schema_obj
-
         res = await dataset_routes.alter_schema(
-            auth=auth, dataset_id=dataset_id, schema_obj=schema_obj, debug_api=debug_api
+            dataset_id=dataset_id,
+            auth=auth,
+            schema_obj=schema_obj,
+            debug_api=debug_api,
+            session=session,
         )
 
-        if not res.is_success:
-            raise CRUD_Dataset_Error(
-                auth=auth, res=res, message=f"unable to alter schema for {dataset_id}"
-            )
+        if return_raw:
+            return res
 
-        return res
+        return await self.get()
 
-    async def alter_schema_descriptions(
+    async def update_schema_descriptions(
         self,
-        dataset_id: Optional[str] = None,
-        auth: Optional[DomoAuth] = None,
         return_raw: bool = False,
         debug_api: bool = False,
+        session: httpx.AsyncClient = None,
     ):
-        """Alter the description of schema columns."""
-        dataset_id = dataset_id or self.parent_id
-        auth = auth or self.auth
+        dataset_id = self.parent.id
+        auth = self.parent.auth
 
         schema_obj = self.to_dict()
 
@@ -245,46 +250,11 @@ class DomoDataset_Schema(DomoSubEntity):
             return schema_obj
 
         res = await dataset_routes.alter_schema_descriptions(
-            auth=auth, dataset_id=dataset_id, schema_obj=schema_obj, debug_api=debug_api
+            dataset_id=dataset_id,
+            auth=auth,
+            schema_obj=schema_obj,
+            debug_api=debug_api,
+            session=session,
         )
 
-        if not res.is_success:
-            raise CRUD_Dataset_Error(
-                auth=auth, res=res, message=f"unable to alter schema for {dataset_id}"
-            )
-
-        return res
-
-
-class DatasetSchema_InvalidSchema(DomoError):
-    def __init__(
-        self,
-        domo_instance: str,
-        dataset_id: str,
-        missing_columns: List[str],
-        **kwargs
-    ):
-        super().__init__(
-            domo_instance=domo_instance,
-            message=f"Dataset {dataset_id} schema invalid. Missing columns: {', '.join(missing_columns)}",
-            **kwargs
-        )
-
-
-class CRUD_Dataset_Error(DomoError):
-    def __init__(
-        self,
-        auth: DomoAuth,
-        res,
-        message: str,
-        **kwargs
-    ):
-        super().__init__(
-            status=res.status,
-            domo_instance=auth.domo_instance,
-            message=message or str(res.response),
-            **kwargs
-        )
-
-
-
+        return await self.get()

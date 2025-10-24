@@ -20,7 +20,11 @@ class SearchDatacenter_NoResultsFound(RouteError):
     def __init__(self, res=None, message: Optional[str] = None, **kwargs):
         super().__init__(
             res=res,
-            entity_id=getattr(getattr(res, "auth", None), "domo_instance", None) if res else None,
+            entity_id=(
+                getattr(getattr(res, "auth", None), "domo_instance", None)
+                if res
+                else None
+            ),
             message=message or "No results for query parameters",
             **kwargs,
         )
@@ -32,7 +36,11 @@ class Datacenter_GET_Error(RouteError):
     def __init__(self, res=None, message: Optional[str] = None, **kwargs):
         super().__init__(
             res=res,
-            entity_id=getattr(getattr(res, "auth", None), "domo_instance", None) if res else None,
+            entity_id=(
+                getattr(getattr(res, "auth", None), "domo_instance", None)
+                if res
+                else None
+            ),
             message=message or "Datacenter retrieval failed",
             **kwargs,
         )

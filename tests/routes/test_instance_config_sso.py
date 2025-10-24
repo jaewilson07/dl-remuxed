@@ -38,7 +38,7 @@ async def test_cell_2(token_auth=token_auth):
     )
 
     await toggle_user_direct_signon_access(
-        auth = auth, 
+        auth = auth,
         user_id_ls = [domo_user.id],
         debug_api = False,
     )

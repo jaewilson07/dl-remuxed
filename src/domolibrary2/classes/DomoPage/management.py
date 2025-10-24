@@ -7,8 +7,8 @@ from typing import List
 
 import httpx
 
-from ...client.auth import DomoAuth
 from ...client import exceptions as dmde
+from ...client.auth import DomoAuth
 from ...routes import page as page_routes
 from ...utils import chunk_execution as dmce
 from .core import DomoPage

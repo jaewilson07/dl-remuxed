@@ -3,3 +3,8 @@ DOMO_INSTANCE = "domo-instance"
 
 # Dataset IDs for testing
 DATASET_ID_1 = "your-test-dataset-id"
+
+
+# Account_Default tests - provide IDs of test accounts
+ACCOUNT_DEFAULT_ID_1 = "123"  # First test account ID
+ACCOUNT_DEFAULT_ID_2 = "456"  # Second test account ID (optional)
