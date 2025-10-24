@@ -35,39 +35,24 @@ Note:
     Requires PIL (Pillow) and numpy for full functionality.
 """
 
+import base64
+import io
+from typing import Union
+
+import numpy as np
+import PIL
+from PIL import Image
+
+from .exceptions import ImageProcessingError
+
 __all__ = [
     "isBase64",
     "handle_string_to_bytes_and_decode",
     "handle_string_to_bytes_and_encode",
     "are_same_image",
     "ImageUtils",
+    "Image",
 ]
-
-import base64
-import io
-import os
-from typing import Union
-
-# Optional dependencies with fallbacks
-try:
-    import numpy as np
-
-    _NUMPY_AVAILABLE = True
-except ImportError:
-    np = None
-    _NUMPY_AVAILABLE = False
-
-try:
-    import PIL
-    from PIL.Image import Image
-
-    _PIL_AVAILABLE = True
-except ImportError:
-    PIL = None
-    Image = None
-    _PIL_AVAILABLE = False
-
-from .exceptions import ImageProcessingError
 
 
 def isBase64(s: Union[str, bytes]) -> bool:
@@ -175,11 +160,6 @@ def are_same_image(image1, image2) -> bool:
         >>> same = are_same_image(img1, img2)
         >>> print(same)  # True or False
     """
-    if not _PIL_AVAILABLE:
-        raise ImportError("PIL (Pillow) is required for image comparison")
-
-    if not _NUMPY_AVAILABLE:
-        raise ImportError("numpy is required for image comparison")
 
     try:
         img_chop = PIL.ImageChops.difference(image1, image2)
@@ -191,7 +171,7 @@ def are_same_image(image1, image2) -> bool:
         print(f"Image comparison error: {e}")
         return False
     except Exception as e:
-        raise ImageProcessingError("compare images", str(e))
+        raise ImageProcessingError("compare images", str(e)) from e
 
 
 class ImageUtils:
@@ -224,8 +204,6 @@ class ImageUtils:
             >>> img_bytes = ImageUtils.to_bytes(img)
             >>> png_bytes = ImageUtils.to_bytes(img, "PNG")
         """
-        if not _PIL_AVAILABLE:
-            raise ImportError("PIL (Pillow) is required for image operations")
 
         try:
             byte_arr = io.BytesIO()
@@ -234,7 +212,7 @@ class ImageUtils:
             return byte_arr.getvalue()
 
         except Exception as e:
-            raise ImageProcessingError("convert image to bytes", str(e))
+            raise ImageProcessingError("convert image to bytes", str(e)) from e
 
     @staticmethod
     def crop_square(image):
@@ -256,8 +234,6 @@ class ImageUtils:
             >>> square = ImageUtils.crop_square(img)
             >>> print(square.size)  # (min_dimension, min_dimension)
         """
-        if not _PIL_AVAILABLE:
-            raise ImportError("PIL (Pillow) is required for image operations")
 
         try:
             width, height = image.size
@@ -271,7 +247,7 @@ class ImageUtils:
             return image.crop((left, top, right, bottom))
 
         except Exception as e:
-            raise ImageProcessingError("crop image to square", str(e))
+            raise ImageProcessingError("crop image to square", str(e)) from e
 
     @classmethod
     def from_image_file(cls, image_path: str):
@@ -293,11 +269,6 @@ class ImageUtils:
             >>> img = ImageUtils.from_image_file("/path/to/image.jpg")
             >>> print(img.size)  # (width, height)
         """
-        if not _PIL_AVAILABLE:
-            raise ImportError("PIL (Pillow) is required for image operations")
-
-        if not os.path.exists(image_path):
-            raise FileNotFoundError(f"Image file not found: {image_path}")
 
         try:
             with open(image_path, "rb") as file:
@@ -307,7 +278,9 @@ class ImageUtils:
             return PIL.Image.open(io.BytesIO(data))
 
         except Exception as e:
-            raise ImageProcessingError(f"load image from file {image_path}", str(e))
+            raise ImageProcessingError(
+                f"load image from file {image_path}", str(e)
+            ) from e
 
     @classmethod
     def from_bytestr(cls, data: Union[str, bytes]):
@@ -334,12 +307,9 @@ class ImageUtils:
             >>> base64_str = base64.b64encode(img_bytes).decode()
             >>> img = ImageUtils.from_bytestr(base64_str)
         """
-        if not _PIL_AVAILABLE:
-            raise ImportError("PIL (Pillow) is required for image operations")
-
         try:
             data = handle_string_to_bytes_and_decode(data)
             return PIL.Image.open(io.BytesIO(data))
 
         except Exception as e:
-            raise ImageProcessingError("load image from bytes/string", str(e))
+            raise ImageProcessingError("load image from bytes/string", str(e)) from e

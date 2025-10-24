@@ -8,13 +8,16 @@ from typing import Any, List
 
 import httpx
 
-from ..client.DomoEntity import DomoEntity_w_Lineage
+from ..client import DomoEntity_w_Lineage
 from ..routes import card as card_routes
-from ..utils import DictDot as util_dd
-from ..utils import chunk_execution as dmce
-from ..utils import convert as dmut
-from ..utils import files as dmfi
-from . import DomoLineage as dmdl
+from ..utils import (
+    DictDot as util_dd,
+    chunk_execution as dmce,
+    convert as dmut,
+    files as dmfi,
+)
+from . import DomoUser as dmdu
+from .subentity import DomoLineage as dmdl
 
 
 @dataclass
@@ -52,7 +55,6 @@ class DomoCard(DomoEntity_w_Lineage):
         cls, card_obj, auth: DomoAuth, is_suppress_errors: bool = False
     ):
         from . import DomoGroup as dmgr
-        from . import DomoUser as dmdu
 
         dd = card_obj
         if isinstance(card_obj, dict):
@@ -124,7 +126,7 @@ class DomoCard(DomoEntity_w_Lineage):
 
         return domo_card
 
-    async def _get_entity_by_id(
+    async def get_entity_by_id(
         cls,
         entity_id: str,
         auth: DomoAuth,
@@ -158,7 +160,7 @@ class DomoCard(DomoEntity_w_Lineage):
         if return_raw:
             return res
 
-        from . import DomoDataset as dmds
+        from . import dataset as dmds
 
         self.datasets = await dmce.gather_with_concurrency(
             *[

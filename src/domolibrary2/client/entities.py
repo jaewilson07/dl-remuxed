@@ -209,7 +209,7 @@ class DomoEntity(DomoBase):
 
     @classmethod
     @abc.abstractmethod
-    def from_dict(cls):
+    def from_dict(cls, auth: "DomoAuth", obj: dict):
         """Create an entity instance from a dictionary representation.
 
         This method should be implemented by subclasses to handle the conversion
@@ -269,7 +269,7 @@ class DomoEntity_w_Lineage(DomoEntity):
 
     def __post_init__(self):
         """Initialize lineage tracking after entity creation."""
-        from ..classes import DomoLineage as dmdl
+        from ..classes.subentity import DomoLineage as dmdl
 
         # Using protected method until public interface is available
         self.lineage = dmdl.DomoLineage.from_parent(auth=self.auth, parent=self)

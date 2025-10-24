@@ -4,20 +4,20 @@ import datetime as dt
 import uuid
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Callable, List, Optional, Union
+from typing import Any, Callable, List, Optional
 
 import httpx
 
-from ..client import entities as dmen
 from ..client import exceptions as dmde
-from ..client.DomoEntity import DomoEntity_w_Lineage
-from ..client.entities import DomoEntity_w_Lineage
+from ..client.auth import DomoAuth
+from ..entities import (
+    DomoEntity_w_Lineage,
+    DomoEnumMixin,
+    entities as dmen,
+)
 from ..routes import publish as publish_routes
 from ..utils import chunk_execution as dmce
-from . import DomoLineage as dmdl
-
-if TYPE_CHECKING:
-    from . import DomoCard, DomoDataset, DomoPage
+from .subentity import DomoLineage as dmdl
 
 __all__ = [
     "DomoPublication_Content_Enum",
@@ -31,14 +31,34 @@ __all__ = [
 ]
 
 
+class DomoSubscription_NoParentAuth(dmde.ClassError):
+    def __init__(self, cls_instance):
+        super().__init__(
+            cls_instance=cls_instance,
+            entity_id="subscription_id",
+            message="must pass parent_auth or parent_auth_retrieval_fn which returns an instance of auth given self",
+        )
+
+
+class DomoSubscription_NoParent(dmde.ClassError):
+    def __init__(self, cls_instance):
+        super().__init__(
+            cls_instance=cls_instance,
+            entity_id="subscription_id",
+            message="unable to retrieve parent publication",
+        )
+
+
 class DomoPublication_Content_Enum(DomoEnumMixin, Enum):
-    from . import DomoAppStudio as dmas
-    from . import DomoCard as dmac
-    from . import DomoDataset as dmdc
-    from . import DomoPage as dmpg
+    from . import (
+        DomoAppStudio as dmas,
+        DomoCard as dmac,
+        DomoDataset as dmds,
+        DomoPage as dmpg,
+    )
 
     CARD = dmac.DomoCard
-    DATASET = dmdc.DomoDataset
+    DATASET = dmds.DomoDataset
     DATA_APP = dmas.DomoAppStudio
     PAGE = dmpg.DomoPage
 
@@ -97,7 +117,7 @@ class DomoPublication_Content:
         if not self.entity:
             self.entity = DomoPublication_Content_Enum[self.entity_type].value
 
-        self.entity = await self.entity._get_entity_by_id(
+        self.entity = await self.entity.get_entity_by_id(
             auth=self.auth,
             entity_id=self.entity_id,
             debug_api=debug_api,
@@ -222,7 +242,7 @@ class DomoPublication(DomoEntity_w_Lineage):
         return cls.from_dict(obj=res.response, auth=auth)
 
     @classmethod
-    async def _get_entity_by_id(cls, entity_id, **kwargs):
+    async def get_entity_by_id(cls, entity_id, **kwargs):
         return await cls.get_by_id(publication_id=entity_id, **kwargs)
 
     def display_url(self):
@@ -253,12 +273,12 @@ class DomoPublication(DomoEntity_w_Lineage):
     async def get_publication_entity_by_subscriber_entity(
         self,
         subscriber_domain: str,
-        subscriber: Union[DomoCard, DomoDataset, DomoPage],
+        subscriber: Any,  # DomoPage, DomoCard, DomoDataset
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
         debug_num_stacks_to_drop: int = 2,
         is_suppress_errors: bool = False,
-    ) -> Union[DomoCard, DomoDataset, DomoPage, None]:
+    ) -> Any:  # DomoCard, DomoDataset, DomoPage
         res = await self.get_content_details(
             subscriber_domain=subscriber_domain,
             debug_api=debug_api,
@@ -280,7 +300,7 @@ class DomoPublication(DomoEntity_w_Lineage):
                 #     )
             return None
 
-        return await subscriber._get_entity_by_id(
+        return await subscriber.get_entity_by_id(
             entity_id=obj["publisherObjectId"], auth=self.auth
         )
 
@@ -416,24 +436,6 @@ class DomoPublication(DomoEntity_w_Lineage):
         )
 
         return res
-
-
-class DomoSubscription_NoParentAuth(dmde.ClassError):
-    def __init__(self, cls_instance):
-        super().__init__(
-            cls_instance=cls_instance,
-            entity_id="subscription_id",
-            message="must pass parent_auth or parent_auth_retrieval_fn which returns an instance of auth given self",
-        )
-
-
-class DomoSubscription_NoParent(dmde.ClassError):
-    def __init__(self, cls_instance):
-        super().__init__(
-            cls_instance=cls_instance,
-            entity_id="subscription_id",
-            message="unable to retrieve parent publication",
-        )
 
 
 @dataclass
@@ -648,7 +650,7 @@ class DomoEverywhere:
         self, debug_api: bool = False, session: httpx.AsyncClient = None
     ):
         res = await publish_routes.get_subscription_invitations(
-            auth=auth,
+            auth=self.auth,
             debug_api=debug_api,
             session=session,
             parent_class=self.__class__.__name__,

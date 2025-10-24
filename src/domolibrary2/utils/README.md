@@ -234,7 +234,7 @@ print(creds.API_KEY)
 
 # Read specific variables
 creds = read_creds_from_dotenv.read_creds_from_dotenv(
-    ".env", 
+    ".env",
     ["API_KEY", "SECRET_KEY"]
 )
 ```

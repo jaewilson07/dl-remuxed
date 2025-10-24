@@ -14,9 +14,11 @@ from typing import List
 
 import pandas as pd
 
-from ..classes import DomoAccount as dmacc
-from ..classes import DomoDataset as dmds
-from ..classes import DomoGroup as dmdg
+from ..classes import (
+    DomoAccount as dmacc,
+    DomoGroup as dmdg,
+    dataset as dmds,
+)
 from ..client import exceptions as dmde
 
 

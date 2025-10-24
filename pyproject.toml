@@ -39,21 +39,19 @@ dependencies = [
     "pillow",
     "xkcdpass",
     "sql_metadata",
+    "dc-logger",
     "beautifulsoup4"]
 
 [project.optional-dependencies]
 dev = [
     "pytest",
-    "pre-commit"]
-
-[dependency-groups]
-dev = [
+    "pytest-asyncio",
+    "bandit",
     "pylint",
-    "ruff", 
+    "ruff",
     "black",
     "isort",
     "mypy",
-    "pytest",
     "pytest-cov",
     "pre-commit",
 ]
@@ -62,6 +60,11 @@ dev = [
 select = ["E", "F", "I", "N", "W", "UP"]
 ignore = ["E501"]  # Line too long (handled by black)
 
+[tool.ruff.lint.isort]
+combine-as-imports = true
+force-wrap-aliases = true
+split-on-trailing-comma = true
+
 [tool.black]
 line-length = 88
 target-version = ['py39']
@@ -69,6 +72,12 @@ target-version = ['py39']
 [tool.isort]
 profile = "black"
 line_length = 88
+multi_line_output = 3
+force_grid_wrap = 0
+combine_as_imports = true
+remove_redundant_aliases = true
+split_on_trailing_comma = true
+include_trailing_comma = true
 
 [tool.mypy]
 python_version = "3.9"
@@ -81,5 +90,7 @@ mypy_path = "src"
 module = "domolibrary2.*"
 ignore_missing_imports = true
 
-[tool.setuptools.packages.find]
-where = ["src"]
+
+[tool.setuptools]
+packages = ["domolibrary2"]
+package-dir = {"" = "src"}

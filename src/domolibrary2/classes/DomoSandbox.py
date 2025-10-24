@@ -1,35 +1,44 @@
-__all__ = ["DomoRepository", "DomoSandbox"]
+__all__ = [
+    "DomoRepository",
+    "DomoSandbox",
+    # Sandbox Route Exceptions
+    "Sandbox_GET_Error",
+    "Sandbox_CRUD_Error",
+]
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Optional
 
 import dateutil.parser as dtut
 import httpx
 import pandas as pd
 
-from ..client import entities as dmee
+from ..client.auth import DomoAuth
 from ..routes import sandbox as sandbox_routes
-from . import DomoLineage as dmdl
+from ..routes.sandbox import Sandbox_CRUD_Error, Sandbox_GET_Error
+from .subentity import DomoLineage as dmdl
 
 
 @dataclass
-class DomoRepository(dmee.DomoEntity_w_Lineage):
+class DomoRepository(DomoEntity_w_Lineage):
     auth: DomoAuth = field(repr=False)
     id: str
+    raw: dict = field(default_factory=dict, repr=False)
 
     name: str
     last_updated_dt: dt.datetime
     commit_dt: dt.datetime
     commit_version: str
 
-    content_page_id_ls: List[str] = None
-    content_card_id_ls: List[str] = None
-    content_dataflow_id_ls: List[str] = None
-    content_view_id_ls: List[str] = None
+    content_page_id_ls: Optional[List[str]] = None
+    content_card_id_ls: Optional[List[str]] = None
+    content_dataflow_id_ls: Optional[List[str]] = None
+    content_view_id_ls: Optional[List[str]] = None
 
     def __post_init__(self):
-        self.Lineage = dmdl.DomoLineage_Sandbox.from_parent(parent=self, auth=self.auth)
+        """Initialize lineage tracking for the repository."""
+        self.lineage = dmdl.DomoLineage_Sandbox.from_parent(parent=self, auth=self.auth)
 
     @property
     def display_url(self):
@@ -37,9 +46,19 @@ class DomoRepository(dmee.DomoEntity_w_Lineage):
 
     @classmethod
     def from_dict(cls, auth: DomoAuth, obj: dict):
+        """Create DomoRepository instance from API response dictionary.
+
+        Args:
+            auth: Authentication object
+            obj: API response dictionary
+
+        Returns:
+            DomoRepository instance
+        """
         return cls(
-            id=obj["id"],
             auth=auth,
+            id=obj["id"],
+            raw=obj,
             name=obj["name"],
             content_page_id_ls=obj["repositoryContent"]["pageIds"],
             content_card_id_ls=obj["repositoryContent"]["cardIds"],
@@ -48,44 +67,76 @@ class DomoRepository(dmee.DomoEntity_w_Lineage):
             last_updated_dt=dtut.parse(obj["updated"]).replace(tzinfo=None),
             commit_dt=dtut.parse(obj["lastCommit"]["completed"]).replace(tzinfo=None),
             commit_version=obj["lastCommit"]["commitName"],
-            raw=obj,
-            Lineage=None,
+            lineage=None,
         )
 
     @classmethod
     async def get_by_id(
         cls,
-        repository_id: str,
         auth: DomoAuth,
+        repository_id: str,
+        session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
-        session: httpx.AsyncClient = None,
-        debug_num_stacks_to_drop=2,
+        debug_num_stacks_to_drop: int = 2,
+        return_raw: bool = False,
     ):
+        """Get a repository by ID.
+
+        Args:
+            auth: Authentication object
+            repository_id: Repository identifier
+            session: Optional HTTP client session
+            debug_api: Enable API debugging
+            debug_num_stacks_to_drop: Stack frames to drop for debugging
+            return_raw: Return raw response without processing
+
+        Returns:
+            DomoRepository instance
+
+        Raises:
+            Sandbox_GET_Error: If retrieval fails
+        """
         res = await sandbox_routes.get_repo_from_id(
-            repository_id=repository_id,
             auth=auth,
-            debug_api=debug_api,
+            repository_id=repository_id,
             session=session,
+            debug_api=debug_api,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
             parent_class=cls.__name__,
+            return_raw=return_raw,
         )
+
+        if return_raw:
+            return res
 
         return cls.from_dict(obj=res.response, auth=auth)
 
     @classmethod
-    def _get_entity_by_id(
+    def get_entity_by_id(
         cls,
-        entity_id: str,
         auth: DomoAuth,
+        entity_id: str,
+        session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
-        session: httpx.AsyncClient = None,
-        debug_num_stacks_to_drop=2,
+        debug_num_stacks_to_drop: int = 2,
     ):
-        return cls.get_by_id(
-            repository_id=entity_id,
+        """Internal method to get entity by ID (required by DomoEntity_w_Lineage).
+
+        Args:
+            auth: Authentication object
+            entity_id: Entity identifier
+            session: Optional HTTP client session
+            debug_api: Enable API debugging
+            debug_num_stacks_to_drop: Stack frames to drop for debugging
+
+        Returns:
+            DomoRepository instance
+        """
+        return await cls.get_by_id(
             auth=auth,
-            debug_api=debug_api,
+            repository_id=entity_id,
             session=session,
+            debug_api=debug_api,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         )
 
@@ -115,7 +166,7 @@ class DomoRepository(dmee.DomoEntity_w_Lineage):
 class DomoSandbox(DomoManager):
     auth: DomoAuth = field(repr=False)
 
-    repositories: List[DomoRepository] = None
+    repositories: Optional[List[DomoRepository]] = None
 
     async def get_repositories(
         self, debug_api: bool = False, session: httpx.AsyncClient = None

@@ -1,7 +1,15 @@
+# Pre-commit configuration optimized to minimize virtualenv/setuptools errors
+# Uses system language where possible to avoid creating isolated environments
+
+# Global configuration
+# fail_fast: false
+# default_language_version:
+#     python: python3.11
+
 repos:
     # General hooks
     - repo: https://github.com/pre-commit/pre-commit-hooks
-      rev: v4.6.0
+      rev: v6.0.0
       hooks:
           - id: trailing-whitespace
           - id: end-of-file-fixer
@@ -16,10 +24,11 @@ repos:
       hooks:
           - id: black
             files: ^src/
+            additional_dependencies: ["setuptools==70.0.0"]
 
     # Import sorting
     - repo: https://github.com/pycqa/isort
-      rev: 5.13.2
+      rev: 7.0.0
       hooks:
           - id: isort
             args: ["--profile", "black"]
@@ -35,27 +44,14 @@ repos:
           - id: ruff-format
             files: ^src/
 
-    # # Type checking
-    # - repo: https://github.com/pre-commit/mirrors-mypy
-    #   rev: v1.11.2
-    #   hooks:
-    #       - id: mypy
-    #         additional_dependencies: [types-requests]
-    #         args:
-    #             [
-    #                 --ignore-missing-imports,
-    #                 --namespace-packages,
-    #                 --explicit-package-bases,
-    #             ]
-    #         files: ^src/
-
-    # Testing (commented out due to import issues)
-    # - repo: local
-    #   hooks:
-    #     - id: pytest
-    #       name: pytest
-    #       entry: python -m pytest
-    #       language: system
-    #       pass_filenames: false
-    #       args: [tests/]
-    #       stages: [pre-push]
+    # Security scanning - use local system installation
+    - repo: local
+      hooks:
+          - id: bandit
+            name: bandit
+            entry: python -m bandit
+            language: system
+            types: [python]
+            args: ["-c", "pyproject.toml", "-ll"]
+            files: ^src/
+            fail_fast: false

@@ -15,10 +15,13 @@ from typing import List, Union
 
 import httpx
 
-from ..client import exceptions as de
-from ..client import get_data as gd
-from ..client import response as rgd
-from ..client.entities import DomoEnumMixin
+from ..client import (
+    exceptions as de,
+    get_data as gd,
+    response as rgd,
+)
+from ..client.auth import DomoAuth
+from ..entities.base import DomoEnumMixin
 
 
 class Cards_API_Exception(de.DomoError):

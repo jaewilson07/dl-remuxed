@@ -49,7 +49,7 @@ All development scripts are located in the `scripts/` folder:
 
 - **`.\scripts\setup-dev.ps1`** - Setup development environment
 - **`.\scripts\lint.ps1`** - Run linting and formatting
-- **`.\scripts\test.ps1`** - Run tests with coverage  
+- **`.\scripts\test.ps1`** - Run tests with coverage
 - **`.\scripts\build.ps1`** - Build the package
 - **`.\scripts\publish.ps1`** - Publish to PyPI
 

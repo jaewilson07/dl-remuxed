@@ -16,11 +16,20 @@ from typing import Any, Callable, Optional, Tuple, Union
 
 import httpx
 
+# import dc_logger
+from dc_logger.client.base import Logger, get_global_logger
+from dc_logger.client.decorators import log_call
+
 from ..utils import chunk_execution as dmce
-from . import Logger as dl
-from . import auth as dmda
-from . import response as rgd
+from . import (
+    Logger as dl,
+    auth as dmda,
+    response as rgd,
+)
 from .exceptions import DomoError
+
+logger: Logger = get_global_logger()
+# assert logger, "A global logger must be set before using get_data functions."
 
 import dc_logger
 from dc_logger.client.base import get_global_logger, Logger
@@ -103,6 +112,7 @@ async def get_data(
     num_stacks_to_drop: int = 2,  # noqa: ARG001
     debug_traceback: bool = False,  # noqa: ARG001
     is_verify: bool = False,
+    logger: Logger = None,
 ) -> rgd.ResponseGetData:
     """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint."""
 
@@ -126,6 +136,15 @@ async def get_data(
         body=body,
         params=params,
     )
+
+    if debug_api:
+        print(request_metadata.to_dict())
+
+    if logger:
+        await logger.info(
+            message=request_metadata.to_dict(),
+            extra={"level_name": "get_data"},
+        )
 
     if debug_api:
         print(request_metadata.to_dict())
@@ -196,6 +215,11 @@ async def get_data(
             additional_information=additional_information,
         )
 
+        if logger:
+            await logger.info(message=res.response)
+
+        return res
+
         await logger.info(message=res.response)
 
         return res
@@ -219,7 +243,7 @@ async def get_data_stream(
     url: str,
     auth: dmda.DomoAuth,
     method: str = "GET",
-    content_type: Optional[str] = None,
+    content_type: Optional[str] = "application/json",
     headers: Optional[dict] = None,
     # body: Union[dict, str, None] = None,
     params: Optional[dict] = None,
@@ -261,18 +285,14 @@ async def get_data_stream(
     if auth and not auth.token:
         await auth.get_auth_token()
 
-    if headers is None:
-        headers = {}
+    headers = headers or {}
 
-    headers = {
-        "Content-Type": content_type or "application/json",
-        "Connection": "keep-alive",
-        "accept": "application/json, text/plain",
-        **headers,
-    }
-
-    if auth:
-        headers.update(**auth.auth_header)
+    headers.update(
+        {
+            "Connection": "keep-alive",
+        }
+    )
+    headers = create_headers(headers=headers, content_type=content_type, auth=auth)
 
     # Create request metadata
     request_metadata = rgd.RequestMetadata(
@@ -324,21 +344,49 @@ async def get_data_stream(
                         request_metadata=request_metadata,
                         additional_information=additional_information,
                     )
+        if not session:
+            session = httpx.AsyncClient(verify=is_verify)
+
+        async with session.stream(
+            method,
+            url=url,
+            headers=headers,
+            follow_redirects=is_follow_redirects,
+            timeout=timeout,
+        ) as res:
+            if res.status_code != 200:
+                response_text = (
+                    res.text if hasattr(res, "text") else str(await res.aread())
+                )
+                res_obj = rgd.ResponseGetData(
+                    status=res.status_code,
+                    response=response_text,
+                    is_success=False,
+                    request_metadata=request_metadata,
+                    additional_information=additional_information,
+                )
+                if logger:
+                    await logger.info(message=res_obj.to_dict())
+                return res_obj
 
                     await logger.info(message=res.to_dict())
                     return res
 
-                content = bytearray()
-                async for chunk in res.aiter_bytes():
-                    content += chunk
+            content = bytearray()
+            async for chunk in res.aiter_bytes():
+                content += chunk
 
-                res = rgd.ResponseGetData(
-                    status=res.status_code,
-                    response=content,
-                    is_success=True,
-                    request_metadata=request_metadata,
-                    additional_information=additional_information,
-                )
+            res_obj = rgd.ResponseGetData(
+                status=res.status_code,
+                response=content,
+                is_success=True,
+                request_metadata=request_metadata,
+                additional_information=additional_information,
+            )
+            if logger:
+                await logger.info(message=res_obj.to_dict())
+
+            return res_obj
 
                 await logger.info(message=res.to_dict())
 
@@ -439,17 +487,26 @@ async def looper(
             except Exception as e:
                 await session.aclose()
 
-                message = "processing body_fn", message=str(e)
+                message = f"processing body_fn {str(e)}"
 
                 logger.error(message)
 
-                raise LooperError(
-                    loop_stage=message
-                ) from e
+                raise LooperError(loop_stage=message) from e
 
         if debug_loop:
             print(f"\n🚀 Retrieving records {skip} through {skip + limit} via {url}")
             # pprint(params)
+
+        if logger:
+            await logger.info(
+                message={
+                    "action": "looper_request",
+                    "params": params,
+                    "body": body,
+                    "skip": skip,
+                    "limit": limit,
+                }
+            )
 
         await logger.info(
             message={
@@ -493,6 +550,9 @@ async def looper(
 
             logger.error(f"Error processing arr_fn: {e}")
 
+
+            logger.error(f"Error processing arr_fn: {e}")
+
             raise LooperError(loop_stage="processing arr_fn", message=str(e)) from e
 
         allRows += newRecords
@@ -505,10 +565,13 @@ async def looper(
 
         message = f"🐛 Looper iteration complete: {{'all_rows': {len(allRows)}, 'new_records': {len(newRecords)}, 'skip': {skip}, 'limit': {limit}}}"
         
+        message = f"🐛 Looper iteration complete: {{'all_rows': {len(allRows)}, 'new_records': {len(newRecords)}, 'skip': {skip}, 'limit': {limit}}}"
+
         if debug_loop:
             print(message)
 
-        logger.info(message=message)
+        if logger:
+            await logger.info(message=message)
 
         if maximum and skip + limit > maximum and not loop_until_end:
             limit = maximum - len(allRows)
@@ -517,9 +580,10 @@ async def looper(
         time.sleep(wait_sleep)
 
     if debug_loop:
-        message =  f"\n🎉 Success - {len(allRows)} records retrieved from {url} in query looper\n"
-    
-    logger.info(message=message)
+        message = f"\n🎉 Success - {len(allRows)} records retrieved from {url} in query looper\n"
+
+    if logger:
+        await logger.info(message=message)
 
     if is_close_session:
         await session.aclose()

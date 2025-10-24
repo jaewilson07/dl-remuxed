@@ -34,9 +34,12 @@ import time
 from typing import Optional, Union
 
 import httpx
+from dc_logger.client.base import Logger
 
-from ..client import get_data as gd
-from ..client import response as rgd
+from ..client import (
+    get_data as gd,
+    response as rgd,
+)
 from ..client.auth import DomoAuth
 from ..client.exceptions import RouteError
 
