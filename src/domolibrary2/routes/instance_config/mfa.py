@@ -29,15 +29,15 @@ from typing import Optional
 
 import httpx
 
-from ..client import (
+from ...client import (
     get_data as gd,
     response as rgd,
 )
-from ..client.auth import DomoAuth
-from ..client.exceptions import RouteError
+from ...client.auth import DomoAuth
+from .exceptions import Config_CRUD_Error, Config_GET_Error
 
 
-class MFA_GET_Error(RouteError):
+class MFA_GET_Error(Config_GET_Error):
     """
     Raised when MFA configuration retrieval operations fail.
 
@@ -57,7 +57,7 @@ class MFA_GET_Error(RouteError):
         super().__init__(message=message, res=res, **kwargs)
 
 
-class MFA_CRUD_Error(RouteError):
+class MFA_CRUD_Error(Config_CRUD_Error):
     """
     Raised when MFA configuration update operations fail.
 
@@ -67,19 +67,13 @@ class MFA_CRUD_Error(RouteError):
 
     def __init__(
         self,
-        operation: str,
         res: Optional[rgd.ResponseGetData] = None,
         message: Optional[str] = None,
-        **kwargs,
     ):
-        if not message:
-            message = f"MFA {operation} operation failed"
 
         super().__init__(
             message=message,
             res=res,
-            additional_context={"operation": operation},
-            **kwargs,
         )
 
 
@@ -142,12 +136,10 @@ async def toggle_enable_mfa(
     if not res.is_success:
         if res.status == 403:
             raise MFA_CRUD_Error(
-                operation="toggle",
                 res=res,
                 message="MFA toggle requires OTP elevation",
             )
         raise MFA_CRUD_Error(
-            operation="toggle",
             res=res,
             message=f"Failed to toggle MFA in {auth.domo_instance}",
         )
@@ -301,7 +293,6 @@ async def set_mfa_max_code_attempts(
 
     if not max_code_attempts > 0:
         raise MFA_CRUD_Error(
-            operation="update",
             message="max_code_attempts must be greater than 0. Unable to set MFA max code attempts",
         )
 
@@ -327,13 +318,11 @@ async def set_mfa_max_code_attempts(
     if not res.is_success:
         if res.status == 403:
             raise MFA_CRUD_Error(
-                operation="update",
                 res=res,
                 message=f"MFA modification requires OTP elevation to update max code attempts in {auth.domo_instance}",
             )
 
         raise MFA_CRUD_Error(
-            operation="update",
             res=res,
             message=f"Failed to update max number of code attempts for MFA in {auth.domo_instance}",
         )
@@ -383,7 +372,6 @@ async def set_mfa_num_days_valid(
 
     if not num_days_valid > 0:
         raise MFA_CRUD_Error(
-            operation="update",
             message="num_days_valid must be greater than 0. Unable to set days before MFA expires",
         )
 
@@ -405,7 +393,6 @@ async def set_mfa_num_days_valid(
 
     if not res.is_success:
         raise MFA_CRUD_Error(
-            operation="update",
             res=res,
             message=f"Failed to set number of days before MFA expires in {auth.domo_instance}",
         )

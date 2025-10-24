@@ -19,20 +19,40 @@ from typing import List
 
 import httpx
 
-from ..client import (
+from ...client import (
     auth as dmda,
     exceptions as dmde,
     get_data as gd,
     response as rgd,
 )
 
+from .exceptions import Config_CRUD_Error, Config_GET_Error
 
-class SSO_AddUserDirectSignonError(dmde.RouteError):
+
+class SSO_AddUserDirectSignonError(Config_CRUD_Error):
     def __init__(self, res: rgd.ResponseGetData, user_id_ls: List[str], message=None):
         message = (
             message or f"unable to add {', '.join(user_id_ls)} to DSO {res.response}"
         )
         super().__init__(res=res, message=message)
+
+
+class SSO_GET_Error(Config_GET_Error):
+    def __init__(self, res: rgd.ResponseGetData, message=None):
+        message = (
+            message
+            or f"unable to rerieve SSO Config for {res.auth.domo_instance} - {res.response}"
+        )
+        super().__init__(res=res, message=message)
+
+
+class SSO_CRUD_Error(dmde.RouteError):
+    def __init__(self, res: rgd.ResponseGetData, message=None):
+        super().__init__(
+            res=res,
+            message=message
+            or f"unable to update SSO Config for {res.auth.domo_instance} - {res.response}",
+        )
 
 
 @gd.route_function
@@ -67,24 +87,6 @@ async def toggle_user_direct_signon_access(
     res.response = f"successfully added {', '.join(user_id_ls)} to direct signon list in {auth.domo_instance}"
 
     return res
-
-
-class SSO_GET_Error(dmde.RouteError):
-    def __init__(self, res: rgd.ResponseGetData, message=None):
-        message = (
-            message
-            or f"unable to rerieve SSO Config for {res.auth.domo_instance} - {res.response}"
-        )
-        super().__init__(res=res, message=message)
-
-
-class SSO_CRUD_Error(dmde.RouteError):
-    def __init__(self, res: rgd.ResponseGetData, message=None):
-        super().__init__(
-            res=res,
-            message=message
-            or f"unable to update SSO Config for {res.auth.domo_instance} - {res.response}",
-        )
 
 
 @gd.route_function

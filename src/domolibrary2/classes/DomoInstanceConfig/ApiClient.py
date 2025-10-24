@@ -1,6 +1,5 @@
 __all__ = [
     "ApiClient",
-    "ApiClient_Search_Error",  # Legacy - use SearchApiClient_NotFound
     "ApiClients",
     "SearchApiClient_NotFound",
     "ApiClient_GET_Error",
@@ -9,7 +8,7 @@ __all__ = [
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List, Optional, Union
 
 import httpx
 
@@ -32,33 +31,35 @@ from .. import DomoUser as dmdu
 
 @dataclass
 class ApiClient(DomoEntity):
-    auth: DomoAuth = field(repr=False)
-    id: int
 
+    id: int
     name: str
     client_id: str  # will be masked in UI
-    owner_id: str
-    domo_user: dmdu.DomoUser
+    owner: dmdu.DomoUser
 
     # authorization_grant_types: List[str] # no longer part of API 6/10/2025
 
     scopes: List[ApiClient_ScopeEnum]
     description: str = None
 
-    is_invalid: bool = False
-
     def display_url(self):
         return f"https://{self.auth.domo_instance}.domo.com/admin/api-clients"
 
-    @classmethod
-    async def from_dict(cls, auth: DomoAuth, obj):
-        domo_user = None
-        is_invalid = False
+    @staticmethod
+    async def get_user_by_id(
+        user_id: str, auth: DomoAuth
+    ) -> Union[dmdu.DomoUser, bool]:
         try:
-            domo_user = await dmdu.DomoUser.get_by_id(auth=auth, user_id=obj["userId"])
-
+            return await dmdu.DomoUser.get_by_id(auth=auth, user_id=user_id)
         except DomoError:
-            is_invalid = True
+            return False
+
+    @property
+    def is_valid(self) -> bool:
+        return bool(self.owner)
+
+    @classmethod
+    def from_dict(cls, auth: DomoAuth, obj, owner: dmdu.DomoUser):
 
         return cls(
             auth=auth,
@@ -66,12 +67,11 @@ class ApiClient(DomoEntity):
             raw=obj,
             name=obj["name"],
             client_id=obj["clientId"],
-            owner_id=obj["userId"],
-            domo_user=domo_user,
+            owner=owner,
             # authorization_grant_types=obj["authorizedGrantTypes"],
             scopes=[ApiClient_ScopeEnum[sc.upper()] for sc in obj["scopes"]],
             description=obj.get("description"),
-            is_invalid=is_invalid,
+            Relations=None,
         )
 
     @classmethod
@@ -116,7 +116,11 @@ class ApiClient(DomoEntity):
         if return_raw:
             return res
 
-        return await cls.from_dict(auth=auth, obj=res.response)
+        obj = res.response
+
+        owner = await cls.get_user_by_id(user_id=obj["userId"], auth=auth)
+
+        return cls.from_dict(auth=auth, obj=obj, owner=owner)
 
     async def revoke(
         self,
@@ -150,21 +154,6 @@ class ApiClient(DomoEntity):
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
             parent_class=parent_class or self.__class__.__name__,
             return_raw=return_raw,
-        )
-
-
-# Legacy error class - use SearchApiClient_NotFound instead
-class ApiClient_Search_Error(SearchApiClient_NotFound):
-    """
-    Legacy error class for API client search failures.
-
-    Deprecated: Use SearchApiClient_NotFound instead.
-    This class is maintained for backward compatibility.
-    """
-
-    def __init__(self, cls_instance, client_name: str):
-        super().__init__(
-            search_criteria=f"client name: {client_name}",
         )
 
 
@@ -213,7 +202,10 @@ class ApiClients:
             return res
 
         self.domo_clients = await dmce.gather_with_concurrency(
-            *[ApiClient.from_dict(auth=self.auth, obj=obj) for obj in res.response],
+            *[
+                ApiClient.get_by_id(auth=self.auth, client_id=obj["id"])
+                for obj in res.response
+            ],
             n=10,
         )
 
