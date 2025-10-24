@@ -3,14 +3,14 @@ __all__ = ["DomoAccessToken", "DomoAccessTokens"]
 import asyncio
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import Any, List
+from typing import Any, List, Optional
 
 import httpx
 
-from ..client.auth import DomoAuth
-from ..entities.entities import DomoEntity, DomoManager
-from ..routes import access_token as access_token_routes
-from ..utils import (
+from ...client.auth import DomoAuth
+from ...entities.entities import DomoEntity, DomoManager
+from ...routes import access_token as access_token_routes
+from ...utils import (
     chunk_execution as dmce,
     convert as dmcv,
 )
@@ -19,7 +19,7 @@ from ..utils import (
 @dataclass
 class DomoAccessToken(DomoEntity):
     auth: DomoAuth = field(repr=False)
-    id: int
+    id: str
     name: str
     owner: Any  # DomoUser
     expiration_date: dt.datetime
@@ -28,13 +28,14 @@ class DomoAccessToken(DomoEntity):
     def __post_init__(self):
         if not isinstance(self.expiration_date, dt.datetime):
             self.expiration_date = dmcv.convert_epoch_millisecond_to_datetime(
-                self.expiration_date
+                self.expiration_date  # type: ignore
             )
 
     @property
     def days_till_expiration(self):
         return (self.expiration_date - dt.datetime.now()).days
 
+    @property
     def display_url(self):
         return f"https://{self.auth.domo_instance}.domo.com/admin/security/accesstokens"
 
@@ -51,14 +52,14 @@ class DomoAccessToken(DomoEntity):
             owner=owner,
             expiration_date=obj["expires"],
             auth=auth,
-            token=obj.get("token"),
+            token=obj.get("token") or "",
             raw=obj,
-            Relations=None,
+            Relations=None,  # type: ignore
         )
 
     @staticmethod
     async def _get_owner(owner_id, auth: DomoAuth):
-        from . import DomoUser as dmu
+        from .. import DomoUser as dmu
 
         return await dmu.DomoUser.get_by_id(user_id=owner_id, auth=auth)
 
@@ -66,15 +67,15 @@ class DomoAccessToken(DomoEntity):
     async def get_by_id(
         cls,
         auth: DomoAuth,
-        access_token_id: int,
-        session: httpx.AsyncClient = None,
+        id: str,
+        session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         return_raw: bool = False,
     ):
         res = await access_token_routes.get_access_token_by_id(
             auth=auth,
-            access_token_id=access_token_id,
+            id=id,
             session=session,
             debug_api=debug_api,
             parent_class=cls.__name__,
@@ -98,7 +99,7 @@ class DomoAccessToken(DomoEntity):
         auth: DomoAuth,
         owner,  # DomoUser
         debug_api: bool = False,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         debug_num_stacks_to_drop: int = 2,
         return_raw: bool = False,
     ):
@@ -121,7 +122,7 @@ class DomoAccessToken(DomoEntity):
     async def revoke(
         self,
         debug_api: bool = False,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         debug_num_stacks_to_drop: int = 2,
     ):
         return await access_token_routes.revoke_access_token(
@@ -135,7 +136,7 @@ class DomoAccessToken(DomoEntity):
 
     async def regenerate(
         self,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         duration_in_days: int = 90,
         debug_api: bool = False,
         return_raw: bool = False,
@@ -167,14 +168,14 @@ class DomoAccessToken(DomoEntity):
 class DomoAccessTokens(DomoManager):
     auth: DomoAuth = field(repr=False)
 
-    domo_access_tokens: List[DomoAccessToken] = field(default=None)
+    domo_access_tokens: List[DomoAccessToken] = field(default=[])
 
     async def get(
         self,
         return_raw: bool = False,
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
     ):
         res = await access_token_routes.get_access_tokens(
             auth=self.auth,
@@ -190,7 +191,7 @@ class DomoAccessTokens(DomoManager):
         return await dmce.gather_with_concurrency(
             *[
                 DomoAccessToken.get_by_id(
-                    access_token_id=obj["id"],
+                    id=obj["id"],
                     auth=self.auth,
                 )
                 for obj in res.response
@@ -204,7 +205,7 @@ class DomoAccessTokens(DomoManager):
         token_name: str,
         owner,  # DomoUser
         debug_api: bool = False,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         debug_num_stacks_to_drop: int = 2,
         return_raw: bool = False,
     ):

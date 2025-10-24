@@ -45,7 +45,7 @@ from ...client import (
 )
 from ...client.auth import DomoAuth
 from ...entities.base import DomoEnumMixin
-from .exceptions import UserAttributes_CRUD_Error, UserAttributes_GET_Error
+from ..user.exceptions import UserAttributes_CRUD_Error, UserAttributes_GET_Error
 
 
 class UserAttributes_IssuerType(DomoEnumMixin, Enum):

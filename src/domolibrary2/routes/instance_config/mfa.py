@@ -228,7 +228,9 @@ async def get_mfa_config(
             message=f"Failed to retrieve MFA configuration settings from {auth.domo_instance}",
         )
 
-    new_obj = {obj["name"]: obj["value"] for obj in res.response}
+    new_obj = {
+        obj["name"]: obj["value"] for obj in res.response if isinstance(obj, dict)
+    }
 
     is_multifactor_required = (
         True if new_obj.get("domo.policy.multifactor.required") == "yes" else False

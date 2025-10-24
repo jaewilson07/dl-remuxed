@@ -1,9 +1,9 @@
 __all__ = [
-    "DomoInstanceConfig_InstanceSwitcher_Mapping",
-    "DomoInstanceConfig_InstanceSwitcher",
+    "InstanceSwitcher_Mapping",
+    "InstanceSwitcher",
     # Route exceptions
-    "InstanceSwitcherMapping_GET_Error",
-    "InstanceSwitcherMapping_CRUD_Error",
+    "InstanceSwitcher_GET_Error",
+    "InstanceSwitcher_CRUD_Error",
 ]
 
 
@@ -14,11 +14,15 @@ from typing import List, Optional
 import httpx
 
 from ...client.auth import DomoAuth
-from ...routes import instance_config as instance_config_routes
+from ...routes.instance_config import instance_switcher as instance_switcher_routes
+from ...routes.instance_config.instance_switcher import (
+    InstanceSwitcher_CRUD_Error,
+    InstanceSwitcher_GET_Error,
+)
 
 
 @dataclass
-class DomoInstanceConfig_InstanceSwitcher_Mapping:
+class InstanceSwitcher_Mapping:
     """Represents a single instance switcher mapping configuration.
 
     Maps a user attribute to a target Domo instance that users can switch to.
@@ -67,7 +71,7 @@ class DomoInstanceConfig_InstanceSwitcher_Mapping:
         )
 
     @classmethod
-    def from_dict(cls, obj: dict) -> "DomoInstanceConfig_InstanceSwitcher_Mapping":
+    def from_dict(cls, obj: dict) -> "InstanceSwitcher_Mapping":
         """Create a mapping from API response dictionary.
 
         Args:
@@ -82,7 +86,7 @@ class DomoInstanceConfig_InstanceSwitcher_Mapping:
         )
 
     @classmethod
-    def from_obj(cls, obj: dict) -> "DomoInstanceConfig_InstanceSwitcher_Mapping":
+    def from_obj(cls, obj: dict) -> "InstanceSwitcher_Mapping":
         """Legacy method - calls from_dict for compatibility.
 
         Args:
@@ -106,7 +110,7 @@ class DomoInstanceConfig_InstanceSwitcher_Mapping:
 
 
 @dataclass
-class DomoInstanceConfig_InstanceSwitcher:
+class InstanceSwitcher:
     """Manages instance switcher configuration for a Domo instance.
 
     This class handles the configuration of instance switching mappings, which allow
@@ -118,14 +122,14 @@ class DomoInstanceConfig_InstanceSwitcher:
     """
 
     auth: DomoAuth = field(repr=False)
-    domo_instance_switcher_mapping: List[
-        DomoInstanceConfig_InstanceSwitcher_Mapping
-    ] = field(default_factory=list)
+    domo_instance_switcher_mapping: List[InstanceSwitcher_Mapping] = field(
+        default_factory=list
+    )
 
     def _add_mapping_to_ls(
         self,
-        domo_instance_switcher_mapping: DomoInstanceConfig_InstanceSwitcher_Mapping,
-    ) -> List[DomoInstanceConfig_InstanceSwitcher_Mapping]:
+        domo_instance_switcher_mapping: InstanceSwitcher_Mapping,
+    ) -> List[InstanceSwitcher_Mapping]:
         """Add a mapping to the list with deduplication.
 
         Args:
@@ -146,7 +150,7 @@ class DomoInstanceConfig_InstanceSwitcher:
         session: Optional[httpx.AsyncClient] = None,
         debug_num_stacks_to_drop: int = 2,
         timeout: int = 20,
-    ) -> List[DomoInstanceConfig_InstanceSwitcher_Mapping]:
+    ) -> List[InstanceSwitcher_Mapping]:
         """Retrieve current instance switcher mappings.
 
         Args:
@@ -159,7 +163,7 @@ class DomoInstanceConfig_InstanceSwitcher:
         Returns:
             List of instance switcher mappings or raw response if return_raw=True
         """
-        res = await instance_config_routes.get_instance_switcher_mapping(
+        res = await instance_switcher_routes.get_instance_switcher_mapping(
             auth=self.auth,
             debug_api=debug_api,
             session=session,
@@ -172,16 +176,14 @@ class DomoInstanceConfig_InstanceSwitcher:
             return res
 
         for obj in res.response:
-            self._add_mapping_to_ls(
-                DomoInstanceConfig_InstanceSwitcher_Mapping.from_obj(obj=obj)
-            )
+            self._add_mapping_to_ls(InstanceSwitcher_Mapping.from_obj(obj=obj))
 
         return self.domo_instance_switcher_mapping
 
     async def set_mapping(
         self,
         mapping_ls: Optional[
-            List[DomoInstanceConfig_InstanceSwitcher_Mapping]
+            List[InstanceSwitcher_Mapping]
         ] = None,  # will default to self.domo_instance_switcher_mapping
         session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
@@ -189,7 +191,7 @@ class DomoInstanceConfig_InstanceSwitcher:
         debug_num_stacks_to_drop: int = 2,
         timeout: int = 60,
         wait: int = 5,
-    ) -> List[DomoInstanceConfig_InstanceSwitcher_Mapping]:
+    ) -> List[InstanceSwitcher_Mapping]:
         """Overwrite existing mappings with new mapping list.
 
         Args:
@@ -211,7 +213,7 @@ class DomoInstanceConfig_InstanceSwitcher:
         mapping_payloads = [domo_mapping.to_dict() for domo_mapping in mapping_ls]
 
         # update routing mappings
-        res = await instance_config_routes.set_instance_switcher_mapping(
+        res = await instance_switcher_routes.set_instance_switcher_mapping(
             auth=self.auth,
             mapping_payloads=mapping_payloads,
             session=session,
@@ -231,13 +233,13 @@ class DomoInstanceConfig_InstanceSwitcher:
 
     async def add_mapping(
         self,
-        mapping_to_add_ls: List[DomoInstanceConfig_InstanceSwitcher_Mapping],
+        mapping_to_add_ls: List[InstanceSwitcher_Mapping],
         session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         timeout: int = 20,
         wait: int = 5,
-    ) -> List[DomoInstanceConfig_InstanceSwitcher_Mapping]:
+    ) -> List[InstanceSwitcher_Mapping]:
         """Add new mappings to existing configuration.
 
         Args:

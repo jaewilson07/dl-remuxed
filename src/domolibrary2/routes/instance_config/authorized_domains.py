@@ -71,7 +71,7 @@ async def get_authorized_domains(
     if not res.is_success:
         raise GetDomains_NotFound(res=res)
 
-    res.response = [domain.strip() for domain in res.response.get("value").split(",")]
+    res.response = [domain.strip() for domain in res.response.get("value").split(",")]  # type: ignore
     return res
 
 
@@ -152,7 +152,7 @@ async def get_authorized_custom_app_domains(
     if not res.is_success:
         raise GetAppDomains_NotFound(res=res)
 
-    res.response = [domain.strip() for domain in res.response.get("value").split(",")]
+    res.response = [domain.strip() for domain in res.response.get("value").split(",")]  # type: ignore
     return res
 
 

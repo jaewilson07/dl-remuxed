@@ -179,7 +179,11 @@ async def get_scheduler_policies(
     if return_raw:
         return res
 
-    if res.status == 403 and res.response.startswith("Forbidden"):
+    if (
+        res.status == 403
+        and isinstance(res.response, str)
+        and res.response.startswith("Forbidden")
+    ):
         raise SchedulerPolicy_GET_Error(
             res=res,
             message="error retrieving permissions, is the feature switch enabled?",

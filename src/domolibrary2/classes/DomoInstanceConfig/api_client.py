@@ -8,7 +8,7 @@ __all__ = [
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Any
 
 import httpx
 
@@ -16,9 +16,12 @@ from ...client import response as rgd
 from ...client.auth import DomoAuth
 from ...client.exceptions import DomoError
 from ...entities.entities import DomoEntity
-from ...routes.instance_config import (
+from ...routes.instance_config.api_client import (
     ApiClient_ScopeEnum,
-    api_client as client_routes,
+    create_api_client,
+    get_api_clients,
+    get_client_by_id,
+    revoke_api_client,
 )
 from ...routes.instance_config.exceptions import (
     ApiClient_CRUD_Error,
@@ -31,23 +34,25 @@ from .. import DomoUser as dmdu
 
 @dataclass
 class ApiClient(DomoEntity):
-    id: int
+    id: str
     name: str
     client_id: str  # will be masked in UI
+    client_secret: str
     owner: dmdu.DomoUser
 
     # authorization_grant_types: List[str] # no longer part of API 6/10/2025
 
     scopes: List[ApiClient_ScopeEnum]
-    description: str = None
+    description: Optional[str] = None
 
-    def display_url(self):
+    @property
+    def display_url(self) -> str:
         return f"https://{self.auth.domo_instance}.domo.com/admin/api-clients"
 
     @staticmethod
     async def get_user_by_id(
         user_id: str, auth: DomoAuth
-    ) -> Union[dmdu.DomoUser, bool]:
+    ) -> Union[dmdu.DomoUser, bool, None]:
         try:
             return await dmdu.DomoUser.get_by_id(auth=auth, user_id=user_id)
         except DomoError:
@@ -58,37 +63,37 @@ class ApiClient(DomoEntity):
         return bool(self.owner)
 
     @classmethod
-    def from_dict(cls, auth: DomoAuth, obj, owner: dmdu.DomoUser):
+    def from_dict(cls, auth: DomoAuth, obj: dict[str, Any]):
         return cls(
             auth=auth,
             id=obj["id"],
             raw=obj,
             name=obj["name"],
             client_id=obj["clientId"],
-            owner=owner,
+            owner=obj.get("owner"),  # type: ignore
             # authorization_grant_types=obj["authorizedGrantTypes"],
             scopes=[ApiClient_ScopeEnum[sc.upper()] for sc in obj["scopes"]],
             description=obj.get("description"),
-            Relations=None,
+            Relations=None,  # type: ignore
         )
 
     @classmethod
     async def get_by_id(
         cls,
         auth: DomoAuth,
-        client_id: str,
+        id: str,
         session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         parent_class: Optional[str] = None,
         return_raw: bool = False,
-    ) -> rgd.ResponseGetData:
+    ) -> "ApiClient":
         """
         Retrieve a specific API client by its ID.
 
         Args:
             auth: Authentication object containing instance and credentials
-            client_id: Unique identifier for the API client
+            id: Unique identifier for the API client
             session: Optional HTTP client session for connection reuse
             debug_api: Enable detailed API request/response logging
             debug_num_stacks_to_drop: Number of stack frames to omit in debug output
@@ -101,9 +106,9 @@ class ApiClient(DomoEntity):
         Raises:
             ApiClient_GET_Error: If API client retrieval fails
         """
-        res = await client_routes.get_client_by_id(
+        res = await get_client_by_id(
             auth=auth,
-            client_id=int(client_id),
+            id=id,
             session=session,
             debug_api=debug_api,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
@@ -117,8 +122,9 @@ class ApiClient(DomoEntity):
         obj = res.response
 
         owner = await cls.get_user_by_id(user_id=obj["userId"], auth=auth)
+        obj["owner"] = owner
 
-        return cls.from_dict(auth=auth, obj=obj, owner=owner)
+        return cls.from_dict(auth=auth, obj=obj)
 
     async def revoke(
         self,
@@ -144,7 +150,7 @@ class ApiClient(DomoEntity):
         Raises:
             ApiClient_RevokeError: If API client revocation fails
         """
-        return await client_routes.revoke_api_client(
+        return await revoke_api_client(
             auth=self.auth,
             client_id=str(self.id),
             session=session,
@@ -170,7 +176,7 @@ class ApiClients:
         debug_num_stacks_to_drop: int = 2,
         parent_class: Optional[str] = None,
         return_raw: bool = False,
-    ) -> rgd.ResponseGetData:
+    ) -> List[ApiClient] | rgd.ResponseGetData:
         """
         Retrieve all API clients for the authenticated instance.
 
@@ -187,7 +193,7 @@ class ApiClients:
         Raises:
             ApiClient_GET_Error: If API client retrieval fails
         """
-        res = await client_routes.get_api_clients(
+        res = await get_api_clients(
             auth=self.auth,
             session=session,
             debug_api=debug_api,
@@ -201,14 +207,14 @@ class ApiClients:
 
         self.domo_clients = await dmce.gather_with_concurrency(
             *[
-                ApiClient.get_by_id(auth=self.auth, client_id=obj["id"])
+                ApiClient.get_by_id(auth=self.auth, id=obj["id"])
                 for obj in res.response
             ],
             n=10,
         )
 
         self.invalid_clients = [
-            client for client in self.domo_clients if client.is_invalid
+            client for client in self.domo_clients if not client.is_valid
         ]
 
         return self.domo_clients
@@ -271,7 +277,7 @@ class ApiClients:
         debug_num_stacks_to_drop: int = 2,
         parent_class: Optional[str] = None,
         return_raw: bool = False,
-    ) -> rgd.ResponseGetData:
+    ) -> ApiClient:
         """
         Create a new API client for the authenticated user.
 
@@ -292,7 +298,7 @@ class ApiClients:
             ApiClient_CRUD_Error: If API client creation fails
             SearchApiClient_NotFound: If created client cannot be retrieved
         """
-        res = await client_routes.create_api_client(
+        res = await create_api_client(
             auth=self.auth,
             client_name=client_name,
             client_description=client_description,
@@ -376,7 +382,7 @@ class ApiClients:
 
         return await self.create_for_authorized_user(
             client_name=client_name,
-            client_description=client_description,
+            client_description=client_description or "",
             scope=scope,
             session=session,
             debug_api=debug_api,

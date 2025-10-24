@@ -10,7 +10,7 @@ from typing import List, Optional
 import httpx
 
 from ...client.auth import DomoAuth
-from ...routes import instance_config as instance_config_routes
+from ...routes.instance_config import allowlist as allowlist_routes
 
 
 def validate_ip_or_cidr(ip: str):
@@ -76,7 +76,7 @@ class DomoAllowlist:
         retrieves the allowlist for an instance
         """
 
-        res = await instance_config_routes.get_allowlist(
+        res = await allowlist_routes.get_allowlist(
             auth=self.auth,
             debug_api=debug_api,
             session=session,
@@ -120,7 +120,7 @@ class DomoAllowlist:
                 print("no changes to allowlist detected, skipping update")
             return self.allowlist
 
-        await instance_config_routes.set_allowlist(
+        await allowlist_routes.set_allowlist(
             ip_address_ls=ip_address_ls,
             auth=self.auth,
             debug_api=debug_api,
@@ -200,7 +200,7 @@ class DomoAllowlist:
         retrieves whether the "filter all traffic" setting is enabled
         """
 
-        res = await instance_config_routes.get_allowlist_is_filter_all_traffic_enabled(
+        res = await allowlist_routes.get_allowlist_is_filter_all_traffic_enabled(
             auth=self.auth,
             debug_api=debug_api,
             session=session,
@@ -235,15 +235,13 @@ class DomoAllowlist:
 
             return bool(self.is_filter_all_traffic_enabled)
 
-        res = (
-            await instance_config_routes.toggle_allowlist_is_filter_all_traffic_enabled(
-                auth=self.auth,
-                is_enabled=is_enabled,
-                debug_api=debug_api,
-                session=session,
-                return_raw=return_raw,
-                parent_class=self.__class__.__name__,
-            )
+        res = await allowlist_routes.toggle_allowlist_is_filter_all_traffic_enabled(
+            auth=self.auth,
+            is_enabled=is_enabled,
+            debug_api=debug_api,
+            session=session,
+            return_raw=return_raw,
+            parent_class=self.__class__.__name__,
         )
 
         if return_raw:

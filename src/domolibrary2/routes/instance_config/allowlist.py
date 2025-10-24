@@ -59,7 +59,9 @@ async def get_allowlist(
     if not res.is_success:
         raise Config_GET_Error(res=res)
 
-    res.response = res.response["addresses"]
+    res.response = (
+        res.response.get("addresses", []) if isinstance(res.response, dict) else []
+    )
 
     if res.response == [""]:
         res.response = []
@@ -99,7 +101,7 @@ async def set_allowlist(
         return res
 
     if not res.is_success:
-        raise Allowlist_UnableToUpdate(res=res, reason=res.response)
+        raise Allowlist_UnableToUpdate(res=res, reason=str(res.response))
 
     return res
 
@@ -141,7 +143,11 @@ async def get_allowlist_is_filter_all_traffic_enabled(
         raise Config_GET_Error(res=res)
 
     res.response = {
-        "is_enabled": convert_string_to_bool(res.response["value"]),
+        "is_enabled": (
+            convert_string_to_bool(res.response.get("value", False))
+            if isinstance(res.response, dict)
+            else False
+        ),
         "feature": "ip.whitelist.mobile.enabled",
     }
 
@@ -183,7 +189,7 @@ async def toggle_allowlist_is_filter_all_traffic_enabled(
     )
 
     if not res.is_success:
-        raise Allowlist_UnableToUpdate(res=res, reason=res.response)
+        raise Allowlist_UnableToUpdate(res=res, reason=str(res.response))
 
     if return_raw:
         return res

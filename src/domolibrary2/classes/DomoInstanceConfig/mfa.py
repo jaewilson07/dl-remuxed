@@ -7,7 +7,7 @@ import httpx
 
 from ...client.exceptions import ClassError
 from ...client.auth import DomoAuth
-from ...routes import instance_config as instance_config_routes
+from ...routes.instance_config import mfa as mfa_routes
 
 
 class MFAConfig_InstantiationError(ClassError):
@@ -43,7 +43,7 @@ class MFA_Config:
         debug_num_stacks_to_drop: int = 2,
         return_raw: bool = False,
     ):
-        res = await instance_config_routes.get_mfa_config(
+        res = await mfa_routes.get_mfa_config(
             auth=auth,
             incl_is_multifactor_required=incl_is_multifactor_required,
             incl_num_days_valid=incl_num_days_valid,
@@ -74,7 +74,7 @@ class MFA_Config:
         debug_num_stacks_to_drop=2,
         return_raw: bool = False,
     ):
-        res = await instance_config_routes.get_mfa_config(
+        res = await mfa_routes.get_mfa_config(
             auth=self.auth,
             incl_is_multifactor_required=True,
             incl_num_days_valid=True,
@@ -94,197 +94,196 @@ class MFA_Config:
 
         return self
 
+    def _test_need_update_config(
+        self,
+        attr_name,
+        new_value,
+        is_ignore_test: bool = False,
+        debug_prn: bool = False,
+    ):
+        current_value = getattr(self, attr_name)
 
-def _test_need_update_config(
-    self, attr_name, new_value, is_ignore_test: bool = False, debug_prn: bool = False
-):
-    current_value = getattr(self, attr_name)
+        if new_value is None:
+            return False
 
-    if new_value is None:
-        return False
+        if new_value == current_value and not is_ignore_test:
+            if debug_prn:
+                print(
+                    f"No change necessary -- {current_value} is the same as {new_value}"
+                )
+            return False
 
-    if new_value == current_value and not is_ignore_test:
-        if debug_prn:
-            print(f"No change necessary -- {current_value} is the same as {new_value}")
-        return False
+        return True
 
-    return True
+    async def toggle_mfa(
+        self,
+        is_enable_MFA: bool,
+        is_ignore_test: bool = False,
+        session: Optional[httpx.AsyncClient] = None,
+        debug_api: bool = False,
+        debug_num_stacks_to_drop: int = 2,
+        suppress_update_self: bool = False,
+        debug_prn: bool = False,
+    ):
+        need_update_config = self._test_need_update_config(
+            attr_name="is_multifactor_required",
+            new_value=is_enable_MFA,
+            is_ignore_test=is_ignore_test,
+            debug_prn=debug_prn,
+        )
 
+        if not need_update_config:
+            return self
 
-async def toggle_mfa(
-    self,
-    is_enable_MFA: bool,
-    is_ignore_test: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
-    debug_api: bool = False,
-    debug_num_stacks_to_drop: int = 2,
-    suppress_update_self: bool = False,
-    debug_prn: bool = False,
-):
-    need_update_config = self._test_need_update_config(
-        attr_name="is_multifactor_required",
-        new_value=is_enable_MFA,
-        is_ignore_test=is_ignore_test,
-        debug_prn=debug_prn,
-    )
+        await mfa_routes.toggle_enable_mfa(
+            auth=self.auth,
+            is_enable_MFA=is_enable_MFA,
+            session=session,
+            debug_api=debug_api,
+            parent_class=self.__class__.__name__,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
+        )
 
-    if not need_update_config:
-        return self
+        if suppress_update_self:
+            return self
 
-    await instance_config_routes.toggle_enable_mfa(
-        auth=self.auth,
-        is_enable_MFA=is_enable_MFA,
-        session=session,
-        debug_api=debug_api,
-        parent_class=self.__class__.__name__,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
-    )
+        return await self.get()
 
-    if suppress_update_self:
-        return self
+    async def enable(
+        self,
+        is_ignore_test: bool = False,
+        session: Optional[httpx.AsyncClient] = None,
+        debug_api: bool = False,
+        debug_num_stacks_to_drop: int = 2,
+    ):
+        """will have enable_value=True and will enable mfa in the instance"""
+        return await self.toggle_mfa(
+            is_ignore_test=is_ignore_test,
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            is_enable_MFA=True,
+        )
 
-    return await self.get()
+    async def disable(
+        self,
+        is_ignore_test: bool = False,
+        session: Optional[httpx.AsyncClient] = None,
+        debug_api: bool = False,
+        debug_num_stacks_to_drop: int = 2,
+    ):
+        """will have enable_value=False and will disable mfa in the instance"""
+        return await self.toggle_mfa(
+            is_ignore_test=is_ignore_test,
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
+            is_enable_MFA=False,
+        )
 
+    async def set_max_code_attempts(
+        self,
+        max_code_attempts: int,
+        is_ignore_test: bool = False,
+        session: Optional[httpx.AsyncClient] = None,
+        debug_api: bool = False,
+        debug_num_stacks_to_drop: int = 2,
+        suppress_update_self: bool = False,
+        debug_prn: bool = False,
+    ):
+        need_update_config = self._test_need_update_config(
+            attr_name="max_code_attempts",
+            new_value=max_code_attempts,
+            is_ignore_test=is_ignore_test,
+            debug_prn=debug_prn,
+        )
 
-async def enable(
-    self,
-    is_ignore_test: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
-    debug_api: bool = False,
-    debug_num_stacks_to_drop: int = 2,
-):
-    """will have enable_value=True and will enable mfa in the instance"""
-    return await self.toggle_mfa(
-        is_ignore_test=is_ignore_test,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        is_enable_MFA=True,
-    )
+        if not need_update_config:
+            return self
 
+        await mfa_routes.set_mfa_max_code_attempts(
+            auth=self.auth,
+            max_code_attempts=max_code_attempts,
+            session=session,
+            debug_api=debug_api,
+            parent_class=self.__class__.__name__,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
+        )
 
-async def disable(
-    self,
-    is_ignore_test: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
-    debug_api: bool = False,
-    debug_num_stacks_to_drop: int = 2,
-):
-    """will have enable_value=False and will disable mfa in the instance"""
-    return await self.toggle_mfa(
-        is_ignore_test=is_ignore_test,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
-        is_enable_MFA=False,
-    )
+        if suppress_update_self:
+            return self
 
+        return await self.get()
 
-async def set_max_code_attempts(
-    self,
-    max_code_attempts: int,
-    is_ignore_test: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
-    debug_api: bool = False,
-    debug_num_stacks_to_drop: int = 2,
-    suppress_update_self: bool = False,
-    debug_prn: bool = False,
-):
-    need_update_config = self._test_need_update_config(
-        attr_name="max_code_attempts",
-        new_value=max_code_attempts,
-        is_ignore_test=is_ignore_test,
-        debug_prn=debug_prn,
-    )
+    async def set_num_days_valid(
+        self,
+        num_days_valid: int,
+        is_ignore_test: bool = False,
+        session: Optional[httpx.AsyncClient] = None,
+        debug_api: bool = False,
+        debug_num_stacks_to_drop: int = 2,
+        suppress_update_self: bool = False,
+        debug_prn: bool = False,
+    ):
+        need_update_config = self._test_need_update_config(
+            attr_name="num_days_valid",
+            new_value=num_days_valid,
+            is_ignore_test=is_ignore_test,
+            debug_prn=debug_prn,
+        )
 
-    if not need_update_config:
-        return self
+        if not need_update_config:
+            return self
 
-    await instance_config_routes.set_mfa_max_code_attempts(
-        auth=self.auth,
-        max_code_attempts=max_code_attempts,
-        session=session,
-        debug_api=debug_api,
-        parent_class=self.__class__.__name__,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
-    )
+        await mfa_routes.set_mfa_num_days_valid(
+            auth=self.auth,
+            num_days_valid=num_days_valid,
+            session=session,
+            debug_api=debug_api,
+            parent_class=self.__class__.__name__,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
+        )
+        if not suppress_update_self:
+            return self
 
-    if suppress_update_self:
-        return self
+        return await self.get()
 
-    return await self.get()
+    async def update(
+        self,
+        is_enable_MFA: bool = False,
+        max_code_attempts: int = 0,
+        num_days_valid: int = 0,
+        session: Optional[httpx.AsyncClient] = None,
+        return_raw: bool = False,
+        debug_api: bool = False,
+        debug_num_stacks_to_drop: int = 2,
+        debug_prn: bool = False,
+    ):
+        await self.toggle_mfa(
+            is_enable_MFA=is_enable_MFA,
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
+            suppress_update_self=True,
+            debug_prn=debug_prn,
+        )
 
+        await self.set_max_code_attempts(
+            max_code_attempts=max_code_attempts,
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
+            suppress_update_self=True,
+            debug_prn=debug_prn,
+        )
 
-async def set_num_days_valid(
-    self,
-    num_days_valid: int,
-    is_ignore_test: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
-    debug_api: bool = False,
-    debug_num_stacks_to_drop: int = 2,
-    suppress_update_self: bool = False,
-    debug_prn: bool = False,
-):
-    need_update_config = self._test_need_update_config(
-        attr_name="num_days_valid",
-        new_value=num_days_valid,
-        is_ignore_test=is_ignore_test,
-        debug_prn=debug_prn,
-    )
+        await self.set_num_days_valid(
+            num_days_valid=num_days_valid,
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
+            suppress_update_self=True,
+            debug_prn=debug_prn,
+        )
 
-    if not need_update_config:
-        return self
-
-    await instance_config_routes.set_mfa_num_days_valid(
-        auth=self.auth,
-        num_days_valid=num_days_valid,
-        session=session,
-        debug_api=debug_api,
-        parent_class=self.__class__.__name__,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
-    )
-    if not suppress_update_self:
-        return self
-
-    return await self.get()
-
-
-async def update(
-    self,
-    is_enable_MFA: bool = False,
-    max_code_attempts: int = 0,
-    num_days_valid: int = 0,
-    session: Optional[httpx.AsyncClient] = None,
-    return_raw: bool = False,
-    debug_api: bool = False,
-    debug_num_stacks_to_drop: int = 2,
-    debug_prn: bool = False,
-):
-    await self.toggle_mfa(
-        is_enable_MFA=is_enable_MFA,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
-        suppress_update_self=True,
-        debug_prn=debug_prn,
-    )
-
-    await self.set_max_code_attempts(
-        max_code_attempts=max_code_attempts,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
-        suppress_update_self=True,
-        debug_prn=debug_prn,
-    )
-
-    await self.set_num_days_valid(
-        num_days_valid=num_days_valid,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
-        suppress_update_self=True,
-        debug_prn=debug_prn,
-    )
-
-    return await self.get(debug_api=debug_api, return_raw=return_raw)
+        return await self.get(debug_api=debug_api, return_raw=return_raw)
