@@ -20,7 +20,7 @@ from ..classes import (
     DomoGroup as dmdg,
 )
 from ..client.auth import DomoAuth
-from ..client.exceptions import DomoError
+from ..client.exceptions import DomoError, ClassError
 
 
 async def search_domo_groups_by_name(
@@ -44,7 +44,7 @@ async def upsert_domo_group(
 ) -> dmdg.DomoGroup:
     group_owner_names = group_owner_names or ["Role: Admin"]
 
-    domo_group = await dmdg.DomoGroup.upsert(
+    domo_group = await dmdg.DomoGroups.upsert(
         group_name=group_name,
         group_type=group_type,
         description=description,
@@ -91,7 +91,7 @@ async def search_or_upsert_domo_group(
         raise e from e
 
 
-class DJW_NoAccount(dmde.ClassError):
+class DJW_NoAccount(ClassError):
     def __init__(self, account_name, domo_instance):
         super().__init__(
             f"unable to retrieve account - {account_name} from {domo_instance}"

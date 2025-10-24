@@ -19,11 +19,8 @@ from ...client import (
     get_data as gd,
     response as rgd,
 )
-
 from ...client.auth import DomoAuth
-
 from ...utils.convert import convert_string_to_bool
-
 from .exceptions import Config_CRUD_Error, Config_GET_Error
 
 

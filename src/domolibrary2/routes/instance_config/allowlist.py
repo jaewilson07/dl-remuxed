@@ -16,11 +16,8 @@ from ...client import (
     get_data as gd,
     response as rgd,
 )
-
 from ...client.auth import DomoAuth
 from ...utils.convert import convert_string_to_bool
-
-
 from .exceptions import Config_GET_Error
 
 
@@ -43,7 +40,6 @@ async def get_allowlist(
     parent_class=None,
     debug_num_stacks_to_drop=1,
 ) -> rgd.ResponseGetData:
-
     url = f"https://{auth.domo_instance}.domo.com/admin/companysettings/whitelist"
 
     res = await gd.get_data(
