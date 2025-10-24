@@ -13,16 +13,14 @@ __all__ = [
 
 
 import httpx
+from typing import Optional
 
 from ...client import (
     get_data as gd,
     response as rgd,
 )
-
 from ...client.auth import DomoAuth
-
 from ...utils.convert import convert_string_to_bool
-
 from .exceptions import Config_CRUD_Error, Config_GET_Error
 
 
@@ -35,7 +33,7 @@ class ToggleConfig_CRUD_Error(Config_CRUD_Error):
 async def get_is_invite_social_users_enabled(
     auth: DomoAuth,
     customer_id: str,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     parent_class=None,
     return_raw: bool = False,
@@ -72,7 +70,7 @@ async def get_is_invite_social_users_enabled(
 @gd.route_function
 async def get_is_user_invite_notifications_enabled(
     auth: DomoAuth,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     parent_class=None,
     debug_num_stacks_to_drop=1,
@@ -108,7 +106,7 @@ async def get_is_user_invite_notifications_enabled(
 async def toggle_is_user_invite_enabled(
     auth: DomoAuth,
     is_enabled: bool,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     return_raw: bool = False,
     parent_class=None,
@@ -153,7 +151,7 @@ async def get_is_weekly_digest_enabled(
     auth: DomoAuth,
     return_raw: bool = False,
     debug_api: bool = False,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     parent_class=None,
     debug_num_stacks_to_drop=1,
 ):
@@ -192,7 +190,7 @@ async def toggle_is_weekly_digest_enabled(
     return_raw: bool = False,
     debug_api: bool = False,
     is_enabled: bool = True,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     parent_class=None,
     debug_num_stacks_to_drop=1,
 ):
@@ -231,7 +229,7 @@ async def get_is_left_nav_enabled_v1(
     auth: DomoAuth,
     return_raw: bool = False,
     debug_api: bool = False,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     parent_class=None,
     debug_num_stacks_to_drop=1,
 ):
@@ -270,7 +268,7 @@ async def get_is_left_nav_enabled(
     auth: DomoAuth,
     return_raw: bool = False,
     debug_api: bool = False,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     parent_class=None,
     debug_num_stacks_to_drop=1,
 ):
@@ -310,7 +308,7 @@ async def toggle_is_left_nav_enabled_v1(
     is_use_left_nav: bool = True,
     return_raw: bool = False,
     debug_api: bool = False,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     parent_class=None,
     debug_num_stacks_to_drop=1,
 ):
@@ -353,7 +351,7 @@ async def toggle_is_left_nav_enabled(
     is_use_left_nav: bool = True,
     return_raw: bool = False,
     debug_api: bool = False,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     parent_class=None,
     debug_num_stacks_to_drop=1,
 ):

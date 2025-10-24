@@ -10,7 +10,7 @@ from typing import List, Optional
 import httpx
 
 from ...client.auth import DomoAuth
-from ...routes.instance_config import allowlist as allowlist_routes
+from ...routes import instance_config as instance_config_routes
 
 
 def validate_ip_or_cidr(ip: str):
@@ -38,7 +38,7 @@ class DomoAllowlist:
     """
 
     auth: DomoAuth = field(repr=False)
-    allowlist: Optional[List[str]] = None
+    allowlist: List[str] = field(default_factory=list)
     is_filter_all_traffic_enabled: Optional[bool] = None
     raw: dict = field(default_factory=dict, repr=False)
 
@@ -70,13 +70,13 @@ class DomoAllowlist:
         return_raw: bool = False,
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
     ) -> list[str]:
         """
         retrieves the allowlist for an instance
         """
 
-        res = await allowlist_routes.get_allowlist(
+        res = await instance_config_routes.get_allowlist(
             auth=self.auth,
             debug_api=debug_api,
             session=session,
