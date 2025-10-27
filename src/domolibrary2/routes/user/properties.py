@@ -54,7 +54,7 @@ from ...client import (
 from ...client.auth import DomoAuth
 from ...client.exceptions import DomoError
 from ...entities.base import DomoEnumMixin
-from ...utils import image as uimg
+from ...utils import images
 from .exceptions import (
     DownloadAvatar_Error,
     ResetPassword_PasswordUsed,
@@ -455,7 +455,7 @@ def generate_avatar_bytestr(img_bytestr, img_type):
     if isinstance(img_bytestr, str):
         img_bytestr = img_bytestr.encode("utf-8")
 
-    if not uimg.isBase64(img_bytestr):
+    if not images.isBase64(img_bytestr):
         img_bytestr = base64.b64encode(img_bytestr)
 
     img_bytestr = img_bytestr.decode("utf-8")

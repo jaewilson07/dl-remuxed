@@ -3,6 +3,7 @@ __all__ = ["to_dict", "AppDbDocument", "AppDbCollection", "AppDbCollections"]
 import asyncio
 import datetime as dt
 import numbers
+import httpx
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Callable, List, Optional

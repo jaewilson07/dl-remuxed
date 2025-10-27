@@ -37,6 +37,7 @@ from ...client import (
 )
 from ...client.auth import DomoAuth
 from ...entities.base import DomoEnumMixin
+
 from .exceptions import (
     Datacenter_GET_Error,
     SearchDatacenter_NoResultsFound,

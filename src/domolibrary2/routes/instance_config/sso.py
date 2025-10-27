@@ -25,6 +25,7 @@ from ...client import (
     get_data as gd,
     response as rgd,
 )
+from .exceptions import Config_CRUD_Error, Config_GET_Error
 
 from .exceptions import Config_CRUD_Error, Config_GET_Error
 
