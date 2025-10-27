@@ -20,9 +20,14 @@ from typing import List, Optional
 
 import httpx
 
-from ...client import get_data as gd, response as rgd
+from domolibrary2.client.exceptions import RouteError
+
+from ...client import (
+    get_data as gd,
+    response as rgd,
+)
 from ...client.auth import DomoAuth, DomoFullAuth
-from ...client.entities import DomoEnumMixin
+from ...entities.base import DomoEnumMixin
 from .exceptions import ApiClient_CRUD_Error, ApiClient_GET_Error, ApiClient_RevokeError
 
 
@@ -41,6 +46,11 @@ class ApiClient_ScopeEnum(DomoEnumMixin, Enum):
     USER = "user"
     ACCOUNT = "account"
     DASHBOARD = "dashboard"
+
+
+class InvalidAuthType(RouteError):
+    def __init__(self, res: rgd.ResponseGetData = None, message=None):
+        super().__init__(res=res, message=message)
 
 
 @gd.route_function
@@ -181,7 +191,9 @@ async def create_api_client(
         ApiClient_CRUD_Error: If API client creation fails
     """
     if not isinstance(auth, DomoFullAuth):
-        raise InvalidAuthTypeError(required_auth_type=DomoFullAuth)
+        raise InvalidAuthType(
+            message=f"required auth type {DomoFullAuth.__class__.__name__}"
+        )
 
     if scope and isinstance(scope, list) and isinstance(scope[0], ApiClient_ScopeEnum):
         scope = [sc.value for sc in scope]

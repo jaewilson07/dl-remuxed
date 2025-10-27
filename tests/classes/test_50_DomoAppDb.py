@@ -60,7 +60,7 @@ async def test_cell_4(token_auth=token_auth):
 
 async def test_cell_5(token_auth=token_auth):
     """Test case from cell 5"""
-    domo_collection = await AppDbCollection.get_by_id(auth = auth, 
+    domo_collection = await AppDbCollection.get_by_id(auth = auth,
                               collection_id= COLLECTION_ID,
                               debug_api= False
                               )

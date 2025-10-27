@@ -8,7 +8,10 @@ import httpx
 import pandas as pd
 
 from ..routes import application as application_routes
-from ..utils import DictDot as util_dd, convert as cc
+from ..utils import (
+    DictDot as util_dd,
+    convert as cc,
+)
 from . import Job as dmdj
 
 

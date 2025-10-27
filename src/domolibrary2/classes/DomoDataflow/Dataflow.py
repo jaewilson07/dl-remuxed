@@ -5,12 +5,11 @@ from typing import List
 
 import httpx
 
-from ._base import DomoLineage as dmdl
-
 from ..client.entities import DomoEntity_w_Lineage
 from ..routes import dataflow as dataflow_routes
 from ..utils import chunk_execution as dmce
 from . import DomoJupyter as dmdj
+from ._base import DomoLineage as dmdl
 
 __all__ = ["DomoDataflow", "DomoDataflows"]
 
@@ -102,7 +101,7 @@ class DomoDataflow(DomoEntity_w_Lineage):
         return cls.from_dict(res.response, auth=auth)
 
     @classmethod
-    async def _get_entity_by_id(cls, auth, entity_id, **kwargs):
+    async def get_entity_by_id(cls, auth, entity_id, **kwargs):
         return await cls.get_by_id(
             dataflow_id=entity_id, auth=auth, return_raw=False, **kwargs
         )

@@ -18,7 +18,10 @@ from typing import Optional, Union
 
 import httpx
 
-from ...client import get_data as gd, response as rgd
+from ...client import (
+    get_data as gd,
+    response as rgd,
+)
 from ...client.auth import DomoAuth
 from .exceptions import Account_CreateParams_Error, Account_CRUD_Error
 

@@ -44,7 +44,7 @@ async def test_cell_3(token_auth=token_auth):
         domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],
     )
     async def test_fn(user_id):
-        res = await user_route.get_all_users(auth = auth, 
+        res = await user_route.get_all_users(auth = auth,
                                              parent_class = 'test',
                                              debug_num_stacks_to_drop=2)
         res.response = 'hello world'

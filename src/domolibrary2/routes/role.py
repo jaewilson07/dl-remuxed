@@ -16,7 +16,12 @@ __all__ = [
 
 import httpx
 
-from ..client import auth as dmda, exceptions as de, get_data as gd, response as rgd
+from ..client import (
+    auth as dmda,
+    exceptions as de,
+    get_data as gd,
+    response as rgd,
+)
 
 
 class Role_NotRetrieved(de.DomoError):
