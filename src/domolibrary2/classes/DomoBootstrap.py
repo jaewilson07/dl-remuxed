@@ -7,7 +7,7 @@ from typing import List
 import httpx
 
 from ..routes import bootstrap as bootstrap_routes
-from ..utils import chunk_execution as ce
+from ..utils import chunk_execution as dmce
 from . import DomoPage as dmpg
 
 
@@ -111,7 +111,7 @@ class DomoBootstrap(DomoManager):
         if not res.is_success:
             return None
 
-        self.page_ls = await ce.gather_with_concurrency(
+        self.page_ls = await dmce.gather_with_concurrency(
             n=60,
             *[
                 dmpg.DomoPage._from_bootstrap(page_obj, auth=self.auth)

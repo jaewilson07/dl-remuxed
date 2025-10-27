@@ -3,7 +3,10 @@ __all__ = ["CodeEngineManifest"]
 from dataclasses import dataclass
 from typing import Any, Dict, List
 
-from ..utils import convert as dmcv, files as dmfi
+from ..utils import (
+    convert as dmcv,
+    files as dmfi,
+)
 from .Manifest_Function import CodeEngineManifest_Function
 
 

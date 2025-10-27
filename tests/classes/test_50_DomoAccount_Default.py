@@ -1,97 +1,148 @@
 """
-Test file generated from 50_DomoAccount_Default.ipynb
-Auto-generated - excludes cells starting with #
-Generated on: C:\GitHub\domolibrary
+Test file for DomoAccount_Default class.
+
+Tests the Account_Default class to ensure it follows domolibrary2 design patterns
+and standards.
 """
 
 import os
-import domolibrary.client.DomoAuth as dmda
+from dotenv import load_dotenv
+import domolibrary2.client.auth as dmda
+import domolibrary2.routes.account as account_routes
+import domolibrary2.classes.DomoAccount.Account_Default as dmac
+
+load_dotenv()
 
 # Setup authentication for tests
 token_auth = dmda.DomoTokenAuth(
-    domo_instance=os.environ['DOMO_INSTANCE'],
-    domo_access_token=os.environ['DOMO_ACCESS_TOKEN'],
+    domo_instance=os.environ.get("DOMO_INSTANCE", ""),
+    domo_access_token=os.environ.get("DOMO_ACCESS_TOKEN", ""),
 )
 
-
-async def test_cell_1(token_auth=token_auth):
-    """Test case from cell 1"""
-    token_auth = dmda.DomoTokenAuth(
-        domo_instance=os.environ['DOMO_DOJO_INSTANCE'],
-        domo_access_token=os.environ["DOMO_DOJO_ACCESS_TOKEN"],
-    )
-
-    account = (await account_routes.get_account_by_id(auth =token_auth, account_id = 71)).response
-
-    account_id = account['id']
-    account
+# Test account IDs - set these in your .env file
+TEST_ACCOUNT_ID_1 = int(os.environ.get("ACCOUNT_DEFAULT_ID_1", 0))
+TEST_ACCOUNT_ID_2 = int(os.environ.get("ACCOUNT_DEFAULT_ID_2", 0))
 
 
-async def test_cell_2(token_auth=token_auth):
-    """Test case from cell 2"""
-    account_id = 145
+async def test_cell_0(token_auth=token_auth) -> dmda.DomoTokenAuth:
+    """Helper function to verify authentication is set up correctly."""
+    if not token_auth.user_id:
+        await token_auth.who_am_i()
+    assert token_auth.user_id is not None, "Authentication failed"
+    return token_auth
 
-    domo_account = await DomoAccount_Default.get_by_id(
+
+async def test_cell_1(token_auth=token_auth) -> dmac.DomoAccount_Default:
+    """Test get_by_id method - retrieves an account by its ID."""
+    if TEST_ACCOUNT_ID_1 == 0:
+        print("Skipping test - ACCOUNT_DEFAULT_ID_1 not set in .env")
+        return None
+
+    domo_account = await dmac.DomoAccount_Default.get_by_id(
         auth=token_auth,
-        account_id=account_id,
-        is_unmask = False,
-        is_suppress_no_config=False,
+        account_id=TEST_ACCOUNT_ID_1,
+        is_suppress_no_config=True,
         debug_api=False,
         return_raw=False,
     )
 
-    print(domo_account)
-    print(domo_account.Config)
+    assert domo_account is not None, "Failed to retrieve account"
+    assert domo_account.id == TEST_ACCOUNT_ID_1, "Account ID mismatch"
+    assert domo_account.auth == token_auth, "Auth mismatch"
+
+    print(f"Successfully retrieved account: {domo_account.name}")
+    return domo_account
+
+
+async def test_cell_2(token_auth=token_auth) -> dmac.DomoAccount_Default:
+    """Test from_dict method - creates account object from dictionary."""
+    # First get an account to use its raw data
+    if TEST_ACCOUNT_ID_1 == 0:
+        print("Skipping test - ACCOUNT_DEFAULT_ID_1 not set in .env")
+        return None
+
+    # Get account data from route
+    res = await account_routes.get_account_by_id(
+        auth=token_auth,
+        account_id=TEST_ACCOUNT_ID_1,
+        debug_api=False,
+    )
+
+    # Create account from dictionary
+    domo_account = dmac.DomoAccount_Default.from_dict(
+        auth=token_auth,
+        obj=res.response,
+        is_admin_summary=False,
+        is_use_default_account_class=True,
+    )
+
+    assert domo_account is not None, "Failed to create account from dict"
+    assert domo_account.id == TEST_ACCOUNT_ID_1, "Account ID mismatch"
+    assert domo_account.name == res.response.get("displayName"), "Name mismatch"
+
+    print(f"Successfully created account from dict: {domo_account.name}")
+    return domo_account
 
 
 async def test_cell_3(token_auth=token_auth):
-    """Test case from cell 3"""
-    domo_account = await DomoAccount_Default.get_by_id(auth=token_auth, account_id=account_id)
-    domo_account.name = f"DomoLibrary - update {dt.datetime.now()}"
-    await domo_account.update_name()
+    """Test display_url method - returns URL to account in Domo."""
+    if TEST_ACCOUNT_ID_1 == 0:
+        print("Skipping test - ACCOUNT_DEFAULT_ID_1 not set in .env")
+        return
+
+    domo_account = await dmac.DomoAccount_Default.get_by_id(
+        auth=token_auth,
+        account_id=TEST_ACCOUNT_ID_1,
+    )
+
+    url = domo_account.display_url()
+
+    assert url is not None, "display_url returned None"
+    assert token_auth.domo_instance in url, "Instance not in URL"
+    assert "datacenter/accounts" in url, "Expected path not in URL"
+
+    print(f"Account URL: {url}")
+    return url
 
 
 async def test_cell_4(token_auth=token_auth):
-    """Test case from cell 4"""
-    await domo_account.Access.get()
+    """Test Access subentity - verifies DomoAccess_Account is initialized."""
+    if TEST_ACCOUNT_ID_1 == 0:
+        print("Skipping test - ACCOUNT_DEFAULT_ID_1 not set in .env")
+        return
+
+    domo_account = await dmac.DomoAccount_Default.get_by_id(
+        auth=token_auth,
+        account_id=TEST_ACCOUNT_ID_1,
+    )
+
+    assert domo_account.Access is not None, "Access subentity not initialized"
+    assert domo_account.Access.parent_id == domo_account.id, "Parent ID mismatch"
+
+    print("Access subentity properly initialized")
+    return domo_account.Access
 
 
-async def test_cell_5(token_auth=token_auth):
-    """Test case from cell 5"""
-    domo_account = await DomoAccount_Default.get_by_id(account_id=5, auth=token_auth)
+async def main(token_auth=token_auth):
+    """Run all test functions."""
+    fn_ls = [
+        test_cell_0,
+        test_cell_1,
+        test_cell_2,
+        test_cell_3,
+        test_cell_4,
+    ]
 
-    domo_account.display_url()
-
-    if not token_auth.user_id:
-        await token_auth.who_am_i()
-
-    try:
-        print(
-            await domo_account.Access.share(
-                relation_type=ShareAccount_AccessLevel.OWNER,
-                user_id=token_auth.user_id,
-                debug_api=True,
-            )
-        )
-
-    except Account_Share_Error as e:
-        print(e)
+    for fn in fn_ls:
+        print(f"\n=== Running {fn.__name__} ===")
+        try:
+            await fn(token_auth=token_auth)
+            print(f"✓ {fn.__name__} passed")
+        except Exception as e:
+            print(f"✗ {fn.__name__} failed: {e}")
 
 
-async def test_cell_6(token_auth=token_auth):
-    """Test case from cell 6"""
-    domo_account = await DomoAccount_Default.get_by_id(account_id=45, auth=token_auth)
-    try:
-        print(
-            await dmce.gather_with_concurrency(
-                *[
-                    domo_account.Access.share(
-                        relation_type=ShareAccount_AccessLevel.CAN_EDIT,
-                        user_id=token_auth.user_id,
-                        debug_api=False,
-                    )
-                ],
-                n=10 ))
+if __name__ == "__main__":
+    import asyncio
 
-    except Account_Share_Error as e:
-        print(e)
+    asyncio.run(main(token_auth=token_auth))

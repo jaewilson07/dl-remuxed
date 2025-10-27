@@ -9,7 +9,10 @@ import httpx
 
 from ...client.auth import DomoAuth
 from ...routes import page as page_routes
-from ...utils import chunk_execution as dmce, convert as dmcv
+from ...utils import (
+    chunk_execution as dmce,
+    convert as dmcv,
+)
 
 
 async def get_cards(

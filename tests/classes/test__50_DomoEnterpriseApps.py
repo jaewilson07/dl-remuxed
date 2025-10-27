@@ -53,7 +53,7 @@ async def test_cell_3(token_auth=token_auth):
     domo_app = await DomoEnterpriseApp.get_by_id(
         # design_id=design_id_enterprise,
         design_id = design_id_ddx,
-        auth=auth, 
+        auth=auth,
         return_raw= False
         )
 
