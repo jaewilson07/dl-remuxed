@@ -82,7 +82,7 @@ class DomoError(Exception):
 
     @property
     def entity_str(self) -> Union[str, None]:
-        if not self.entity_id and not self.entity_str:
+        if not self.entity_id and not self.entity_name:
             return None
 
         entity_strs = [self.entity_id, self.entity_name]
