@@ -23,22 +23,37 @@ __all__ = [
     "AccountConfig",
 ]
 
-from abc import ABC, abstractmethod
-from copy import deepcopy
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any
+from typing import Any, List
 
-from ...client import exceptions as dmde
-from ...entities import entities as dmee
+from ...client.exceptions import ClassError
+from ...entities.base import DomoEnumMixin
+from ...entities.entities import DomoBase
 from ...utils import (
     DictDot as util_dd,
     convert as dmcv,
 )
 
 
+class AccountConfig_UsesOauth(ClassError):
+    def __init__(self, cls_instance, data_provider_type):
+        super().__init__(
+            cls_instance=cls_instance,
+            message=f"data provider type {data_provider_type} uses OAuth and therefore wouldn't return a Config object",
+        )
+
+
+class AccountConfig_ProviderTypeNotDefined(ClassError):
+    def __init__(self, cls_instance, data_provider_type):
+        super().__init__(
+            cls_instance=cls_instance,
+            message=f"data provider type {data_provider_type} not defined yet. Extend the AccountConfig class",
+        )
+
+
 @dataclass
-class DomoAccount_Config(dmee.DomoBase, ABC):
+class DomoAccount_Config(DomoBase):
     """DomoAccount Config abstract base class"""
 
     data_provider_type: str
@@ -46,78 +61,55 @@ class DomoAccount_Config(dmee.DomoBase, ABC):
 
     allow_external_use: bool = True
 
-    parent: Any = None  # DomoAccount
+    parent: Any = field(repr=False, default=None)  # DomoAccount
     raw: dict = field(repr=False, default=None)  # from api response
 
-    def __post_init__(self):
-        if self.raw:
-            self.extract_allow_external_use_from_raw()
+    @property
+    def allow_external_use_from_raw(self):
+        if not self.raw:
+            return None
 
-        if hasattr(self, "raise_exception"):
-            self.raise_exception()
-
-    def extract_allow_external_use_from_raw(self):
         allow_external_use = self.raw.get("allowExternalUse")
 
         if isinstance(allow_external_use, str):
             allow_external_use = dmcv.convert_string_to_bool(allow_external_use)
 
-        self.allow_external_use = allow_external_use
-
-        return self.allow_external_use
+        return allow_external_use
 
     @classmethod
     def from_parent(cls, parent, **kwargs):
         return cls(parent=parent, **kwargs)
 
     @classmethod
-    @abstractmethod
-    def from_dict(cls, obj: dict, data_provider_type: str = None, **kwargs):
+    def from_dict(cls, obj: dict, parent: Any = None, **kwargs):
         """convert accounts API response into a class object"""
-        pass
-
-    def to_dict(self, obj=None, **kwargs) -> dict:
-        return {"allowExternalUse": self.allow_external_use, **(obj or {}), **kwargs}
-
-    def to_bucket(self) -> dict:
-        keys = ["bucket", "secret_key", "access_key"]
-        return {key: getattr(self, key) for key in keys}
-
-    def to_user(self) -> dict:
-        keys = ["account", "username", "password", "role", "data_provider_type"]
-        return {key: getattr(self, key) for key in keys}
-
-
-class AccountConfig_UsesOauth(dmde.DomoError):
-    def __init__(self, data_provider_type):
-        super().__init__(
-            message=f"data provider type {data_provider_type} uses OAuth and therefore wouldn't return a Config object"
+        cls(
+            parent=parent,
+            raw=obj,
+            **kwargs,
         )
+
+    def to_dict(
+        self,
+        obj=None,
+        column_filter: List[str] = None,  # enumerate columns to include
+        **kwargs,
+    ) -> dict:
+        s = {"allowExternalUse": self.allow_external_use, **(obj or {}), **kwargs}
+
+        if column_filter:
+            return {k: v for k, v in s.items() if k in column_filter}
+
+        return s
 
 
 @dataclass
 class DomoAccount_NoConfig_OAuth(DomoAccount_Config):
-    data_provider_type: str = None
     is_oauth: bool = True
 
-    @classmethod
-    def from_dict(
-        cls, obj: dict, data_provider_type: str, parent: Any = None, **kwargs
-    ):
-        return cls.from_parent(
-            data_provider_type=data_provider_type,
-            raw=obj,
-            parent=parent,
-        )
-
-    def raise_exception(self):
-        raise AccountConfig_UsesOauth(data_provider_type=self.data_provider_type)
-
-
-class AccountConfig_ProviderTypeNotDefined(dmde.DomoError):
-    def __init__(self, data_provider_type):
-        super().__init__(
-            message=f"data provider type {data_provider_type} not defined yet. Extend the AccountConfig class"
+    def __super_init__(self):
+        raise AccountConfig_UsesOauth(
+            cls_instance=self, data_provider_type=self.data_provider_type
         )
 
 
@@ -125,17 +117,9 @@ class AccountConfig_ProviderTypeNotDefined(dmde.DomoError):
 class DomoAccount_NoConfig(DomoAccount_Config):
     is_oauth: bool = False
 
-    @classmethod
-    def from_dict(
-        cls, data_provider_type: str, obj: dict, parent: Any = None, **kwargs
-    ):
-        return cls.from_parent(
-            data_provider_type=data_provider_type, parent=parent, raw=obj
-        )
-
-    def raise_exception(self):
+    def __super_init__(self):
         raise AccountConfig_ProviderTypeNotDefined(
-            data_provider_type=self.data_provider_type
+            cls_instance=self, data_provider_type=self.data_provider_type
         )
 
 
@@ -148,13 +132,8 @@ class DomoAccount_Config_AbstractCredential(DomoAccount_Config):
     @classmethod
     def from_dict(cls, obj, parent=None, **kwargs):
         return cls.from_parent(
-            parent=parent,
-            raw=obj,
-            credentials=obj["credentials"],
+            parent=parent, raw=obj, **{"credentials": obj["credentials"], **kwargs}
         )
-
-    def to_dict(self):
-        return super().to_dict(credentials=deepcopy(self.credentials))
 
 
 @dataclass
@@ -689,7 +668,7 @@ class DomoAccount_Config_SnowflakeKeyPairAuthentication(DomoAccount_Config):
         )
 
 
-class AccountConfig(dmee.DomoEnumMixin, Enum):
+class AccountConfig(DomoEnumMixin, Enum):
     """
     Enum provides appropriate spelling for data_provider_type and config object.
     The name of the enum should correspond with the data_provider_type with hyphens replaced with underscores.

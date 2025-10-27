@@ -45,7 +45,7 @@ from ..routes.user.exceptions import (
 )
 from ..utils import DictDot
 from ..utils.convert import convert_epoch_millisecond_to_datetime, test_valid_email
-from ..utils.Image import Image, ImageUtils, are_same_image
+from ..utils.image import Image, ImageUtils, are_same_image
 
 # User route exceptions are now imported from ..routes.user.exceptions
 
@@ -143,6 +143,7 @@ class DomoUser(DomoEntity):
                 obj.get("lastActivity"),
             ),
             raw=obj,
+            Relations=None,
         )
 
     @classmethod
@@ -154,6 +155,7 @@ class DomoUser(DomoEntity):
             subscriber_domain=obj.get("subscriberDomain"),
             virtual_user_id=obj.get("virtualUserId"),
             raw=obj,
+            Relations=None,
         )
 
     @classmethod

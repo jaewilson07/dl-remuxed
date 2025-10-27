@@ -14,13 +14,13 @@ from ...routes import (
     datacenter as datacenter_routes,
 )
 from ...utils import chunk_execution as dmce
-from .Account_Credential import DomoAccount_Credential
-from .Account_Default import (
+from .account_credential import DomoAccount_Credential
+from .account_default import (
     DomoAccount_Default,
     UpsertAccount_MatchCriteria,
 )
-from .Account_OAuth import DomoAccount_OAuth
-from .Config import AccountConfig
+from .account_oauth import DomoAccount_OAuth
+from .config import AccountConfig
 
 
 @dataclass
@@ -38,6 +38,9 @@ class DomoAccount(DomoAccount_Default):
 
         if is_use_default_account_class:
             new_cls = cls
+
+        if obj.get("credentialsType") == "oauth":
+            new_cls = DomoAccount_OAuth
         else:
             new_cls = DomoAccount_Credential
 
