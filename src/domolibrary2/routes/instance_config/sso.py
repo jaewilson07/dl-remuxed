@@ -15,7 +15,7 @@ __all__ = [
     "set_sso_certificate",
 ]
 
-from typing import List
+from typing import List, Optional
 
 import httpx
 
@@ -41,7 +41,7 @@ class SSO_GET_Error(Config_GET_Error):
     def __init__(self, res: rgd.ResponseGetData, message=None):
         message = (
             message
-            or f"unable to rerieve SSO Config for {res.auth.domo_instance} - {res.response}"
+            or f"unable to rerieve SSO Config for {res.auth.domo_instance} - {res.response}"  # type: ignore
         )
         super().__init__(res=res, message=message)
 
@@ -51,7 +51,7 @@ class SSO_CRUD_Error(dmde.RouteError):
         super().__init__(
             res=res,
             message=message
-            or f"unable to update SSO Config for {res.auth.domo_instance} - {res.response}",
+            or f"unable to update SSO Config for {res.auth.domo_instance} - {res.response}",  # type: ignore
         )
 
 
@@ -60,7 +60,7 @@ async def toggle_user_direct_signon_access(
     auth: dmda.DomoAuth,
     user_id_ls: List[str],
     is_enable_direct_signon: bool = True,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     parent_class=None,
     debug_num_stacks_to_drop=1,
@@ -92,9 +92,9 @@ async def toggle_user_direct_signon_access(
 @gd.route_function
 async def get_sso_oidc_config(
     auth: dmda.DomoAuth,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
-    parent_class: str = None,
+    parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
 ):
     """Open ID Connect framework"""
@@ -119,24 +119,24 @@ async def get_sso_oidc_config(
 
 def generate_sso_oidc_body(
     is_include_undefined: bool = False,
-    login_enabled: bool = None,  # False
-    idp_enabled: bool = None,  # False
-    import_groups: bool = None,  # False
-    require_invitation: bool = None,  # False
-    enforce_allowlist: bool = None,  # False
-    skip_to_idp: bool = None,  # False
-    auth_request_endpoint: str = None,
-    token_endpoint: str = None,
-    user_info_endpoint: str = None,
-    public_key: str = None,
-    redirect_url: str = None,
-    idp_certificate: str = None,
-    override_sso: bool = None,  # False
-    override_embed: bool = None,  # False
+    login_enabled: bool = False,  # False
+    idp_enabled: bool = False,  # False
+    import_groups: bool = False,  # False
+    require_invitation: bool = False,  # False
+    enforce_allowlist: bool = False,  # False
+    skip_to_idp: bool = False,  # False
+    auth_request_endpoint: str = "",
+    token_endpoint: str = "",
+    user_info_endpoint: str = "",
+    public_key: str = "",
+    redirect_url: str = "",
+    idp_certificate: str = "",
+    override_sso: bool = False,  # False
+    override_embed: bool = False,  # False
     # "https://{domo_instance}}.domo.com/auth/oidc"
-    well_known_config: str = None,
-    assertion_endpoint: str = None,
-    ingest_attributes: bool = None,  # False
+    well_known_config: str = "",
+    assertion_endpoint: str = "",
+    ingest_attributes: bool = False,  # False
 ):
     r = {
         "loginEnabled": login_enabled,
@@ -168,9 +168,9 @@ def generate_sso_oidc_body(
 async def _update_sso_oidc_temp_config(
     auth: dmda.DomoAuth,
     body_sso: dict,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
-    parent_class: str = None,
+    parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
 ):
     """to successfully update the SSO Configuration, you must send all the parameters related to SSO Configuration"""
@@ -197,9 +197,9 @@ async def _update_sso_oidc_temp_config(
 async def _update_sso_oidc_standard_config(
     auth: dmda.DomoAuth,
     body_sso: dict,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
-    parent_class: str = None,
+    parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
 ):
     """to successfully update the SSO Configuration, you must send all the parameters related to SSO Configuration"""
@@ -233,9 +233,9 @@ async def _update_sso_oidc_standard_config(
 async def update_sso_oidc_config(
     auth: dmda.DomoAuth,
     body_sso: dict,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
-    parent_class: str = None,
+    parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
 ):
     """
@@ -265,9 +265,9 @@ async def update_sso_oidc_config(
 @gd.route_function
 async def get_sso_saml_config(
     auth: dmda.DomoAuth,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
-    parent_class: str = None,
+    parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
 ):
     """Security Assertion Markup Language"""
@@ -293,9 +293,9 @@ async def get_sso_saml_config(
 @gd.route_function
 async def get_sso_saml_certificate(
     auth: dmda.DomoAuth,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
-    parent_class: str = None,
+    parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
 ):
     res = await get_sso_saml_config(
@@ -313,17 +313,17 @@ async def get_sso_saml_certificate(
 
 def generate_sso_saml_body(
     is_include_undefined: bool = False,  # leave it as False to prevent overriding values you don't want to update
-    is_enabled: bool = None,
-    auth_request_endpoint: str = None,  # url
-    issuer: str = None,  # url
-    idp_certificate: str = None,
-    import_groups: bool = None,
-    require_invitation: bool = None,
-    enforce_allowlist: bool = None,
-    relay_state: bool = None,
-    redirect_url: str = None,  # url
-    idp_enabled: bool = None,
-    skip_to_idp: bool = None,
+    is_enabled: bool = False,
+    auth_request_endpoint: str = "",  # url
+    issuer: str = "",  # url
+    idp_certificate: str = "",
+    import_groups: bool = False,
+    require_invitation: bool = False,
+    enforce_allowlist: bool = False,
+    relay_state: bool = False,
+    redirect_url: Optional[str] = None,  # url
+    idp_enabled: bool = False,
+    skip_to_idp: bool = False,
     login_enabled=None,
     token_endpoint=None,
     user_info_endpoint=None,
@@ -337,7 +337,7 @@ def generate_sso_saml_body(
     sign_auth_request=None,
 ):
     if skip_to_idp is not None:
-        skip_to_idp = str(skip_to_idp).lower()
+        skip_to_idp = str(skip_to_idp).lower()  # type: ignore
 
     r = {
         "enabled": is_enabled,
@@ -374,9 +374,9 @@ def generate_sso_saml_body(
 async def _update_sso_saml_temp_config(
     auth: dmda.DomoAuth,
     body_sso: dict,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
-    parent_class: str = None,
+    parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
 ):
     url = f"https://{auth.domo_instance}.domo.com/api/identity/v1/authentication/saml/temp/settings"
@@ -403,9 +403,9 @@ async def _update_sso_saml_temp_config(
 async def _update_sso_saml_standard_config(
     auth: dmda.DomoAuth,
     body_sso: dict,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
-    parent_class: str = None,
+    parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
 ):
     url = f"https://{auth.domo_instance}.domo.com/api/identity/v1/authentication/saml/std/settings"
@@ -437,9 +437,9 @@ async def _update_sso_saml_standard_config(
 async def update_sso_saml_config(
     auth: dmda.DomoAuth,
     body_sso: dict,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
-    parent_class: str = None,
+    parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
 ):
     """
@@ -470,9 +470,9 @@ async def update_sso_saml_config(
 async def toggle_sso_skip_to_idp(
     auth: dmda.DomoAuth,
     is_skip_to_idp: bool,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
-    parent_class: str = None,
+    parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
 ):
     url = f"https://{auth.domo_instance}.domo.com/api/customer/v1/properties/domo.policy.sso.skip_to_idp"
@@ -499,9 +499,9 @@ async def toggle_sso_skip_to_idp(
 async def toggle_sso_custom_attributes(
     auth: dmda.DomoAuth,
     is_custom_attributes: bool,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
-    parent_class: str = None,
+    parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
 ):
     """unsure what this API does"""
@@ -531,9 +531,9 @@ async def toggle_sso_custom_attributes(
 async def set_sso_certificate(
     auth: dmda.DomoAuth,
     idp_certificate: str,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
-    parent_class: str = None,
+    parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
     return_raw: bool = False,
 ):
@@ -556,7 +556,7 @@ async def set_sso_certificate(
     if not res.is_success:
         raise SSO_CRUD_Error(res=res, message=f"API Error {res.response}")
 
-    if not res.response["isValid"]:
+    if isinstance(res.response, dict) and not res.response["isValid"]:
         raise SSO_CRUD_Error(
             res=res, message=f"Certificate Error: {res.response['message']}"
         )
