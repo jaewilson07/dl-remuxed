@@ -11,25 +11,24 @@ from ...client.auth import DomoAuth
 from ...client.exceptions import AuthError, ClassError
 from ...routes import (
     application as application_routes,
-    instance_config as instance_config_routes,
     sandbox as sandbox_routes,
 )
-from ..access_token import DomoAccessTokens
+from ...routes.instance_config import authorized_domains as authorized_domains_routes
+from ...routes.instance_config import toggle as toggle_routes
 from ..bootstrap import DomoBootstrap
-from ..DomoAccount.Account import DomoAccounts
+from ..DomoAccount.account import DomoAccounts
 from ..DomoApplication import DomoApplication
 from ..DomoDataset.connector import DomoConnectors
 from ..publish import DomoEverywhere
+from .access_token import DomoAccessTokens
 from .allowlist import DomoAllowlist
 from .api_client import ApiClients as ApiClientsClass
-from .instance_switcher import (
-    DomoInstanceConfig_InstanceSwitcher,
-)
+from .instance_switcher import InstanceSwitcher as InstanceSwitcherClass
 from .mfa import MFA_Config
 from .role import DomoRoles
 from .role_grant import DomoGrants
 from .sso import SSO, SSO_Config
-from .user_attribute import UserAttributes as UserAttributesClass
+from .user_attributes import UserAttributes as UserAttributesClass
 
 
 @dataclass
@@ -51,9 +50,7 @@ class DomoInstanceConfig:
     ApiClients: Optional[ApiClientsClass] = field(default=None)
 
     Connectors: Optional[DomoConnectors] = field(default=None)
-    InstanceSwitcher: Optional[DomoInstanceConfig_InstanceSwitcher] = field(
-        default=None
-    )
+    InstanceSwitcher: Optional[InstanceSwitcherClass] = field(default=None)
 
     Grants: Optional[DomoGrants] = field(default=None)
 
@@ -72,12 +69,17 @@ class DomoInstanceConfig:
 
         self.Connectors = DomoConnectors(auth=self.auth)
         self.Grants = DomoGrants(auth=self.auth)
-        self.InstanceSwitcher = DomoInstanceConfig_InstanceSwitcher(auth=self.auth)
+        self.InstanceSwitcher = InstanceSwitcherClass(auth=self.auth)
         self.MFA = MFA_Config(auth=self.auth)
         self.Everywhere = DomoEverywhere(auth=self.auth)
         self.UserAttributes = UserAttributesClass(auth=self.auth)
         self.Roles = DomoRoles(auth=self.auth)
-        self.SSO = SSO(auth=self.auth)
+        self.SSO = SSO_Config(
+            auth=self.auth,
+            idp_enabled=False,
+            enforce_allowlist=False,
+            idp_certificate="",
+        )
 
     async def get_applications(
         self,
@@ -142,7 +144,7 @@ class DomoInstanceConfig:
     ) -> List[str]:
         """returns a list of authorized domains (str) does not update instance_config"""
 
-        res = await instance_config_routes.get_authorized_domains(
+        res = await authorized_domains_routes.get_authorized_domains(
             auth=self.auth,
             debug_api=debug_api,
             session=session,
@@ -163,7 +165,7 @@ class DomoInstanceConfig:
         debug_num_stacks_to_drop=1,
         session: Optional[httpx.AsyncClient] = None,
     ):
-        res = await instance_config_routes.set_authorized_domains(
+        res = await authorized_domains_routes.set_authorized_domains(
             auth=self.auth,
             authorized_domain_ls=authorized_domains,
             debug_api=debug_api,
@@ -203,7 +205,7 @@ class DomoInstanceConfig:
         return_raw: bool = False,
         debug_num_stacks_to_drop=2,
     ) -> List[str]:
-        res = await instance_config_routes.get_authorized_custom_app_domains(
+        res = await authorized_domains_routes.get_authorized_custom_app_domains(
             auth=self.auth,
             debug_api=debug_api,
             session=session,
@@ -224,7 +226,7 @@ class DomoInstanceConfig:
         debug_num_stacks_to_drop=2,
         session: Optional[httpx.AsyncClient] = None,
     ):
-        res = await instance_config_routes.set_authorized_custom_app_domains(
+        res = await authorized_domains_routes.set_authorized_custom_app_domains(
             auth=self.auth,
             authorized_custom_app_domain_ls=authorized_domains,
             debug_api=debug_api,
@@ -317,7 +319,7 @@ class DomoInstanceConfig:
         Toggles whether user recieves 'You've been Domo'ed email
         """
 
-        res = await instance_config_routes.get_is_user_invite_notifications_enabled(
+        res = await toggle_routes.get_is_user_invite_notifications_enabled(
             auth=self.auth,
             session=session,
             debug_api=debug_api,
@@ -345,7 +347,7 @@ class DomoInstanceConfig:
         if is_enabled == self.is_user_invite_notification_enabled:
             return res_is_enabled
 
-        res = await instance_config_routes.toggle_is_user_invite_enabled(
+        res = await toggle_routes.toggle_is_user_invite_enabled(
             auth=self.auth,
             is_enabled=is_enabled,
             session=session,
@@ -390,7 +392,7 @@ class DomoInstanceConfig:
                     message=f"{e.__class__.__name__} -- bootstrap API requires FullAuth OR pass customer_id",
                 ) from e
 
-        res = await instance_config_routes.get_is_invite_social_users_enabled(
+        res = await toggle_routes.get_is_invite_social_users_enabled(
             auth=self.auth,
             customer_id=customer_id,
             session=session,
@@ -422,7 +424,7 @@ class DomoInstanceConfig:
             return res_is_enabled
 
         # TODO: Verify missing route
-        res = await instance_config_routes.toggle_is_invite_social_users_enabled(
+        res = await toggle_routes.toggle_is_invite_social_users_enabled(
             auth=self.auth,
             is_enabled=is_enabled,
             session=session,
@@ -447,7 +449,7 @@ class DomoInstanceConfig:
     ):
         """the weekly digest is a weekly email from Domo of changes to the instance"""
 
-        res = await instance_config_routes.get_is_weekly_digest_enabled(
+        res = await toggle_routes.get_is_weekly_digest_enabled(
             auth=self.auth,
             session=session,
             debug_api=debug_api,
@@ -487,7 +489,7 @@ class DomoInstanceConfig:
                 f"{'enabling' if is_enabled else 'disabling'} weekly digest {self.auth.domo_instance}"
             )
 
-        res = await instance_config_routes.toggle_is_weekly_digest_enabled(
+        res = await toggle_routes.toggle_is_weekly_digest_enabled(
             auth=self.auth,
             is_enabled=is_enabled,
             session=session,
@@ -513,7 +515,7 @@ class DomoInstanceConfig:
     ):
         """toggles the use of the left nav in Domo"""
 
-        res = await instance_config_routes.toggle_is_left_nav_enabled(
+        res = await toggle_routes.toggle_is_left_nav_enabled(
             auth=self.auth,
             is_use_left_nav=is_use_left_nav,
             session=session,
@@ -538,7 +540,7 @@ class DomoInstanceConfig:
     ):
         """gets the use of the left nav in Domo"""
 
-        res = await instance_config_routes.get_is_left_nav_enabled(
+        res = await toggle_routes.get_is_left_nav_enabled(
             auth=self.auth,
             session=session,
             debug_api=debug_api,

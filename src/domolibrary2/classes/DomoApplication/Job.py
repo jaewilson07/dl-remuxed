@@ -5,7 +5,7 @@ __all__ = [
     # Application route exceptions
     "Application_GET_Error",
     "ApplicationError_NoJobRetrieved",
-    "CRUD_ApplicationJob_Error",
+    "Application_CRUD_Error",
 ]
 
 import datetime as dt
@@ -20,7 +20,7 @@ from ...routes import application as application_routes
 from ...routes.application import (
     Application_GET_Error,
     ApplicationError_NoJobRetrieved,
-    CRUD_ApplicationJob_Error,
+    Application_CRUD_Error,
 )
 from .Job_Base import DomoJob_Base, DomoTrigger, DomoTrigger_Schedule
 

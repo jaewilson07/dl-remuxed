@@ -4,7 +4,7 @@ __all__ = [
     "DomoJob_Base",
     # Route exceptions
     "ApplicationError_NoJobRetrieved",
-    "CRUD_ApplicationJob_Error",
+    "Application_CRUD_Error",
 ]
 
 import datetime as dt
@@ -18,7 +18,7 @@ from ...client.entities import DomoEntity
 from ...routes import application as application_routes
 from ...routes.application import (
     ApplicationError_NoJobRetrieved,
-    CRUD_ApplicationJob_Error,
+    Application_CRUD_Error,
 )
 from ...utils import convert as cc
 
