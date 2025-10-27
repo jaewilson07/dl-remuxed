@@ -1,0 +1,15 @@
+
+log > {"level_name" : "get_data"}
+- get_data -- request parameters, request response parameters
+- get_data_stream -- request parameters request response parameters
+- looper -- log parameters (offset, limit), response num records
+
+log > {"level_name" : "route_function"} 
+    #default, but replace with function_name inside the function as we develop it
+
+log > {"level_name" : "class method"}
+    implement global logger on src > client > entities > DomoEntity
+
+domo_datset =    DomoDataset.get_by_id()
+
+
