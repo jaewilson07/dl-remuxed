@@ -16,16 +16,17 @@ Modules:
     toggle: Toggle/feature flag functions
 """
 
-from . import api_client
-from . import exceptions
-from . import allowlist
-from . import authorized_domains
-from . import instance_switcher
-from . import mfa
-from . import scheduler_policies
-from . import sso
-from . import toggle
-
+from . import (
+    allowlist,
+    api_client,
+    authorized_domains,
+    exceptions,
+    instance_switcher,
+    mfa,
+    scheduler_policies,
+    sso,
+    toggle,
+)
 
 __all__ = [
     "api_client",

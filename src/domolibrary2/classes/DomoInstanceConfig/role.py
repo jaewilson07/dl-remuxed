@@ -19,6 +19,7 @@ from ...client.exceptions import ClassError
 from ...entities.entities import DomoEntity, DomoManager
 from ...entities.relationships import DomoRelationshipController
 from ...routes import role as role_routes
+from domolibrary2.client import auth
 
 
 class SetRoleGrants_MissingGrants(ClassError):
@@ -48,7 +49,10 @@ class SearchRole_NotFound(ClassError):
 
 
 @dataclass
-class DomoRole(DomoEntity, DomoRelationshipController):
+class DomoRole(
+    DomoRelationshipController,
+    DomoEntity,
+):
     id: str
     name: str = field(default=None)
     description: Optional[str] = field(default=None)
@@ -339,7 +343,7 @@ class DomoRole(DomoEntity, DomoRelationshipController):
 
 @dataclass
 class DomoRoles(DomoManager):
-
+    default_role: DomoRole = None
     roles: List[DomoRole] = field(default=None)
 
     async def get(
@@ -437,3 +441,17 @@ class DomoRoles(DomoManager):
         await self.get()
 
         return domo_role
+
+    async def get_default_role(
+        self, debug_api=False, session=None, debug_num_stacks_to_drop=2
+    ):
+        res = await role_routes.get_default_role(
+            auth=self.auth,
+            debug_api=debug_api,
+            session=session,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        )
+
+        self.default_role = DomoRole.from_dict(obj=res.response, auth=self.auth)
+
+        return self.default_role

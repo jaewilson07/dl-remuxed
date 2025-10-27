@@ -6,9 +6,11 @@ from typing import List, Any, Optional
 
 import httpx
 
+from ...client.auth import DomoAuth
 from ...client.entities import DomoEntity, DomoManager
 from ...routes.instance_config import user_attributes as user_attribute_routes
 from ...routes.instance_config.user_attributes import (
+    UserAttributes_CRUD_Error,
     UserAttributes_GET_Error,
     UserAttributes_CRUD_Error,
 )

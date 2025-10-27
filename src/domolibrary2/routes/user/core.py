@@ -29,7 +29,7 @@ __all__ = [
 ]
 
 import asyncio
-from typing import Optional
+from typing import Optional, List
 
 import httpx
 
@@ -703,6 +703,18 @@ async def delete_user(
 
     return res
 
+
+@gd.route_function
+async def toggle_is_enable_user_direct_signon(
+    auth: DomoAuth,
+    user_ids: List[str],
+    is_allow_dso: bool = True,
+    debug_api: bool = False,
+    debug_num_stacks_to_drop=1,
+    parent_class: str = None,
+    session: httpx.AsyncClient = None,
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
     """Manage direct sign-on permissions for users.
 
     Args:

@@ -120,20 +120,21 @@ class DomoUser(DomoEntity):
 
     domo_api_clients: Optional[List[Any]] = None
     domo_access_tokens: Optional[List[Any]] = None
-    Role: Optional[Any] = None  # DomoRole
 
+    Role: Optional[Any] = None  # DomoRole
+    ApiClients: Optional[Any] = None  # DomoApiClients
+
+    @property
     def display_url(self) -> str:
         """Generate the URL to display this user in the Domo admin interface."""
         return f"https://{self.auth.domo_instance}.domo.com/admin/people/{self.id}"
 
     def __post_init__(self):
+        from .DomoInstanceConfig.api_client import ApiClients
+
         self.id = str(self.id)
 
-    def __eq__(self, other):
-        if self.__class__.__name__ != other.__class__.__name__:
-            return False
-
-        return self.id == other.id
+        self.ApiClients = ApiClients.from_parent(auth=self.auth, parent=self)
 
     @classmethod
     def from_dict(cls, auth, obj: dict):
@@ -549,9 +550,9 @@ class DomoUser(DomoEntity):
         Note : the values will be masked, raw text values can only be retrieved via the UI
         """
 
-        from .DomoInstanceConfig import ApiClient as dicli
+        from .DomoInstanceConfig.api_client import ApiClients
 
-        api_clients = dicli.ApiClients(auth=self.auth)
+        api_clients = ApiClients(auth=self.auth)
 
         res = await api_clients.get(
             session=session,

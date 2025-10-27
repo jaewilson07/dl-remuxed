@@ -15,15 +15,15 @@ __all__ = [
 ]
 
 from typing import List
+
 import httpx
 
 from ..client import (
     get_data as gd,
 )
-
 from ..client.auth import DomoAuth
-from ..client.response import ResponseGetData
 from ..client.exceptions import RouteError
+from ..client.response import ResponseGetData
 
 
 class Role_NotRetrieved(RouteError):
