@@ -24,12 +24,13 @@ from ...routes.instance_config import (
 from .mfa import MFA_Config
 from .sso import SSO as SSO_Class
 from .allowlist import DomoAllowlist
-from .api_client import ApiClients as ApiClients_Class
+from .api_client import ApiClients
 from .access_token import DomoAccessTokens
 from .instance_switcher import InstanceSwitcher
 from .role_grant import DomoGrants
 from .role import DomoRoles
-from .user_attributes import UserAttributes as UserAttributes_Class
+from .toggle import DomoToggle
+from .user_attributes import UserAttributes
 
 from ..DomoAccount import DomoAccounts
 from ..DomoPublish import DomoEverywhere
@@ -43,20 +44,13 @@ class DomoInstanceConfig:
 
     auth: DomoAuth = field(repr=False)
 
-    allowlist: list[str] = field(default_factory=list)
-
-    is_sandbox_self_instance_promotion_enabled: bool = field(default=None)
-    is_user_invite_notification_enabled: bool = field(default=None)
-    is_invite_social_users_enabled: bool = field(default=None)
-    is_use_left_nav: bool = field(default=None)
-
     Accounts: DomoAccounts = field(default=None)
     AccessTokens: DomoAccessTokens = field(default=None)
     Allowlist: DomoAllowlist = field(default=None)
-    ApiClients: ApiClients_Class = field(default=None)
+    ApiClients: ApiClients = field(default=None)
 
     Connectors: DomoConnectors = field(default=None)
-    InstanceSwitcher_InstanceSwitcher: InstanceSwitcher = field(default=None)
+    InstanceSwitcher: InstanceSwitcher = field(default=None)
 
     Grants: DomoGrants = field(default=None)
 
@@ -65,12 +59,13 @@ class DomoInstanceConfig:
 
     SSO: SSO_Class = field(default=None)
     Everywhere: DomoEverywhere = field(default=None)
-    UserAttributes: UserAttributes_Class = field(default=None)
+    UserAttributes: UserAttributes = field(default=None)
+    Toggle: DomoToggle = field(default=None)
 
     def __post_init__(self):
         self.Accounts = DomoAccounts(auth=self.auth)
         self.AccessTokens = DomoAccessTokens(auth=self.auth)
-        self.ApiClients = ApiClients_Class(auth=self.auth)
+        self.ApiClients = ApiClients(auth=self.auth)
         self.Allowlist = DomoAllowlist(auth=self.auth)
 
         self.Connectors = DomoConnectors(auth=self.auth)
@@ -78,7 +73,7 @@ class DomoInstanceConfig:
         self.InstanceSwitcher = InstanceSwitcher(auth=self.auth)
         self.MFA = MFA_Config(auth=self.auth)
         self.Everywhere = DomoEverywhere(auth=self.auth)
-        self.UserAttributes = UserAttributes_Class(auth=self.auth)
+        self.UserAttributes = UserAttributes(auth=self.auth)
         self.Roles = DomoRoles(auth=self.auth)
         self.SSO = SSO_Class(auth=self.auth)
 

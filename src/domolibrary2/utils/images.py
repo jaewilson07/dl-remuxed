@@ -41,17 +41,19 @@ from typing import Union
 
 import numpy as np
 import PIL
+
 from PIL import Image
+
 
 from .exceptions import ImageProcessingError
 
 __all__ = [
     "isBase64",
+    "Image",
     "handle_string_to_bytes_and_decode",
     "handle_string_to_bytes_and_encode",
     "are_same_image",
     "ImageUtils",
-    "Image",
 ]
 
 

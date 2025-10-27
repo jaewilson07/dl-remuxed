@@ -37,17 +37,17 @@ License: MIT
 """
 
 # Import exceptions for easy access
-# Import main utility modules
 from . import (
     DictDot,
     chunk_execution,
     compare,
     convert,
     files,
-    image,
+    images,
     read_creds_from_dotenv,
     xkcd_password,
 )
+
 
 # Import legacy exception names from convert module for backwards compatibility
 from .convert import (
@@ -84,7 +84,7 @@ __all__ = [
     "convert",
     "DictDot",
     "files",
-    "image",
+    "images",
     "read_creds_from_dotenv",
     "xkcd_password",
 ]

@@ -151,6 +151,7 @@ class DomoEntity(DomoBase):
         """
         raise NotImplementedError("This method should be implemented by subclasses.")
 
+    @property
     @abc.abstractmethod
     def display_url(self) -> str:
         """Generate the URL to display this entity in the Domo interface.

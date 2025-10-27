@@ -70,7 +70,6 @@ class MFA_CRUD_Error(Config_CRUD_Error):
         res: Optional[rgd.ResponseGetData] = None,
         message: Optional[str] = None,
     ):
-
         super().__init__(
             message=message,
             res=res,

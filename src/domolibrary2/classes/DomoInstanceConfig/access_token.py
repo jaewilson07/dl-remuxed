@@ -7,10 +7,10 @@ from typing import Any, List
 
 import httpx
 
-from ..client.auth import DomoAuth
-from ..entities.entities import DomoEntity, DomoManager
-from ..routes import access_token as access_token_routes
-from ..utils import (
+from ...client.auth import DomoAuth
+from ...entities.entities import DomoEntity, DomoManager
+from ...routes import access_token as access_token_routes
+from ...utils import (
     chunk_execution as dmce,
     convert as dmcv,
 )
@@ -58,7 +58,7 @@ class DomoAccessToken(DomoEntity):
 
     @staticmethod
     async def _get_owner(owner_id, auth: DomoAuth):
-        from . import DomoUser as dmu
+        from .. import DomoUser as dmu
 
         return await dmu.DomoUser.get_by_id(user_id=owner_id, auth=auth)
 

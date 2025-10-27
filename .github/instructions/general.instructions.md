@@ -80,7 +80,32 @@ from ...routes import user as user_routes
 from ...routes.user.exceptions import User_GET_Error
 
 # From classes to subentities
-from ..subentity import DomoTag as dmtg
+from ..subentity import DomoTags as dmtg  # Note: class name is plural
+```
+
+### User attributes imports (re-export pattern)
+User attributes are implemented in `routes/instance_config/user_attributes.py` but are re-exported via `routes/user/__init__.py`. Prefer importing from `routes.user` for simplicity:
+
+```python
+# Recommended (re-exported)
+from ...routes.user import (
+    create_user_attribute,
+    delete_user_attribute,
+    get_user_attribute_by_id,
+    get_user_attributes,
+    update_user_attribute,
+    UserAttributes_IssuerType,
+)
+
+# Alternative (direct implementation path)
+from ...routes.instance_config.user_attributes import (
+    create_user_attribute,
+    delete_user_attribute,
+    get_user_attribute_by_id,
+    get_user_attributes,
+    update_user_attribute,
+    UserAttributes_IssuerType,
+)
 ```
 
 ## Code Style
@@ -115,6 +140,9 @@ def function_name(param1: str, param2: int = 10) -> ReturnType:
         ExceptionName: When this error occurs
     """
 ```
+
+### Entity URLs
+- In classes, `display_url` MUST be a `@property` that returns the entity's Domo web URL. This matches the abstract definition in the base entity class.
 
 ## Testing Standards
 
@@ -240,7 +268,6 @@ class CustomError(DomoError):
 - [Class Validation System](../../docs/CLASS-VALIDATION-START-HERE.md)
 - [Testing Guide](../../docs/testing-guide.md)
 - [Type Hints Guide](../../docs/type-hints-implementation-guide.md)
-- [Error Design Strategy](../../docs/error-design-strategy.md)
 
 ### API Documentation:
 Generated from docstrings using Sphinx or similar tool.
