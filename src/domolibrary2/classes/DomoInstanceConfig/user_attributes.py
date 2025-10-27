@@ -2,7 +2,7 @@ __all__ = ["UserAttribute", "UserAttributes"]
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Any, Optional
 
 import httpx
 
@@ -12,8 +12,9 @@ from ...routes.instance_config import user_attributes as user_attribute_routes
 from ...routes.instance_config.user_attributes import (
     UserAttributes_CRUD_Error,
     UserAttributes_GET_Error,
-    UserAttributes_IssuerType,
+    UserAttributes_CRUD_Error,
 )
+from ...client.auth import DomoAuth
 
 
 @dataclass
@@ -25,7 +26,7 @@ class UserAttribute(DomoEntity):
     name: str
     description: str
 
-    issuer_type: UserAttributes_IssuerType
+    issuer_type: user_attribute_routes.UserAttributes_IssuerType
     customer_id: str
     value_type: str
 
@@ -43,13 +44,15 @@ class UserAttribute(DomoEntity):
         return f"https://{self.auth.domo_instance}.domo.com/admin/governance/attribute-management"
 
     @classmethod
-    def from_dict(cls, obj, auth):
+    def from_dict(cls, auth: DomoAuth, obj: dict[str, Any]):
         return cls(
             auth=auth,
             id=obj["key"],
             name=obj["title"],
             description=obj["description"],
-            issuer_type=UserAttributes_IssuerType(obj["keyspace"]),
+            issuer_type=user_attribute_routes.UserAttributes_IssuerType(
+                obj["keyspace"]
+            ),
             customer_id=obj["context"],
             value_type=obj["valueType"],
             validator=obj["validator"],
@@ -63,15 +66,15 @@ class UserAttribute(DomoEntity):
     async def get_by_id(
         cls,
         auth: DomoAuth,
-        attribute_id: str,
-        session: httpx.AsyncClient = None,
+        entity_id: str,
+        session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
         return_raw: bool = False,
     ):
         res = await user_attribute_routes.get_user_attribute_by_id(
             auth=auth,
-            attribute_id=attribute_id,
+            entity_id=entity_id,
             session=session,
             debug_api=debug_api,
             parent_class=cls.__name__,
@@ -86,10 +89,10 @@ class UserAttribute(DomoEntity):
         self,
         name=None,
         description=None,
-        issuer_type: UserAttributes_IssuerType = None,
-        data_type: str = None,
+        issuer_type: Optional[user_attribute_routes.UserAttributes_IssuerType] = None,
+        data_type: Optional[str] = None,
         security_voter=None,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
     ):
@@ -107,7 +110,7 @@ class UserAttribute(DomoEntity):
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         )
 
-        new = await UserAttribute.get_by_id(attribute_id=self.id, auth=self.auth)
+        new = await UserAttribute.get_by_id(entity_id=self.id, auth=self.auth)
 
         [setattr(self, key, value) for key, value in new.__dict__.items()]
 
@@ -118,10 +121,10 @@ async def update(
     self: UserAttribute,
     name=None,
     description=None,
-    issuer_type: UserAttributes_IssuerType = None,
-    data_type: str = None,
+    issuer_type: Optional[user_attribute_routes.UserAttributes_IssuerType] = None,
+    data_type: Optional[str] = None,
     security_voter=None,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=2,
 ):
@@ -139,7 +142,7 @@ async def update(
         debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
-    new = await UserAttribute.get_by_id(attribute_id=self.id, auth=self.auth)
+    new = await UserAttribute.get_by_id(entity_id=self.id, auth=self.auth)
 
     [setattr(self, key, value) for key, value in new.__dict__.items()]
 
@@ -150,14 +153,14 @@ async def update(
 class UserAttributes(DomoManager):
     auth: DomoAuth = field(repr=False)
 
-    attributes: List[UserAttribute] = field(default=None)
+    attributes: List[UserAttribute] = field(default_factory=list)
 
     async def get(
         self,
         issuer_type_ls: List[
-            UserAttributes_IssuerType
-        ] = None,  # use `UserAttributes_IssuerType` enum
-        session: httpx.AsyncClient = None,
+            user_attribute_routes.UserAttributes_IssuerType
+        ] = [],  # use `UserAttributes_IssuerType` enum
+        session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
         return_raw: bool = False,
@@ -188,8 +191,10 @@ class UserAttributes(DomoManager):
         description=f"updated via domolibrary {dt.datetime.now().strftime('%Y-%m-%d - %H:%M')}",
         data_type: str = "ANY_VALUE",
         security_voter="FULL_VIS_ADMIN_IDP",
-        issuer_type: UserAttributes_IssuerType = UserAttributes_IssuerType.CUSTOM,
-        session: httpx.AsyncClient = None,
+        issuer_type: Optional[
+            user_attribute_routes.UserAttributes_IssuerType
+        ] = user_attribute_routes.UserAttributes_IssuerType.CUSTOM,
+        session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
         return_raw: bool = False,
@@ -216,7 +221,7 @@ class UserAttributes(DomoManager):
         if return_raw:
             return res
 
-        return await UserAttribute.get_by_id(auth=auth, attribute_id=attribute_id)
+        return await UserAttribute.get_by_id(auth=auth, entity_id=attribute_id)
 
 
 async def create(
@@ -226,8 +231,10 @@ async def create(
     description=f"updated via domolibrary {dt.datetime.now().strftime('%Y-%m-%d - %H:%M')}",
     data_type: str = "ANY_VALUE",
     security_voter="FULL_VIS_ADMIN_IDP",
-    issuer_type: UserAttributes_IssuerType = UserAttributes_IssuerType.CUSTOM,
-    session: httpx.AsyncClient = None,
+    issuer_type: Optional[
+        user_attribute_routes.UserAttributes_IssuerType
+    ] = user_attribute_routes.UserAttributes_IssuerType.CUSTOM,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=2,
     return_raw: bool = False,
@@ -254,7 +261,7 @@ async def create(
     if return_raw:
         return res
 
-    return await UserAttribute.get_by_id(auth=auth, attribute_id=attribute_id)
+    return await UserAttribute.get_by_id(auth=auth, entity_id=attribute_id)
 
 
 async def upsert(
@@ -262,10 +269,10 @@ async def upsert(
     attribute_id,
     name=None,
     description=None,
-    issuer_type: UserAttributes_IssuerType = None,
-    data_type: str = None,
+    issuer_type: Optional[user_attribute_routes.UserAttributes_IssuerType] = None,
+    data_type: Optional[str] = None,
     security_voter=None,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=2,
     debug_prn: bool = False,
@@ -277,7 +284,7 @@ async def upsert(
 
     try:
         user_attribute = await UserAttribute.get_by_id(
-            attribute_id=attribute_id,
+            entity_id=attribute_id,
             auth=auth,
             session=session,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
@@ -308,10 +315,11 @@ async def upsert(
         return await self.create(
             attribute_id=attribute_id,
             name=name,
-            description=description,
-            issuer_type=issuer_type or UserAttributes_IssuerType.CUSTOM,
-            data_type=data_type,
-            security_voter=security_voter,
+            description=description or "",
+            issuer_type=issuer_type
+            or user_attribute_routes.UserAttributes_IssuerType.CUSTOM,
+            data_type=data_type or "",
+            security_voter=security_voter or "",
             session=session,
             debug_api=debug_api,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
@@ -324,7 +332,7 @@ async def upsert(
 async def delete(
     self: UserAttributes,
     attribute_id: str,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=2,
     return_raw: bool = False,

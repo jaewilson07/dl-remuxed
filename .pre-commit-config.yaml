@@ -55,3 +55,28 @@ repos:
             args: ["-c", "pyproject.toml", "-ll"]
             files: ^src/
             fail_fast: false
+
+    # # Type checking
+    # - repo: https://github.com/pre-commit/mirrors-mypy
+    #   rev: v1.11.2
+    #   hooks:
+    #       - id: mypy
+    #         additional_dependencies: [types-requests]
+    #         args:
+    #             [
+    #                 --ignore-missing-imports,
+    #                 --namespace-packages,
+    #                 --explicit-package-bases,
+    #             ]
+    #         files: ^src/
+
+    # Testing (commented out due to import issues)
+    # - repo: local
+    #   hooks:
+    #     - id: pytest
+    #       name: pytest
+    #       entry: python -m pytest
+    #       language: system
+    #       pass_filenames: false
+    #       args: [tests/]
+    #       stages: [pre-push]

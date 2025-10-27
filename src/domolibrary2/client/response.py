@@ -36,7 +36,7 @@ class ResponseGetData:
     """preferred response class for all API Requests"""
 
     status: int
-    response: Any
+    response: dict[str, Any] | str | list[Any]
     is_success: bool
 
     request_metadata: Optional[RequestMetadata] = field(default=None)

@@ -62,7 +62,16 @@ class SchedulerPolicy_GET_Error(Config_GET_Error):
             else:
                 message = "Failed to retrieve scheduler policies"
 
-        super().__init__(message=message, res=res, **kwargs)
+        super().__init__(
+            message=message,
+            res=res
+            or rgd.ResponseGetData(
+                status=500,
+                response="Failed to retrieve scheduler policies",
+                is_success=False,
+            ),
+            **kwargs,
+        )
 
 
 class SchedulerPolicy_CRUD_Error(Config_CRUD_Error):
@@ -84,7 +93,16 @@ class SchedulerPolicy_CRUD_Error(Config_CRUD_Error):
         if not message:
             message = f"Scheduler policy {operation} operation failed, {entity_id}"
 
-        super().__init__(message=message, res=res, **kwargs)
+        super().__init__(
+            message=message,
+            res=res
+            or rgd.ResponseGetData(
+                status=500,
+                response=f"Scheduler policy {operation} operation failed, {entity_id}",
+                is_success=False,
+            ),
+            **kwargs,
+        )
 
 
 class SearchSchedulerPolicy_NotFound(Config_GET_Error):
@@ -106,7 +124,12 @@ class SearchSchedulerPolicy_NotFound(Config_GET_Error):
         self.search_criteria = search_criteria
         super().__init__(
             message=message,
-            res=res,
+            res=res
+            or rgd.ResponseGetData(
+                status=404,
+                response=f"No scheduler policies found matching: {search_criteria}",
+                is_success=False,
+            ),
             **kwargs,
         )
 
@@ -156,7 +179,11 @@ async def get_scheduler_policies(
     if return_raw:
         return res
 
-    if res.status == 403 and res.response.startswith("Forbidden"):
+    if (
+        res.status == 403
+        and isinstance(res.response, str)
+        and res.response.startswith("Forbidden")
+    ):
         raise SchedulerPolicy_GET_Error(
             res=res,
             message="error retrieving permissions, is the feature switch enabled?",
