@@ -14,65 +14,45 @@ __all__ = [
     "role_membership_add_users",
 ]
 
+from typing import List
+
 import httpx
 
 from ..client import (
-    auth as dmda,
-    exceptions as de,
     get_data as gd,
-    response as rgd,
 )
+from ..client.auth import DomoAuth
+from ..client.exceptions import RouteError
+from ..client.response import ResponseGetData
 
 
-class Role_NotRetrieved(de.DomoError):
+class Role_NotRetrieved(RouteError):
     def __init__(
         self,
-        domo_instance,
-        function_name,
-        status,
-        message,
-        role_id=None,
-        parent_class=None,
+        res: ResponseGetData,
+        message=None,
     ):
-        super().__init__(
-            domo_instance=domo_instance,
-            entity_id=role_id,
-            function_name=function_name,
-            status=status,
-            message=message,
-            parent_class=parent_class,
-        )
+        super().__init__(res=res, message=message)
 
 
 # | export
-class Role_CRUD_Error(de.DomoError):
+class Role_CRUD_Error(RouteError):
     def __init__(
         self,
-        domo_instance,
-        function_name,
-        status,
-        message,
-        role_id=None,
-        parent_class=None,
+        res: ResponseGetData,
+        message=None,
     ):
-        super().__init__(
-            domo_instance=domo_instance,
-            entity_id=role_id,
-            function_name=function_name,
-            status=status,
-            message=message,
-            parent_class=parent_class,
-        )
+        super().__init__(res=res, message=message)
 
 
 @gd.route_function
 async def get_roles(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
-) -> rgd.ResponseGetData:
+) -> ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/authorization/v1/roles"
 
     res = await gd.get_data(
@@ -86,26 +66,20 @@ async def get_roles(
     )
 
     if not res.is_success:
-        raise Role_NotRetrieved(
-            domo_instance=auth.domo_instance,
-            function_name=res.traceback_details.function_name,
-            status=res.status,
-            message=res.response,
-            parent_class=parent_class,
-        )
+        raise Role_NotRetrieved(res=res)
 
     return res
 
 
 @gd.route_function
 async def get_role_by_id(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     role_id: str,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
     parent_class: str = None,
-) -> rgd.ResponseGetData:
+) -> ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/authorization/v1/roles/{role_id}"
 
     res = await gd.get_data(
@@ -120,11 +94,7 @@ async def get_role_by_id(
 
     if not res.is_success:
         raise Role_NotRetrieved(
-            domo_instance=auth.domo_instance,
-            function_name=res.traceback_details.function_name,
-            status=res.status,
-            message=res.response,
-            parent_class=parent_class,
+            res=res,
         )
 
     return res
@@ -132,13 +102,13 @@ async def get_role_by_id(
 
 @gd.route_function
 async def get_role_grants(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     role_id: str,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
     parent_class: str = None,
-) -> rgd.ResponseGetData:
+) -> ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/authorization/v1/roles/{role_id}/authorities"
 
     res = await gd.get_data(
@@ -158,11 +128,8 @@ async def get_role_grants(
 
         if not domo_role:
             raise Role_NotRetrieved(
-                domo_instance=auth.domo_instance,
-                function_name=res.traceback_details.function_name,
+                res=res,
                 message=f"role {role_id} does not exist",
-                status=res.status,
-                parent_class=parent_class,
             )
 
     return res
@@ -170,14 +137,14 @@ async def get_role_grants(
 
 @gd.route_function
 async def get_role_membership(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     role_id: str,
     session: httpx.AsyncClient = None,
     return_raw: bool = False,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
-) -> rgd.ResponseGetData:
+) -> ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/authorization/v1/roles/{role_id}/users"
 
     res = await gd.get_data(
@@ -199,11 +166,8 @@ async def get_role_membership(
 
         if not domo_role:
             raise Role_NotRetrieved(
-                domo_instance=auth.domo_instance,
-                function_name=res.traceback_details.function_name,
+                res=res,
                 message=f"role {role_id} does not exist or cannot be retrieved",
-                status=res.status,
-                parent_class=parent_class,
             )
 
     if return_raw:
@@ -216,14 +180,14 @@ async def get_role_membership(
 
 @gd.route_function
 async def create_role(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     name: str,
     description: str,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
-) -> rgd.ResponseGetData:
+) -> ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/authorization/v1/roles"
 
     body = {"name": name, "description": description}
@@ -240,26 +204,21 @@ async def create_role(
     )
 
     if not res.is_success:
-        raise Role_CRUD_Error(
-            domo_instance=auth.domo_instance,
-            function_name=res.traceback_details.function_name,
-            status=res.status,
-            message=res.response,
-        )
+        raise Role_CRUD_Error(res=res)
 
     return res
 
 
 @gd.route_function
 async def delete_role(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     role_id: int,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
     return_raw: bool = False,
-) -> rgd.ResponseGetData:
+) -> ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/authorization/v1/roles/{role_id}"
 
     res = await gd.get_data(
@@ -283,10 +242,7 @@ async def delete_role(
 
     if not res.is_success:
         raise Role_CRUD_Error(
-            domo_instance=auth.domo_instance,
-            function_name=res.traceback_details.function_name,
-            status=res.status,
-            message=res.response,
+            res=res,
         )
 
     return res
@@ -316,12 +272,7 @@ async def get_default_role(
     )
 
     if not res.is_success:
-        raise Role_NotRetrieved(
-            domo_instance=auth.domo_instance,
-            function_name=res.traceback_details.function_name,
-            status=res.status,
-            message=res.response,
-        )
+        raise Role_NotRetrieved(res=res)
 
     res.response = res.response.get("value")
 
@@ -330,13 +281,13 @@ async def get_default_role(
 
 @gd.route_function
 async def set_default_role(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     role_id: str,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class=None,
-) -> rgd.ResponseGetData:
+) -> ResponseGetData:
     # url = f"https://{auth.domo_instance}.domo.com/api/content/v1/customer-states/user.roleid.default"
     # body = {"name": "user.roleid.default", "value": role_id}
 
@@ -355,19 +306,14 @@ async def set_default_role(
     )
 
     if not res.is_success:
-        raise Role_CRUD_Error(
-            domo_instance=auth.domo_instance,
-            function_name=res.traceback_details.function_name,
-            status=res.status,
-            message=res.response,
-        )
+        raise Role_CRUD_Error(res=res)
 
     return res
 
 
 @gd.route_function
 async def update_role_metadata(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     role_id,
     role_name,
     role_description: str = None,
@@ -402,39 +348,37 @@ async def update_role_metadata(
         res.is_success = True
 
     if not res.is_success:
-        raise Role_CRUD_Error(
-            domo_instance=auth.domo_instance,
-            function_name=res.traceback_details.function_name,
-            status=res.status,
-            message=res.response,
-        )
+        raise Role_CRUD_Error(res=res)
 
     return res
 
 
 @gd.route_function
 async def set_role_grants(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     role_id: str,
-    role_grant_ls: list[str],
+    grants: list[str],
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
     return_raw: bool = False,
-) -> rgd.ResponseGetData:
+) -> ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/authorization/v1/roles/{role_id}/authorities"
 
     res = await gd.get_data(
         auth=auth,
         url=url,
         method="PUT",
-        body=role_grant_ls,
+        body=grants,
         session=session,
         debug_api=debug_api,
         parent_class=parent_class,
         num_stacks_to_drop=debug_num_stacks_to_drop,
     )
+
+    if return_raw:
+        return res
 
     if res.status == 400 and res.response == "Bad Request":
         print(
@@ -443,33 +387,28 @@ async def set_role_grants(
         res.is_success = True
 
     if not res.is_success:
-        raise Role_CRUD_Error(
-            domo_instance=auth.domo_instance,
-            function_name=res.traceback_details.function_name,
-            status=res.status,
-            message=res.response,
-        )
+        raise Role_CRUD_Error(res=res)
 
     return res
 
 
 @gd.route_function
 async def role_membership_add_users(
-    auth: dmda.DomoAuth,
+    auth: DomoAuth,
     role_id: str,
-    user_list: list[str],  # list of user ids
+    user_ids: List[str],  # list of user ids
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
-) -> rgd.ResponseGetData:
+) -> ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/authorization/v1/roles/{role_id}/users"
 
     res = await gd.get_data(
         auth=auth,
         url=url,
         method="PUT",
-        body=user_list,
+        body=user_ids,
         session=session,
         debug_api=debug_api,
         num_stacks_to_drop=debug_num_stacks_to_drop,
@@ -477,11 +416,6 @@ async def role_membership_add_users(
     )
 
     if not res.is_success:
-        raise Role_CRUD_Error(
-            domo_instance=auth.domo_instance,
-            function_name=res.traceback_details.function_name,
-            status=res.status,
-            message=res.response,
-        )
+        raise Role_CRUD_Error(res=res)
 
     return res

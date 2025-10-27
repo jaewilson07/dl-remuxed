@@ -11,7 +11,7 @@ organized into three main categories:
 All user-related functionality is accessible through this unified interface.
 """
 
-from .attributes import (  # Attribute functions
+from ..instance_config.user_attributes import (  # Attribute functions
     UserAttributes_IssuerType,
     clean_attribute_id,
     create_user_attribute,
