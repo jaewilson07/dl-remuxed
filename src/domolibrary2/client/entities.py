@@ -38,7 +38,7 @@ from enum import Enum
 from typing import Any, Callable, Optional
 
 from ..utils.convert import convert_snake_to_pascal
-from . import auth as dmda
+from .auth import DomoAuth
 
 
 class DomoEnumMixin:
@@ -177,7 +177,7 @@ class DomoEntity(DomoBase):
         'https://mycompany.domo.com/...'
     """
 
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
     id: str
     raw: dict = field(repr=False)  # api representation of the class
 
@@ -222,7 +222,7 @@ class DomoEntity(DomoBase):
 
     @classmethod
     @abc.abstractmethod
-    async def get_by_id(cls, auth: dmda.DomoAuth, entity_id: str):
+    async def get_by_id(cls, auth: DomoAuth, entity_id: str):
         """Fetch an entity by its unique identifier.
 
         This method should be implemented by subclasses to handle entity-specific
@@ -270,14 +270,14 @@ class DomoEntity_w_Lineage(DomoEntity):
 
     def __post_init__(self):
         """Initialize lineage tracking after entity creation."""
-        from ..classes.subentity import DomoLineage as dmdl
+        from ..classes.subentity import DomoLineage
 
         # Using protected method until public interface is available
-        self.lineage = dmdl.DomoLineage.from_parent(auth=self.auth, parent=self)
+        self.lineage = DomoLineage.from_parent(auth=self.auth, parent=self)
 
     @classmethod
     @abc.abstractmethod
-    async def _get_entity_by_id(cls, auth: dmda.DomoAuth, entity_id: str):
+    async def _get_entity_by_id(cls, auth: DomoAuth, entity_id: str):
         """Fetch an entity by its ID with lineage support.
 
         This method should be implemented by subclasses to fetch the specific
@@ -417,7 +417,7 @@ class DomoManager(DomoBase):
         auth (DomoAuth): Authentication object for API requests (not shown in repr)
     """
 
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
 
     @abc.abstractmethod
     async def get(self, *args, **kwargs):
@@ -450,7 +450,7 @@ class DomoSubEntity(DomoBase):
         parent_id (str): ID of the parent entity
     """
 
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
     parent: Any
     parent_id: str
 
@@ -486,7 +486,7 @@ class Entity_Relation:
         relation_type (str): Type of relationship (e.g., 'OWNER', 'MEMBER', 'ADMIN')
     """
 
-    auth: dmda.DomoAuth = field(repr=False)
+    auth: DomoAuth = field(repr=False)
     entity: Any  # DomoUser or DomoGroup
     relation_type: str
 

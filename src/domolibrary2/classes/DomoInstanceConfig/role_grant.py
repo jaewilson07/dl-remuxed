@@ -52,7 +52,7 @@ class DomoGrants:
 
     async def get(
         self,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
         return_raw: bool = False,
     ):

@@ -65,7 +65,7 @@ class AppDbDocument:
 
         if self._identity_columns:
             return all(
-                getattr(self, col) == getattr(other.col)
+                getattr(self, col) == getattr(other, col)
                 for col in self._identity_columns
             )
 
@@ -132,9 +132,9 @@ class AppDbDocument:
 
     async def update_document(
         self,
-        content: dict = None,
+        content: Optional[dict] = None,
         debug_api: bool = False,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         debug_num_stacks_to_drop=1,
         return_raw: bool = False,
     ):
@@ -163,7 +163,7 @@ class AppDbDocument:
         collection_id,
         content: dict,
         identity_columns: List[str],
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         debug_api=False,
         debug_num_stacks_to_drop=3,
         return_raw: bool = False,
@@ -580,9 +580,9 @@ class AppDbCollections:
     async def get_collections(
         cls,
         auth: DomoAuth,
-        datastore_id: str = None,
+        datastore_id: Optional[str] = None,
         debug_api: bool = False,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         debug_num_stacks_to_drop=1,
         return_raw: bool = False,
     ):

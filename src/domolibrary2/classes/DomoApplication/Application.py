@@ -7,39 +7,40 @@ from typing import List, Optional
 import httpx
 import pandas as pd
 
-from ..routes import application as application_routes
-from ..utils import (
+from ...client.auth import DomoAuth
+from ...routes import application as application_routes
+from ...utils import (
     DictDot as util_dd,
     convert as cc,
 )
 from . import Job as dmdj
 
+# @jaewilson07 — DomoJob_RemoteDomoStats and DomoJob_Watchdog does not exist.
+# class DomoJob_Types(Enum):
+#     REMOTE_DOMO_STATS = dmdj.DomoJob_RemoteDomoStats
+#     DATA_WATCHDOG = dmdj.DomoJob_Watchdog
 
-class DomoJob_Types(Enum):
-    REMOTE_DOMO_STATS = dmdj.DomoJob_RemoteDomoStats
-    DATA_WATCHDOG = dmdj.DomoJob_Watchdog
+#     default = dmdj.DomoJob
 
-    default = dmdj.DomoJob
+#     @staticmethod
+#     def _convert_api_name_to_member_name(api_name):
+#         return (
+#             cc.convert_str_to_snake_case(api_name, is_only_alphanumeric=True)
+#             .upper()
+#             .replace("TOOLKIT_", "")
+#         )
 
-    @staticmethod
-    def _convert_api_name_to_member_name(api_name):
-        return (
-            cc.convert_str_to_snake_case(api_name, is_only_alphanumeric=True)
-            .upper()
-            .replace("TOOLKIT_", "")
-        )
+#     @classmethod
+#     def get_from_api_name(cls, api_name):
+#         member_name = cls._convert_api_name_to_member_name(api_name)
 
-    @classmethod
-    def get_from_api_name(cls, api_name):
-        member_name = cls._convert_api_name_to_member_name(api_name)
+#         if member_name not in cls.__members__:
+#             return cls["default"].value
 
-        if member_name not in cls.__members__:
-            return cls["default"].value
-
-        return cls[member_name].value
+#         return cls[member_name].value
 
 
-DomoJob_Types.get_from_api_name("Toolkit: Remote Domo Stat")
+# DomoJob_Types.get_from_api_name("Toolkit: Remote Domo Stat")
 
 
 @dataclass
