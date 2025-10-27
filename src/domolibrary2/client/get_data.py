@@ -1,10 +1,10 @@
 __all__ = [
-    "GetData_Error",
+    "GetDataError",
     "get_data",
     "get_data_stream",
     "LooperError",
     "looper",
-    "RouteFunction_ResponseTypeError",
+    "RouteFunctionResponseTypeError",
     "route_function",
 ]
 
@@ -12,34 +12,25 @@ import json
 import time
 from functools import wraps
 from pprint import pprint
-from typing import Any, Callable, Optional, Tuple, Union
+from typing import Any, Callable, Optional, Union
 
 import httpx
-
-# import dc_logger
 from dc_logger.client.base import Logger, get_global_logger
 from dc_logger.client.decorators import log_call
 
 from ..utils import chunk_execution as dmce
 from . import (
-    Logger as dl,
     auth as dmda,
     response as rgd,
 )
 from .exceptions import DomoError
-
-logger: Logger = get_global_logger()
-# assert logger, "A global logger must be set before using get_data functions."
-
-import dc_logger
-from dc_logger.client.base import get_global_logger, Logger
-from dc_logger.client.decorators import log_call
+from .Logger import get_traceback
 
 logger: Logger = get_global_logger()
 assert logger, "A global logger must be set before using get_data functions."
 
 
-class GetData_Error(DomoError):
+class GetDataError(DomoError):
     def __init__(self, message, url):
         super().__init__(message=message, domo_instance=url)
 
@@ -75,7 +66,7 @@ def create_headers(
 
 def create_httpx_session(
     session: Optional[httpx.AsyncClient] = None, is_verify: bool = False
-) -> Tuple[httpx.AsyncClient, bool]:
+) -> tuple[httpx.AsyncClient, bool]:
     """Creates or reuses an asynchronous HTTPX session.
 
     Args:
@@ -140,15 +131,6 @@ async def get_data(
     if debug_api:
         print(request_metadata.to_dict())
 
-    if logger:
-        await logger.info(
-            message=request_metadata.to_dict(),
-            extra={"level_name": "get_data"},
-        )
-
-    if debug_api:
-        print(request_metadata.to_dict())
-
     await logger.info(
         message=request_metadata.to_dict(),
         extra={"level_name": "get_data"},
@@ -159,7 +141,7 @@ async def get_data(
     if parent_class:
         additional_information["parent_class"] = parent_class
     if debug_traceback:
-        traceback_details = dl.get_traceback(
+        traceback_details = get_traceback(
             num_stacks_to_drop=num_stacks_to_drop,
             root_module="<module>",
             parent_class=parent_class or "",
@@ -307,7 +289,7 @@ async def get_data_stream(
     if parent_class:
         additional_information["parent_class"] = parent_class
 
-    traceback_details = dl.get_traceback(
+    traceback_details = get_traceback(
         num_stacks_to_drop=num_stacks_to_drop,
         root_module="<module>",
         parent_class=parent_class or "",
@@ -328,7 +310,7 @@ async def get_data_stream(
         )
 
     try:
-        async with session or httpx.AsyncClient(verify=False) as client:
+        async with session or httpx.AsyncClient(verify=is_verify) as client:
             async with client.stream(
                 method,
                 url=url,
@@ -369,9 +351,6 @@ async def get_data_stream(
                     await logger.info(message=res_obj.to_dict())
                 return res_obj
 
-                    await logger.info(message=res.to_dict())
-                    return res
-
             content = bytearray()
             async for chunk in res.aiter_bytes():
                 content += chunk
@@ -388,10 +367,8 @@ async def get_data_stream(
 
             return res_obj
 
-                await logger.info(message=res.to_dict())
-
     except httpx.TransportError as e:
-        raise GetData_Error(url=url, message=e) from e
+        raise GetDataError(url=url, message=e) from e
 
 
 class LooperError(DomoError):
@@ -457,15 +434,15 @@ async def looper(
 
     session, is_close_session = create_httpx_session(session, is_verify=is_verify)
 
-    allRows = []
-    isLoop = True
+    all_rows = []
+    is_loop = True
 
     res: Optional[rgd.ResponseGetData] = None
 
     if maximum and maximum <= limit and not loop_until_end:
         limit = maximum
 
-    while isLoop:
+    while is_loop:
         params = fixed_params or {}
 
         if offset_params_in_body:
@@ -496,17 +473,6 @@ async def looper(
         if debug_loop:
             print(f"\n🚀 Retrieving records {skip} through {skip + limit} via {url}")
             # pprint(params)
-
-        if logger:
-            await logger.info(
-                message={
-                    "action": "looper_request",
-                    "params": params,
-                    "body": body,
-                    "skip": skip,
-                    "limit": limit,
-                }
-            )
 
         await logger.info(
             message={
@@ -543,29 +509,24 @@ async def looper(
             return res
 
         try:
-            newRecords = arr_fn(res)
+            new_records = arr_fn(res)
 
         except Exception as e:
             await session.aclose()
 
             logger.error(f"Error processing arr_fn: {e}")
 
-
-            logger.error(f"Error processing arr_fn: {e}")
-
             raise LooperError(loop_stage="processing arr_fn", message=str(e)) from e
 
-        allRows += newRecords
+        all_rows += new_records
 
-        if len(newRecords) == 0:
-            isLoop = False
+        if len(new_records) == 0:
+            is_loop = False
 
-        if maximum and len(allRows) >= maximum and not loop_until_end:
-            isLoop = False
+        if maximum and len(all_rows) >= maximum and not loop_until_end:
+            is_loop = False
 
-        message = f"🐛 Looper iteration complete: {{'all_rows': {len(allRows)}, 'new_records': {len(newRecords)}, 'skip': {skip}, 'limit': {limit}}}"
-        
-        message = f"🐛 Looper iteration complete: {{'all_rows': {len(allRows)}, 'new_records': {len(newRecords)}, 'skip': {skip}, 'limit': {limit}}}"
+        message = f"🐛 Looper iteration complete: {{'all_rows': {len(all_rows)}, 'new_records': {len(new_records)}, 'skip': {skip}, 'limit': {limit}}}"
 
         if debug_loop:
             print(message)
@@ -574,13 +535,13 @@ async def looper(
             await logger.info(message=message)
 
         if maximum and skip + limit > maximum and not loop_until_end:
-            limit = maximum - len(allRows)
+            limit = maximum - len(all_rows)
 
-        skip += len(newRecords)
+        skip += len(new_records)
         time.sleep(wait_sleep)
 
     if debug_loop:
-        message = f"\n🎉 Success - {len(allRows)} records retrieved from {url} in query looper\n"
+        message = f"\n🎉 Success - {len(all_rows)} records retrieved from {url} in query looper\n"
 
     if logger:
         await logger.info(message=message)
@@ -593,10 +554,10 @@ async def looper(
             status=500, response="No response received", is_success=False
         )
 
-    return await rgd.ResponseGetData.from_looper(res=res, array=allRows)
+    return await rgd.ResponseGetData.from_looper(res=res, array=all_rows)
 
 
-class RouteFunction_ResponseTypeError(TypeError):
+class RouteFunctionResponseTypeError(TypeError):
     def __init__(self, result):
         super().__init__(
             f"Expected function to return an instance of ResponseGetData got {type(result)} instead.  Refactor function to return ResponseGetData class"
@@ -633,7 +594,6 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
         session: Optional[httpx.AsyncClient] = None,
         **kwargs: Any,
     ) -> Any:
-
         result = await func(
             *args,
             parent_class=parent_class,
@@ -644,7 +604,7 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
         )
 
         if not isinstance(result, rgd.ResponseGetData):
-            raise RouteFunction_ResponseTypeError(result)
+            raise RouteFunctionResponseTypeError(result)
 
         return result
 
