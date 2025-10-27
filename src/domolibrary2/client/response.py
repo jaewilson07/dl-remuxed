@@ -4,7 +4,7 @@ __all__ = ["STREAM_FILE_PATH", "ResponseGetData", "find_ip"]
 
 import re
 from dataclasses import dataclass, field
-from typing import Any, List, Optional
+from typing import Any, List, Optional, List
 
 import httpx
 import requests
@@ -36,7 +36,7 @@ class ResponseGetData:
     """preferred response class for all API Requests"""
 
     status: int
-    response: Any
+    response: dict[str, Any] | str | list[Any]
     is_success: bool
 
     request_metadata: Optional[RequestMetadata] = field(default=None)

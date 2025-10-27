@@ -3,7 +3,7 @@
 __all__ = ["DomoPage"]
 
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Optional
 
 import httpx
 
@@ -15,17 +15,17 @@ from ...utils import (
     chunk_execution as dmce,
 )
 from .. import (
-    DomoPage_Content as dmpg_c,
     DomoUser as dmu,
 )
-from ..subentity import DomoLineage as dmdl
+from ..subentity import DomoLineage
+from . import DomoPage_Content as dmpg_c
 
 
 @dataclass
 class DomoPage(DomoEntity_w_Lineage):
     id: int
     auth: DomoAuth = field(repr=False)
-    Lineage: dmdl.DomoLineage = field(repr=False)
+    Lineage: Optional[DomoLineage] = field(repr=False, default=None)
 
     title: str = None
     top_page_id: int = None

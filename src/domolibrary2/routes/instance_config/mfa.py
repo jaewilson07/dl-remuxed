@@ -25,7 +25,7 @@ __all__ = [
     "set_mfa_num_days_valid",
 ]
 
-from typing import Optional
+from typing import Any, Optional
 
 import httpx
 
@@ -47,7 +47,7 @@ class MFA_GET_Error(Config_GET_Error):
 
     def __init__(
         self,
-        res: Optional[rgd.ResponseGetData] = None,
+        res: rgd.ResponseGetData,
         message: Optional[str] = None,
         **kwargs,
     ):
@@ -67,12 +67,11 @@ class MFA_CRUD_Error(Config_CRUD_Error):
 
     def __init__(
         self,
-        res: Optional[rgd.ResponseGetData] = None,
+        res: rgd.ResponseGetData,
         message: Optional[str] = None,
     ):
         super().__init__(
-            message=message,
-            res=res,
+            res=res, message=message or "Failed to update MFA configuration"
         )
 
 
@@ -192,7 +191,7 @@ async def get_mfa_config(
         >>> print(f"MFA Required: {config['is_multifactor_required']}")
         >>> print(f"Valid for {config['num_days_valid']} days")
     """
-    params = {"ignoreCache": True}
+    params: dict[str, Any] = {"ignoreCache": True}
 
     state_ls = []
 
@@ -229,7 +228,9 @@ async def get_mfa_config(
             message=f"Failed to retrieve MFA configuration settings from {auth.domo_instance}",
         )
 
-    new_obj = {obj["name"]: obj["value"] for obj in res.response}
+    new_obj = {
+        obj["name"]: obj["value"] for obj in res.response if isinstance(obj, dict)
+    }
 
     is_multifactor_required = (
         True if new_obj.get("domo.policy.multifactor.required") == "yes" else False
@@ -292,6 +293,11 @@ async def set_mfa_max_code_attempts(
 
     if not max_code_attempts > 0:
         raise MFA_CRUD_Error(
+            res=rgd.ResponseGetData(
+                status=400,
+                response="max_code_attempts must be greater than 0. Unable to set MFA max code attempts",
+                is_success=False,
+            ),
             message="max_code_attempts must be greater than 0. Unable to set MFA max code attempts",
         )
 
@@ -371,6 +377,11 @@ async def set_mfa_num_days_valid(
 
     if not num_days_valid > 0:
         raise MFA_CRUD_Error(
+            res=rgd.ResponseGetData(
+                status=400,
+                response="num_days_valid must be greater than 0. Unable to set days before MFA expires",
+                is_success=False,
+            ),
             message="num_days_valid must be greater than 0. Unable to set days before MFA expires",
         )
 

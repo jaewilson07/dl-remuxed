@@ -1,6 +1,7 @@
 __all__ = [
     "InstanceSwitcher_Mapping",
     "InstanceSwitcher",
+    # Route exceptions
     "InstanceSwitcher_GET_Error",
     "InstanceSwitcher_CRUD_Error",
 ]

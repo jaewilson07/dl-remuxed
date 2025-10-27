@@ -38,7 +38,7 @@ class DomoAllowlist:
     """
 
     auth: DomoAuth = field(repr=False)
-    allowlist: Optional[List[str]] = None
+    allowlist: List[str] = field(default_factory=list)
     is_filter_all_traffic_enabled: Optional[bool] = None
     raw: dict = field(default_factory=dict, repr=False)
 
@@ -70,7 +70,7 @@ class DomoAllowlist:
         return_raw: bool = False,
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
     ) -> list[str]:
         """
         retrieves the allowlist for an instance
@@ -88,7 +88,7 @@ class DomoAllowlist:
         if return_raw:
             return res
 
-        self.allowlist = res.response
+        self.allowlist = [str(s) for s in res.response]
 
         return self.allowlist
 
@@ -99,7 +99,7 @@ class DomoAllowlist:
         debug_api: bool = False,
         debug_prn: bool = False,
         debug_num_stacks_to_drop=2,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
     ):
         for ip in ip_address_ls:
             try:
@@ -140,7 +140,7 @@ class DomoAllowlist:
         is_suppress_errors: bool = False,
         debug_api: bool = False,
         debug_prn: bool = False,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
     ) -> List[str]:
         """
         adds an IP or CIDR to the allowlist
@@ -167,7 +167,7 @@ class DomoAllowlist:
         ip_address_ls: str,
         debug_prn: bool = False,
         debug_api: bool = False,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         is_suppress_errors: bool = False,
     ) -> List[str]:
         """
@@ -194,7 +194,7 @@ class DomoAllowlist:
         self,
         debug_api: bool = False,
         return_raw: bool = False,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
     ) -> bool:
         """
         retrieves whether the "filter all traffic" setting is enabled
@@ -211,7 +211,7 @@ class DomoAllowlist:
         if return_raw:
             return res
 
-        self.is_filter_all_traffic_enabled = res.response["is_enabled"]
+        self.is_filter_all_traffic_enabled = bool(res.response["is_enabled"])
 
         return self.is_filter_all_traffic_enabled
 
@@ -221,7 +221,7 @@ class DomoAllowlist:
         debug_api: bool = False,
         debug_prn: bool = False,
         return_raw: bool = False,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
     ) -> bool:
         """
         retrieves whether the "filter all traffic" setting is enabled
@@ -233,7 +233,7 @@ class DomoAllowlist:
             if debug_prn:
                 print("no action required")
 
-            return self.is_filter_all_traffic_enabled
+            return bool(self.is_filter_all_traffic_enabled)
 
         res = await allowlist_routes.toggle_allowlist_is_filter_all_traffic_enabled(
             auth=self.auth,
@@ -249,4 +249,4 @@ class DomoAllowlist:
 
         self.is_filter_all_traffic_enabled = res.response["is_enabled"]
 
-        return self.is_filter_all_traffic_enabled
+        return bool(self.is_filter_all_traffic_enabled)
