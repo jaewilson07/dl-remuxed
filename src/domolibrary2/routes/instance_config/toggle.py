@@ -1,6 +1,7 @@
 __all__ = [
     "ToggleConfig_CRUD_Error",
     "get_is_invite_social_users_enabled",
+    "toggle_is_invite_social_users_enabled",
     "get_is_user_invite_notifications_enabled",
     "toggle_is_user_invite_enabled",
     "get_is_weekly_digest_enabled",
@@ -18,11 +19,8 @@ from ...client import (
     get_data as gd,
     response as rgd,
 )
-
 from ...client.auth import DomoAuth
-
 from ...utils.convert import convert_string_to_bool
-
 from .exceptions import Config_CRUD_Error, Config_GET_Error
 
 
@@ -65,6 +63,62 @@ async def get_is_invite_social_users_enabled(
         )
 
     res.response = {"name": "free-invite", "is_enabled": res.response["enabled"]}
+
+    return res
+
+
+@gd.route_function
+async def toggle_is_invite_social_users_enabled(
+    auth: DomoAuth,
+    customer_id: str,
+    is_enabled: bool,
+    session: httpx.AsyncClient = None,
+    debug_api: bool = False,
+    return_raw: bool = False,
+    parent_class=None,
+    debug_num_stacks_to_drop=1,
+) -> rgd.ResponseGetData:
+    """
+    Toggle whether social users can be invited to the instance.
+
+    Args:
+        auth: Authentication object
+        customer_id: Customer ID for the instance
+        is_enabled: True to enable social user invites, False to disable
+        session: Optional httpx session
+        debug_api: Enable debug output
+        return_raw: Return raw response without processing
+        parent_class: Name of calling class
+        debug_num_stacks_to_drop: Stack frames to drop in error messages
+
+    Returns:
+        ResponseGetData with the updated configuration
+    """
+    url = f"https://{auth.domo_instance}.domo.com/api/content/v3/customers/{customer_id}/features/free-invite"
+
+    body = {"enabled": is_enabled}
+
+    res = await gd.get_data(
+        auth=auth,
+        url=url,
+        method="PUT",
+        body=body,
+        session=session,
+        debug_api=debug_api,
+        parent_class=parent_class,
+        num_stacks_to_drop=debug_num_stacks_to_drop,
+    )
+
+    if return_raw:
+        return res
+
+    if not res.is_success:
+        raise ToggleConfig_CRUD_Error(
+            res=res,
+            message=f"Failed to toggle social user invites to {is_enabled}",
+        )
+
+    res.response = {"name": "free-invite", "is_enabled": is_enabled}
 
     return res
 
