@@ -43,6 +43,8 @@ from ..client import (
 from ..client.auth import DomoAuth
 from ..client.exceptions import RouteError
 
+from dc_logger.client.base import Logger
+
 
 class AccessToken_GET_Error(RouteError):
     """

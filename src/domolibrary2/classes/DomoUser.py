@@ -64,8 +64,8 @@ class DomoUser_NoSearch(ClassError):
     def __init__(
         self,
         cls_instance,
-        domo_instance: str,
         message: str = "No users found matching search criteria",
+        domo_instance: str = None,
     ):
         super().__init__(
             cls_instance=cls_instance,
@@ -211,7 +211,7 @@ class DomoUser(DomoEntity):
     async def get_by_id(
         cls,
         auth: DomoAuth,
-        id: str,
+        user_id: str,
         return_raw: bool = False,
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
@@ -236,7 +236,7 @@ class DomoUser(DomoEntity):
 
         res = await user_routes.get_by_id(
             auth=auth,
-            id=id,
+            user_id=user_id,
             debug_api=debug_api,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
             session=session,
@@ -395,7 +395,7 @@ class DomoUser(DomoEntity):
         elif send_password_reset_email and domo_user:
             await domo_user.request_password_reset(
                 domo_instance=auth.domo_instance,
-                email=domo_user.email_address or "",
+                email=domo_user.email_address,
                 session=session,
                 debug_api=debug_api,
             )
@@ -640,8 +640,8 @@ class DomoUsers(DomoManager):
 
     @staticmethod
     def _util_match_domo_users_to_emails(
-        domo_users: list[DomoUser], user_email_ls: list[str]
-    ) -> list:
+        domo_users: List[DomoUser], user_email_ls: List[str]
+    ) -> List[DomoUser]:
         """pass in an array of user emails to match against an array of Domo User"""
 
         return [
@@ -654,8 +654,8 @@ class DomoUsers(DomoManager):
 
     @staticmethod
     def _util_match_users_obj_to_emails(
-        user_ls: list[dict], user_email_ls: list[str]
-    ) -> list:
+        user_ls: List[dict], user_email_ls: List[str]
+    ) -> List:
         """pass in an array of user emails to match against an array of Domo User"""
 
         return [
@@ -692,7 +692,7 @@ class DomoUsers(DomoManager):
 
     async def search_by_email(
         self,
-        email: Union[str, list],
+        email: Union[str, List[str]],
         only_allow_one: bool = True,
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
@@ -740,7 +740,7 @@ class DomoUsers(DomoManager):
 
     async def search_by_id(
         self,
-        user_ids: list[str],  # can search for one or multiple users
+        user_ids: List[str],  # can search for one or multiple users
         suppress_no_results_error: bool = False,
         only_allow_one: bool = True,
         debug_num_stacks_to_drop=2,
@@ -829,7 +829,7 @@ class DomoUsers(DomoManager):
 
         try:
             # Type narrowing: when only_allow_one=True and successful, returns DomoUser
-            result = await self.search_by_email(
+            domo_user: DomoUser = await self.search_by_email(
                 email=email_address,
                 only_allow_one=True,
                 debug_api=debug_api,
@@ -838,10 +838,10 @@ class DomoUsers(DomoManager):
             )
 
             # Type guard to ensure we have a DomoUser instance
-            if not isinstance(result, DomoUser):
-                raise ValueError(f"Expected DomoUser, got {type(result)}")
+            if not isinstance(domo_user, DomoUser):
+                raise ValueError(f"Expected DomoUser, got {type(domo_user)}")
 
-            domo_user = result
+            domo_user = domo_user
 
             property_ls = []
             if display_name:

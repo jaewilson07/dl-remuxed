@@ -9,7 +9,7 @@ __all__ = [
 
 
 import httpx
-from typing import Optional
+from typing import Optional, List
 
 from ...client import (
     auth as dmda,
@@ -24,9 +24,14 @@ from .exceptions import Config_GET_Error
 
 class Allowlist_UnableToUpdate(dmde.RouteError):
     def __init__(self, res: rgd.ResponseGetData, reason: str = "", message: str = ""):
+        if reason:
+            reason_str = f"unable to update allowlist: {reason}"
+            if message:
+                message += f" | {reason_str}"
+
         super().__init__(
             res=res,
-            message=message or f"unable to update allowlist: {reason}",
+            message=message,
         )
 
 
@@ -72,7 +77,7 @@ async def get_allowlist(
 @gd.route_function
 async def set_allowlist(
     auth: DomoAuth,
-    ip_address_ls: list[str],
+    ip_address_ls: List[str],
     debug_api: bool = False,
     return_raw: bool = False,
     session: Optional[httpx.AsyncClient] = None,

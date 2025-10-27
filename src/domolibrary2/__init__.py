@@ -7,8 +7,15 @@ __version__ = "0.0.1-alpha"
 # from domolibrary2.routes.user import get_user
 # from domolibrary2.classes.DomoUser import DomoUser
 
+from . import client, routes, utils, classes, integrations
+
 
 # Define what gets imported with "from domolibrary2 import *"
 __all__ = [
     "__version__",
+    # "classes",
+    # "integrations",
+    # "client",
+    # "routes",
+    # "utils",
 ]
