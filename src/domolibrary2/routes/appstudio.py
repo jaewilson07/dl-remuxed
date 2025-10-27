@@ -15,8 +15,12 @@ from typing import List, Optional
 
 import httpx
 
+from ..client import (
+    exceptions as dmde,
+    get_data as gd,
+    response as rgd,
+)
 from ..client.auth import DomoAuth
-from ..client import exceptions as dmde, get_data as gd, response as rgd
 
 
 class AppStudio_GET_Error(dmde.RouteError):

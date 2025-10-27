@@ -6,13 +6,8 @@ the building blocks for all Domo entities and relationships.
 """
 
 import abc
-from dataclasses import dataclass, field, fields
+from dataclasses import dataclass, fields
 from enum import Enum
-from typing import Any, Optional, Callable, List, TYPE_CHECKING
-
-
-from ..utils.convert import convert_snake_to_pascal
-from ..client import auth as dmda
 
 
 class DomoEnumMixin:

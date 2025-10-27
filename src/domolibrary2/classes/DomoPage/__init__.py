@@ -41,15 +41,15 @@ __all__ = [
     "Page_NoAccess",
 ]
 
-# Import exceptions
-from .exceptions import DomoPage_GetRecursive, Page_NoAccess
+# Import and attach functionality modules
+from . import access, content, management
 
 # Import core classes
 from .core import DomoPage
-from .management import DomoPages
 
-# Import and attach functionality modules
-from . import access, content, management
+# Import exceptions
+from .exceptions import DomoPage_GetRecursive, Page_NoAccess
+from .management import DomoPages
 
 # Attach methods to DomoPage class
 DomoPage.test_page_access = access.test_page_access

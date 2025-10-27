@@ -16,8 +16,8 @@ from typing import Any
 
 import httpx
 
-from ...entities import entities as dmee
 from ...client.auth import DomoAuth
+from ...entities.base import DomoEnumMixin
 from ...routes import account as account_routes
 from ...routes.account.exceptions import (
     Account_Config_Error,
@@ -25,15 +25,15 @@ from ...routes.account.exceptions import (
     Account_GET_Error,
     Account_NoMatch,
 )
-from . import (
-    Account_Default as dmacb,
-    Config as dmacnfg,
-)
-from ..subentity.DomoAccess import DomoAccess_OAuth
+from .access import DomoAccess_OAuth
+
+# Import base account module directly to avoid package-level circular imports
+from .account_default import DomoAccount_Default
+from .config import DomoAccount_Config
 
 
 @dataclass
-class DomoAccountOAuth_Config_SnowflakeOauth(dmacnfg.DomoAccount_Config):
+class DomoAccountOAuth_Config_SnowflakeOauth(DomoAccount_Config):
     data_provider_type: str = "snowflake-oauth-config"
     is_oauth: bool = True
 
@@ -54,7 +54,7 @@ class DomoAccountOAuth_Config_SnowflakeOauth(dmacnfg.DomoAccount_Config):
 
 
 @dataclass
-class DomoAccountOAuth_Config_JiraOnPremOauth(dmacnfg.DomoAccount_Config):
+class DomoAccountOAuth_Config_JiraOnPremOauth(DomoAccount_Config):
     data_provider_type: str = "jira-on-prem-oauth-config"
     is_oauth: bool = True
 
@@ -74,29 +74,16 @@ class DomoAccountOAuth_Config_JiraOnPremOauth(dmacnfg.DomoAccount_Config):
         return {"client_id": self.client_id, "client_secret": self.secret}
 
 
-class OAuthConfig(dmee.DomoEnumMixin, Enum):
+class OAuthConfig(DomoEnumMixin, Enum):
     snowflake_oauth_config = DomoAccountOAuth_Config_SnowflakeOauth
 
     jira_on_prem_oauth_config = DomoAccountOAuth_Config_JiraOnPremOauth
 
-    @classmethod
-    def _missing_(cls, value):
-        alt_search_str = cls.generate_alt_search_str(value)
-
-        config_match = next(
-            (member for member in cls if member.name in [value, alt_search_str]),
-            None,
-        )
-
-        ## best case scenario alt_search yields a result
-        if not config_match:
-            raise dmacnfg.AccountConfig_ProviderTypeNotDefined(value)
-
-        return config_match
+    default = None
 
 
 @dataclass
-class DomoAccount_OAuth(dmacb.DomoAccount_Default):
+class DomoAccount_OAuth(DomoAccount_Default):
     Access: DomoAccess_OAuth = field(repr=False, default=None)
 
     def __post_init__(self):
@@ -108,7 +95,7 @@ class DomoAccount_OAuth(dmacb.DomoAccount_Default):
         return_raw: bool = False,
         debug_api: bool = None,
         debug_num_stacks_to_drop=2,
-        is_suppress_no_config: bool = False,
+        is_suppress_no_config: bool = True,
     ):
         """Retrieve OAuth account configuration.
 
@@ -155,29 +142,9 @@ class DomoAccount_OAuth(dmacb.DomoAccount_Default):
         if return_raw:
             return res
 
-        config_fn = OAuthConfig(self.data_provider_type).value
+        config: DomoAccount_Config = OAuthConfig(self.data_provider_type).value
 
-        if not is_suppress_no_config and not config_fn.is_defined_config:
-            raise config_fn._associated_exception(self.data_provider_type)
-
-        self.Config = config_fn.from_dict(res.response)
-
-        if self.Config and self.Config.to_dict() != {}:
-            if not res.response:
-                print(self.data_provider_type, "no response")
-
-            if not self.Config.to_dict():
-                print(
-                    self.id,
-                    self.data_provider_type,
-                    "no config",
-                    self.Config.to_dict(),
-                    res.response,
-                )
-
-            self._test_missing_keys(
-                res_obj=res.response, config_obj=self.Config.to_dict()
-            )
+        self.Config = config.from_dict(obj=res.response, parent=self)
 
         return self.Config
 

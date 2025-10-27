@@ -48,7 +48,10 @@ from typing import Optional, Union
 
 import httpx
 
-from ..client import get_data as gd, response as rgd
+from ..client import (
+    get_data as gd,
+    response as rgd,
+)
 from ..client.auth import DomoAuth
 from ..client.exceptions import RouteError
 
@@ -96,6 +99,20 @@ class SearchApplication_NotFound(RouteError):
             message=message,
             res=res,
             **kwargs,
+        )
+
+
+class ApplicationError_NoJobRetrieved(RouteError):
+    def __init__(
+        self,
+        res: rgd.ResponseGetData,
+        application_id=None,
+    ):
+        message = f"no jobs retrieved from application - {application_id}"
+
+        super().__init__(
+            message=message,
+            res=res,
         )
 
 
@@ -256,27 +273,7 @@ async def get_application_by_id(
     return res
 
 
-class ApplicationError_NoJobRetrieved(DomoError):
-    def __init__(
-        self,
-        domo_instance,
-        application_id=None,
-        parent_class=None,
-        function_name=None,
-    ):
-        message = f"no jobs retrieved from application - {application_id}"
-
-        super().__init__(
-            message=message,
-            parent_class=parent_class,
-            function_name=function_name,
-            domo_instance=domo_instance,
-        )
-
-
-gd.route_function
-
-
+@gd.route_function
 async def get_application_jobs(
     auth: DomoAuth,
     application_id: str,
@@ -306,10 +303,8 @@ async def get_application_jobs(
 
     if not res.is_success:
         raise ApplicationError_NoJobRetrieved(
-            domo_instance=auth.domo_instance,
+            res=res,
             application_id=application_id,
-            parent_class=parent_class,
-            function_name=res.traceback_details.function_name,
         )
 
     return res
@@ -338,12 +333,8 @@ async def get_application_job_by_id(
     )
 
     if not res.is_success:
-        raise ApplicationError_NoneRetrieved(
-            domo_instance=auth.domo_instance,
-            application_id=application_id,
-            parent_class=parent_class,
-            function_name=res.traceback_details.function_name,
-            job_id=job_id,
+        raise Application_GET_Error(
+            res=res,
         )
 
     return res
@@ -390,7 +381,6 @@ def generate_body_watchdog_generic(
     schedule_ls: list,
     watchdog_parameter_body: dict,
     execution_timeout=1440,
-    debug_api: bool = False,
 ):
     body = {
         "jobName": job_name,
@@ -408,27 +398,7 @@ def generate_body_watchdog_generic(
         "triggers": schedule_ls,
     }
 
-    if debug_api:
-        pprint(body)
-
     return body
-
-
-class CRUD_ApplicationJob_Error(DomoError):
-    def __init__(
-        self, domo_instance, application_id, message, parent_class, function_name
-    ):
-        super().__init__(
-            self,
-            domo_instance=domo_instance,
-            entity_id=application_id,
-            parent_class=parent_class,
-            function_name=function_name,
-            message=message,
-        )
-
-
-# create the new RemoteDomostats job
 
 
 @gd.route_function
@@ -458,13 +428,7 @@ async def create_application_job(
     )
 
     if not res.is_success:
-        raise CRUD_ApplicationJob_Error(
-            domo_instance=auth.domo_instance,
-            application_id=application_id,
-            message=res.response,
-            parent_class=parent_class,
-            function_name=res.traceback_details.function_name,
-        )
+        raise Application_CRUD_Error(res=res, operation="POST")
 
     return res
 
@@ -498,13 +462,7 @@ async def update_application_job(
     )
 
     if not res.is_success:
-        raise CRUD_ApplicationJob_Error(
-            domo_instance=auth.domo_instance,
-            application_id=application_id,
-            message=res.response,
-            parent_class=parent_class,
-            function_name=res.traceback_details.function_name,
-        )
+        raise Application_CRUD_Error(res=res, operation="PUT")
 
     return res
 
@@ -535,13 +493,7 @@ async def update_application_job_trigger(
     )
 
     if not res.is_success:
-        raise CRUD_ApplicationJob_Error(
-            domo_instance=auth.domo_instance,
-            application_id=application_id,
-            message=res.response,
-            parent_class=parent_class,
-            function_name=res.traceback_details.function_name,
-        )
+        raise Application_CRUD_Error(res=res, operation="PUT")
 
     return res
 
@@ -570,13 +522,7 @@ async def execute_application_job(
     )
 
     if not res.is_success:
-        raise CRUD_ApplicationJob_Error(
-            domo_instance=auth.domo_instance,
-            application_id=application_id,
-            message=res.response,
-            parent_class=parent_class,
-            function_name=res.traceback_details.function_name,
-        )
+        raise Application_CRUD_Error(res=res, operation="POST")
 
     return res
 

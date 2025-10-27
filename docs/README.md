@@ -1,134 +1,206 @@
-# Documentation Index
+# Domolibrary2 Documentation
 
-Welcome to the Domo Library documentation! This directory contains comprehensive guides for developers working with and contributing to the library.
+Welcome to the domolibrary2 documentation! This directory contains guides, references, and instructions for working with the Domo library.
 
-## 📚 Core Documentation
+## 📚 Table of Contents
 
-### For Contributors
+### Getting Started
+- [Project Instructions](../.github/instructions/) - Copilot-readable standards
 
-- **[Route Refactoring Dashboard](./route-refactoring-dashboard.md)** - Quick visual status of the refactoring project
-- **[Route Refactoring Progress](./route-refactoring-progress.md)** - Detailed progress tracking for route refactoring
-- **[Error Design Strategy](./error-design-strategy.md)** - Comprehensive error handling guidelines
-- **[Route Refactoring Guide](./route-refactoring-guide.md)** - Step-by-step refactoring instructions
-- **[Route Standards](../.github/instructions/routes.instructions.md)** - Required patterns for all route functions
+### Class Validation System ⭐ **New!**
+Complete system for systematically validating and testing all classes:
 
-### Specialized Topics
+- **[📖 Start Here](./CLASS-VALIDATION-START-HERE.md)** - Quick start (5 minutes)
+- **[📋 Quick Reference](./class-validation-quick-reference.md)** - Cheat sheet for fast lookup
+- **[📘 Comprehensive Guide](./class-validation-guide.md)** - Detailed instructions with examples
+- **[🔧 System Overview](./class-validation-system-overview.md)** - Complete system documentation
 
-- **[Route Splitting Strategy](./route-splitting-strategy.md)** - Guidelines for splitting large route files
-- **[CodeEngine Refactoring Summary](./codeengine-refactoring-summary.md)** - Example of successful refactoring
+**Tools:**
+- [Issue Generator Script](../scripts/generate-class-validation-issues.py) - Generate validation issues
+- [Issue Template](../.github/ISSUE_TEMPLATE/class-validation.md) - GitHub issue template
+- [Generated Issues](../EXPORTS/issues/) - Ready-to-import issue files
 
-## 🎯 Quick Start for Contributors
+### Architecture & Design
+- [Error Design Strategy](./error-design-strategy.md)
+- [Route Refactoring Guide](./route-refactoring-guide.md)
+- [Route Splitting Strategy](./route-splitting-strategy.md)
+- [CodeEngine Refactoring Summary](./codeengine-refactoring-summary.md)
+- [Type Hints Implementation Guide](./type-hints-implementation-guide.md)
 
-### Working on Route Refactoring
+### Development Guides
+- [Copilot Instructions](./COPILOT_INSTRUCTIONS.md)
+- [Publishing](./PUBLISHING.md)
+- [Pre-commit Troubleshooting](./pre-commit-troubleshooting.md)
+- [Route Repair Implementation Plan](./route-repair-implementation-plan.md)
 
-1. **Check Current Status**: Review the [Dashboard](./route-refactoring-dashboard.md) for what needs work
-2. **Follow Standards**: Read [Route Standards](../.github/instructions/routes.instructions.md) for required patterns
-3. **Reference Guide**: Use [Refactoring Guide](./route-refactoring-guide.md) for step-by-step instructions
-4. **Error Design**: Follow [Error Design Strategy](./error-design-strategy.md) for exception classes
+## 🚀 Quick Start
 
-### Understanding the Project
+### For New Contributors
 
-```
-Project Status: 47.6% Complete
-- Phase 1 (Simple Routes): 55.6% done
-- Phase 2 (Medium Routes): 0% done
-- Phase 3 (Complex Routes): 66.7% done
-```
+1. **Setup Development Environment**
+   ```powershell
+   # Follow the development setup guide
+   code DEV-SETUP.md
+   ```
 
-See [Route Refactoring Progress](./route-refactoring-progress.md) for details.
+2. **Start Validating Classes**
+   ```powershell
+   # Read the 5-minute quick start
+   code docs/CLASS-VALIDATION-START-HERE.md
+   
+   # Generate issues for high-priority classes
+   python scripts/generate-class-validation-issues.py --priority high
+   ```
 
-## 📖 Documentation Structure
+3. **Run Tests**
+   ```powershell
+   # Run all tests
+   pytest
+   
+   # Run specific test file
+   pytest tests/classes/DomoUser.py -v
+   ```
 
-### Error Handling
+### For Experienced Contributors
 
-The library uses a hierarchical error system:
+1. **Reference the Quick Guide**
+   ```powershell
+   code docs/class-validation-quick-reference.md
+   ```
 
-```
-DomoError (base)
-├── RouteError (API route/endpoint errors)
-├── ClassError (Class instance errors)  
-└── AuthError (Authentication-specific errors)
-```
+2. **Generate and Import Issues**
+   ```powershell
+   # Generate all issues
+   python scripts/generate-class-validation-issues.py
+   
+   # Bulk import to GitHub
+   gh issue create --body-file "EXPORTS/issues/issue_DomoDataset.md"
+   ```
 
-Each route module defines standard error classes:
-- `{Module}_GET_Error` - Retrieval failures
-- `Search{Module}_NotFound` - Empty search results
-- `{Module}_CRUD_Error` - Create/update/delete failures
-- `{Module}Sharing_Error` - Permission/sharing issues
+3. **Follow the Patterns**
+   - Structure: See `src/domolibrary2/classes/DomoUser.py`
+   - Tests: See `tests/classes/DomoUser.py`
+   - Routes: See `src/domolibrary2/routes/user/`
 
-See [Error Design Strategy](./error-design-strategy.md) for complete details.
+## 📋 Documentation by Topic
 
-### Route Function Standards
+### Class Development
+- **Validation System**: [Start Here](./CLASS-VALIDATION-START-HERE.md) → [Quick Reference](./class-validation-quick-reference.md) → [Comprehensive Guide](./class-validation-guide.md)
+- **Type Hints**: [Implementation Guide](./type-hints-implementation-guide.md)
+- **Error Handling**: [Error Design Strategy](./error-design-strategy.md)
 
-All route functions must include:
+### Route Development
+- **Route Functions**: [Refactoring Guide](./route-refactoring-guide.md)
+- **Route Organization**: [Splitting Strategy](./route-splitting-strategy.md)
+- **Route Repair**: [Implementation Plan](./route-repair-implementation-plan.md)
 
-1. `@gd.route_function` decorator
-2. `return_raw: bool = False` parameter
-3. Immediate return check: `if return_raw: return res`
-4. Proper error handling with specific exception classes
-5. Complete docstrings with Args/Returns/Raises
+### Testing
+- **Test Patterns**: [Testing Guide](./testing-guide.md)
+- **Test Examples**: [DomoUser Tests](../tests/classes/DomoUser.py)
+- **Test Harness**: [Test Harness](../tests/test_harness.py)
 
-See [Route Standards](../.github/instructions/routes.instructions.md) for the complete pattern.
+### Project Management
+- **Publishing**: [Publishing Guide](./PUBLISHING.md)
+- **Pre-commit**: [Troubleshooting](./pre-commit-troubleshooting.md)
+- **AI Assistance**: [Copilot Instructions](./COPILOT_INSTRUCTIONS.md)
 
-## 🔗 Related Resources
+## 🎯 Current Focus: Class Validation
 
-### GitHub
+We're systematically validating all classes to ensure:
+- ✅ Proper inheritance from entity base classes
+- ✅ Delegation to route functions (no API logic in classes)
+- ✅ Composition using subentities
+- ✅ Comprehensive test coverage
+- ✅ Complete documentation
 
-- [Milestone Issue #30](https://github.com/jaewilson07/dl-remuxed/issues/30) - Project tracking
-- [Open Issues](https://github.com/jaewilson07/dl-remuxed/issues) - All refactoring issues
-- [Repository](https://github.com/jaewilson07/dl-remuxed) - Source code
+### Priority Classes
+1. DomoUser (reference implementation)
+2. DomoDataset
+3. DomoCard
+4. DomoPage
+5. DomoGroup
 
-### Examples
+**Get started**: [Class Validation Start Here](./CLASS-VALIDATION-START-HERE.md)
 
-Best examples of refactored code:
-- `src/domolibrary2/routes/access_token.py` - Perfect template for simple routes
-- `src/domolibrary2/routes/pdp.py` - Standard error classes with backward compatibility
-- `src/domolibrary2/routes/codeengine/` - Submodule structure example
-- `src/domolibrary2/routes/page/` - Complex route split into submodules
+## 🔧 Tools & Scripts
 
-## 📝 Contributing
+Located in `scripts/`:
+- `generate-class-validation-issues.py` - Create validation issues for all classes
+- `check-type-hints.py` - Check type hint coverage
+- `check-route-syntax.py` - Validate route function syntax
+- `format-code.ps1` - Format code with black and isort
+- `test.ps1` - Run test suite
 
-When contributing to the refactoring effort:
+## 📊 Project Status
 
-1. **Pick an Issue**: Choose from [open refactoring issues](https://github.com/jaewilson07/dl-remuxed/issues?q=is%3Aissue+is%3Aopen+label%3Arefactoring)
-2. **Follow Standards**: Use the patterns in [Route Standards](../.github/instructions/routes.instructions.md)
-3. **Test Thoroughly**: Ensure backward compatibility
-4. **Update Docs**: Update the [Progress Tracker](./route-refactoring-progress.md)
+### Completed
+- ✅ Route function refactoring
+- ✅ Error design strategy implementation
+- ✅ Type hints implementation guide
+- ✅ Class validation system (NEW!)
 
-## 🎓 Learning Resources
+### In Progress
+- 🔄 Class validation across all entities
+- 🔄 Test coverage improvement
+- 🔄 Documentation updates
 
-### Understanding the Codebase
+### Planned
+- 📋 Complete API coverage
+- 📋 Performance optimization
+- 📋 Integration examples
 
-1. Start with [Error Design Strategy](./error-design-strategy.md) to understand the error hierarchy
-2. Read [Route Standards](../.github/instructions/routes.instructions.md) for function patterns
-3. Study `access_token.py` as a perfect template
-4. Review [Route Refactoring Guide](./route-refactoring-guide.md) for practical steps
+## 🆘 Getting Help
 
-### Best Practices
+### Quick Answers
+1. **Class Validation**: Check [Quick Reference](./class-validation-quick-reference.md)
+2. **Code Patterns**: See [DomoUser.py](../src/domolibrary2/classes/DomoUser.py)
+3. **Test Patterns**: See [DomoUser Tests](../tests/classes/DomoUser.py)
+4. **Route Patterns**: Check [Route Refactoring Guide](./route-refactoring-guide.md)
 
-- Maintain backward compatibility with legacy error classes
-- Use type hints consistently
-- Write comprehensive docstrings
-- Separate concerns in submodules for complex routes
-- Follow naming conventions strictly
+### Detailed Help
+1. **Comprehensive Guide**: [Class Validation Guide](./class-validation-guide.md)
+2. **Error Design**: [Error Strategy](./error-design-strategy.md)
+3. **Testing**: [Testing Guide](./testing-guide.md)
 
-## 🚀 Current Focus
+### Support Channels
+- **GitHub Issues**: For bugs and feature requests
+- **GitHub Discussions**: For questions and discussions
+- **Documentation**: For guides and references
 
-**Immediate Priorities:**
+## 📝 Contributing to Documentation
 
-1. Complete Phase 1 simple routes (4 remaining)
-2. Refactor dataset.py (highest priority complex route)
-3. Begin Phase 2 medium complexity routes
+### Adding New Documentation
 
-**Next Major Milestone:**
+1. Create the document in `docs/`
+2. Add entry to this README
+3. Link from related documents
+4. Update the table of contents
 
-- Complete Phase 1: Target Q4 2025
-- Begin dataset.py refactoring: Critical priority
-- Start Phase 2: Early 2026
+### Updating Existing Documentation
 
-See [Route Refactoring Dashboard](./route-refactoring-dashboard.md) for current status.
+1. Make your changes
+2. Update related documents
+3. Check all links still work
+4. Submit PR with documentation updates
+
+### Documentation Standards
+
+- Use clear, descriptive headings
+- Include code examples
+- Add links to related documentation
+- Keep table of contents updated
+- Use emoji for visual navigation (sparingly)
+
+## 🔗 External Resources
+
+- [Domo Developer Portal](https://developer.domo.com/)
+- [Domo API Documentation](https://developer.domo.com/docs/api-documentation)
+- [Python Async/Await](https://docs.python.org/3/library/asyncio.html)
+- [httpx Documentation](https://www.python-httpx.org/)
 
 ---
 
-*Last Updated: 2025-10-22*  
-*For questions or issues, refer to the [GitHub repository](https://github.com/jaewilson07/dl-remuxed)*
+**Last Updated**: 2024  
+**Maintained By**: domolibrary2 team  
+
+**Need to add something?** Submit a PR or create an issue!

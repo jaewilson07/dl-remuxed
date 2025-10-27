@@ -47,11 +47,14 @@ from typing import List, Optional
 
 import httpx
 
-from ...client import get_data as gd, response as rgd
+from ...client import (
+    get_data as gd,
+    response as rgd,
+)
 from ...client.auth import DomoAuth
-from ...entities.base import DomoEnumMixin
 from ...client.exceptions import DomoError
-from ...utils import Image as uimg
+from ...entities.base import DomoEnumMixin
+from ...utils import images
 from .exceptions import (
     DownloadAvatar_Error,
     ResetPassword_PasswordUsed,
@@ -452,7 +455,7 @@ def generate_avatar_bytestr(img_bytestr, img_type):
     if isinstance(img_bytestr, str):
         img_bytestr = img_bytestr.encode("utf-8")
 
-    if not uimg.isBase64(img_bytestr):
+    if not images.isBase64(img_bytestr):
         img_bytestr = base64.b64encode(img_bytestr)
 
     img_bytestr = img_bytestr.decode("utf-8")

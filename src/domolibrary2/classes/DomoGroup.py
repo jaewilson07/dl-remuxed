@@ -6,10 +6,12 @@ from typing import List, Union
 import httpx
 
 from ..client import exceptions as dmde
+from ..client.exceptions import RouteError
+from ..client.auth import DomoAuth
 from ..entities.entities import DomoEntity
 from ..routes import group as group_routes
 from ..routes.group import Group_CRUD_Error, GroupType_Enum
-from .subentity import DomoMembership as dmgm
+from .subentity.membership import DomoMembership_Group
 
 
 class Group_Class_Error(dmde.ClassError):
@@ -43,10 +45,10 @@ class DomoGroup(DomoEntity):
 
     custom_attributes: dict = field(default_factory=dict)
 
-    Membership: dmgm.GroupMembership = field(repr=False, default=None)
+    Membership: DomoMembership_Group = field(repr=False, default=None)
 
     def __post_init__(self):
-        self.Membership = dmgm.GroupMembership.from_parent(parent=self)
+        self.Membership = DomoMembership_Group.from_parent(parent=self)
 
         self.is_system = True if self.type == "system" else False
 
@@ -57,39 +59,40 @@ class DomoGroup(DomoEntity):
         return self.id == other.id
 
     @classmethod
-    def from_dict(cls, auth: DomoAuth, json_obj: dict):
+    def from_dict(cls, auth: DomoAuth, obj: dict):
         # from group API
 
         return cls(
             auth=auth,
-            id=json_obj.get("id") or json_obj.get("groupId"),
-            name=json_obj.get("name"),
-            description=json_obj.get("description"),
-            type=json_obj.get("type") or json_obj.get("groupType"),
-            members_id_ls=json_obj.get("userIds"),
-            owner_ls=json_obj.get("owners"),
-            raw=json_obj,
+            id=obj.get("id") or obj.get("groupId"),
+            name=obj.get("name"),
+            description=obj.get("description"),
+            type=obj.get("type") or obj.get("groupType"),
+            members_id_ls=obj.get("userIds"),
+            owner_ls=obj.get("owners"),
+            raw=obj,
+            Relations=None,
         )
 
     @classmethod
-    def _from_grouplist_json(cls, auth: DomoAuth, json_obj: dict):
+    def _from_grouplist_json(cls, auth: DomoAuth, obj: dict):
         return cls(
             auth=auth,
-            id=json_obj.get("groupId"),
-            name=json_obj.get("name"),
-            description=json_obj.get("description"),
-            type=json_obj.get("groupType"),
-            owner_ls=json_obj.get("owners"),
-            owner_id_ls=[owner.id for owner in json_obj.get("owners", [])],
-            members_ls=json_obj.get("groupMembers", []),
-            members_id_ls=[member.id for member in json_obj.get("groupMembers", [])],
+            id=obj.get("groupId"),
+            name=obj.get("name"),
+            description=obj.get("description"),
+            type=obj.get("groupType"),
+            owner_ls=obj.get("owners"),
+            owner_id_ls=[owner.id for owner in obj.get("owners", [])],
+            members_ls=obj.get("groupMembers", []),
+            members_id_ls=[member.id for member in obj.get("groupMembers", [])],
+            raw=obj,
+            Relations=None,
         )
 
     @staticmethod
     def _groups_to_domo_group(json_list, auth: DomoAuth) -> List[dict]:
-        domo_groups = [
-            DomoGroup.from_dict(auth=auth, json_obj=json_obj) for json_obj in json_list
-        ]
+        domo_groups = [DomoGroup.from_dict(auth=auth, obj=obj) for obj in json_list]
 
         return domo_groups
 
@@ -117,7 +120,7 @@ class DomoGroup(DomoEntity):
         if return_raw:
             return res
 
-        dg = cls.from_dict(auth=auth, json_obj=res.response)
+        dg = cls.from_dict(auth=auth, obj=res.response)
 
         # await dg.Membership.get_owners()
         # await dg.Membership.get_members() # disabled because causes recursion
@@ -152,7 +155,7 @@ class DomoGroup(DomoEntity):
             parent_class=cls.__name__,
         )
 
-        domo_group = cls.from_dict(auth=auth, json_obj=res.response)
+        domo_group = cls.from_dict(auth=auth, obj=res.response)
 
         if is_include_manage_groups_role:
             await domo_group.Membership.add_owner_manage_all_groups_role(
@@ -250,7 +253,7 @@ async def create_from_name(
         parent_class=cls.__name__,
     )
 
-    domo_group = cls.from_dict(auth=auth, json_obj=res.response)
+    domo_group = cls.from_dict(auth=auth, obj=res.response)
 
     if is_include_manage_groups_role:
         await domo_group.Membership.add_owner_manage_all_groups_role(
@@ -340,9 +343,7 @@ class DomoGroups:
 
     @staticmethod
     def _groups_to_domo_group(json_list, auth: DomoAuth):
-        return [
-            DomoGroup.from_dict(auth=auth, json_obj=json_obj) for json_obj in json_list
-        ]
+        return [DomoGroup.from_dict(auth=auth, obj=obj) for obj in json_list]
 
     async def get_is_system_groups_visible(
         self,

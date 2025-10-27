@@ -7,6 +7,13 @@ API client management, MFA settings, SSO configuration, and other instance-level
 Modules:
     exceptions: Exception classes for instance config operations
     api_client: API client (developer token) management functions
+    allowlist_routes: Allowlist management functions
+    authorized_domains: Authorized domain management functions
+    instance_switcher: Instance switcher configuration functions
+    mfa: MFA configuration functions
+    scheduler_policies: Scheduler policy management functions
+    sso: SSO configuration functions
+    toggle: Toggle/feature flag functions
 """
 
 # Import exception classes

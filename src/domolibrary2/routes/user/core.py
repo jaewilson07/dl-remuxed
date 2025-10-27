@@ -29,22 +29,24 @@ __all__ = [
 ]
 
 import asyncio
-import base64
-import os
-from typing import Optional
+from typing import Optional, List
 
 import httpx
 
-from ...client import get_data as gd, response as rgd
+from ...client import (
+    get_data as gd,
+    response as rgd,
+)
 from ...client.auth import DomoAuth
-from ...utils import Image as uimg, chunk_execution as ce
+from ...utils import (
+    chunk_execution as dmce,
+)
 from ...utils.convert import test_valid_email
 from .exceptions import (
     DeleteUser_Error,
     SearchUser_NotFound,
     User_CRUD_Error,
     User_GET_Error,
-    UserSharing_Error,
 )
 
 
@@ -233,9 +235,9 @@ async def search_users_by_id(
         SearchUser_NotFound: If no users found and suppress_no_results_error is False
     """
 
-    user_cn = ce.chunk_list(user_ids, 1000)
+    user_cn = dmce.chunk_list(user_ids, 1000)
 
-    res_ls = await ce.gather_with_concurrency(
+    res_ls = await dmce.gather_with_concurrency(
         n=6,
         *[
             search_users(
@@ -322,9 +324,9 @@ async def search_users_by_email(
         Search does not appear to be case sensitive
     """
 
-    user_cn = ce.chunk_list(user_email_ls, 1000)
+    user_cn = dmce.chunk_list(user_email_ls, 1000)
 
-    res_ls = await ce.gather_with_concurrency(
+    res_ls = await dmce.gather_with_concurrency(
         n=10,
         *[
             search_users(
@@ -701,6 +703,18 @@ async def delete_user(
 
     return res
 
+
+@gd.route_function
+async def toggle_is_enable_user_direct_signon(
+    auth: DomoAuth,
+    user_ids: List[str],
+    is_allow_dso: bool = True,
+    debug_api: bool = False,
+    debug_num_stacks_to_drop=1,
+    parent_class: str = None,
+    session: httpx.AsyncClient = None,
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
     """Manage direct sign-on permissions for users.
 
     Args:

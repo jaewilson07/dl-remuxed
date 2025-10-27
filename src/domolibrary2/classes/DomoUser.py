@@ -23,13 +23,15 @@ from typing import Any, List, Optional, Union
 import httpx
 
 from ..client.auth import DomoAuth
-from ..entities.entities import DomoEntity, DomoManager
 from ..client.exceptions import ClassError, DomoError
 from ..client.Logger import Logger
 from ..client.response import ResponseGetData
-from ..routes import instance_config_sso as sso_routes, user as user_routes
+from ..entities.entities import DomoEntity, DomoManager
+from ..routes import user as user_routes
+from ..routes.instance_config import sso as sso_routes
 from ..routes.user import UserProperty
 from ..routes.user.exceptions import (
+    DeleteUser_Error,
     DownloadAvatar_Error,
     ResetPassword_PasswordUsed,
     SearchUser_NotFound,
@@ -38,23 +40,37 @@ from ..routes.user.exceptions import (
     UserAttributes_CRUD_Error,
     UserAttributes_GET_Error,
     UserSharing_Error,
-    DeleteUser_Error,
 )
-from ..utils import DictDot
-from ..utils.convert import convert_epoch_millisecond_to_datetime, test_valid_email
-from ..utils.Image import Image, ImageUtils, are_same_image
 
+from ..utils.convert import convert_epoch_millisecond_to_datetime, test_valid_email
+from ..utils.images import Image, ImageUtils, are_same_image
 
 # User route exceptions are now imported from ..routes.user.exceptions
 
 
-class CreateUser_MissingRole(DomoError):
-    """Legacy exception for missing role during user creation."""
+class CreateUser_MissingRole(ClassError):
+    """Exception raised when role_id is missing during user creation."""
 
     def __init__(self, domo_instance, email_address):
         super().__init__(
             domo_instance=domo_instance,
-            message=f"error creating user {email_address} missing role_id",
+            message=f"Error creating user {email_address}: missing role_id parameter",
+        )
+
+
+class DomoUser_NoSearch(ClassError):
+    """Exception raised when user search operations fail."""
+
+    def __init__(
+        self,
+        cls_instance,
+        message: str = "No users found matching search criteria",
+        domo_instance: str = None,
+    ):
+        super().__init__(
+            cls_instance=cls_instance,
+            domo_instance=domo_instance,
+            message=message,
         )
 
 
@@ -82,6 +98,7 @@ class DomoUser(DomoEntity):
     department: Optional[str] = None
     title: Optional[str] = None
     avatar_key: Optional[str] = None
+    avatar: Optional[Image.Image] = None
     password: Optional[str] = field(repr=False, default=None)
 
     phone_number: Optional[str] = None
@@ -103,24 +120,24 @@ class DomoUser(DomoEntity):
 
     domo_api_clients: Optional[List[Any]] = None
     domo_access_tokens: Optional[List[Any]] = None
+
     Role: Optional[Any] = None  # DomoRole
+    ApiClients: Optional[Any] = None  # DomoApiClients
 
     @property
-    def display_url(self):
+    def display_url(self) -> str:
+        """Generate the URL to display this user in the Domo admin interface."""
         return f"https://{self.auth.domo_instance}.domo.com/admin/people/{self.id}"
 
     def __post_init__(self):
+        from .DomoInstanceConfig.api_client import ApiClients
+
         self.id = str(self.id)
 
-    def __eq__(self, other):
-        if self.__class__.__name__ != other.__class__.__name__:
-            return False
-
-        return self.id == other.id
+        self.ApiClients = ApiClients.from_parent(auth=self.auth, parent=self)
 
     @classmethod
     def from_dict(cls, auth, obj: dict):
-
         return cls(
             auth=auth,
             id=str(obj.get("id") or obj.get("userId")),
@@ -142,11 +159,15 @@ class DomoUser(DomoEntity):
                 obj.get("lastActivity"),
             ),
             raw=obj,
+            Relations=None,
         )
 
     @classmethod
-    def _from_virtual_json(cls, auth, obj: dict):
+    def from_virtual_dict(cls, auth, obj: dict):
+        """Create DomoUser instance from virtual user JSON response.
 
+        Virtual users are created when content is published across instances.
+        """
         return cls(
             id=obj["id"],
             auth=auth,
@@ -154,15 +175,19 @@ class DomoUser(DomoEntity):
             subscriber_domain=obj.get("subscriberDomain"),
             virtual_user_id=obj.get("virtualUserId"),
             raw=obj,
+            Relations=None,
         )
 
     @classmethod
-    def _from_bootstrap_json(cls, auth, obj):
-        dd = obj
-        if isinstance(obj, dict):
-            dd = DictDot(obj)
+    def from_bootstrap_dict(cls, auth, obj):
 
-        return cls(id=dd.id, display_name=dd.displayName, auth=auth)
+        return cls(
+            id=obj["id"],
+            display_name=obj.get("displayName"),
+            auth=auth,
+            Relations=None,
+            raw=obj,
+        )
 
     async def get_role(
         self: "DomoUser",
@@ -185,16 +210,28 @@ class DomoUser(DomoEntity):
     @classmethod
     async def get_by_id(
         cls,
-        user_id,
         auth: DomoAuth,
+        user_id: str,
         return_raw: bool = False,
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
         session: httpx.AsyncClient = None,
     ):
-        """
-        searches and returns a domo user
-        will throw an error if no user returned with an option to suppress_no_results_error
+        """Retrieve a Domo user by ID.
+
+        Args:
+            auth: Authentication object
+            entity_id: User ID to retrieve
+            return_raw: If True, return raw API response instead of DomoUser instance
+            debug_api: Enable debug output for API call
+            debug_num_stacks_to_drop: Number of stack frames to drop in logging
+            session: Optional httpx session for connection pooling
+
+        Returns:
+            DomoUser instance or ResponseGetData if return_raw=True
+
+        Raises:
+            User_GET_Error: If user retrieval fails
         """
 
         res = await user_routes.get_by_id(
@@ -220,7 +257,6 @@ class DomoUser(DomoEntity):
                 debug_num_stacks_to_drop=debug_num_stacks_to_drop,
                 session=session,
             )
-
         except DomoError as e:
             print(e)
 
@@ -287,9 +323,17 @@ class DomoUser(DomoEntity):
         if return_raw:
             return res
 
-        self = await DomoUser.get_by_id(user_id=self.id, auth=auth)
+        raise NotImplementedError("check code, need to update user class")
 
-        return self
+        # Update self using from_dict pattern
+        if res.response:
+            updated_user = self.from_dict(auth=auth, obj=res.response)
+            # Copy updated attributes back to self
+            for key, value in updated_user.__dict__.items():
+                if key not in ["auth"]:  # Don't overwrite auth
+                    setattr(self, key, value)
+
+            return updated_user
 
     async def set_user_landing_page(
         self,
@@ -313,7 +357,7 @@ class DomoUser(DomoEntity):
         auth: DomoAuth,
         display_name,
         email_address,
-        role_id,
+        role: Any,  # DomoRole - will use default role if none provided
         password: str = None,
         send_password_reset_email: bool = False,
         debug_api: bool = False,
@@ -322,11 +366,16 @@ class DomoUser(DomoEntity):
     ):
         """class method that creates a new Domo user"""
 
+        if not role:
+            from .DomoInstanceConfig.Role import DomoRoles
+
+            role = DomoRoles(auth=auth).get_default_role(session=session)
+
         res = await user_routes.create_user(
             auth=auth,
             display_name=display_name,
             email_address=email_address,
-            role_id=role_id,
+            role_id=role.id,
             debug_api=debug_api,
             session=session,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
@@ -335,14 +384,20 @@ class DomoUser(DomoEntity):
         domo_user = await DomoUser.get_by_id(
             auth=auth,
             user_id=res.response.get("id") or res.response.get("userId"),
+            session=session,
         )
 
         if password:
-            await domo_user.reset_password(new_password=password)
+            await domo_user.reset_password(
+                new_password=password, session=session, debug_api=debug_api
+            )
 
         elif send_password_reset_email:
             await domo_user.request_password_reset(
-                domo_instance=auth.domo_instance, email=domo_user.email_address
+                domo_instance=auth.domo_instance,
+                email=domo_user.email_address,
+                session=session,
+                debug_api=debug_api,
             )
 
         return domo_user
@@ -495,9 +550,9 @@ class DomoUser(DomoEntity):
         Note : the values will be masked, raw text values can only be retrieved via the UI
         """
 
-        from . import DomoInstanceConfig_ApiClient as dicli
+        from .DomoInstanceConfig.api_client import ApiClients
 
-        api_clients = dicli.ApiClients(auth=self.auth)
+        api_clients = ApiClients(auth=self.auth)
 
         res = await api_clients.get(
             session=session,
@@ -531,7 +586,7 @@ class DomoUser(DomoEntity):
         session: httpx.AsyncClient = None,
         return_raw: bool = False,
     ):
-        from . import DomoAccessToken as dmat
+        from .DomoInstanceConfig import access_token as dmat
 
         domo_config = dmat.DomoAccessTokens(auth=self.auth)
         domo_tokens = await domo_config.get(
@@ -558,13 +613,6 @@ class DomoUser(DomoEntity):
         return self.domo_access_tokens
 
 
-class DomoUser_NoSearch(ClassError):
-    def __init__(self, message: str, domo_instance, cls_instance=None, cls=None):
-        super().__init__(
-            cls=cls, cls_instance=cls_instance, message=message, entity_id=domo_instance
-        )
-
-
 @dataclass
 class DomoUsers(DomoManager):
     """a class for searching for Users"""
@@ -581,7 +629,7 @@ class DomoUsers(DomoManager):
 
     @classmethod
     def _users_to_virtual_user(cls, user_ls, auth: DomoAuth):
-        return [DomoUser._from_virtual_json(auth=auth, obj=obj) for obj in user_ls]
+        return [DomoUser.from_virtual_dict(auth=auth, obj=obj) for obj in user_ls]
 
     def _generate_logger(self, logger: Optional[Logger] = None):
         self.logger = logger or self.logger or Logger(app_name="domo_users")
@@ -614,10 +662,12 @@ class DomoUsers(DomoManager):
 
     async def get(
         self,
+        *args,
         return_raw: bool = False,
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
         session: httpx.AsyncClient = None,
+        **kwargs,
     ) -> List[DomoUser]:
         """retrieves all users from Domo"""
 
@@ -742,53 +792,14 @@ class DomoUsers(DomoManager):
             return res
 
         domo_users = self._users_to_virtual_user(res.response, auth=self.auth)
-
-        self.virtual_users = self.domo_users
-
+        self.virtual_users = domo_users
         return domo_users
 
-    async def create_user(
-        cls: "DomoUsers",
-        auth: DomoAuth,
-        display_name,
-        email_address,
-        role_id,
-        password: str = None,
-        send_password_reset_email: bool = False,
-        debug_api: bool = False,
-        session: httpx.AsyncClient = None,
-    ):
-        """class method that creates a new Domo user"""
-
-        res = await user_routes.create_user(
-            auth=auth,
-            display_name=display_name,
-            email_address=email_address,
-            role_id=role_id,
-            debug_api=debug_api,
-            session=session,
-        )
-
-        domo_user = await DomoUser.get_by_id(
-            auth=auth,
-            user_id=res.response.get("id") or res.response.get("userId"),
-        )
-
-        if password:
-            await domo_user.reset_password(new_password=password)
-
-        elif send_password_reset_email:
-            await domo_user.request_password_reset(
-                domo_instance=auth.domo_instance, email=domo_user.email_address
-            )
-
-        return domo_user
-
     async def upsert(
-        self: "DomoUsers",
+        self,
         email_address: str,
         display_name: str = None,
-        role_id: str = None,
+        role: Any = None,  # DomoRole
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         session: httpx.AsyncClient = None,
@@ -804,45 +815,38 @@ class DomoUsers(DomoManager):
                 debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
             )
 
-            if domo_user:
-                user_property_ls = []
-                if display_name:
-                    user_property_ls.append(
-                        user_routes.UserProperty(
-                            user_routes.UserProperty_Type.display_name, display_name
-                        )
+            user_property_ls = []
+            if display_name:
+                user_property_ls.append(
+                    user_routes.UserProperty(
+                        user_routes.UserProperty_Type.display_name, display_name
                     )
+                )
 
-                if role_id:
-                    user_property_ls.append(
-                        user_routes.UserProperty(
-                            user_routes.UserProperty_Type.role_id, role_id
-                        )
+            if role and role.id:
+                user_property_ls.append(
+                    user_routes.UserProperty(
+                        user_routes.UserProperty_Type.role_id, role.id
                     )
+                )
 
-                if user_property_ls:
-                    await user_routes.update_user(
-                        user_id=domo_user.id,
-                        user_property_ls=user_property_ls,
-                        auth=self.auth,
-                        debug_api=debug_api,
-                    )
-            return await DomoUser.get_by_id(auth=self.auth, user_id=domo_user.id)
+            if user_property_ls:
+                await domo_user.update_properties(
+                    user_property_ls=user_property_ls,
+                    debug_api=debug_api,
+                )
+            return domo_user
 
-        except (SearchUser_NotFound, DomoUser_NoSearch) as e:
-            if not role_id:
-                raise CreateUser_MissingRole(
-                    domo_instance=self.auth.domo_instance, email_address=email_address
-                ) from e
+        except (SearchUser_NotFound, DomoUser_NoSearch):
 
-            domo_user = await DomoUser.create(
+            domo_user: DomoUser = await DomoUser.create(
                 display_name=display_name
                 or f"{email_address} - via dl {dt.date.today()}",
                 email_address=email_address,
-                role_id=role_id,
                 debug_api=debug_api,
                 session=session,
                 auth=self.auth,
+                role=role,
             )
 
             await self.get()

@@ -16,10 +16,8 @@ from typing import List, Optional
 import httpx
 import pandas as pd
 
-
 from ...client.exceptions import DomoError
 from ...entities.entities import DomoSubEntity
-
 from ...routes import dataset as dataset_routes
 from ...routes.dataset import (
     DatasetNotFoundError,
@@ -48,7 +46,6 @@ class DomoDataset_Data(DomoSubEntity):
         maximum_retry: int = 5,
         is_return_dataframe: bool = True,
     ) -> pd.DataFrame:
-
         auth = self.parent.auth
         dataset_id = self.parent.id
 
@@ -322,7 +319,6 @@ class DomoDataset_Data(DomoSubEntity):
         empty_df: pd.DataFrame = None,
         debug_api: bool = False,
     ):
-
         auth = self.parent.auth
         dataset_id = self.parent.id
 

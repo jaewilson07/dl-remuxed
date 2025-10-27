@@ -11,16 +11,14 @@ Classes:
     DomoSubEntity: Entity that belongs to a parent entity
 """
 
-from .base import DomoBase
-from .relationships import DomoRelationshipController
-
-from ..utils.convert import convert_snake_to_pascal
-from ..client.auth import DomoAuth
-
-
+import abc
 from dataclasses import dataclass, field, fields
 from typing import Any, Callable, Optional
-import abc
+
+from ..client.auth import DomoAuth
+from ..utils.convert import convert_snake_to_pascal
+from .base import DomoBase
+from .relationships import DomoRelationshipController
 
 
 @dataclass
@@ -153,6 +151,7 @@ class DomoEntity(DomoBase):
         """
         raise NotImplementedError("This method should be implemented by subclasses.")
 
+    @property
     @abc.abstractmethod
     def display_url(self) -> str:
         """Generate the URL to display this entity in the Domo interface.

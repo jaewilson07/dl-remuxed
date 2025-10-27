@@ -37,8 +37,8 @@ Migration Path:
 # Import relationship types from entities module
 try:
     from ...entities.relationships import (
-        DomoRelationshipController,
         DomoRelationship as Relationship,
+        DomoRelationshipController,
         RelationshipType,
     )
 except ImportError:
@@ -51,24 +51,15 @@ except ImportError:
 # AccessControl module not yet implemented
 # from .AccessControl import (...)
 
-# Legacy access and membership classes
-from .access import (
-    Access_Config_Error,
-    Access_Entity,
-    DomoAccess,
-    DomoAccess_Account,
-    DomoAccess_OAuth,
-)
-from .membership import (
-    DomoMembership_Group,
-    DomoMembership,
-    Membership_Entity,
-    UpdateMembership,
-)
-
 # Other subentity classes
 from .certification import DomoCertification
 from .lineage import DomoLineage
+from .membership import (
+    DomoMembership,
+    DomoMembership_Group,
+    Membership_Entity,
+    UpdateMembership,
+)
 from .tags import DomoTags
 
 __all__ = [
@@ -76,12 +67,6 @@ __all__ = [
     "RelationshipType",
     "Relationship",
     "DomoRelationshipController",
-    # Legacy access classes (deprecated)
-    "DomoAccess",
-    "DomoAccess_Account",
-    "DomoAccess_OAuth",
-    "Access_Entity",
-    "Access_Config_Error",
     # Legacy membership classes (deprecated)
     "DomoMembership",
     "DomoMembership_Group",

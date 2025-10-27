@@ -41,12 +41,11 @@ Usage:
     relationships = await controller.get()
 """
 
-from .base import DomoBase, DomoEnum
-from .entities import DomoEntity
 from abc import abstractmethod
-from ..utils import chunk_execution as dmce
 from dataclasses import dataclass, field
 from typing import Any, Dict, List
+
+from .base import DomoBase, DomoEnum
 
 RelationshipType = DomoEnum
 """Types of relationships between Domo entities."""
@@ -120,44 +119,17 @@ class DomoRelationship(DomoBase):
         when working with large sets of relationships.
     """
 
-    relative_id: str
-    relative_class: DomoEntity = field(repr=False)
     relationship_type: RelationshipType
 
     # Core relationship identifiers
-    parent_entity: DomoEntity = field(repr=False, default=None)
-    entity: DomoEntity = field(repr=False, default=None)
+    parent_entity: Any = field(repr=False, default=None)  # DomoEntity instance
+    entity: Any = field(repr=False, default=None)  # DomoEntity instance
 
     def __eq__(self, other):
         return (
-            self.parent_id == other.parent_id
+            self.parent_entity.id == other.parent_entity.id
             and self.relationship_type == other.relationship_type
-            and self.relative_id == other.relative_id
-        )
-
-    async def get_relative(self):
-        """Fetch and return the related entity instance.
-
-        Retrieves the actual DomoEntity instance that this relationship
-        points to. Uses the relative_class and relative_id to perform
-        the lookup through the entity's get_entity_by_id method.
-
-        Returns:
-            DomoEntity: The related entity instance
-
-        Raises:
-            AssertionError: If relative_class doesn't implement get_entity_by_id
-
-        Example:
-            # Get the user entity from a viewer relationship
-            user = await viewer_relationship.get_relative()
-            print(f"Viewer: {user.display_name}")
-        """
-        assert hasattr(
-            self.relative_class, "get_entity_by_id"
-        ), "relative_class must implement get_entity_by_id method"
-        return await self.relative_class.get_entity_by_id(
-            entity_id=self.relative_id, auth=self.parent_entity.auth
+            and self.entity.id == other.entity.id
         )
 
     @property
@@ -172,7 +144,7 @@ class DomoRelationship(DomoBase):
         raise NotImplementedError("Subclasses must implement to_dict method.")
 
     @abstractmethod
-    def update(self):
+    async def update(self):
         """Update relationship metadata or properties."""
         raise NotImplementedError("Subclasses must implement update method.")
 
@@ -243,48 +215,6 @@ class DomoRelationshipController(DomoBase):
 
     relationships: List[DomoRelationship] = field(default_factory=list)
 
-    async def get_relative_entities(self):
-        """Retrieve and cache all related entity instances concurrently.
-
-        Fetches the actual DomoEntity instances for all relationships
-        in this controller's collection. This operation is performed
-        concurrently for efficiency when dealing with large numbers
-        of relationships.
-
-        This method populates the relative_entity field of each relationship
-        with the actual entity instance, enabling direct access without
-        additional API calls.
-
-        Returns:
-            List[DomoRelationship]: The same relationships list, now with
-                                  populated relative_entity instances
-
-        Performance:
-            - Uses concurrent execution (max 10 concurrent requests)
-            - Caches results in relationship.relative_entity
-            - Subsequent calls will use cached entities
-
-        Example:
-            controller = dataset.relationships
-            await controller.get()  # Load relationships
-            relationships = await controller.get_relative_entities()
-
-            # Now you can access entities directly
-            for rel in relationships:
-                entity = rel.relative_entity  # Already loaded
-                print(f"{rel.relationship_type}: {entity.display_name}")
-
-        Note:
-            This is different from getting the parent object's relationships.
-            This method fetches the entities that the relationships point TO,
-            not the relationships themselves.
-        """
-        await dmce.gather_with_concurrency(
-            *[relationship.get_relative() for relationship in self.relationships], n=10
-        )
-
-        return self.relationships
-
     @abstractmethod
     def add_relationship(
         self,
@@ -336,7 +266,7 @@ class DomoRelationshipController(DomoBase):
         """
 
     @abstractmethod
-    def get(
+    async def get(
         self,
     ) -> List[DomoRelationship]:
         """Find and retrieve relationships matching the specified criteria.

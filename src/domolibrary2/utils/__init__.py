@@ -37,23 +37,23 @@ License: MIT
 """
 
 # Import exceptions for easy access
-# Import main utility modules
 from . import (
     DictDot,
-    Image,
     chunk_execution,
     compare,
     convert,
     files,
+    images,
     read_creds_from_dotenv,
     xkcd_password,
 )
 
+
 # Import legacy exception names from convert module for backwards compatibility
 from .convert import (
     ConcatDataframe_InvalidElement,  # Legacy alias for ConcatDataframeError
+    InvalidEmail,  # Legacy alias for InvalidEmailError
 )
-from .convert import InvalidEmail  # Legacy alias for InvalidEmailError
 from .exceptions import (
     ConcatDataframeError,
     CredentialsError,
@@ -64,16 +64,8 @@ from .exceptions import (
 )
 
 # Conditional import for upload_data (may have external dependencies)
-try:
-    from . import upload_data
+# from . import upload_data
 
-    _UPLOAD_DATA_AVAILABLE = True
-except ImportError:
-    _UPLOAD_DATA_AVAILABLE = False
-    upload_data = None
-
-# Always available standalone upload utilities
-from . import upload_data_standalone
 
 __all__ = [
     # Exception classes
@@ -92,59 +84,7 @@ __all__ = [
     "convert",
     "DictDot",
     "files",
-    "Image",
+    "images",
     "read_creds_from_dotenv",
     "xkcd_password",
-    # Upload modules (conditional and standalone)
-    "upload_data",  # May be None if dependencies not available
-    "upload_data_standalone",  # Always available
 ]
-
-__version__ = "1.0.0"
-__author__ = "Domo Utils Contributors"
-__license__ = "MIT"
-
-
-# Utility functions for module introspection
-def get_available_modules():
-    """
-    Get a list of available utility modules.
-
-    Returns:
-        dict: Dictionary with module names as keys and availability as values
-
-    Example:
-        >>> modules = get_available_modules()
-        >>> print(modules['upload_data'])  # True or False
-        >>> print(modules['upload_data_standalone'])  # Always True
-    """
-    return {
-        "chunk_execution": True,
-        "compare": True,
-        "convert": True,
-        "DictDot": True,
-        "files": True,
-        "Image": True,
-        "read_creds_from_dotenv": True,
-        "xkcd_password": True,
-        "upload_data": _UPLOAD_DATA_AVAILABLE,
-        "upload_data_standalone": True,
-        "exceptions": True,
-    }
-
-
-def get_module_info():
-    """
-    Get information about the utils library.
-
-    Returns:
-        dict: Library information including version, available modules, etc.
-    """
-    return {
-        "name": "utils",
-        "version": __version__,
-        "author": __author__,
-        "license": __license__,
-        "available_modules": get_available_modules(),
-        "total_modules": len([m for m in get_available_modules().values() if m]),
-    }

@@ -1,9 +1,6 @@
 __all__ = [
     "validate_ip_or_cidr",
     "DomoAllowlist",
-    # Allowlist Route Exceptions
-    "Config_GET_Error",
-    "Allowlist_UnableToUpdate",
 ]
 
 import ipaddress
@@ -13,11 +10,7 @@ from typing import List, Optional
 import httpx
 
 from ...client.auth import DomoAuth
-from ...routes import instance_config as instance_config_routes
-from ...routes.instance_config import (
-    Allowlist_UnableToUpdate,
-    Config_GET_Error,
-)
+from ...routes.instance_config import allowlist as allowlist_routes
 
 
 def validate_ip_or_cidr(ip: str):
@@ -29,8 +22,8 @@ def validate_ip_or_cidr(ip: str):
         try:
             # Try IPv4 network (CIDR)
             ipaddress.IPv4Network(ip, strict=False)
-        except ValueError:
-            raise ValueError(f"Invalid IP/CIDR entry: {ip}")
+        except ValueError as e:
+            raise ValueError(f"Invalid IP/CIDR entry: {ip}") from e
 
 
 @dataclass
@@ -83,7 +76,7 @@ class DomoAllowlist:
         retrieves the allowlist for an instance
         """
 
-        res = await instance_config_routes.get_allowlist(
+        res = await allowlist_routes.get_allowlist(
             auth=self.auth,
             debug_api=debug_api,
             session=session,
@@ -127,7 +120,7 @@ class DomoAllowlist:
                 print("no changes to allowlist detected, skipping update")
             return self.allowlist
 
-        await instance_config_routes.set_allowlist(
+        await allowlist_routes.set_allowlist(
             ip_address_ls=ip_address_ls,
             auth=self.auth,
             debug_api=debug_api,
@@ -207,7 +200,7 @@ class DomoAllowlist:
         retrieves whether the "filter all traffic" setting is enabled
         """
 
-        res = await instance_config_routes.get_allowlist_is_filter_all_traffic_enabled(
+        res = await allowlist_routes.get_allowlist_is_filter_all_traffic_enabled(
             auth=self.auth,
             debug_api=debug_api,
             session=session,
@@ -242,15 +235,13 @@ class DomoAllowlist:
 
             return self.is_filter_all_traffic_enabled
 
-        res = (
-            await instance_config_routes.toggle_allowlist_is_filter_all_traffic_enabled(
-                auth=self.auth,
-                is_enabled=is_enabled,
-                debug_api=debug_api,
-                session=session,
-                return_raw=return_raw,
-                parent_class=self.__class__.__name__,
-            )
+        res = await allowlist_routes.toggle_allowlist_is_filter_all_traffic_enabled(
+            auth=self.auth,
+            is_enabled=is_enabled,
+            debug_api=debug_api,
+            session=session,
+            return_raw=return_raw,
+            parent_class=self.__class__.__name__,
         )
 
         if return_raw:

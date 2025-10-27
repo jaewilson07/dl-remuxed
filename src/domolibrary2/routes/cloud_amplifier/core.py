@@ -20,7 +20,10 @@ from typing import Any, Optional
 
 import httpx
 
-from ...client import get_data as gd, response as rgd
+from ...client import (
+    get_data as gd,
+    response as rgd,
+)
 from ...client.auth import DomoAuth
 from .exceptions import (
     CloudAmplifier_CRUD_Error,

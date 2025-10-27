@@ -23,6 +23,16 @@ from ...client import response as rgd
 from ...client.exceptions import RouteError
 
 
+class Config_GET_Error(RouteError):
+    def __init__(self, res: rgd.ResponseGetData, message: str = None):
+        super().__init__(res=res, message=message)
+
+
+class Config_CRUD_Error(RouteError):
+    def __init__(self, res: rgd.ResponseGetData, message: str = None):
+        super().__init__(res=res, message=message)
+
+
 class ApiClient_GET_Error(RouteError):
     """
     Raised when API client retrieval operations fail.

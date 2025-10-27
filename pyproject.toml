@@ -45,6 +45,8 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest",
+    "pytest-asyncio",
+    "bandit",
     "pylint",
     "ruff",
     "black",

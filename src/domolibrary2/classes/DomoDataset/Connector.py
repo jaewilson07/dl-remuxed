@@ -28,7 +28,6 @@ class DomoConnector(DomoBase):
 
     @classmethod
     def from_dict(cls, obj: dict):
-
         return cls(
             id=obj.get("databaseId"),
             label=obj.get("label"),

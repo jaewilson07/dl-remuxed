@@ -7,7 +7,7 @@ import os
 
 from dotenv import load_dotenv
 
-import domolibrary2.classes.DomoInstanceConfig.InstanceSwitcher as instance_switcher
+import domolibrary2.classes.DomoInstanceConfig.instance_switcher as instance_switcher
 import domolibrary2.client.auth as dmda
 
 load_dotenv()
@@ -26,7 +26,7 @@ async def test_cell_0(token_auth=token_auth) -> bool:
 
 async def test_cell_1(token_auth=token_auth):
     """Test getting instance switcher mappings."""
-    switcher = instance_switcher.DomoInstanceConfig_InstanceSwitcher(auth=token_auth)
+    switcher = instance_switcher.InstanceSwitcher(auth=token_auth)
 
     # Get existing mappings
     mappings = await switcher.get_mapping(debug_api=False, return_raw=False)
@@ -46,9 +46,7 @@ async def test_cell_2(token_auth=token_auth):
         "instance": "test-instance.domo.com",
     }
 
-    mapping = instance_switcher.DomoInstanceConfig_InstanceSwitcher_Mapping.from_dict(
-        sample_dict
-    )
+    mapping = instance_switcher.InstanceSwitcher_Mapping.from_dict(sample_dict)
 
     print(f"Created mapping: {mapping.user_attribute} -> {mapping.target_instance}")
 
@@ -67,15 +65,15 @@ async def test_cell_2(token_auth=token_auth):
 
 async def test_cell_3(token_auth=token_auth):
     """Test mapping equality and comparison."""
-    mapping1 = instance_switcher.DomoInstanceConfig_InstanceSwitcher_Mapping(
+    mapping1 = instance_switcher.InstanceSwitcher_Mapping(
         user_attribute="attr1", target_instance="instance1.domo.com"
     )
 
-    mapping2 = instance_switcher.DomoInstanceConfig_InstanceSwitcher_Mapping(
+    mapping2 = instance_switcher.InstanceSwitcher_Mapping(
         user_attribute="attr1", target_instance="instance1"
     )
 
-    mapping3 = instance_switcher.DomoInstanceConfig_InstanceSwitcher_Mapping(
+    mapping3 = instance_switcher.InstanceSwitcher_Mapping(
         user_attribute="attr2", target_instance="instance2"
     )
 
@@ -90,7 +88,7 @@ async def test_cell_3(token_auth=token_auth):
 
 async def test_cell_4(token_auth=token_auth):
     """Test getting raw response."""
-    switcher = instance_switcher.DomoInstanceConfig_InstanceSwitcher(auth=token_auth)
+    switcher = instance_switcher.InstanceSwitcher(auth=token_auth)
 
     # Get raw response
     res = await switcher.get_mapping(debug_api=False, return_raw=True)

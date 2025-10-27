@@ -7,7 +7,7 @@ from typing import List
 import httpx
 
 from ..routes import bootstrap as bootstrap_routes
-from ..utils import chunk_execution as ce
+from ..utils import chunk_execution as dmce
 from . import DomoPage as dmpg
 
 
@@ -21,14 +21,14 @@ class DomoBootstrap_Feature:
     enabled: bool
 
     @classmethod
-    def from_dict(cls, json_obj: dict):  ## expects boostrap API
+    def from_dict(cls, obj: dict):  ## expects boostrap API
         bsf = cls(
-            id=json_obj.get("id"),
-            name=json_obj.get("name"),
-            label=json_obj.get("label"),
-            type=json_obj.get("type"),
-            purchased=json_obj.get("purchased"),
-            enabled=json_obj.get("enabled"),
+            id=obj.get("id"),
+            name=obj.get("name"),
+            label=obj.get("label"),
+            type=obj.get("type"),
+            purchased=obj.get("purchased"),
+            enabled=obj.get("enabled"),
         )
         return bsf
 
@@ -111,7 +111,7 @@ class DomoBootstrap(DomoManager):
         if not res.is_success:
             return None
 
-        self.page_ls = await ce.gather_with_concurrency(
+        self.page_ls = await dmce.gather_with_concurrency(
             n=60,
             *[
                 dmpg.DomoPage._from_bootstrap(page_obj, auth=self.auth)
@@ -140,9 +140,7 @@ class DomoBootstrap(DomoManager):
         if return_raw:
             return res
 
-        feature_list = [
-            DomoBootstrap_Feature.from_dict(json_obj) for json_obj in res.response
-        ]
+        feature_list = [DomoBootstrap_Feature.from_dict(obj) for obj in res.response]
 
         return feature_list
 

@@ -5,18 +5,18 @@ __all__ = [
     "DomoDataset_Schema_Column",
     "DomoDataset_Schema",
     "DatasetSchema_InvalidSchema",
+    "CRUD_Dataset_Error",
 ]
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, List
+from typing import Any, List, Optional
 
 import httpx
 import pandas as pd
 
-
-from ...entities.entities import DomoSubEntity
 from ...client.exceptions import ClassError
+from ...entities.entities import DomoSubEntity
 from ...routes import dataset as dataset_routes
 
 
@@ -152,8 +152,6 @@ class DomoDataset_Schema(DomoSubEntity):
         is_update_schema: bool = True,
         debug_api: bool = False,
     ):
-        from ...routes import dataset as dataset_routes
-
         await self.get()
 
         if len(self.columns) != len(df.columns):
@@ -180,6 +178,7 @@ class DomoDataset_Schema(DomoSubEntity):
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
     ):
+        """Add a column to the schema."""
         if col in self.columns and debug_prn:
             print(
                 f"column - {col.name} already in dataset {self.parent.name if self.parent else ''}"
@@ -200,6 +199,7 @@ class DomoDataset_Schema(DomoSubEntity):
         is_update_schema: bool = True,
         session: httpx.AsyncClient = None,
     ):
+        """Remove a column from the schema."""
         [
             self.columns.pop(index)
             for index, col in enumerate(self.columns)

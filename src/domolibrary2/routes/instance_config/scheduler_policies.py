@@ -10,7 +10,7 @@ Functions:
     get_scheduler_policy_by_id: Retrieve a specific scheduler policy by ID
     create_scheduler_policy: Create a new scheduler policy
     update_scheduler_policy: Update an existing scheduler policy
-    delete_policy: Delete a scheduler policy
+    delete_scheduler_policy: Delete a scheduler policy
 
 Exception Classes:
     SchedulerPolicy_GET_Error: Raised when scheduler policy retrieval fails
@@ -22,24 +22,26 @@ __all__ = [
     "SchedulerPolicy_GET_Error",
     "SchedulerPolicy_CRUD_Error",
     "SearchSchedulerPolicy_NotFound",
-    "Scheduler_Policies_Error",  # Backward compatibility
     "get_scheduler_policies",
     "get_scheduler_policy_by_id",
     "create_scheduler_policy",
     "update_scheduler_policy",
-    "delete_policy",
+    "delete_scheduler_policy",
 ]
 
 from typing import Any, Optional
 
 import httpx
 
-from ..client import get_data as gd, response as rgd
-from ..client.auth import DomoAuth
-from ..client.exceptions import RouteError
+from ...client import (
+    get_data as gd,
+    response as rgd,
+)
+from ...client.auth import DomoAuth
+from .exceptions import Config_CRUD_Error, Config_GET_Error
 
 
-class SchedulerPolicy_GET_Error(RouteError):
+class SchedulerPolicy_GET_Error(Config_GET_Error):
     """
     Raised when scheduler policy retrieval operations fail.
 
@@ -60,10 +62,10 @@ class SchedulerPolicy_GET_Error(RouteError):
             else:
                 message = "Failed to retrieve scheduler policies"
 
-        super().__init__(message=message, entity_id=entity_id, res=res, **kwargs)
+        super().__init__(message=message, res=res, **kwargs)
 
 
-class SchedulerPolicy_CRUD_Error(RouteError):
+class SchedulerPolicy_CRUD_Error(Config_CRUD_Error):
     """
     Raised when scheduler policy create, update, or delete operations fail.
 
@@ -80,12 +82,12 @@ class SchedulerPolicy_CRUD_Error(RouteError):
         **kwargs,
     ):
         if not message:
-            message = f"Scheduler policy {operation} operation failed"
+            message = f"Scheduler policy {operation} operation failed, {entity_id}"
 
-        super().__init__(message=message, entity_id=entity_id, res=res, **kwargs)
+        super().__init__(message=message, res=res, **kwargs)
 
 
-class SearchSchedulerPolicy_NotFound(RouteError):
+class SearchSchedulerPolicy_NotFound(Config_GET_Error):
     """
     Raised when scheduler policy search operations return no results.
 
@@ -107,10 +109,6 @@ class SearchSchedulerPolicy_NotFound(RouteError):
             res=res,
             **kwargs,
         )
-
-
-# Backward compatibility alias
-Scheduler_Policies_Error = SchedulerPolicy_GET_Error
 
 
 @gd.route_function
@@ -373,7 +371,7 @@ async def update_scheduler_policy(
 
 
 @gd.route_function
-async def delete_policy(
+async def delete_scheduler_policy(
     auth: DomoAuth,
     policy_id: str,
     session: Optional[httpx.AsyncClient] = None,

@@ -1,21 +1,23 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List, Optional, Any
+from typing import Any, List, Optional
 
 import httpx
 
-from ...utils import chunk_execution as dmce
 from ...client.auth import DomoAuth
-from ...entities import DomoSubEntity, DomoManager, DomoEntity
-
+from ...entities import DomoEntity, DomoManager
 from ...routes import stream as stream_routes
-
+from ...routes.stream import Stream_CRUD_Error, Stream_GET_Error
+from ...utils import chunk_execution as dmce
 from .stream_config import StreamConfig
 
 __all__ = [
     "DomoStream",
     "DomoStreams",
+    # Stream Route Exceptions
+    "Stream_GET_Error",
+    "Stream_CRUD_Error",
 ]
 
 
@@ -77,7 +79,6 @@ class DomoStream(DomoEntity):
             update_method=obj.get("updateMethod"),
             data_provider_name=data_provider.get("name"),
             data_provider_key=data_provider.get("key"),
-            dataset_id=datasource.get("id"),
             raw=obj,
             Relations=None,
         )
@@ -218,7 +219,6 @@ class DomoStreams(DomoManager):
         session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
     ):
-
         from ...routes import datacenter as datacenter_routes
 
         res = await datacenter_routes.search_datasets(

@@ -9,12 +9,12 @@ from typing import Optional
 
 import httpx
 
-from ..client import (
+from ...client import (
     get_data as gd,
     response as rgd,
 )
-from ..client.auth import DomoAuth
-from ..client.exceptions import RouteError
+from ...client.auth import DomoAuth
+from ...client.exceptions import RouteError
 
 
 class InstanceSwitcher_GET_Error(RouteError):

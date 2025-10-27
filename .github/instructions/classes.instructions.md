@@ -43,12 +43,12 @@ class DomoExample(DomoEntity):
     id: str
     auth: DomoAuth = field(repr=False)
     raw: dict = field(default_factory=dict, repr=False)
-    
+
     # Optional attributes
     display_name: Optional[str] = None
     created_dt: Optional[dt.datetime] = None
-    
-    # REQUIRED: display_url property or method
+
+    # REQUIRED: display_url MUST be a @property
     @property
     def display_url(self):
         """Return the Domo web URL for this entity."""
@@ -64,7 +64,6 @@ class DomoExample(DomoEntity):
             display_name=obj.get("displayName"),
             raw=obj,
         )
-    
     # REQUIRED: get_by_id classmethod
     @classmethod
     async def get_by_id(
@@ -83,10 +82,10 @@ class DomoExample(DomoEntity):
             debug_api=debug_api,
             session=session,
         )
-        
+
         if return_raw:
             return res
-        
+
         return cls.from_dict(auth=auth, obj=res.response)
 ```
 
@@ -98,10 +97,10 @@ Use DomoSubEntity for related functionality instead of adding everything to the 
 
 ```python
 from ..subentity import (
-    DomoTag as dmtg,
+    DomoTags as dmtg,           # Note: class name is plural
     DomoLineage as dmdl,
     DomoCertification as dmdc,
-    DomoAccess as dmac,
+    DomoMembership as dmmb,     # DomoAccess is not a subentity export
 )
 
 @dataclass
@@ -116,7 +115,6 @@ class DomoDataset(DomoEntity_w_Lineage):
         self.Tags = dmtg.DomoTags.from_parent(parent=self)
         self.Lineage = dmdl.DomoLineage.from_parent(auth=self.auth, parent=self)
         self.Schema = dmdsc.DomoDataset_Schema.from_parent(parent=self)
-        
         if self.raw.get("certification"):
             self.Certification = dmdc.DomoCertification.from_parent(parent=self)
 ```
@@ -144,15 +142,14 @@ async def method_name(
     return_raw: bool = False,     # return_raw on methods that call routes
 ) -> ReturnType:
     """Docstring describing method.
-    
     Args:
         auth: Authentication object
         required_param: Description
         optional_param: Description
-        
+
     Returns:
         Description of return value
-        
+
     Raises:
         ExceptionName: When error occurs
     """
@@ -163,10 +160,10 @@ async def method_name(
         debug_api=debug_api,
         session=session,
     )
-    
+
     if return_raw:
         return res
-    
+
     # Process and return
     return self.from_dict(auth=auth, obj=res.response)
 ```
@@ -178,6 +175,21 @@ async def method_name(
 3. **Type Hints**: All parameters and returns must have type hints
 4. **Docstrings**: All public methods must have docstrings
 5. **return_raw**: Include on methods that call route functions
+
+### from_dict signature standard
+
+All entity classes must implement a classmethod:
+
+```python
+@classmethod
+def from_dict(cls, auth: DomoAuth, obj: dict):
+    ...
+```
+
+- Auth comes first, followed by the parsed JSON object.
+- This matches the base-class expectations and all usage patterns across the codebase.
+
+Note on legacy deviations: a few older implementations (for example, some classes in DomoPublish and user attributes) use `from_dict(cls, obj, auth)` with `obj` first. Prefer the `auth, obj` ordering for all new work and migrate legacy callsites when those files are touched.
 
 ## Import Standards
 
@@ -194,7 +206,7 @@ from ...routes.user.exceptions import (
 )
 
 # ✅ Import subentities
-from ..subentity import DomoTag as dmtg, DomoLineage as dmdl
+from ..subentity import DomoTags as dmtg, DomoLineage as dmdl
 
 # ✅ Import client entities
 from ...client.entities import DomoEntity, DomoManager
@@ -218,11 +230,24 @@ import httpx  # Only if absolutely necessary
 Always use route-specific exceptions:
 
 ```python
+# Template pattern: replace 'entity' with the actual domain (e.g., user, dataset)
 from ...routes.entity.exceptions import (
     Entity_GET_Error,
     Entity_CRUD_Error,
     SearchEntity_NotFound,
 )
+
+# Actual examples:
+# from ...routes.user.exceptions import (
+#     User_GET_Error,
+#     User_CRUD_Error,
+#     SearchUser_NotFound,
+# )
+# from ...routes.dataset.exceptions import (
+#     Dataset_GET_Error,
+#     Dataset_CRUD_Error,
+#     SearchDataset_NotFound,
+# )
 
 # In methods, let route exceptions propagate or catch and re-raise
 try:
@@ -230,6 +255,33 @@ try:
 except Entity_GET_Error as e:
     # Handle or re-raise
     raise
+```
+
+### User Attributes imports (re-export pattern)
+
+User attributes are implemented in `routes/instance_config/user_attributes.py` but are re-exported via `routes/user/__init__.py`.
+Prefer importing from `routes.user` for simplicity:
+
+```python
+# Option 1 (recommended): via re-export
+from ...routes.user import (
+    create_user_attribute,
+    delete_user_attribute,
+    get_user_attribute_by_id,
+    get_user_attributes,
+    update_user_attribute,
+    UserAttributes_IssuerType,
+)
+
+# Option 2: direct implementation path
+from ...routes.instance_config.user_attributes import (
+    create_user_attribute,
+    delete_user_attribute,
+    get_user_attribute_by_id,
+    get_user_attributes,
+    update_user_attribute,
+    UserAttributes_IssuerType,
+)
 ```
 
 ## Manager Pattern
@@ -240,9 +292,9 @@ For entity collections (DomoUsers, DomoDatasets, etc.):
 @dataclass
 class DomoEntities(DomoManager):
     """Manager class for DomoEntity collection."""
-    
+
     auth: DomoAuth = field(repr=False)
-    
+
     async def get(
         self,
         limit: int = 500,
@@ -259,7 +311,7 @@ class DomoEntities(DomoManager):
             session=session,
         )
         return [DomoEntity.from_dict(auth=self.auth, obj=obj) for obj in res.response]
-    
+        
     async def search(
         self,
         search_term: str,
@@ -273,13 +325,11 @@ class DomoEntities(DomoManager):
             debug_api=debug_api,
             session=session,
         )
-        
         if not res.response:
             raise SearchEntity_NotFound(
                 domo_instance=self.auth.domo_instance,
                 search_term=search_term,
             )
-        
         return [DomoEntity.from_dict(auth=self.auth, obj=obj) for obj in res.response]
 ```
 

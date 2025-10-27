@@ -85,7 +85,11 @@ class DomoError(Exception):
         if not self.entity_id and not self.entity_str:
             return None
 
-        return f"entity: {' - '.join([ele for ele in [self.entity_id, self.entity_name] if ele])}"
+        entity_strs = [self.entity_id, self.entity_name]
+        if not any(entity_strs):
+            return None
+
+        return f"entity: {' - '.join([str(ele) for ele in entity_strs if ele])}"
 
     @property
     def instance_str(self) -> Union[str, None]:
