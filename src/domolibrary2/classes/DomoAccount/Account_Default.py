@@ -392,9 +392,9 @@ class DomoAccount_Default(DomoEntity):
         from copy import deepcopy
 
         # Import here to avoid circular import
-        from . import Account
+        from . import core
 
-        return await Account.DomoAccounts.upsert_account(
+        return await core.DomoAccounts.upsert_account(
             auth=target_auth,
             account_name=account_name or self.name,
             account_config=deepcopy(self.Config),
