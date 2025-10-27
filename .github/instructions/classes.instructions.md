@@ -53,6 +53,7 @@ class DomoExample(DomoEntity):
     def display_url(self):
         """Return the Domo web URL for this entity."""
         return f"https://{self.auth.domo_instance}.domo.com/path/{self.id}"
+    
     # REQUIRED: from_dict classmethod
     @classmethod
     def from_dict(cls, auth: DomoAuth, obj: dict):
@@ -108,6 +109,7 @@ class DomoDataset(DomoEntity_w_Lineage):
     Tags: dmtg.DomoTags = field(default=None)
     Certification: dmdc.DomoCertification = field(default=None)
     Schema: dmdsc.DomoDataset_Schema = field(default=None)
+    
     def __post_init__(self):
         # Initialize subentities
         self.Tags = dmtg.DomoTags.from_parent(parent=self)
@@ -254,6 +256,7 @@ class DomoEntities(DomoManager):
             session=session,
         )
         return [DomoEntity.from_dict(auth=self.auth, obj=obj) for obj in res.response]
+        
     async def search(
         self,
         search_term: str,
