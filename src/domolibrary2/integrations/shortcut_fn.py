@@ -4,6 +4,7 @@ __all__ = ["share_domo_account_with_domo_group"]
 
 from typing import List
 
+from ..client.auth import DomoAuth
 from ..classes import (
     DomoAccount as dmacc,
     DomoGroup as dmdg,

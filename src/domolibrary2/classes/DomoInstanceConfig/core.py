@@ -2,40 +2,34 @@ __all__ = ["DomoInstanceConfig"]
 
 
 from dataclasses import dataclass, field
-from typing import List
+from typing import Any, List
 
 import httpx
 import pandas as pd
 
-
+from ...client.auth import DomoAuth
+from ...client.exceptions import ClassError
 from ...routes import (
     application as application_routes,
     sandbox as sandbox_routes,
 )
-from ...client.auth import DomoAuth
-from ...client.exceptions import ClassError
 from ...routes.auth import InvalidAuthTypeError
 from ...routes.instance_config import (
-    toggle as toggle_routes,
     authorized_domains as domains_routes,
+    toggle as toggle_routes,
 )
-
-
-from .mfa import MFA_Config
-from .sso import SSO as SSO_Class
+from ..DomoDataset.connector import DomoConnectors
+from ..publish import DomoEverywhere
+from .access_token import DomoAccessTokens
 from .allowlist import DomoAllowlist
 from .api_client import ApiClients
-from .access_token import DomoAccessTokens
 from .instance_switcher import InstanceSwitcher
-from .role_grant import DomoGrants
+from .mfa import MFA_Config
 from .role import DomoRoles
+from .role_grant import DomoGrants
+from .sso import SSO as SSO_Class
 from .toggle import DomoToggle
 from .user_attributes import UserAttributes
-
-from ..DomoAccount import DomoAccounts
-from ..publish import DomoEverywhere
-
-from ..DomoDataset.connector import DomoConnectors
 
 
 @dataclass
@@ -44,13 +38,13 @@ class DomoInstanceConfig:
 
     auth: DomoAuth = field(repr=False)
 
-    Accounts: DomoAccounts = field(default=None)
+    Accounts: Any = field(default=None)
     AccessTokens: DomoAccessTokens = field(default=None)
     Allowlist: DomoAllowlist = field(default=None)
-    ApiClients: ApiClients = field(default=None)
+    ApiClients: "ApiClients" = field(default=None)
 
     Connectors: DomoConnectors = field(default=None)
-    InstanceSwitcher: InstanceSwitcher = field(default=None)
+    InstanceSwitcher: "InstanceSwitcher" = field(default=None)
 
     Grants: DomoGrants = field(default=None)
 
@@ -59,10 +53,15 @@ class DomoInstanceConfig:
 
     SSO: SSO_Class = field(default=None)
     Everywhere: DomoEverywhere = field(default=None)
-    UserAttributes: UserAttributes = field(default=None)
+    UserAttributes: "UserAttributes" = field(default=None)
     Toggle: DomoToggle = field(default=None)
 
     def __post_init__(self):
+        from ..DomoAccount import DomoAccounts
+        from .api_client import ApiClients
+        from .instance_switcher import InstanceSwitcher
+        from .user_attributes import UserAttributes
+
         self.Accounts = DomoAccounts(auth=self.auth)
         self.AccessTokens = DomoAccessTokens(auth=self.auth)
         self.ApiClients = ApiClients(auth=self.auth)
@@ -374,7 +373,7 @@ class DomoInstanceConfig:
         """checks if users can be invited as social users to the instaance"""
 
         if not customer_id:
-            from ..DomoBootstrap import DomoBootstrap
+            from .bootstrap import DomoBootstrap
 
             try:
                 bs = DomoBootstrap(auth=self.auth)
@@ -415,7 +414,7 @@ class DomoInstanceConfig:
 
         # Get customer_id if not provided
         if not customer_id:
-            from ..DomoBootstrap import DomoBootstrap
+            from .bootstrap import DomoBootstrap
 
             try:
                 bs = DomoBootstrap(auth=self.auth)

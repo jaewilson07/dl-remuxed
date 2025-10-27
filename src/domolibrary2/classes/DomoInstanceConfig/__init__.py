@@ -14,3 +14,8 @@ from . import (
     toggle,
     user_attributes,
 )
+
+# Import main class
+from .core import DomoInstanceConfig
+
+__all__ = ["DomoInstanceConfig"]

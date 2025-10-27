@@ -59,11 +59,7 @@ class DomoAccessToken(DomoEntity):
 
     @staticmethod
     async def _get_owner(owner_id, auth: DomoAuth):
-<<<<<<< HEAD
         from ..DomoUser import DomoUser
-=======
-        from .. import DomoUser as dmu
->>>>>>> main
 
         return await DomoUser.get_by_id(auth=auth, id=owner_id)
 

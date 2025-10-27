@@ -79,7 +79,7 @@ class DomoToggle:
             return self.customer_id
 
         # Avoid circular import by importing here
-        from ..DomoBootstrap import DomoBootstrap
+        from .bootstrap import DomoBootstrap
 
         try:
             bs = DomoBootstrap(auth=self.auth)
@@ -472,34 +472,34 @@ class DomoToggle:
         # Social user invites (requires customer_id)
         if customer_id:
             try:
-                results["is_invite_social_users_enabled"] = (
-                    await self.get_is_invite_social_users_enabled(
-                        customer_id=customer_id,
-                        session=session,
-                        debug_api=debug_api,
-                    )
+                results[
+                    "is_invite_social_users_enabled"
+                ] = await self.get_is_invite_social_users_enabled(
+                    customer_id=customer_id,
+                    session=session,
+                    debug_api=debug_api,
                 )
             except (RouteError, Toggle_InstantiationError) as e:
                 results["is_invite_social_users_enabled"] = f"Error: {str(e)}"
 
         # User invite notifications
         try:
-            results["is_user_invite_notifications_enabled"] = (
-                await self.get_is_user_invite_notifications_enabled(
-                    session=session,
-                    debug_api=debug_api,
-                )
+            results[
+                "is_user_invite_notifications_enabled"
+            ] = await self.get_is_user_invite_notifications_enabled(
+                session=session,
+                debug_api=debug_api,
             )
         except RouteError as e:
             results["is_user_invite_notifications_enabled"] = f"Error: {str(e)}"
 
         # Weekly digest
         try:
-            results["is_weekly_digest_enabled"] = (
-                await self.get_is_weekly_digest_enabled(
-                    session=session,
-                    debug_api=debug_api,
-                )
+            results[
+                "is_weekly_digest_enabled"
+            ] = await self.get_is_weekly_digest_enabled(
+                session=session,
+                debug_api=debug_api,
             )
         except RouteError as e:
             results["is_weekly_digest_enabled"] = f"Error: {str(e)}"
