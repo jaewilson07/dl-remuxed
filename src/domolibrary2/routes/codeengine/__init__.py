@@ -11,14 +11,6 @@ Modules:
 """
 
 # Import all exception classes
-from .exceptions import (
-    CodeEngine_CRUD_Error,
-    CodeEngine_FunctionCallError,
-    CodeEngine_GET_Error,
-    CodeEngine_InvalidPackage,
-    SearchCodeEngine_NotFound,
-)
-
 # Import core functions
 from .core import (
     CodeEngine_Package_Parts,
@@ -39,6 +31,16 @@ from .crud import (
     upsert_code_engine_package_version,
     upsert_package,
 )
+from .exceptions import (
+    CodeEngine_CRUD_Error,
+    CodeEngine_FunctionCallError,
+    CodeEngine_GET_Error,
+    CodeEngine_InvalidPackage,
+    SearchCodeEngine_NotFound,
+)
+
+# Backward compatibility alias
+CodeEngine_API_Error = CodeEngine_GET_Error
 
 __all__ = [
     # Exception classes
@@ -47,6 +49,7 @@ __all__ = [
     "CodeEngine_CRUD_Error",
     "CodeEngine_InvalidPackage",
     "CodeEngine_FunctionCallError",
+    "CodeEngine_API_Error",  # Backward compatibility alias
     # Core functions
     "get_packages",
     "CodeEngine_Package_Parts",

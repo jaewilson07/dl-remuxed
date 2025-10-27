@@ -6,18 +6,23 @@ This module provides functions for managing page access control and permissions.
 Functions:
     get_page_access_test: Test page access permissions for the authenticated user
     get_page_access_list: Retrieve page access list showing which users and groups have access
+    add_page_owner: Add owners to multiple pages
 """
 
 __all__ = [
     "get_page_access_test",
     "get_page_access_list",
+    "add_page_owner",
 ]
 
 from typing import List, Optional, Union
 
 import httpx
 
-from ...client import get_data as gd, response as rgd
+from ...client import (
+    get_data as gd,
+    response as rgd,
+)
 from ...client.auth import DomoAuth
 from .exceptions import (
     Page_CRUD_Error,

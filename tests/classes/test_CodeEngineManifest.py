@@ -31,9 +31,9 @@ async def test_cell_2(token_auth=token_auth):
     ARGUMENT_INDEX = 1
 
     res = await code_engine_routes.get_codeengine_package_by_id_and_version(
+        auth=token_auth,
         package_id=PACKAGE_ID,
         version = VERSION_ID,
-        auth=token_auth,
         debug_api=False,
     )
     compare_obj = res.response['functions'][FUNCTION_INDEX]

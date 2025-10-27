@@ -14,12 +14,22 @@ from typing import Any, List
 
 import httpx
 
-from ..client import auth as dmda, exceptions as dmde
+from ..client import (
+    auth as dmda,
+    exceptions as dmde,
+)
 from ..client.entities import DomoEntity, DomoManager
 from ..routes import jupyter as jupyter_routes
 from ..routes.jupyter import JupyterAPI_Error
-from ..utils import chunk_execution as dmce, files as defi
-from . import Account as dmac, dataset as dmds, DomoUser as dmdu
+from ..utils import (
+    chunk_execution as dmce,
+    files as defi,
+)
+from . import (
+    Account as dmac,
+    DomoUser as dmdu,
+    dataset as dmds,
+)
 from .Account import DomoJupyter_Account
 from .Content import DomoJupyter_Content
 from .DataSource import DomoJupyter_DataSource
