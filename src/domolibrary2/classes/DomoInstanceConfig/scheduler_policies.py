@@ -10,13 +10,13 @@ __all__ = [
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Callable, Any
 
 import httpx
 
 from ...client.entities import DomoBase, DomoSubEntity, DomoEnumMixin
 from ...client.auth import DomoAuth
-from ...routes import instance_config as instance_config_routes
+from ...routes.instance_config import scheduler_policies as instance_config_routes
 
 
 def parse_dt(dt: str) -> datetime:
@@ -91,7 +91,7 @@ class DomoScheduler_Policy(DomoBase):
             members=[DomoScheduler_Policy_Member.from_dict(m) for m in d["members"]],
         )
 
-    def to_dict(self) -> dict:
+    def to_dict(self, override_fn: Optional[Callable[[str, Any], Any]] = None) -> dict:
         return {
             "createdOn": self.created_on.isoformat().replace("+00:00", "Z"),
             "id": self.id,
@@ -124,6 +124,7 @@ class DomoScheduler_Policies(DomoSubEntity):
             **kwargs,
         )
         self.policies = [DomoScheduler_Policy.from_dict(p) for p in res.response]
+        print(self.policies)
         return self.policies
 
     async def upsert(

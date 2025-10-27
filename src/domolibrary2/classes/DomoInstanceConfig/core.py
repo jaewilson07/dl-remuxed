@@ -33,9 +33,9 @@ from .toggle import DomoToggle
 from .user_attributes import UserAttributes
 
 from ..DomoAccount import DomoAccounts
-from ..DomoPublish import DomoEverywhere
+from ..publish import DomoEverywhere
 
-from ..DomoDataset.Connector import DomoConnectors
+from ..DomoDataset.connector import DomoConnectors
 
 
 @dataclass

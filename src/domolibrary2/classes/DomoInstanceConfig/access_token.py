@@ -59,9 +59,9 @@ class DomoAccessToken(DomoEntity):
 
     @staticmethod
     async def _get_owner(owner_id, auth: DomoAuth):
-        from .. import DomoUser as dmu
+        from ..DomoUser import DomoUser
 
-        return await dmu.DomoUser.get_by_id(user_id=owner_id, auth=auth)
+        return await DomoUser.get_by_id(auth=auth, id=owner_id)
 
     @classmethod
     async def get_by_id(
@@ -168,7 +168,7 @@ class DomoAccessToken(DomoEntity):
 class DomoAccessTokens(DomoManager):
     auth: DomoAuth = field(repr=False)
 
-    domo_access_tokens: List[DomoAccessToken] = field(default=[])
+    domo_access_tokens: List[DomoAccessToken] = field(default_factory=list)
 
     async def get(
         self,
