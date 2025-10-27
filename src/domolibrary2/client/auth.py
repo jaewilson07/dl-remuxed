@@ -122,7 +122,7 @@ class _DomoAuth_Optional(ABC):
         """
         raise NotImplementedError("Subclasses must implement auth_header property.")
 
-    @log_call(logger=get_global_logger(), action_name="class")
+    @log_call(action_name="class")
     async def who_am_i(
         self,
         session: Optional[httpx.AsyncClient] = None,
@@ -149,7 +149,9 @@ class _DomoAuth_Optional(ABC):
 
         from ..routes import auth as auth_routes
 
-        await logger.info("Executing who_am_i for token validation.")
+        # logger = get_global_logger()
+        if logger:
+            await logger.info("Executing who_am_i for token validation.")
 
         res = await auth_routes.who_am_i(
             auth=self,
@@ -472,9 +474,8 @@ def test_is_full_auth(
     Raises:
         InvalidAuthTypeError: If auth is not a DomoFullAuth instance
     """
-    tb = lg.get_traceback(num_stacks_to_drop=num_stacks_to_drop)
-
-    function_name = function_name or tb.function_name
+    # TODO: Re-implement traceback functionality
+    function_name = function_name or "test_is_full_auth"
 
     if auth.__class__.__name__ != "DomoFullAuth":
         raise AuthError(
@@ -1053,13 +1054,13 @@ def test_is_jupyter_auth(
     if required_auth_type_ls is None:
         required_auth_type_ls = [DomoJupyterFullAuth, DomoJupyterTokenAuth]
 
-    tb = lg.get_traceback()
+    # TODO: Re-implement traceback functionality
 
     if auth.__class__.__name__ not in [
         auth_type.__name__ for auth_type in required_auth_type_ls
     ]:
         raise AuthError(
-            message=f"{tb.function_name} requires {[auth_type.__name__ for auth_type in required_auth_type_ls]} authentication, got {auth.__class__.__name__}",
-            function_name=tb.function_name,
+            message=f"test_is_jupyter_auth requires {[auth_type.__name__ for auth_type in required_auth_type_ls]} authentication, got {auth.__class__.__name__}",
+            function_name="test_is_jupyter_auth",
             domo_instance=auth.domo_instance,
         )

@@ -9,14 +9,13 @@ __version__ = "0.0.1-alpha"
 
 
 from dc_logger.client.base import Logger, get_global_logger
-from dc_logger.client.decorators import log_call
 
 logger: Logger = get_global_logger()
 assert logger, "A global logger must be set before using get_data functions."
 print(logger)
 
 
-from . import classes, client, integrations, routes, utils
+from . import client, routes, utils
 
 # Define what gets imported with "from domolibrary2 import *"
 __all__ = [

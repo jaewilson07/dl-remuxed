@@ -128,10 +128,12 @@ async def get_data(
     if debug_api:
         print(request_metadata.to_dict())
 
-    await logger.info(
-        message=request_metadata.to_dict(),
-        extra={"level_name": "get_data"},
-    )
+    logger = get_global_logger()
+    if logger:
+        await logger.info(
+            message=request_metadata.to_dict(),
+            extra={"level_name": "get_data"},
+        )
 
     # Create additional information with parent_class and traceback_details
     additional_information = {}

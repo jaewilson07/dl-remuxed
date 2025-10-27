@@ -71,14 +71,26 @@ class DomoDatacenter:
         if return_raw or len(json_list) == 0:
             return json_list
 
-        return await dmce.gather_with_concurrency(
-            n=20,
-            *[
-                dmds.DomoDataset.get_by_id(
-                    dataset_id=obj.get("databaseId"),
+        # return await dmce.gather_with_concurrency(
+        #     n=60,
+        #     *[
+        #         dmds.DomoDataset.get_by_id(
+        #             dataset_id=obj.get("databaseId"),
+        #             auth=self.auth,
+        #             debug_api=debug_api,
+        #             session=session,
+        #         )
+        #         for obj in json_list
+        #     ],
+        # )
+
+        return (
+            [
+                dmds.DomoDataset.from_dict(
+                    obj=obj,
                     auth=self.auth,
-                    debug_api=debug_api,
-                    session=session,
+                    # debug_api=debug_api,
+                    # session=session,
                 )
                 for obj in json_list
             ],
