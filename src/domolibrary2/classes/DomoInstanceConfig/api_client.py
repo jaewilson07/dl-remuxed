@@ -53,7 +53,7 @@ class ApiClient(DomoEntity):
         user_id: str, auth: DomoAuth
     ) -> Union[dmdu.DomoUser, bool, None]:
         try:
-            return await dmdu.DomoUser.get_by_id(auth=auth, user_id=user_id)
+            return await dmdu.DomoUser.get_by_id(auth=auth, id=user_id)
         except DomoError:
             return False
 
