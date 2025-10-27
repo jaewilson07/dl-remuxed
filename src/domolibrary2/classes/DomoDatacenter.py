@@ -5,7 +5,8 @@ from typing import Any, List, Union
 
 import httpx
 
-from ..client.DomoError import DomoError
+from ..client.auth import DomoAuth
+from ..client.exceptions import DomoError
 from ..routes import datacenter as datacenter_routes
 from ..routes.datacenter import generate_search_datacenter_filter
 from ..utils import chunk_execution as dmce
@@ -55,7 +56,7 @@ class DomoDatacenter:
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
     ) -> List[Any]:
-        from . import dataset as dmds
+        from . import DomoDataset as dmds
 
         json_list = await self.search_datacenter(
             maximum=maximum,

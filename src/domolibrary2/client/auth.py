@@ -16,8 +16,9 @@ from dataclasses import dataclass, field
 from typing import Optional, Union
 
 import httpx
+from dc_logger.client.base import get_global_logger
+from dc_logger.client.decorators import log_call
 
-from . import Logger as lg
 from .exceptions import AuthError
 from .response import ResponseGetData
 
@@ -121,6 +122,7 @@ class _DomoAuth_Optional(ABC):
         """
         raise NotImplementedError("Subclasses must implement auth_header property.")
 
+    @log_call(logger=get_global_logger(), action_name="class")
     async def who_am_i(
         self,
         session: Optional[httpx.AsyncClient] = None,
@@ -146,6 +148,8 @@ class _DomoAuth_Optional(ABC):
         # Create session if not provided
 
         from ..routes import auth as auth_routes
+
+        await logger.info("Executing who_am_i for token validation.")
 
         res = await auth_routes.who_am_i(
             auth=self,

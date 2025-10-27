@@ -24,7 +24,6 @@ import httpx
 
 from ..client.auth import DomoAuth
 from ..client.exceptions import ClassError, DomoError
-from ..client.Logger import Logger
 from ..client.response import ResponseGetData
 from ..entities.entities import DomoEntity, DomoManager
 from ..routes import user as user_routes
@@ -41,7 +40,6 @@ from ..routes.user.exceptions import (
     UserAttributes_GET_Error,
     UserSharing_Error,
 )
-
 from ..utils.convert import convert_epoch_millisecond_to_datetime, test_valid_email
 from ..utils.images import Image, ImageUtils, are_same_image
 
@@ -180,7 +178,6 @@ class DomoUser(DomoEntity):
 
     @classmethod
     def from_bootstrap_dict(cls, auth, obj):
-
         return cls(
             id=obj["id"],
             display_name=obj.get("displayName"),
@@ -625,8 +622,6 @@ class DomoUsers(DomoManager):
     users: List[DomoUser] = field(default_factory=list)
     virtual_users: List[DomoUser] = field(default_factory=list)
 
-    logger: Logger = field(default_factory=lambda: Logger(app_name="domo_users"))
-
     @classmethod
     def _users_to_domo_user(cls, user_ls, auth: DomoAuth):
         return [DomoUser.from_dict(auth=auth, obj=obj) for obj in user_ls]
@@ -634,9 +629,6 @@ class DomoUsers(DomoManager):
     @classmethod
     def _users_to_virtual_user(cls, user_ls, auth: DomoAuth):
         return [DomoUser.from_virtual_dict(auth=auth, obj=obj) for obj in user_ls]
-
-    def _generate_logger(self, logger: Optional[Logger] = None):
-        self.logger = logger or self.logger or Logger(app_name="domo_users")
 
     @staticmethod
     def _util_match_domo_users_to_emails(

@@ -15,7 +15,7 @@ from pprint import pprint
 from typing import Any, Callable, Optional, Union
 
 import httpx
-from dc_logger.client.base import Logger, get_global_logger
+from dc_logger.client.base import get_global_logger
 from dc_logger.client.decorators import log_call
 
 from ..utils import chunk_execution as dmce
@@ -24,10 +24,9 @@ from . import (
     response as rgd,
 )
 from .exceptions import DomoError
-from .Logger import get_traceback
 
-logger: Logger = get_global_logger()
-assert logger, "A global logger must be set before using get_data functions."
+# logger: Logger = get_global_logger()
+# assert logger, "A global logger must be set before using get_data functions."
 
 
 class GetDataError(DomoError):
@@ -85,7 +84,7 @@ def create_httpx_session(
 
 
 @dmce.run_with_retry()
-@log_call(logger=logger, action_name="get_data")
+@log_call(logger=get_global_logger(), action_name="get_data")
 async def get_data(
     url: str,
     method: str,
@@ -101,9 +100,7 @@ async def get_data(
     timeout: int = 20,
     parent_class: Optional[str] = None,  # noqa: ARG001
     num_stacks_to_drop: int = 2,  # noqa: ARG001
-    debug_traceback: bool = False,  # noqa: ARG001
     is_verify: bool = False,
-    logger: Logger = None,
 ) -> rgd.ResponseGetData:
     """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint."""
 
@@ -140,14 +137,6 @@ async def get_data(
     additional_information = {}
     if parent_class:
         additional_information["parent_class"] = parent_class
-    if debug_traceback:
-        traceback_details = get_traceback(
-            num_stacks_to_drop=num_stacks_to_drop,
-            root_module="<module>",
-            parent_class=parent_class or "",
-            debug_traceback=debug_traceback,
-        )
-        additional_information["traceback_details"] = traceback_details
 
     try:
         response = await session.request(
@@ -202,10 +191,6 @@ async def get_data(
 
         return res
 
-        await logger.info(message=res.response)
-
-        return res
-
     except httpx.HTTPStatusError as http_err:
         print(f"HTTP error occurred: {http_err}")
         raise
@@ -220,7 +205,7 @@ async def get_data(
 
 
 @dmce.run_with_retry()
-@log_call(logger=logger, action_name="get_data")
+@log_call(logger=get_global_logger(), action_name="get_data")
 async def get_data_stream(
     url: str,
     auth: dmda.DomoAuth,
@@ -289,14 +274,6 @@ async def get_data_stream(
     if parent_class:
         additional_information["parent_class"] = parent_class
 
-    traceback_details = get_traceback(
-        num_stacks_to_drop=num_stacks_to_drop,
-        root_module="<module>",
-        parent_class=parent_class or "",
-        debug_traceback=debug_traceback,
-    )
-    additional_information["traceback_details"] = traceback_details
-
     if debug_api:
         pprint(
             {
@@ -305,7 +282,7 @@ async def get_data_stream(
                 "headers": headers,
                 # "body": body,
                 "params": params,
-                "traceback_details": traceback_details,
+                # "traceback_details": traceback_details,
             }
         )
 
@@ -376,7 +353,7 @@ class LooperError(DomoError):
         super().__init__(message=f"{loop_stage} - {message}")
 
 
-@log_call(logger=logger, action_name="looper")
+@log_call(logger=get_global_logger(), action_name="looper")
 async def looper(
     auth: dmda.DomoAuth,
     session: Optional[httpx.AsyncClient],

@@ -47,8 +47,6 @@ class DomoEntity(DomoBase):
 
     Relations: DomoRelationshipController = field(repr=False)
 
-    # logger: Logger = field(repr=False) ## pass global logger
-
     @property
     def _name(self) -> str:
         name = getattr(self, "name", None)
