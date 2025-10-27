@@ -31,6 +31,13 @@ from .exceptions import DomoError
 logger: Logger = get_global_logger()
 # assert logger, "A global logger must be set before using get_data functions."
 
+import dc_logger
+from dc_logger.client.base import get_global_logger, Logger
+from dc_logger.client.decorators import log_call
+
+logger: Logger = get_global_logger()
+assert logger, "A global logger must be set before using get_data functions."
+
 
 class GetData_Error(DomoError):
     def __init__(self, message, url):
@@ -139,6 +146,14 @@ async def get_data(
             extra={"level_name": "get_data"},
         )
 
+    if debug_api:
+        print(request_metadata.to_dict())
+
+    await logger.info(
+        message=request_metadata.to_dict(),
+        extra={"level_name": "get_data"},
+    )
+
     # Create additional information with parent_class and traceback_details
     additional_information = {}
     if parent_class:
@@ -190,8 +205,8 @@ async def get_data(
                 request_metadata=request_metadata,
                 additional_information=additional_information,
             )
-            if logger:
-                await logger.info(message=res.to_dict())
+
+            await logger.info(message=res.to_dict())
 
         # Process response into ResponseGetData using from_httpx_response
         res = rgd.ResponseGetData.from_httpx_response(
@@ -202,6 +217,10 @@ async def get_data(
 
         if logger:
             await logger.info(message=res.response)
+
+        return res
+
+        await logger.info(message=res.response)
 
         return res
 
@@ -309,6 +328,22 @@ async def get_data_stream(
         )
 
     try:
+        async with session or httpx.AsyncClient(verify=False) as client:
+            async with client.stream(
+                method,
+                url=url,
+                headers=headers,
+                follow_redirects=is_follow_redirects,
+                timeout=timeout,
+            ) as res:
+                if res.status_code != 200:
+                    res = rgd.ResponseGetData(
+                        status=res.status_code,
+                        response=res.text if hasattr(res, "text") else str(res.content),
+                        is_success=False,
+                        request_metadata=request_metadata,
+                        additional_information=additional_information,
+                    )
         if not session:
             session = httpx.AsyncClient(verify=is_verify)
 
@@ -334,6 +369,9 @@ async def get_data_stream(
                     await logger.info(message=res_obj.to_dict())
                 return res_obj
 
+                    await logger.info(message=res.to_dict())
+                    return res
+
             content = bytearray()
             async for chunk in res.aiter_bytes():
                 content += chunk
@@ -349,6 +387,8 @@ async def get_data_stream(
                 await logger.info(message=res_obj.to_dict())
 
             return res_obj
+
+                await logger.info(message=res.to_dict())
 
     except httpx.TransportError as e:
         raise GetData_Error(url=url, message=e) from e
@@ -468,6 +508,16 @@ async def looper(
                 }
             )
 
+        await logger.info(
+            message={
+                "action": "looper_request",
+                "params": params,
+                "body": body,
+                "skip": skip,
+                "limit": limit,
+            }
+        )
+
         res = await get_data(
             auth=auth,
             url=url,
@@ -500,6 +550,9 @@ async def looper(
 
             logger.error(f"Error processing arr_fn: {e}")
 
+
+            logger.error(f"Error processing arr_fn: {e}")
+
             raise LooperError(loop_stage="processing arr_fn", message=str(e)) from e
 
         allRows += newRecords
@@ -510,6 +563,8 @@ async def looper(
         if maximum and len(allRows) >= maximum and not loop_until_end:
             isLoop = False
 
+        message = f"🐛 Looper iteration complete: {{'all_rows': {len(allRows)}, 'new_records': {len(newRecords)}, 'skip': {skip}, 'limit': {limit}}}"
+        
         message = f"🐛 Looper iteration complete: {{'all_rows': {len(allRows)}, 'new_records': {len(newRecords)}, 'skip': {skip}, 'limit': {limit}}}"
 
         if debug_loop:
@@ -578,6 +633,7 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
         session: Optional[httpx.AsyncClient] = None,
         **kwargs: Any,
     ) -> Any:
+
         result = await func(
             *args,
             parent_class=parent_class,
