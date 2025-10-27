@@ -12,7 +12,10 @@ from typing import Optional
 
 import httpx
 
-from ..client import get_data as gd, response as rgd
+from ..client import (
+    get_data as gd,
+    response as rgd,
+)
 from ..client.auth import DomoAuth
 from ..client.exceptions import RouteError
 
@@ -115,22 +118,22 @@ async def get_stream_by_id(
     parent_class: Optional[str] = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
-    """Get a stream by its unique identifier.
+    """Get a stream by its ID.
 
     Args:
         auth: Authentication object
-        stream_id: Unique identifier of the stream
+        stream_id: Unique stream identifier
         session: HTTP client session
         debug_api: Enable API debugging
         debug_num_stacks_to_drop: Stack frames to drop for debugging
-        parent_class: Parent class name for debugging
+        parent_class: Name of the calling class
         return_raw: Return raw response without processing
 
     Returns:
         ResponseGetData object
 
     Raises:
-        Stream_GET_Error: If stream retrieval fails
+        Stream_GET_Error: If retrieval fails
     """
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/streams/{stream_id}"
 
@@ -168,19 +171,19 @@ async def update_stream(
 
     Args:
         auth: Authentication object
-        stream_id: Unique identifier of the stream
-        body: Update body containing stream configuration
+        stream_id: Unique stream identifier
+        body: Stream configuration data
         session: HTTP client session
         debug_num_stacks_to_drop: Stack frames to drop for debugging
         debug_api: Enable API debugging
-        parent_class: Parent class name for debugging
+        parent_class: Name of the calling class
         return_raw: Return raw response without processing
 
     Returns:
         ResponseGetData object
 
     Raises:
-        Stream_CRUD_Error: If stream update fails
+        Stream_CRUD_Error: If update operation fails
     """
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/streams/{stream_id}"
 
@@ -218,18 +221,18 @@ async def create_stream(
 
     Args:
         auth: Authentication object
-        body: Stream configuration body
+        body: Stream configuration data
         session: HTTP client session
         debug_api: Enable API debugging
         debug_num_stacks_to_drop: Stack frames to drop for debugging
-        parent_class: Parent class name for debugging
+        parent_class: Name of the calling class
         return_raw: Return raw response without processing
 
     Returns:
         ResponseGetData object
 
     Raises:
-        Stream_CRUD_Error: If stream creation fails
+        Stream_CRUD_Error: If create operation fails
     """
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/streams"
 
@@ -263,14 +266,14 @@ async def execute_stream(
     debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
-    """Execute a stream to trigger data import.
+    """Execute a stream to run data import.
 
     Args:
         auth: Authentication object
-        stream_id: Unique identifier of the stream
+        stream_id: Unique stream identifier
         session: HTTP client session
         debug_api: Enable API debugging
-        parent_class: Parent class name for debugging
+        parent_class: Name of the calling class
         debug_num_stacks_to_drop: Stack frames to drop for debugging
         return_raw: Return raw response without processing
 
@@ -278,7 +281,7 @@ async def execute_stream(
         ResponseGetData object
 
     Raises:
-        Stream_CRUD_Error: If stream execution fails
+        Stream_CRUD_Error: If execute operation fails
     """
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/streams/{stream_id}/executions"
 
