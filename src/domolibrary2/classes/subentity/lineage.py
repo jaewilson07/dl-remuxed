@@ -358,8 +358,6 @@ class DomoLineage:
         if not self.parent and (not self.parent_id or not self.parent_type):
             raise NotImplementedError("Parent ID and type must be set to get the parent entity.")
         
-        print(parent_auth)
-        print("==========")
 
         if parent_auth is None and parent_auth_retrieval_fn is not None:
             parent_auth = parent_auth_retrieval_fn(self)
@@ -402,7 +400,6 @@ class DomoLineage:
     ):
         self.lineage = []  # reset lineage
 
-        print(self.parent)
 
         if self.parent.__class__.__name__ == "FederatedDomoDataset":
             return await self._get_federated_lineage(

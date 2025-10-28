@@ -358,7 +358,6 @@ class DomoPublication(DomoEntity_w_Lineage):
             None,
         )
 
-
         if not obj:
             if not is_suppress_errors:
                 pass
@@ -368,8 +367,29 @@ class DomoPublication(DomoEntity_w_Lineage):
                 #     )
             return None
 
+        # Resolve publisher entity. If the provided 'subscriber' is a FederatedDomoDataset
+        # we should fetch the publisher-side dataset as the default dataset class (not the federated wrapper).
+        publisher_obj_id = obj["publisherObjectId"]
+
+        # Lazy import to avoid circular imports
+        if subscriber.__class__.__name__ == "FederatedDomoDataset":
+            try:
+                from .DomoDataset.dataset import DomoDataset as PublisherDataset
+
+                return await PublisherDataset.get_by_id(
+                    dataset_id=publisher_obj_id,
+                    auth=self.auth,
+                    is_use_default_dataset_class=True,
+                )
+            except Exception:
+                # Fall back to calling the subscriber's resolver if publisher fetch fails
+                return await subscriber.get_entity_by_id(
+                    entity_id=publisher_obj_id, auth=self.auth
+                )
+
+        # Default behavior: delegate to subscriber's get_entity_by_id
         return await subscriber.get_entity_by_id(
-            entity_id=obj["publisherObjectId"], auth=self.auth
+            entity_id=publisher_obj_id, auth=self.auth
         )
 
     @classmethod

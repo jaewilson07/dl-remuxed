@@ -132,9 +132,11 @@ async def test_cell_6(token_auth=token_auth):
 
     await ds.get_federated_parent(parent_auth=parent_auth,parent_auth_retrieval_fn=retreive_parent_auth_fn)
 
+    
+
     test = await ds.Lineage.get(parent_auth=parent_auth,parent_auth_retrieval_fn=retreive_parent_auth_fn)
 
-    print(test) 
+    #print(test) 
 
     # try:
     #     await ds.get_federated_parent(parent_auth_retrieval_fn=retreive_parent_auth_fn)
