@@ -16,9 +16,10 @@ from typing import Any, Callable, Optional, Union
 
 import httpx
 from dc_logger.client.base import get_global_logger
-from dc_logger.client.decorators import log_call
+from dc_logger.decorators import log_call, LogDecoratorConfig
 
 from ..utils import chunk_execution as dmce
+from ..utils.logging import ResponseGetDataProcessor
 from . import (
     auth as dmda,
     response as rgd,
@@ -84,7 +85,11 @@ def create_httpx_session(
 
 
 @dmce.run_with_retry()
-@log_call(logger=get_global_logger(), action_name="get_data")
+@log_call(
+    action_name="get_data",
+    level_name="client",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor())
+)
 async def get_data(
     url: str,
     method: str,
@@ -128,19 +133,13 @@ async def get_data(
     if debug_api:
         print(request_metadata.to_dict())
 
-    logger = get_global_logger()
-    if logger:
-        await logger.info(
-            message=request_metadata.to_dict(),
-            extra={"level_name": "get_data"},
-        )
-
     # Create additional information with parent_class and traceback_details
     additional_information = {}
     if parent_class:
         additional_information["parent_class"] = parent_class
 
     try:
+        
         response = await session.request(
             method=method,
             url=url,
@@ -151,6 +150,7 @@ async def get_data(
             follow_redirects=is_follow_redirects,
             timeout=timeout,
         )
+
 
         if debug_api:
             print(f"Response Status: {response.status_code}")
@@ -179,7 +179,7 @@ async def get_data(
                 additional_information=additional_information,
             )
 
-            await logger.info(message=res.to_dict())
+            #await logger.info(message=res.to_dict())
             return res
 
         # Process response into ResponseGetData using from_httpx_response
@@ -189,17 +189,19 @@ async def get_data(
             additional_information=additional_information,
         )
 
-        if logger:
-            await logger.info(message=res.response)
+        #if logger:
+            #await logger.info(message=res.response)
 
         return res
 
     except httpx.HTTPStatusError as http_err:
-        print(f"HTTP error occurred: {http_err}")
+        message = f"HTTP error occurred: {http_err}"
+        print(message)
         raise
 
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        message = f"An unexpected error occurred: {e}"
+        print(message)
         raise
 
     finally:
@@ -208,7 +210,11 @@ async def get_data(
 
 
 @dmce.run_with_retry()
-@log_call(logger=get_global_logger(), action_name="get_data")
+@log_call(
+    action_name="get_data_stream",
+    level_name="client",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor())
+)
 async def get_data_stream(
     url: str,
     auth: dmda.DomoAuth,
@@ -327,8 +333,6 @@ async def get_data_stream(
                     request_metadata=request_metadata,
                     additional_information=additional_information,
                 )
-                if logger:  # noqa: F821
-                    await logger.info(message=res_obj.to_dict())  # noqa: F821
                 return res_obj
 
             content = bytearray()
@@ -342,13 +346,9 @@ async def get_data_stream(
                 request_metadata=request_metadata,
                 additional_information=additional_information,
             )
-            if logger:  # noqa: F821
-                await logger.info(message=res_obj.to_dict())  # noqa: F821
-
             return res_obj
 
     except httpx.TransportError as e:
-        await logger.error(e)
         raise GetDataError(url=url, message=e) from e
 
 
@@ -357,7 +357,7 @@ class LooperError(DomoError):
         super().__init__(message=f"{loop_stage} - {message}")
 
 
-@log_call(action_name="looper")
+@log_call(action_name="looper",level_name="client")
 async def looper(
     auth: dmda.DomoAuth,
     session: Optional[httpx.AsyncClient],
@@ -447,23 +447,19 @@ async def looper(
 
                 message = f"processing body_fn {str(e)}"
 
-                logger.error(message)  # noqa: F821
-
                 raise LooperError(loop_stage=message) from e
 
         if debug_loop:
             print(f"\n🚀 Retrieving records {skip} through {skip + limit} via {url}")
             # pprint(params)
 
-        await logger.info(  # noqa: F821
-            message={
+            message = {
                 "action": "looper_request",
                 "params": params,
                 "body": body,
                 "skip": skip,
                 "limit": limit,
             }
-        )
 
         res = await get_data(
             auth=auth,
@@ -495,8 +491,6 @@ async def looper(
         except Exception as e:
             await session.aclose()
 
-            logger.error(f"Error processing arr_fn: {e}")  # noqa: F821
-
             raise LooperError(loop_stage="processing arr_fn", message=str(e)) from e
 
         all_rows += new_records
@@ -512,9 +506,6 @@ async def looper(
         if debug_loop:
             print(message)
 
-        if logger:  # noqa: F821
-            await logger.info(message=message)  # noqa: F821
-
         if maximum and skip + limit > maximum and not loop_until_end:
             limit = maximum - len(all_rows)
 
@@ -523,9 +514,6 @@ async def looper(
 
     if debug_loop:
         message = f"\n🎉 Success - {len(all_rows)} records retrieved from {url} in query looper\n"
-
-    if logger:  # noqa: F821
-        await logger.info(message=message)  # noqa: F821
 
     if is_close_session:
         await session.aclose()
