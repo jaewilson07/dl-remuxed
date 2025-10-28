@@ -180,6 +180,7 @@ async def get_data(
             )
 
             await logger.info(message=res.to_dict())
+            return res
 
         # Process response into ResponseGetData using from_httpx_response
         res = rgd.ResponseGetData.from_httpx_response(
@@ -326,8 +327,8 @@ async def get_data_stream(
                     request_metadata=request_metadata,
                     additional_information=additional_information,
                 )
-                if logger:
-                    await logger.info(message=res_obj.to_dict())
+                if logger:  # noqa: F821
+                    await logger.info(message=res_obj.to_dict())  # noqa: F821
                 return res_obj
 
             content = bytearray()
@@ -341,8 +342,8 @@ async def get_data_stream(
                 request_metadata=request_metadata,
                 additional_information=additional_information,
             )
-            if logger:
-                await logger.info(message=res_obj.to_dict())
+            if logger:  # noqa: F821
+                await logger.info(message=res_obj.to_dict())  # noqa: F821
 
             return res_obj
 
@@ -446,7 +447,7 @@ async def looper(
 
                 message = f"processing body_fn {str(e)}"
 
-                logger.error(message)
+                logger.error(message)  # noqa: F821
 
                 raise LooperError(loop_stage=message) from e
 
@@ -454,7 +455,7 @@ async def looper(
             print(f"\n🚀 Retrieving records {skip} through {skip + limit} via {url}")
             # pprint(params)
 
-        await logger.info(
+        await logger.info(  # noqa: F821
             message={
                 "action": "looper_request",
                 "params": params,
@@ -494,7 +495,7 @@ async def looper(
         except Exception as e:
             await session.aclose()
 
-            logger.error(f"Error processing arr_fn: {e}")
+            logger.error(f"Error processing arr_fn: {e}")  # noqa: F821
 
             raise LooperError(loop_stage="processing arr_fn", message=str(e)) from e
 
@@ -511,8 +512,8 @@ async def looper(
         if debug_loop:
             print(message)
 
-        if logger:
-            await logger.info(message=message)
+        if logger:  # noqa: F821
+            await logger.info(message=message)  # noqa: F821
 
         if maximum and skip + limit > maximum and not loop_until_end:
             limit = maximum - len(all_rows)
@@ -523,8 +524,8 @@ async def looper(
     if debug_loop:
         message = f"\n🎉 Success - {len(all_rows)} records retrieved from {url} in query looper\n"
 
-    if logger:
-        await logger.info(message=message)
+    if logger:  # noqa: F821
+        await logger.info(message=message)  # noqa: F821
 
     if is_close_session:
         await session.aclose()
