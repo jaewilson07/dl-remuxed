@@ -9,13 +9,14 @@ __all__ = [
 
 
 from dataclasses import dataclass
-from typing import Callable
+from typing import Callable, Optional
 
 import httpx
 
 from ...client.auth import DomoAuth
 from ...entities.entities_federated import DomoFederatedEntity, DomoPublishedEntity
 from .dataset_default import DomoDataset_Default
+from ...utils import chunk_execution as dmce
 
 
 @dataclass
@@ -24,10 +25,38 @@ class FederatedDomoDataset(DomoDataset_Default, DomoFederatedEntity):
 
     async def get_federated_parent(
         self,
-        parent_auth: DomoAuth = None,
-        parent_auth_retrieval_fn: Callable[[], DomoAuth] = None,
+        parent_auth:  None,
+        parent_auth_retrieval_fn: Optional[Callable] = None,
     ):
-        raise NotImplementedError("To Do")
+        from ...classes.publish import DomoEverywhere 
+        domo_everywhere = DomoEverywhere(
+            auth=self.auth,
+        )
+
+        await domo_everywhere.get_subscriptions()
+
+        await dmce.gather_with_concurrency(*[sub.get_parent_publication(parent_auth_retrieval_fn=parent_auth_retrieval_fn) for sub in domo_everywhere.subscriptions], n= 20)
+
+
+        all = await dmce.gather_with_concurrency(*[
+            sub.parent_publication.get_publication_entity_by_subscriber_entity(
+                subscriber_domain=sub.subscriber_domain,
+                subscriber=self,
+            )
+            for sub in domo_everywhere.subscriptions
+        ], n=20)
+        
+        self.parent_entity = next((entity for entity in all if entity is not None), None)
+        if not self.parent_entity:
+            # raise KeyError(
+            #         cls_instance=self,
+            #         message=f"get_federated_parent: No matching parent entity found for subscriber id {self.id}",
+            #     )
+            raise NotImplementedError("To Do")
+        
+        
+        return self.parent_entity
+    
 
     @classmethod
     async def get_by_id(

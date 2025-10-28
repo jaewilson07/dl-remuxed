@@ -101,7 +101,7 @@ class DomoLineageLink_Dataflow(DomoLineage_Link):
     async def get_entity(
         entity_id, auth, session: httpx.AsyncClient = None, debug_api: bool = False
     ):
-        from .. import DomoDataflow as dmdf
+        from ..DomoDataflow import Dataflow as dmdf
 
         return await dmdf.DomoDataflow.get_by_id(dataflow_id=entity_id, auth=auth)
 
@@ -208,7 +208,7 @@ class DomoLineageLink_Dataset(DomoLineage_Link):
         Get the entity associated with this lineage link.
         This method should be implemented by subclasses to return the appropriate entity.
         """
-        from .. import dataset as dmds
+        from ..DomoDataset import dataset as dmds
 
         return await dmds.DomoDataset.get_by_id(
             dataset_id=entity_id, auth=auth, session=session, debug_api=debug_api
@@ -352,27 +352,31 @@ class DomoLineage:
         debug_api: bool = False,
         return_raw: bool = False,
         parent_auth: DomoAuth = None,
-        parent_auth_retreival_fn: Callable = None,
+        parent_auth_retrieval_fn: Callable = None,
         debug_num_stacks_to_drop=3,
     ):
         if not self.parent and (not self.parent_id or not self.parent_type):
-            raise DomoError("Parent ID and type must be set to get the parent entity.")
+            raise NotImplementedError("Parent ID and type must be set to get the parent entity.")
+        
+        print(parent_auth)
+        print("==========")
 
-        if parent_auth is None and parent_auth_retreival_fn is not None:
-            parent_auth = parent_auth_retreival_fn(self)
+        if parent_auth is None and parent_auth_retrieval_fn is not None:
+            parent_auth = parent_auth_retrieval_fn(self)
 
         if not parent_auth:
-            raise DomoError(
-                "Parent auth must be provided to get the federated parent entity."
-            )
+            # raise NotImplementedError(
+            #     "Parent auth must be provided to get the federated parent entity."
+            # )
+            pass
 
         await self.get_datacenter(
             session=session, debug_api=debug_api, return_raw=return_raw
         )
         parent_entity = await self.parent.get_federated_parent(
-            parent_auth=parent_auth, parent_auth_retrieval_fn=parent_auth_retreival_fn
+            parent_auth=parent_auth, parent_auth_retrieval_fn=parent_auth_retrieval_fn
         )
-
+        parent_entity.parent_auth = parent_auth
         parent_lineage = await parent_entity.Lineage.get()
         self.lineage += parent_lineage
 
@@ -394,14 +398,16 @@ class DomoLineage:
         debug_api: bool = False,
         return_raw: bool = False,
         parent_auth: DomoAuth = None,
-        parent_auth_retreival_fn: Callable = None,
+        parent_auth_retrieval_fn: Callable = None,
     ):
         self.lineage = []  # reset lineage
+
+        print(self.parent)
 
         if self.parent.__class__.__name__ == "FederatedDomoDataset":
             return await self._get_federated_lineage(
                 parent_auth=parent_auth,
-                parent_auth_retreival_fn=parent_auth_retreival_fn,
+                parent_auth_retrieval_fn=parent_auth_retrieval_fn,
                 session=session,
                 debug_api=debug_api,
                 return_raw=return_raw,
