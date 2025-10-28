@@ -113,7 +113,7 @@ class DomoCard(DomoEntity_w_Lineage):
     ):
         res = await card_routes.get_card_metadata(
             auth=auth,
-            entity_id=entity_id,
+            card_id=entity_id,
             optional_parts=optional_parts,
             debug_api=debug_api,
             session=session,
@@ -130,7 +130,7 @@ class DomoCard(DomoEntity_w_Lineage):
         return domo_card
 
     @classmethod
-    async def get_entity_by_id(
+    async def _get_entity_by_id(
         cls, auth: DomoAuth, entity_id: str, is_suppress_errors: bool = False, **kwargs
     ):
         return await cls.get_by_id(

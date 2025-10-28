@@ -125,6 +125,10 @@ class DomoUser(DomoEntity):
     ApiClients: Optional[Any] = None  # DomoApiClients
 
     @property
+    def entity_type(self):
+        return "DOMOUSER"
+
+    @property
     def display_url(self) -> str:
         """Generate the URL to display this user in the Domo admin interface."""
         return f"https://{self.auth.domo_instance}.domo.com/admin/people/{self.id}"
@@ -236,7 +240,7 @@ class DomoUser(DomoEntity):
 
         res = await user_routes.get_by_id(
             auth=auth,
-            id=id,
+            user_id=id,
             debug_api=debug_api,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
             session=session,
@@ -261,6 +265,17 @@ class DomoUser(DomoEntity):
             print(e)
 
         return domo_user
+    
+    @classmethod
+    async def get_entity_by_id(
+        cls, auth: DomoAuth, entity_id: str, is_suppress_errors: bool = False, **kwargs
+    ):
+        return await cls.get_by_id(
+            auth=auth,
+            entity_id=entity_id,
+            is_suppress_errors=is_suppress_errors,
+            **kwargs,
+        )
 
     async def download_avatar(
         self,
