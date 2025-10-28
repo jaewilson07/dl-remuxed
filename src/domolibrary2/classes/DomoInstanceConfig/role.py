@@ -13,13 +13,11 @@ from typing import Any, List, Optional
 
 import httpx
 
-
 from ...client.auth import DomoAuth
 from ...client.exceptions import ClassError
 from ...entities.entities import DomoEntity, DomoManager
 from ...entities.relationships import DomoRelationshipController
 from ...routes import role as role_routes
-from domolibrary2.client import auth
 
 
 class SetRoleGrants_MissingGrants(ClassError):
@@ -370,7 +368,6 @@ class DomoRoles(DomoManager):
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
     ) -> List[DomoRole]:
-
         res = await role_routes.get_roles(
             auth=self.auth,
             session=session,
@@ -392,7 +389,6 @@ class DomoRoles(DomoManager):
         is_suppress_error: bool = False,
         debug_num_stacks_to_drop: int = 3,
     ) -> DomoRole:
-
         await self.get(
             session=session,
             debug_api=debug_api,

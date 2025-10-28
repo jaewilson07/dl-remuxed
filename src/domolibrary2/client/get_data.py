@@ -347,6 +347,7 @@ async def get_data_stream(
             return res_obj
 
     except httpx.TransportError as e:
+        await logger.error(e)
         raise GetDataError(url=url, message=e) from e
 
 
@@ -355,7 +356,7 @@ class LooperError(DomoError):
         super().__init__(message=f"{loop_stage} - {message}")
 
 
-@log_call(logger=get_global_logger(), action_name="looper")
+@log_call(action_name="looper")
 async def looper(
     auth: dmda.DomoAuth,
     session: Optional[httpx.AsyncClient],

@@ -22,6 +22,7 @@ from typing import Any, List, Optional, Union
 from venv import logger
 
 import httpx
+from dc_logger.client.decorators import log_call
 
 from ..client.auth import DomoAuth
 from ..client.exceptions import ClassError, DomoError
@@ -43,8 +44,6 @@ from ..routes.user.exceptions import (
 )
 from ..utils.convert import convert_epoch_millisecond_to_datetime, test_valid_email
 from ..utils.images import Image, ImageUtils, are_same_image
-
-from dc_logger.client.decorators import log_call
 
 # User route exceptions are now imported from ..routes.user.exceptions
 
