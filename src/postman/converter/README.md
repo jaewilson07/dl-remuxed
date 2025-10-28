@@ -87,11 +87,11 @@ flowchart TD
     Collection --> CollectionAuth["Collection Auth"]
     Collection --> CollectionEvents["Collection Events"]
     Collection --> CollectionVars["Collection Variables"]
-    
+
     Collection --> Converter["PostmanRequestConverter"]
     Converter --> CodeGen["Python Code Generation"]
     CodeGen --> ClientCode["Type-Safe API Client"]
-    
+
     Collection --> Validator["Bidirectional Validator"]
     Validator --> Validation["Structure Validation"]
 ```
@@ -147,7 +147,7 @@ for request in collection.requests:
     print(f"\nRequest: {request.name}")
     print(f"Method: {request.method}")
     print(f"URL: {request.url.raw if request.url.raw else 'N/A'}")
-    
+
     # Analyze headers
     if request.header:
         print("Headers:")
@@ -156,7 +156,7 @@ for request in collection.requests:
             print(f"  {header.key}: {header.value} ({status})")
             if header.description:
                 print(f"    Description: {header.description}")
-    
+
     # Analyze query parameters
     if request.url.query:
         print("Query Parameters:")
@@ -165,7 +165,7 @@ for request in collection.requests:
             print(f"  {param.key}: {param.value} ({status})")
             if param.description:
                 print(f"    Description: {param.description}")
-    
+
     # Analyze request body
     if request.body:
         print(f"Body Mode: {request.body.mode}")
@@ -173,11 +173,11 @@ for request in collection.requests:
             print(f"Raw Body: {request.body.raw[:100]}...")
         if request.body.formdata:
             print(f"Form Data: {len(request.body.formdata)} fields")
-    
+
     # Analyze authentication
     if request.auth:
         print(f"Auth Type: {request.auth.type}")
-    
+
     # Analyze events (scripts)
     if request.event:
         print("Events:")
@@ -224,7 +224,7 @@ print("✅ Structure validation passed - all components captured!")
 #### Variable Extraction and Analysis
 
 ```python
-# Extract all variables from collection, folders, and requests  
+# Extract all variables from collection, folders, and requests
 all_variables = {}
 
 # Collection-level variables
@@ -257,13 +257,13 @@ for request in collection.requests:
         for i, response in enumerate(request.response):
             print(f"  Example {i+1}: {response.name}")
             print(f"    Status: {response.status} ({response.code})")
-            
+
             # Analyze response headers
             if response.header:
                 print("    Response Headers:")
                 for header in response.header:
                     print(f"      {header.key}: {header.value}")
-            
+
             # Analyze response body
             if response.body:
                 print(f"    Body Length: {len(response.body)} chars")
@@ -286,7 +286,7 @@ for request in collection.requests:
 
 ### PostmanFolder
 - `from_dict(folder_data: Dict[str, Any])`: Create from folder data
-- `to_dict()`: Convert to dictionary representation  
+- `to_dict()`: Convert to dictionary representation
 - Recursive support for nested folders and items
 
 ### Validation Features
@@ -304,14 +304,14 @@ The converter includes comprehensive validation to ensure that the dataclass str
 def test_collection_completeness():
     # Load a complex collection with all features
     collection = PostmanCollection.from_file("complex_collection.json")
-    
+
     # Convert to dict and back
     as_dict = collection.to_dict()
     reconstructed = PostmanCollection.from_dict(as_dict)
-    
+
     # Verify complete structure preservation
     assert as_dict == reconstructed.to_dict()
-    
+
     print("✅ Collection structure completely modeled!")
 
 # Run comprehensive validation

@@ -1,8 +1,9 @@
 import os
-import shutil
 import re
+import shutil
+from typing import Any, Dict, Optional, Union
+
 import requests
-from typing import Optional, Dict, Any, Union
 
 
 def to_snake_case(name: str) -> str:

@@ -1,6 +1,6 @@
-from dataclasses import dataclass, field
-from typing import List, Optional, Dict, Any, Union
 import json
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional, Union
 
 
 @dataclass
@@ -743,9 +743,8 @@ class PostmanCollection:
             FileNotFoundError: If the file doesn't exist
             json.JSONDecodeError: If the file isn't valid JSON
         """
-        import json
 
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             data = json.load(f)
 
         return cls.from_dict(data)

@@ -8,19 +8,19 @@ def test_basic_imports():
     """Test that all our classes can be imported."""
     try:
         from models import (
-            PostmanCollection,
-            PostmanRequest,
-            PostmanFolder,
-            PostmanRequest_Header,
-            PostmanQueryParam,
-            PostmanUrl,
-            PostmanRequest_Body,
-            PostmanResponse,
-            PostmanVariable,
-            PostmanScript,
-            PostmanEvent,
             PostmanAuth,
+            PostmanCollection,
             PostmanCollectionInfo,
+            PostmanEvent,
+            PostmanFolder,
+            PostmanQueryParam,
+            PostmanRequest,
+            PostmanRequest_Body,
+            PostmanRequest_Header,
+            PostmanResponse,
+            PostmanScript,
+            PostmanUrl,
+            PostmanVariable,
         )
 
         print("✅ All classes imported successfully")
@@ -36,7 +36,7 @@ def test_basic_imports():
 def test_basic_functionality():
     """Test basic functionality of our classes."""
     try:
-        from models import PostmanRequest_Header, PostmanQueryParam
+        from models import PostmanQueryParam, PostmanRequest_Header
 
         # Test PostmanRequest_Header
         header_data = {

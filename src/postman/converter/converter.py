@@ -1,12 +1,11 @@
 import os
-
-from typing import List, Dict, Optional
 from dataclasses import dataclass, field
-from .models import PostmanRequest, PostmanCollection
+from typing import Dict, List, Optional
 from urllib.parse import urljoin, urlparse
 
-from ..utils import to_snake_case
 from .. import utils
+from ..utils import to_snake_case
+from .models import PostmanCollection, PostmanRequest
 
 
 @dataclass
@@ -104,7 +103,7 @@ class PostmanRequestConverter:
             str: A valid Python function name in snake_case
         """
         # Parse the URL to get meaningful parts
-        from urllib.parse import urlparse, parse_qs
+        from urllib.parse import parse_qs, urlparse
 
         parsed = urlparse(url)
         path_parts = [part for part in parsed.path.split("/") if part]
@@ -330,7 +329,7 @@ class PostmanRequestConverter:
                 "    Returns:",
                 "        requests.Response: The response from the API",
                 '    """',
-                f'    base_url = auth.get("base_url") if auth else ""',
+                '    base_url = auth.get("base_url") if auth else ""',
                 f'    url = f"{{base_url}}{path}"',
                 f"    headers = {{**{self.headers}, **auth.get('headers', {{}})}}",
             ]
@@ -398,7 +397,7 @@ class PostmanRequestConverter:
                 "",
                 f"def test_{func_name}({', '.join(param_args + ['auth: Dict[str, str] = None, debug_api: bool = False'])}):",
                 f'    """Test the {func_name} function."""',
-                f"    auth = {{'base_url': '', 'headers': {{}}}} if auth is None else auth",
+                "    auth = {'base_url': '', 'headers': {}} if auth is None else auth",
                 f"    response = {func_name}(auth = auth, debug_api = debug_api, {', '.join(param_args)})",
                 '    assert response.status_code == 200, f"Expected status code 200, got {{response.status_code}}"',
                 "    return response",

@@ -10,7 +10,8 @@ parameters, events, authentication, folders, and other components.
 import json
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List
+
 from .models import PostmanCollection
 
 
@@ -175,7 +176,7 @@ def validate_postman_collection(json_file_path: str) -> Dict[str, Any]:
 
     # Load original JSON
     try:
-        with open(json_file_path, "r", encoding="utf-8") as f:
+        with open(json_file_path, encoding="utf-8") as f:
             original_data = json.load(f)
     except Exception as e:
         return {"success": False, "error": f"Failed to load JSON: {e}"}
@@ -184,7 +185,7 @@ def validate_postman_collection(json_file_path: str) -> Dict[str, Any]:
 
     # Analyze collection features
     features = analyze_collection_features(original_data)
-    print(f"📊 Collection Analysis:")
+    print("📊 Collection Analysis:")
     print(f"   - Requests: {features['request_count']}")
     print(f"   - Folders: {features['folder_count']}")
     print(f"   - Max nesting depth: {features['max_nesting_depth']}")

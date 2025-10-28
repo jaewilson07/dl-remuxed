@@ -1,8 +1,8 @@
+import importlib.util
 import os
 import sys
-from typing import Dict, Any, List, Optional
-import importlib.util
 from datetime import datetime
+from typing import Any, Dict
 
 
 def test_exports(
@@ -102,7 +102,7 @@ def _update_file_with_results(py_file: str, folder_path: str, results: dict) -> 
     result_lines.append("# ======================================================")
 
     # Read the current file content
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, encoding="utf-8") as f:
         content = f.read()
 
     # Remove any existing test results section if present
