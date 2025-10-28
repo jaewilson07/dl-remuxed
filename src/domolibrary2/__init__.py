@@ -15,14 +15,14 @@ assert logger, "A global logger must be set before using get_data functions."
 print(logger)
 
 
-from . import client, routes, utils
+# from . import client, routes, utils
 
 # Define what gets imported with "from domolibrary2 import *"
 __all__ = [
     "__version__",
     # "classes",
     # "integrations",
-    "client",
+    # "client",
     # "routes",
     # "utils",
 ]
