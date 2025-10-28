@@ -444,7 +444,7 @@ async def get_design_permissions(
 async def set_design_admins(
     design_id,
     auth: DomoAuth,
-    user_ids: List[str],
+    user_ids: list[str],
     debug_api: bool = False,
     return_raw: bool = False,
 ):
@@ -462,7 +462,7 @@ async def set_design_admins(
         return res
 
     if not res.is_success:
-        raise App_API_Exception(res=res)
+        raise EnterpriseApp_CRUD_Error(res=res)
 
     res.response = f"successfully set design_id {design_id} admins to {user_ids}"
 
@@ -470,7 +470,7 @@ async def set_design_admins(
 
 
 async def add_design_admin(
-    design_id: str, auth: DomoAuth, user_ids: List[int], debug_api: bool = False
+    design_id: str, auth: DomoAuth, user_ids: list[int], debug_api: bool = False
 ):
     user_ids = user_ids if isinstance(user_ids, list) else [user_ids]
 
