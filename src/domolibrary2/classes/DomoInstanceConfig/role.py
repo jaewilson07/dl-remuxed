@@ -9,7 +9,7 @@ __all__ = [
 
 
 from dataclasses import dataclass, field
-from typing import Any, List, Optional
+from typing import Any, Optional, List
 
 import httpx
 
@@ -22,7 +22,7 @@ from ...routes import role as role_routes
 
 class SetRoleGrants_MissingGrants(ClassError):
     def __init__(
-        self, cls_instance, message: str = None, missing_grants: List[str] = None
+        self, cls_instance, message: str = None, missing_grants: list[str] = None
     ):
         if missing_grants:
             message = f"role {cls_instance.name} is missing the following grants: {missing_grants}"
@@ -57,7 +57,7 @@ class DomoRole(
     is_system_role: bool = None
     is_default_role: bool = None
 
-    grants: List[Any] = field(default_factory=list)  # Will be DomoGrant objects
+    grants: list[Any] = field(default_factory=list)  # Will be DomoGrant objects
     membership: list = field(default_factory=list)
 
     # def __post_init__(self):
@@ -77,7 +77,7 @@ class DomoRole(
         if self.grants:
             self.grants = self._valid_grants(self.grants)
 
-    def _valid_grants(self, grants) -> List[Any]:
+    def _valid_grants(self, grants) -> list[Any]:
         """Convert grant strings or objects to DomoGrant objects."""
 
         from . import Role_Grant as dmgt
