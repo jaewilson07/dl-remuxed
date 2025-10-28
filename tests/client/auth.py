@@ -5,6 +5,7 @@ Comprehensive tests for domolibrary2.client.auth using the test harness.
 import pytest
 import asyncio
 from unittest.mock import AsyncMock, patch
+import domolibrary2.client.auth as dmda
 from dotenv import load_dotenv
 import os
 

@@ -58,7 +58,7 @@ class DatasetNotFoundError(de.RouteError):
         super().__init__(message=message, res=res, entity_id=dataset_id)
 
 
-class Dataset_GetError(de.DomoError):
+class Dataset_GetError(de.RouteError):
     def __init__(
         self,
         dataset_id,
@@ -68,7 +68,7 @@ class Dataset_GetError(de.DomoError):
         super().__init__(message=message, res=res, entity_id=dataset_id)
 
 
-class Dataset_CRUDError(de.DomoError):
+class Dataset_CRUDError(de.RouteError):
     def __init__(
         self,
         res: rgd.ResponseGetData,

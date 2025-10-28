@@ -8,6 +8,7 @@ from ..classes import (
     DomoAccount as dmacc,
     DomoGroup as dmdg,
 )
+from ..client.auth import DomoAuth
 
 
 async def share_domo_account_with_domo_group(

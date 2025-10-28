@@ -1,10 +1,13 @@
 __all__ = ["upload_data"]
 
+from typing import Optional
+
 import httpx
 import pandas as pd
-from dc_logger import Logger
+from dc_logger import DC_Logger as Logger
 
 from ..classes import dataset as dmds
+from ..client.auth import DomoAuth
 
 
 async def loop_upload(
@@ -76,11 +79,9 @@ async def upload_data(
     debug_prn: bool = False,
     debug_fn: bool = True,
     debug_api: bool = False,
-    logger: Logger = None,
+    logger: Optional[Logger] = None,
     max_retry: int = 2,  # number of times to attempt upload
 ):
-    logger = logger or Logger(app_name="upload_data")
-
     try:
         message = f"🏁 starting {instance_auth.domo_instance} - {data_fn.__name__}"
         logger.log_info(message)

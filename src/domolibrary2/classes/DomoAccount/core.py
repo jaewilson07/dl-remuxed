@@ -23,6 +23,13 @@ from .account_oauth import DomoAccount_OAuth
 from .config import AccountConfig
 
 
+class DomoAccounts_NoAccount(dmde.ClassError):
+    def __init__(self, cls=None, cls_instance=None, message=None, domo_instance=None):
+        super().__init__(
+            cls=cls, cls_instance=cls_instance, message=message, entity_id=domo_instance
+        )
+
+
 @dataclass
 class DomoAccount(DomoAccount_Default):
     @classmethod
@@ -49,13 +56,6 @@ class DomoAccount(DomoAccount_Default):
             obj=obj,
             is_admin_summary=is_admin_summary,
             **{**kwargs, "new_cls": new_cls},
-        )
-
-
-class DomoAccounts_NoAccount(dmde.ClassError):
-    def __init__(self, cls=None, cls_instance=None, message=None, domo_instance=None):
-        super().__init__(
-            cls=cls, cls_instance=cls_instance, message=message, entity_id=domo_instance
         )
 
 

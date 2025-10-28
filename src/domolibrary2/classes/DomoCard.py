@@ -160,7 +160,7 @@ class DomoCard(DomoEntity_w_Lineage):
         if return_raw:
             return res
 
-        from .DomoDataset import DomoDataset
+        from .DomoDataset.core import DomoDataset
 
         self.datasets = await dmce.gather_with_concurrency(
             *[

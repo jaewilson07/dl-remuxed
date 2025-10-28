@@ -15,7 +15,7 @@ __all__ = [
     "set_sso_certificate",
 ]
 
-from typing import List, Optional
+from typing import Optional
 
 import httpx
 
@@ -29,7 +29,7 @@ from .exceptions import Config_CRUD_Error, Config_GET_Error
 
 
 class SSO_AddUserDirectSignonError(Config_CRUD_Error):
-    def __init__(self, res: rgd.ResponseGetData, user_id_ls: List[str], message=None):
+    def __init__(self, res: rgd.ResponseGetData, user_id_ls: list[str], message=None):
         message = (
             message or f"unable to add {', '.join(user_id_ls)} to DSO {res.response}"
         )
@@ -57,7 +57,7 @@ class SSO_CRUD_Error(dmde.RouteError):
 @gd.route_function
 async def toggle_user_direct_signon_access(
     auth: dmda.DomoAuth,
-    user_id_ls: List[str],
+    user_id_ls: list[str],
     is_enable_direct_signon: bool = True,
     session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
@@ -219,7 +219,7 @@ async def _update_sso_oidc_standard_config(
     if not res.is_success:
         raise SSO_CRUD_Error(res=res)
 
-    if body_sso.get("idpEnabled") == False:
+    if not body_sso.get("idpEnabled"):
         res.response = "successfully disabled SSO"
         return res
 
@@ -423,7 +423,7 @@ async def _update_sso_saml_standard_config(
     if not res.is_success:
         raise SSO_CRUD_Error(res=res)
 
-    if body_sso.get("enabled") == False:
+    if not body_sso.get("enabled"):
         res.response = "successfully disabled SSO"
         return res
 
