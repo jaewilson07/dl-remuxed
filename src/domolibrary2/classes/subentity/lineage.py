@@ -208,9 +208,9 @@ class DomoLineageLink_Dataset(DomoLineage_Link):
         Get the entity associated with this lineage link.
         This method should be implemented by subclasses to return the appropriate entity.
         """
-        from ..DomoDataset import dataset as dmds
+        from ..DomoDataset.dataset_default import DomoDataset_Default as dmds
 
-        return await dmds.DomoDataset.get_by_id(
+        return await dmds.get_by_id(
             dataset_id=entity_id, auth=auth, session=session, debug_api=debug_api
         )
 

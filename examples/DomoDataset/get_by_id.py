@@ -39,6 +39,7 @@ async def dataset_lineage_test(token_auth=child_auth):
     await ds.get_federated_parent(parent_auth=parent_auth,parent_auth_retrieval_fn=retreive_parent_auth_fn)
 
     lineage = await ds.Lineage.get(parent_auth=parent_auth,parent_auth_retrieval_fn=retreive_parent_auth_fn)
+    print(lineage)
     return lineage
 
 
