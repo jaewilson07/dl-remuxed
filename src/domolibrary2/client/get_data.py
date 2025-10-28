@@ -1,10 +1,10 @@
 __all__ = [
-    "GetData_Error",
+    "GetDataError",
     "get_data",
     "get_data_stream",
     "LooperError",
     "looper",
-    "RouteFunction_ResponseTypeError",
+    "RouteFunctionResponseTypeError",
     "route_function",
 ]
 
@@ -12,27 +12,24 @@ import json
 import time
 from functools import wraps
 from pprint import pprint
-from typing import Any, Callable, Optional, Tuple, Union
+from typing import Any, Callable, Optional, Union
 
 import httpx
-
-# import dc_logger
-from dc_logger.client.base import Logger, get_global_logger
+from dc_logger.client.base import get_global_logger
 from dc_logger.client.decorators import log_call
 
 from ..utils import chunk_execution as dmce
 from . import (
-    Logger as dl,
     auth as dmda,
     response as rgd,
 )
 from .exceptions import DomoError
 
-logger: Logger = get_global_logger()
+# logger: Logger = get_global_logger()
 # assert logger, "A global logger must be set before using get_data functions."
 
 
-class GetData_Error(DomoError):
+class GetDataError(DomoError):
     def __init__(self, message, url):
         super().__init__(message=message, domo_instance=url)
 
@@ -68,7 +65,7 @@ def create_headers(
 
 def create_httpx_session(
     session: Optional[httpx.AsyncClient] = None, is_verify: bool = False
-) -> Tuple[httpx.AsyncClient, bool]:
+) -> tuple[httpx.AsyncClient, bool]:
     """Creates or reuses an asynchronous HTTPX session.
 
     Args:
@@ -87,7 +84,7 @@ def create_httpx_session(
 
 
 @dmce.run_with_retry()
-@log_call(logger=logger, action_name="get_data")
+@log_call(logger=get_global_logger(), action_name="get_data")
 async def get_data(
     url: str,
     method: str,
@@ -103,9 +100,7 @@ async def get_data(
     timeout: int = 20,
     parent_class: Optional[str] = None,  # noqa: ARG001
     num_stacks_to_drop: int = 2,  # noqa: ARG001
-    debug_traceback: bool = False,  # noqa: ARG001
     is_verify: bool = False,
-    logger: Logger = None,
 ) -> rgd.ResponseGetData:
     """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint."""
 
@@ -133,6 +128,7 @@ async def get_data(
     if debug_api:
         print(request_metadata.to_dict())
 
+    logger = get_global_logger()
     if logger:
         await logger.info(
             message=request_metadata.to_dict(),
@@ -143,14 +139,6 @@ async def get_data(
     additional_information = {}
     if parent_class:
         additional_information["parent_class"] = parent_class
-    if debug_traceback:
-        traceback_details = dl.get_traceback(
-            num_stacks_to_drop=num_stacks_to_drop,
-            root_module="<module>",
-            parent_class=parent_class or "",
-            debug_traceback=debug_traceback,
-        )
-        additional_information["traceback_details"] = traceback_details
 
     try:
         response = await session.request(
@@ -190,8 +178,9 @@ async def get_data(
                 request_metadata=request_metadata,
                 additional_information=additional_information,
             )
-            if logger:
-                await logger.info(message=res.to_dict())
+
+            await logger.info(message=res.to_dict())
+            return res
 
         # Process response into ResponseGetData using from_httpx_response
         res = rgd.ResponseGetData.from_httpx_response(
@@ -219,7 +208,7 @@ async def get_data(
 
 
 @dmce.run_with_retry()
-@log_call(logger=logger, action_name="get_data")
+@log_call(logger=get_global_logger(), action_name="get_data")
 async def get_data_stream(
     url: str,
     auth: dmda.DomoAuth,
@@ -288,14 +277,6 @@ async def get_data_stream(
     if parent_class:
         additional_information["parent_class"] = parent_class
 
-    traceback_details = dl.get_traceback(
-        num_stacks_to_drop=num_stacks_to_drop,
-        root_module="<module>",
-        parent_class=parent_class or "",
-        debug_traceback=debug_traceback,
-    )
-    additional_information["traceback_details"] = traceback_details
-
     if debug_api:
         pprint(
             {
@@ -304,11 +285,27 @@ async def get_data_stream(
                 "headers": headers,
                 # "body": body,
                 "params": params,
-                "traceback_details": traceback_details,
+                # "traceback_details": traceback_details,
             }
         )
 
     try:
+        async with session or httpx.AsyncClient(verify=is_verify) as client:
+            async with client.stream(
+                method,
+                url=url,
+                headers=headers,
+                follow_redirects=is_follow_redirects,
+                timeout=timeout,
+            ) as res:
+                if res.status_code != 200:
+                    res = rgd.ResponseGetData(
+                        status=res.status_code,
+                        response=res.text if hasattr(res, "text") else str(res.content),
+                        is_success=False,
+                        request_metadata=request_metadata,
+                        additional_information=additional_information,
+                    )
         if not session:
             session = httpx.AsyncClient(verify=is_verify)
 
@@ -330,8 +327,8 @@ async def get_data_stream(
                     request_metadata=request_metadata,
                     additional_information=additional_information,
                 )
-                if logger:
-                    await logger.info(message=res_obj.to_dict())
+                if logger:  # noqa: F821
+                    await logger.info(message=res_obj.to_dict())  # noqa: F821
                 return res_obj
 
             content = bytearray()
@@ -345,13 +342,14 @@ async def get_data_stream(
                 request_metadata=request_metadata,
                 additional_information=additional_information,
             )
-            if logger:
-                await logger.info(message=res_obj.to_dict())
+            if logger:  # noqa: F821
+                await logger.info(message=res_obj.to_dict())  # noqa: F821
 
             return res_obj
 
     except httpx.TransportError as e:
-        raise GetData_Error(url=url, message=e) from e
+        await logger.error(e)
+        raise GetDataError(url=url, message=e) from e
 
 
 class LooperError(DomoError):
@@ -359,7 +357,7 @@ class LooperError(DomoError):
         super().__init__(message=f"{loop_stage} - {message}")
 
 
-@log_call(logger=logger, action_name="looper")
+@log_call(action_name="looper")
 async def looper(
     auth: dmda.DomoAuth,
     session: Optional[httpx.AsyncClient],
@@ -417,15 +415,15 @@ async def looper(
 
     session, is_close_session = create_httpx_session(session, is_verify=is_verify)
 
-    allRows = []
-    isLoop = True
+    all_rows = []
+    is_loop = True
 
     res: Optional[rgd.ResponseGetData] = None
 
     if maximum and maximum <= limit and not loop_until_end:
         limit = maximum
 
-    while isLoop:
+    while is_loop:
         params = fixed_params or {}
 
         if offset_params_in_body:
@@ -449,7 +447,7 @@ async def looper(
 
                 message = f"processing body_fn {str(e)}"
 
-                logger.error(message)
+                logger.error(message)  # noqa: F821
 
                 raise LooperError(loop_stage=message) from e
 
@@ -457,16 +455,15 @@ async def looper(
             print(f"\n🚀 Retrieving records {skip} through {skip + limit} via {url}")
             # pprint(params)
 
-        if logger:
-            await logger.info(
-                message={
-                    "action": "looper_request",
-                    "params": params,
-                    "body": body,
-                    "skip": skip,
-                    "limit": limit,
-                }
-            )
+        await logger.info(  # noqa: F821
+            message={
+                "action": "looper_request",
+                "params": params,
+                "body": body,
+                "skip": skip,
+                "limit": limit,
+            }
+        )
 
         res = await get_data(
             auth=auth,
@@ -493,42 +490,42 @@ async def looper(
             return res
 
         try:
-            newRecords = arr_fn(res)
+            new_records = arr_fn(res)
 
         except Exception as e:
             await session.aclose()
 
-            logger.error(f"Error processing arr_fn: {e}")
+            logger.error(f"Error processing arr_fn: {e}")  # noqa: F821
 
             raise LooperError(loop_stage="processing arr_fn", message=str(e)) from e
 
-        allRows += newRecords
+        all_rows += new_records
 
-        if len(newRecords) == 0:
-            isLoop = False
+        if len(new_records) == 0:
+            is_loop = False
 
-        if maximum and len(allRows) >= maximum and not loop_until_end:
-            isLoop = False
+        if maximum and len(all_rows) >= maximum and not loop_until_end:
+            is_loop = False
 
-        message = f"🐛 Looper iteration complete: {{'all_rows': {len(allRows)}, 'new_records': {len(newRecords)}, 'skip': {skip}, 'limit': {limit}}}"
+        message = f"🐛 Looper iteration complete: {{'all_rows': {len(all_rows)}, 'new_records': {len(new_records)}, 'skip': {skip}, 'limit': {limit}}}"
 
         if debug_loop:
             print(message)
 
-        if logger:
-            await logger.info(message=message)
+        if logger:  # noqa: F821
+            await logger.info(message=message)  # noqa: F821
 
         if maximum and skip + limit > maximum and not loop_until_end:
-            limit = maximum - len(allRows)
+            limit = maximum - len(all_rows)
 
-        skip += len(newRecords)
+        skip += len(new_records)
         time.sleep(wait_sleep)
 
     if debug_loop:
-        message = f"\n🎉 Success - {len(allRows)} records retrieved from {url} in query looper\n"
+        message = f"\n🎉 Success - {len(all_rows)} records retrieved from {url} in query looper\n"
 
-    if logger:
-        await logger.info(message=message)
+    if logger:  # noqa: F821
+        await logger.info(message=message)  # noqa: F821
 
     if is_close_session:
         await session.aclose()
@@ -538,10 +535,10 @@ async def looper(
             status=500, response="No response received", is_success=False
         )
 
-    return await rgd.ResponseGetData.from_looper(res=res, array=allRows)
+    return await rgd.ResponseGetData.from_looper(res=res, array=all_rows)
 
 
-class RouteFunction_ResponseTypeError(TypeError):
+class RouteFunctionResponseTypeError(TypeError):
     def __init__(self, result):
         super().__init__(
             f"Expected function to return an instance of ResponseGetData got {type(result)} instead.  Refactor function to return ResponseGetData class"
@@ -588,7 +585,7 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
         )
 
         if not isinstance(result, rgd.ResponseGetData):
-            raise RouteFunction_ResponseTypeError(result)
+            raise RouteFunctionResponseTypeError(result)
 
         return result
 

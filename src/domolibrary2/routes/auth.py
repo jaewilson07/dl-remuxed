@@ -21,6 +21,7 @@ __all__ = [
 from typing import Any, List, Optional
 
 import httpx
+from dc_logger.client.decorators import log_call
 
 from ..client import response as rgd
 from ..client.exceptions import AuthError, RouteError
@@ -271,6 +272,7 @@ async def get_developer_auth(
     return res
 
 
+@log_call()
 async def who_am_i(
     auth: Any,
     session: Optional[httpx.AsyncClient] = None,
@@ -314,6 +316,13 @@ async def who_am_i(
         session=session,
         return_raw=return_raw,
     )
+
+    if not res.is_success:
+        # from dc_logger import DC_Logger
+
+        # # logger: DC_Logger = get_logger()
+        # print(res.is_success, logger)
+        await logger.error(f"who_am_i failed: {res.status} - {res.response}")
 
     if return_raw:
         # Type assertion for raw return

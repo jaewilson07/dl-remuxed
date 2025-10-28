@@ -13,13 +13,11 @@ from typing import Any, List, Optional
 
 import httpx
 
-
 from ...client.auth import DomoAuth
 from ...client.exceptions import ClassError
 from ...entities.entities import DomoEntity, DomoManager
 from ...entities.relationships import DomoRelationshipController
 from ...routes import role as role_routes
-from domolibrary2.client import auth
 
 
 class SetRoleGrants_MissingGrants(ClassError):
@@ -66,6 +64,10 @@ class DomoRole(
     #     super().__post_init__()
 
     @property
+    def entity_type(self):
+        return "ROLE"
+
+    @property
     def display_url(self):
         return f"https://{self.auth.domo_instance}.domo.com/admin/roles/{self.id}?tab=grants"
 
@@ -108,6 +110,20 @@ class DomoRole(
             raw=obj,
             Relations=None,
         )
+
+    @classmethod
+    async def get_entity_by_id(cls, entity_id, auth, **kwargs):
+        return await cls.get_by_id(
+            auth=auth,
+            role_id=entity_id,
+            **kwargs,
+        )
+
+    async def get():
+        raise NotImplementedError("Subclasses must implement get method.")
+
+    async def add_relationship(self):
+        raise NotImplementedError("Subclasses must implement add_relationship method.")
 
     @classmethod
     async def get_by_id(
@@ -352,7 +368,6 @@ class DomoRoles(DomoManager):
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
     ) -> List[DomoRole]:
-
         res = await role_routes.get_roles(
             auth=self.auth,
             session=session,
@@ -374,7 +389,6 @@ class DomoRoles(DomoManager):
         is_suppress_error: bool = False,
         debug_num_stacks_to_drop: int = 3,
     ) -> DomoRole:
-
         await self.get(
             session=session,
             debug_api=debug_api,
@@ -445,6 +459,7 @@ class DomoRoles(DomoManager):
     async def get_default_role(
         self, debug_api=False, session=None, debug_num_stacks_to_drop=2
     ):
+        # First get the default role ID
         res = await role_routes.get_default_role(
             auth=self.auth,
             debug_api=debug_api,
@@ -452,6 +467,16 @@ class DomoRoles(DomoManager):
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         )
 
-        self.default_role = DomoRole.from_dict(obj=res.response, auth=self.auth)
+        # res.response is the role ID, now get the full role details
+        default_role_id = res.response
+
+        # Get the full role object by ID
+        self.default_role = await DomoRole.get_by_id(
+            auth=self.auth,
+            role_id=default_role_id,
+            debug_api=debug_api,
+            session=session,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
+        )
 
         return self.default_role

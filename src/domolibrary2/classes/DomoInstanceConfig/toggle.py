@@ -79,7 +79,7 @@ class DomoToggle:
             return self.customer_id
 
         # Avoid circular import by importing here
-        from ..DomoBootstrap import DomoBootstrap
+        from .bootstrap import DomoBootstrap
 
         try:
             bs = DomoBootstrap(auth=self.auth)

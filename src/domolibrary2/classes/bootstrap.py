@@ -6,6 +6,7 @@ from typing import List
 
 import httpx
 
+
 from ..client.auth import DomoAuth
 from ..entities import DomoManager
 from ..routes import bootstrap as bootstrap_routes
