@@ -22,6 +22,7 @@ from ...routes.dataset import (
 from ...utils import convert as dmcv
 from ..subentity import (
     certification as dmdc,
+    schedule as dmsched,
     tags as dmtg,
 )
 from . import (
@@ -63,6 +64,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
     PDP: dmpdp.DatasetPdpPolicies = field(default=None)
 
     Certification: dmdc.DomoCertification = field(default=None)
+    Schedule: dmsched.DomoSchedule = field(default=None)
     # Lineage: dmdl.DomoLineage = field(default=None, repr=False)
 
     @property
@@ -108,6 +110,11 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
         self.PDP = dmpdp.DatasetPdpPolicies.from_parent(parent=self)
 
         self.Certification = dmdc.DomoCertification.from_parent(parent=self)
+        
+        # Initialize Schedule from raw data if schedule information exists
+        if self.raw and any(key in self.raw for key in ['scheduleStartDate', 'scheduleExpression', 'advancedScheduleJson']):
+            self.Schedule = dmsched.DomoSchedule.from_dict(self.raw, auth=self.auth)
+        
         self.Relations = None
 
     def display_url(self) -> str:

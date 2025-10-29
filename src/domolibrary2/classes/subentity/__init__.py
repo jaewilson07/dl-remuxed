@@ -60,6 +60,7 @@ from .membership import (
     Membership_Entity,
     UpdateMembership,
 )
+from .schedule import DomoSchedule
 from .tags import DomoTags
 
 __all__ = [
@@ -75,5 +76,6 @@ __all__ = [
     # Other subentities
     "DomoCertification",
     "DomoLineage",
+    "DomoSchedule",
     "DomoTags",
 ]
