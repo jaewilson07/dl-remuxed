@@ -24,10 +24,19 @@ from ...client import (
     response as rgd,
 )
 from ...client.auth import DomoAuth
+from ...utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
+from dc_logger.decorators import log_call, LogDecoratorConfig
 from .exceptions import Page_GET_Error, SearchPage_NotFound
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def get_pages_adminsummary(
     auth: DomoAuth,
     search_title: Optional[str] = None,
@@ -111,6 +120,13 @@ async def get_pages_adminsummary(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def get_page_by_id(
     auth: DomoAuth,
     page_id: str,
@@ -179,6 +195,13 @@ async def get_page_by_id(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def get_page_definition(
     auth: DomoAuth,
     page_id: Union[int, str],

@@ -17,7 +17,7 @@ from ..entities import (
 )
 from ..routes import publish as publish_routes
 from ..utils import chunk_execution as dmce
-from .subentity import DomoLineage as dmdl
+from .subentity import lineage as dmdl
 
 __all__ = [
     "DomoPublication_Content_Enum",
@@ -160,6 +160,10 @@ class DomoPublication(DomoEntity_w_Lineage):
     # content_dataset_id_ls: List[str] = field(default_factory=list)
     # content_data_app_id_ls: List[str] = field(default_factory=list)
 
+    @property
+    def entity_type(self):
+        return "PUBLICATION"
+
     def __post_init__(self):
         self.Lineage = dmdl.DomoLineage_Publication.from_parent(
             parent=self, auth=self.auth
@@ -197,6 +201,7 @@ class DomoPublication(DomoEntity_w_Lineage):
             ),
             is_v2=obj["isV2"],
             auth=auth,
+            Relations=None,
             raw=obj,
             Lineage=None,
         )
@@ -268,7 +273,63 @@ class DomoPublication(DomoEntity_w_Lineage):
             parent_class=self.__class__.__name__,
         )
 
+        publication_content = self.content
+
+        for content in publication_content:
+            subscriber_obj = next(
+                (
+                    subscriber_obj
+                    for subscriber_obj in res.response
+                    if subscriber_obj["publisherObjectId"] == content.entity_id
+                    and subscriber_obj["contentType"] == content.entity_type
+                ),
+                None,
+            )
+            if subscriber_obj is not None:
+                content.subscriber_content_id = subscriber_obj["subscriberObjectId"]
+                content.subscriber_insance = subscriber_obj["subscriberDomain"]
+
+        self.content = publication_content
+
         return res
+
+    # REVIEW THIS PART DUPLICTED FUNCTION
+
+    # async def get_content_details(
+    #     self,
+    #     subscriber_domain: str = None,
+    #     debug_api: bool = False,
+    #     session: httpx.AsyncClient = None,
+    #     debug_num_stacks_to_drop: int = 2,
+    # ):
+
+    #     print(self)
+    #     print("2-------")
+    #     res = await publish_routes.get_publication_by_id(
+    #         auth=self.auth,
+    #         publication_id=self.id,
+    #         debug_api=debug_api,
+    #         session=session,
+    #         debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+    #         parent_class=self.__class__.__name__,
+    #     )
+
+    #     # Extract subscription details
+    #     if subscriber_domain:
+    #         subscription_auth = next(
+    #             (
+    #                 sub
+    #                 for sub in res.response.get("subscriptionAuthorizations", [])
+    #                 if sub.get("subscriberDomain") == subscriber_domain
+    #             ),
+    #             None,
+    #         )
+    #         # if subscription_auth:
+    #         #     res.response = subscription_auth
+    #         # else:
+    #         #     res.response = []
+
+    #     return res
 
     async def get_publication_entity_by_subscriber_entity(
         self,
@@ -300,8 +361,29 @@ class DomoPublication(DomoEntity_w_Lineage):
                 #     )
             return None
 
+        # Resolve publisher entity. If the provided 'subscriber' is a FederatedDomoDataset
+        # we should fetch the publisher-side dataset as the default dataset class (not the federated wrapper).
+        publisher_obj_id = obj["publisherObjectId"]
+
+        # Lazy import to avoid circular imports
+        if subscriber.__class__.__name__ == "FederatedDomoDataset":
+            try:
+                from .DomoDataset.core import DomoDataset as PublisherDataset
+
+                return await PublisherDataset.get_by_id(
+                    dataset_id=publisher_obj_id,
+                    auth=self.auth,
+                    is_use_default_dataset_class=True,
+                )
+            except Exception:
+                # Fall back to calling the subscriber's resolver if publisher fetch fails
+                return await subscriber.get_entity_by_id(
+                    entity_id=publisher_obj_id, auth=self.auth
+                )
+
+        # Default behavior: delegate to subscriber's get_entity_by_id
         return await subscriber.get_entity_by_id(
-            entity_id=obj["publisherObjectId"], auth=self.auth
+            entity_id=publisher_obj_id, auth=self.auth
         )
 
     @classmethod
@@ -342,39 +424,6 @@ class DomoPublication(DomoEntity_w_Lineage):
         )
 
         return cls.from_dict(obj=res.response, auth=auth)
-
-    async def get_content_details(
-        self,
-        subscriber_domain: str = None,
-        debug_api: bool = False,
-        session: httpx.AsyncClient = None,
-        debug_num_stacks_to_drop: int = 2,
-    ):
-        res = await publish_routes.get_publication_by_id(
-            auth=self.auth,
-            publication_id=self.id,
-            debug_api=debug_api,
-            session=session,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-            parent_class=self.__class__.__name__,
-        )
-
-        # Extract subscription details
-        if subscriber_domain:
-            subscription_auth = next(
-                (
-                    sub
-                    for sub in res.response.get("subscriptionAuthorizations", [])
-                    if sub.get("subscriberDomain") == subscriber_domain
-                ),
-                None,
-            )
-            if subscription_auth:
-                res.response = subscription_auth
-            else:
-                res.response = []
-
-        return res
 
     async def revoke_subscription_auth(
         self,
@@ -453,6 +502,7 @@ class DomoSubscription(dmen.DomoEntity):
     def from_dict(cls, obj, auth: DomoAuth, parent_publication: Any = None):
         return cls(
             auth=auth,
+            Relations=None,
             id=obj.get("id") or obj.get("subscriptionId"),
             publication_id=obj["publicationId"],
             subscriber_domain=obj.get("domain") or obj.get("subscriberDomain"),
@@ -465,6 +515,10 @@ class DomoSubscription(dmen.DomoEntity):
             raw=obj,
             parent_publication=parent_publication,
         )
+
+    @property
+    def entity_type(self):
+        return "SUBSCRIPTION"
 
     def display_url(self):
         return f"https://{self.auth.domo_instance}.domo.com/admin/domo-everywhere/subscriptions"
@@ -490,6 +544,10 @@ class DomoSubscription(dmen.DomoEntity):
             return res
 
         return cls.from_dict(obj=res.response, auth=auth)
+
+    @classmethod
+    async def get_entity_by_id(cls, entity_id: str, auth: DomoAuth, **kwargs):
+        return await cls.get_by_id(dataset_id=entity_id, auth=auth, **kwargs)
 
     async def get_parent_publication(
         self,

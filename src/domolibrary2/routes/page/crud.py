@@ -26,10 +26,19 @@ from ...client import (
     response as rgd,
 )
 from ...client.auth import DomoAuth
+from ...utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
+from dc_logger.decorators import log_call, LogDecoratorConfig
 from .exceptions import Page_CRUD_Error
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def update_page_layout(
     auth: DomoAuth,
     layout_id: str,
@@ -86,6 +95,13 @@ async def update_page_layout(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def put_writelock(
     auth: DomoAuth,
     layout_id: str,
@@ -150,6 +166,13 @@ async def put_writelock(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def delete_writelock(
     auth: DomoAuth,
     layout_id: str,

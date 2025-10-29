@@ -18,7 +18,7 @@ from .. import (
     DomoUser as dmu,
 )
 from ..subentity import DomoLineage
-from . import DomoPage_Content as dmpg_c
+from . import page_content as dmpg_c
 
 
 @dataclass

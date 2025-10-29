@@ -55,6 +55,8 @@ from ...client.auth import DomoAuth
 from ...client.exceptions import DomoError
 from ...entities.base import DomoEnumMixin
 from ...utils import images
+from ...utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
+from dc_logger.decorators import log_call, LogDecoratorConfig
 from .exceptions import (
     DownloadAvatar_Error,
     ResetPassword_PasswordUsed,
@@ -131,6 +133,13 @@ def generate_patch_user_property_body(user_property_ls: List[UserProperty]) -> d
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def update_user(
     user_id: str,
     user_property_ls: List[UserProperty],
@@ -196,6 +205,13 @@ async def update_user(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def set_user_landing_page(
     auth: DomoAuth,
     user_id: str,
@@ -250,6 +266,13 @@ async def set_user_landing_page(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def reset_password(
     auth: DomoAuth,
     user_id: str,
@@ -320,6 +343,13 @@ async def reset_password(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def request_password_reset(
     domo_instance: str,
     email: str,
@@ -377,6 +407,13 @@ async def request_password_reset(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def download_avatar(
     user_id,
     auth: DomoAuth,
@@ -469,6 +506,13 @@ def generate_avatar_bytestr(img_bytestr, img_type):
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def upload_avatar(
     auth: DomoAuth,
     user_id: int,
@@ -534,6 +578,13 @@ async def upload_avatar(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def user_is_allowed_direct_signon(
     auth: DomoAuth,
     user_ids: list[str],

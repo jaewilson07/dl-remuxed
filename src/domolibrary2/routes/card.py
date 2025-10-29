@@ -14,6 +14,7 @@ from enum import Enum
 from typing import List, Union
 
 import httpx
+from dc_logger.decorators import log_call, LogDecoratorConfig
 
 from ..client import (
     exceptions as de,
@@ -22,6 +23,7 @@ from ..client import (
 )
 from ..client.auth import DomoAuth
 from ..entities.base import DomoEnumMixin
+from ..utils.logging import DomoEntityExtractor, DomoEntityResultProcessor, NoOpEntityExtractor
 
 
 class Cards_API_Exception(de.DomoError):
@@ -49,6 +51,13 @@ class CardSearch_NotFoundError(de.DomoError):
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def get_card_by_id(
     card_id,
     auth: DomoAuth,
@@ -86,6 +95,13 @@ async def get_card_by_id(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def get_kpi_definition(
     auth: DomoAuth,
     card_id: str,
@@ -133,6 +149,13 @@ class Card_OptionalParts_Enum(DomoEnumMixin, Enum):
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def get_card_metadata(
     auth: DomoAuth,
     card_id: str,
@@ -214,6 +237,13 @@ def generate_body_search_cards_admin_summary(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def search_cards_admin_summary(
     auth: DomoAuth,
     body: dict,

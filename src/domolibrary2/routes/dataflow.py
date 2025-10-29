@@ -19,6 +19,7 @@ __all__ = [
 from typing import List
 
 import httpx
+from ..client.auth import DomoAuth
 
 from ..client import (
     exceptions as dmde,

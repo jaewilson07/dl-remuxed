@@ -5,8 +5,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import List
 
-from ..client.entities import DomoEnumMixin
-from ..utils import (
+from ...client.entities import DomoEnumMixin
+from ...utils import (
     DictDot as util_dd,
     convert as ct,
 )
