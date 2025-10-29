@@ -16,11 +16,11 @@ from dataclasses import dataclass, field
 from typing import Optional, Union
 
 import httpx
-from dc_logger.decorators import log_call, LogDecoratorConfig
+from dc_logger.client.decorators import LogDecoratorConfig, log_call
 
+from ..utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 from .exceptions import AuthError
 from .response import ResponseGetData
-from ..utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 
 
 class _DomoAuth_Required(ABC):
@@ -126,8 +126,8 @@ class _DomoAuth_Optional(ABC):
         level_name="auth",
         config=LogDecoratorConfig(
             entity_extractor=DomoEntityExtractor(),
-            result_processor=DomoEntityResultProcessor()
-        )
+            result_processor=DomoEntityResultProcessor(),
+        ),
     )
     async def who_am_i(
         self,
@@ -176,8 +176,8 @@ class _DomoAuth_Optional(ABC):
         level_name="auth",
         config=LogDecoratorConfig(
             entity_extractor=DomoEntityExtractor(),
-            result_processor=DomoEntityResultProcessor()
-        )
+            result_processor=DomoEntityResultProcessor(),
+        ),
     )
     async def elevate_otp(
         self,
@@ -363,8 +363,8 @@ class _DomoFullAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):
         level_name="auth",
         config=LogDecoratorConfig(
             entity_extractor=DomoEntityExtractor(),
-            result_processor=DomoEntityResultProcessor()
-        )
+            result_processor=DomoEntityResultProcessor(),
+        ),
     )
     async def get_auth_token(
         self,
@@ -476,8 +476,8 @@ class DomoFullAuth(
     level_name="auth",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 def test_is_full_auth(
     auth,
@@ -562,8 +562,8 @@ class _DomoTokenAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):
         level_name="auth",
         config=LogDecoratorConfig(
             entity_extractor=DomoEntityExtractor(),
-            result_processor=DomoEntityResultProcessor()
-        )
+            result_processor=DomoEntityResultProcessor(),
+        ),
     )
     async def get_auth_token(
         self,
@@ -718,8 +718,8 @@ class DomoDeveloperAuth(_DomoAuth_Optional, _DomoAuth_Required):
         level_name="auth",
         config=LogDecoratorConfig(
             entity_extractor=DomoEntityExtractor(),
-            result_processor=DomoEntityResultProcessor()
-        )
+            result_processor=DomoEntityResultProcessor(),
+        ),
     )
     async def get_auth_token(
         self,
@@ -1074,8 +1074,8 @@ class DomoJupyterTokenAuth(
     level_name="auth",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 def test_is_jupyter_auth(
     auth: DomoJupyterAuth,
