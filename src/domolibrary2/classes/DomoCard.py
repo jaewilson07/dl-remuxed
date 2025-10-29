@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from typing import Any, List, Optional
 
 import httpx
+from dc_logger.decorators import log_call, LogDecoratorConfig
 
 from ..client.entities import DomoEntity_w_Lineage
 from ..client.auth import DomoAuth
@@ -17,6 +18,7 @@ from ..utils import (
     chunk_execution as dmce,
     files as dmfi,
 )
+from ..utils.logging import DomoEntityObjectProcessor
 from .DomoUser import DomoUser
 from .DomoGroup import DomoGroup
 from .subentity.lineage import DomoLineage
@@ -101,6 +103,10 @@ class DomoCard(DomoEntity_w_Lineage):
         return card
 
     @classmethod
+    @log_call(
+        level_name="entity",
+        config=LogDecoratorConfig(result_processor=DomoEntityObjectProcessor())
+    )
     async def get_by_id(
         cls,
         auth: DomoAuth,
@@ -113,7 +119,7 @@ class DomoCard(DomoEntity_w_Lineage):
     ):
         res = await card_routes.get_card_metadata(
             auth=auth,
-            entity_id=entity_id,
+            card_id=entity_id,
             optional_parts=optional_parts,
             debug_api=debug_api,
             session=session,

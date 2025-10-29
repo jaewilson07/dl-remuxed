@@ -16,10 +16,11 @@ from dataclasses import dataclass, field
 from typing import Optional, Union
 
 import httpx
-from dc_logger.decorators import log_call
+from dc_logger.decorators import log_call, LogDecoratorConfig
 
 from .exceptions import AuthError
 from .response import ResponseGetData
+from ..utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 
 
 class _DomoAuth_Required(ABC):
@@ -121,7 +122,13 @@ class _DomoAuth_Optional(ABC):
         """
         raise NotImplementedError("Subclasses must implement auth_header property.")
 
-    @log_call(action_name="class")
+    @log_call(
+        level_name="auth",
+        config=LogDecoratorConfig(
+            entity_extractor=DomoEntityExtractor(),
+            result_processor=DomoEntityResultProcessor()
+        )
+    )
     async def who_am_i(
         self,
         session: Optional[httpx.AsyncClient] = None,
@@ -148,10 +155,6 @@ class _DomoAuth_Optional(ABC):
 
         from ..routes import auth as auth_routes
 
-        # logger = get_global_logger()
-        if logger:
-            await logger.info("Executing who_am_i for token validation.")
-
         res = await auth_routes.who_am_i(
             auth=self,
             parent_class=self.__class__.__name__,
@@ -169,6 +172,13 @@ class _DomoAuth_Optional(ABC):
 
         return res
 
+    @log_call(
+        level_name="auth",
+        config=LogDecoratorConfig(
+            entity_extractor=DomoEntityExtractor(),
+            result_processor=DomoEntityResultProcessor()
+        )
+    )
     async def elevate_otp(
         self,
         one_time_password: str,
@@ -349,6 +359,13 @@ class _DomoFullAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):
         """
         return {"x-domo-authentication": self.token} if self.token else {}
 
+    @log_call(
+        level_name="auth",
+        config=LogDecoratorConfig(
+            entity_extractor=DomoEntityExtractor(),
+            result_processor=DomoEntityResultProcessor()
+        )
+    )
     async def get_auth_token(
         self,
         session: Optional[httpx.AsyncClient] = None,
@@ -455,6 +472,13 @@ class DomoFullAuth(
         )
 
 
+@log_call(
+    level_name="auth",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 def test_is_full_auth(
     auth,
     function_name=None,
@@ -534,6 +558,13 @@ class _DomoTokenAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):
         """
         return {"x-domo-developer-token": self.token or self.domo_access_token}
 
+    @log_call(
+        level_name="auth",
+        config=LogDecoratorConfig(
+            entity_extractor=DomoEntityExtractor(),
+            result_processor=DomoEntityResultProcessor()
+        )
+    )
     async def get_auth_token(
         self,
         session: Optional[httpx.AsyncClient] = None,
@@ -683,6 +714,13 @@ class DomoDeveloperAuth(_DomoAuth_Optional, _DomoAuth_Required):
             return {"Authorization": f"bearer {self.token}"}
         return {}
 
+    @log_call(
+        level_name="auth",
+        config=LogDecoratorConfig(
+            entity_extractor=DomoEntityExtractor(),
+            result_processor=DomoEntityResultProcessor()
+        )
+    )
     async def get_auth_token(
         self,
         session: Optional[httpx.AsyncClient] = None,
@@ -1032,6 +1070,13 @@ class DomoJupyterTokenAuth(
         )
 
 
+@log_call(
+    level_name="auth",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 def test_is_jupyter_auth(
     auth: DomoJupyterAuth,
     required_auth_type_ls: Optional[list] = None,

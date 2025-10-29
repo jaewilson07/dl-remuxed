@@ -22,7 +22,7 @@ from typing import Any, List, Optional, Union
 from venv import logger
 
 import httpx
-from dc_logger.client.decorators import log_call
+from dc_logger.decorators import log_call
 
 from ..client.auth import DomoAuth
 from ..client.exceptions import ClassError, DomoError

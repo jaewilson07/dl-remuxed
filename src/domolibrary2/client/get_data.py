@@ -15,7 +15,7 @@ from pprint import pprint
 from typing import Any, Callable, Optional, Union
 
 import httpx
-from dc_logger.client.base import get_global_logger
+# from dc_logger.client.base import get_global_logger
 from dc_logger.decorators import log_call, LogDecoratorConfig
 
 from ..utils import chunk_execution as dmce

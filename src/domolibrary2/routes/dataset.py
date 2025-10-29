@@ -48,6 +48,8 @@ from ..client import (
     response as rgd,
 )
 from ..client.auth import DomoAuth
+from ..utils.logging import DomoEntityExtractor, DomoEntityResultProcessor, NoOpEntityExtractor
+from dc_logger.decorators import log_call, LogDecoratorConfig
 from ..entities.base import DomoEnumMixin
 
 
@@ -93,6 +95,13 @@ class QueryRequestError(de.RouteError):
 
 # typically do not use
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def query_dataset_public(
     dev_auth: dmda.DomoDeveloperAuth,
     dataset_id: str,
@@ -126,6 +135,13 @@ async def query_dataset_public(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def query_dataset_private(
     auth: DomoAuth,
     dataset_id: str,
@@ -216,6 +232,13 @@ async def query_dataset_private(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def get_dataset_by_id(
     dataset_id: str,  # dataset id from URL
     auth: Optional[DomoAuth] = None,  # requires full authentication
@@ -248,6 +271,13 @@ async def get_dataset_by_id(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def get_schema(
     auth: DomoAuth,
     dataset_id: str,
@@ -277,6 +307,13 @@ async def get_schema(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def alter_schema(
     auth: DomoAuth,
     schema_obj: dict,
@@ -308,6 +345,13 @@ async def alter_schema(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def alter_schema_descriptions(
     auth: DomoAuth,
     schema_obj: dict,
@@ -339,6 +383,13 @@ async def alter_schema_descriptions(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def set_dataset_tags(
     auth: DomoAuth,
     tag_ls: List[str],  # complete list of tags for dataset
@@ -395,6 +446,13 @@ class UploadDataError(de.RouteError):
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def upload_dataset_stage_1(
     auth: DomoAuth,
     dataset_id: str,
@@ -454,6 +512,13 @@ async def upload_dataset_stage_1(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def upload_dataset_stage_2_file(
     auth: DomoAuth,
     dataset_id: str,
