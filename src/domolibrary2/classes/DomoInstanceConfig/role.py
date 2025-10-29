@@ -119,7 +119,7 @@ class DomoRole(
             **kwargs,
         )
 
-    async def get():
+    async def get(self):
         raise NotImplementedError("Subclasses must implement get method.")
 
     async def add_relationship(self):

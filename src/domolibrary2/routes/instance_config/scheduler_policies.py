@@ -446,9 +446,6 @@ async def delete_scheduler_policy(
     if res.status == 200 or res.is_success:
         return res
 
-    if not res.is_success:
-        raise SchedulerPolicy_CRUD_Error(
-            operation="delete", entity_id=policy_id, res=res
-        )
-
-    return res
+    raise SchedulerPolicy_CRUD_Error(
+        operation="delete", entity_id=policy_id, res=res
+    )
