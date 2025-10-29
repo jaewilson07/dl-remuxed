@@ -4652,7 +4652,7 @@ async def get_entity(
     pass
 ```
 
-**Line 61: `DomoLineage_Link.getfrom_dict`**
+**Line 61: `DomoLineage_Link.from_dict`**
 
 Parameter type hints:
 - `obj: Any`
@@ -4662,7 +4662,7 @@ Return type: `Optional[DomoLineage_Link]`
 
 **Suggested signature:**
 ```python
-async def getfrom_dict(
+async def from_dict(
     self,
     obj: Any,
     auth: dmda.DomoAuth,
@@ -4688,7 +4688,7 @@ async def get_entity(
     pass
 ```
 
-**Line 110: `DomoLineageLink_Dataflow.getfrom_dict`**
+**Line 110: `DomoLineageLink_Dataflow.from_dict`**
 
 Parameter type hints:
 - `obj: Any`
@@ -4698,7 +4698,7 @@ Return type: `Optional[DomoLineageLink_Dataflow]`
 
 **Suggested signature:**
 ```python
-async def getfrom_dict(
+async def from_dict(
     self,
     obj: Any,
     auth: dmda.DomoAuth,
@@ -4724,7 +4724,7 @@ async def get_entity(
     pass
 ```
 
-**Line 150: `DomoLineageLink_Publication.getfrom_dict`**
+**Line 150: `DomoLineageLink_Publication.from_dict`**
 
 Parameter type hints:
 - `obj: Any`
@@ -4734,7 +4734,7 @@ Return type: `Optional[DomoLineageLink_Publication]`
 
 **Suggested signature:**
 ```python
-async def getfrom_dict(
+async def from_dict(
     self,
     obj: Any,
     auth: dmda.DomoAuth,
@@ -4760,7 +4760,7 @@ async def get_entity(
     pass
 ```
 
-**Line 185: `DomoLineageLink_Card.getfrom_dict`**
+**Line 185: `DomoLineageLink_Card.from_dict`**
 
 Parameter type hints:
 - `obj: Any`
@@ -4770,7 +4770,7 @@ Return type: `Optional[DomoLineageLink_Card]`
 
 **Suggested signature:**
 ```python
-async def getfrom_dict(
+async def from_dict(
     self,
     obj: Any,
     auth: dmda.DomoAuth,
@@ -4796,7 +4796,7 @@ async def get_entity(
     pass
 ```
 
-**Line 222: `DomoLineageLink_Dataset.getfrom_dict`**
+**Line 222: `DomoLineageLink_Dataset.from_dict`**
 
 Parameter type hints:
 - `obj: Any`
@@ -4806,7 +4806,7 @@ Return type: `Optional[DomoLineageLink_Dataset]`
 
 **Suggested signature:**
 ```python
-async def getfrom_dict(
+async def from_dict(
     self,
     obj: Any,
     auth: dmda.DomoAuth,
