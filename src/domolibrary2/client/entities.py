@@ -277,7 +277,7 @@ class DomoEntity_w_Lineage(DomoEntity):
 
     @classmethod
     @abc.abstractmethod
-    async def _get_entity_by_id(cls, auth: DomoAuth, entity_id: str):
+    async def get_entity_by_id(cls, auth: DomoAuth, entity_id: str):
         """Fetch an entity by its ID with lineage support.
 
         This method should be implemented by subclasses to fetch the specific

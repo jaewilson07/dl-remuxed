@@ -21,7 +21,7 @@ Exception Classes:
 __all__ = [
     "SchedulerPolicy_GET_Error",
     "SchedulerPolicy_CRUD_Error",
-    "SearchSchedulerPolicy_NotFound",
+    "SearchSchedulerPolicy_NotFound_Error",
     "get_scheduler_policies",
     "get_scheduler_policy_by_id",
     "create_scheduler_policy",
@@ -41,7 +41,7 @@ from ...client.auth import DomoAuth
 from .exceptions import Config_CRUD_Error, Config_GET_Error
 
 
-class SchedulerPolicy_GET_Error(Config_GET_Error):
+class SchedulerPolicy_GET_Error(Config_GET_Error):  # noqa: N801
     """
     Raised when scheduler policy retrieval operations fail.
 
@@ -74,7 +74,7 @@ class SchedulerPolicy_GET_Error(Config_GET_Error):
         )
 
 
-class SchedulerPolicy_CRUD_Error(Config_CRUD_Error):
+class SchedulerPolicy_CRUD_Error(Config_CRUD_Error):  # noqa: N801
     """
     Raised when scheduler policy create, update, or delete operations fail.
 
@@ -105,7 +105,7 @@ class SchedulerPolicy_CRUD_Error(Config_CRUD_Error):
         )
 
 
-class SearchSchedulerPolicy_NotFound(Config_GET_Error):
+class SearchSchedulerPolicy_NotFound_Error(Config_GET_Error):  # noqa: N801
     """
     Raised when scheduler policy search operations return no results.
 
@@ -244,7 +244,7 @@ async def get_scheduler_policy_by_id(
     )
 
     if not match_policy:
-        raise SearchSchedulerPolicy_NotFound(
+        raise SearchSchedulerPolicy_NotFound_Error(
             search_criteria=f"policy_id={policy_id}",
             res=rgd.ResponseGetData(
                 status=404,
@@ -440,6 +440,10 @@ async def delete_scheduler_policy(
     )
 
     if return_raw:
+        return res
+
+    # DELETE returns 200 with "OK" text response, which should be treated as success
+    if res.status == 200 or res.is_success:
         return res
 
     if not res.is_success:

@@ -15,10 +15,11 @@ from typing import Any, Callable, Union
 
 import httpx
 
-from ..client import exceptions as dmde
-from ..utils import xkcd_password as dmxkcd
+from ...client import exceptions as dmde
+from ...utils import xkcd_password as dmxkcd
 from . import Account as dmac
 
+DomoError = dmde.DomoError
 
 class DJW_PermissionToAccountDenied(DomoError):
     def __init__(self, message, account_name):

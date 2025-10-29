@@ -5,15 +5,15 @@ from typing import List
 
 import httpx
 
-from ..client.entities import DomoEntity_w_Lineage
-from ..routes import dataflow as dataflow_routes
-from ..utils import chunk_execution as dmce
-from . import DomoJupyter as dmdj
-from ._base import DomoLineage as dmdl
+from ...entities import DomoEntity_w_Lineage
+from ...routes import dataflow as dataflow_routes
+from ...utils import chunk_execution as dmce
+from ..DomoJupyter import Jupyter as dmdj
+from ...classes.subentity import lineage as dmdl
 
 __all__ = ["DomoDataflow", "DomoDataflows"]
 
-from ..classes.DomoDataflow_History import DomoDataflow_History
+from ...classes.DomoDataflow.Dataflow_History import DomoDataflow_History
 from .Dataflow_Action import DomoDataflow_Action
 
 
@@ -38,6 +38,10 @@ class DomoDataflow(DomoEntity_w_Lineage):
 
     JupyterWorkspace: dmdj.DomoJupyterWorkspace = None
 
+    @property
+    def entity_type(self):
+        return "DATAFLOW"
+
     def __post_init__(self):
         self.History = DomoDataflow_History(
             dataflow=self, dataflow_id=self.id, auth=self.auth
@@ -58,6 +62,7 @@ class DomoDataflow(DomoEntity_w_Lineage):
             version_id=version_id,
             version_number=version_number,
             Lineage=None,
+            Relations=None,
         )
 
         if obj.get("actions"):

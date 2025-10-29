@@ -24,6 +24,8 @@ from ...client import (
     response as rgd,
 )
 from ...client.auth import DomoAuth
+from ...utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
+from dc_logger.decorators import log_call, LogDecoratorConfig
 from .exceptions import (
     Page_CRUD_Error,
     Page_GET_Error,
@@ -33,6 +35,13 @@ from .exceptions import (
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def get_page_access_test(
     auth: DomoAuth,
     page_id: str,
@@ -87,6 +96,13 @@ async def get_page_access_test(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def get_page_access_list(
     auth: DomoAuth,
     page_id: str,
@@ -167,6 +183,13 @@ async def get_page_access_list(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def add_page_owner(
     auth: DomoAuth,
     page_id_ls: List[Union[int, str]],

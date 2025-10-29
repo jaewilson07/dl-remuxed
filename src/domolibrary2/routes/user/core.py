@@ -42,6 +42,8 @@ from ...utils import (
     chunk_execution as dmce,
 )
 from ...utils.convert import test_valid_email
+from ...utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
+from dc_logger.decorators import log_call, LogDecoratorConfig
 from .exceptions import (
     DeleteUser_Error,
     SearchUser_NotFound,
@@ -70,6 +72,13 @@ def process_v1_search_users(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def get_all_users(
     auth: DomoAuth,
     session: Optional[httpx.AsyncClient] = None,
@@ -124,6 +133,13 @@ async def get_all_users(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def search_users(
     auth: DomoAuth,
     body: dict,
@@ -205,6 +221,13 @@ async def search_users(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def search_users_by_id(
     user_ids: list[str],  # list of user ids to search
     auth: DomoAuth,
@@ -289,6 +312,13 @@ async def search_users_by_id(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def search_users_by_email(
     user_email_ls: list[
         str
@@ -468,6 +498,13 @@ async def _get_by_id(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def get_by_id(
     user_id,
     auth: DomoAuth,
@@ -527,6 +564,13 @@ async def get_by_id(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def search_virtual_user_by_subscriber_instance(
     auth: DomoAuth,  # domo auth object
     subscriber_instance_ls: list[str],  # list of subscriber domo instances
@@ -584,6 +628,13 @@ async def search_virtual_user_by_subscriber_instance(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def create_user(
     auth: DomoAuth,
     display_name: str,
@@ -654,6 +705,13 @@ async def create_user(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 async def delete_user(
     auth: DomoAuth,
     user_id: str,

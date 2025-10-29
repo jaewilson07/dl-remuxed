@@ -16,10 +16,11 @@ from dataclasses import dataclass, field
 from typing import Optional, Union
 
 import httpx
+from dc_logger.decorators import log_call, LogDecoratorConfig
 
-from . import Logger as lg
 from .exceptions import AuthError
 from .response import ResponseGetData
+from ..utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 
 
 class _DomoAuth_Required(ABC):
@@ -121,6 +122,13 @@ class _DomoAuth_Optional(ABC):
         """
         raise NotImplementedError("Subclasses must implement auth_header property.")
 
+    @log_call(
+        level_name="auth",
+        config=LogDecoratorConfig(
+            entity_extractor=DomoEntityExtractor(),
+            result_processor=DomoEntityResultProcessor()
+        )
+    )
     async def who_am_i(
         self,
         session: Optional[httpx.AsyncClient] = None,
@@ -164,6 +172,13 @@ class _DomoAuth_Optional(ABC):
 
         return res
 
+    @log_call(
+        level_name="auth",
+        config=LogDecoratorConfig(
+            entity_extractor=DomoEntityExtractor(),
+            result_processor=DomoEntityResultProcessor()
+        )
+    )
     async def elevate_otp(
         self,
         one_time_password: str,
@@ -344,6 +359,13 @@ class _DomoFullAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):
         """
         return {"x-domo-authentication": self.token} if self.token else {}
 
+    @log_call(
+        level_name="auth",
+        config=LogDecoratorConfig(
+            entity_extractor=DomoEntityExtractor(),
+            result_processor=DomoEntityResultProcessor()
+        )
+    )
     async def get_auth_token(
         self,
         session: Optional[httpx.AsyncClient] = None,
@@ -450,6 +472,13 @@ class DomoFullAuth(
         )
 
 
+@log_call(
+    level_name="auth",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 def test_is_full_auth(
     auth,
     function_name=None,
@@ -468,9 +497,8 @@ def test_is_full_auth(
     Raises:
         InvalidAuthTypeError: If auth is not a DomoFullAuth instance
     """
-    tb = lg.get_traceback(num_stacks_to_drop=num_stacks_to_drop)
-
-    function_name = function_name or tb.function_name
+    # TODO: Re-implement traceback functionality
+    function_name = function_name or "test_is_full_auth"
 
     if auth.__class__.__name__ != "DomoFullAuth":
         raise AuthError(
@@ -530,6 +558,13 @@ class _DomoTokenAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):
         """
         return {"x-domo-developer-token": self.token or self.domo_access_token}
 
+    @log_call(
+        level_name="auth",
+        config=LogDecoratorConfig(
+            entity_extractor=DomoEntityExtractor(),
+            result_processor=DomoEntityResultProcessor()
+        )
+    )
     async def get_auth_token(
         self,
         session: Optional[httpx.AsyncClient] = None,
@@ -679,6 +714,13 @@ class DomoDeveloperAuth(_DomoAuth_Optional, _DomoAuth_Required):
             return {"Authorization": f"bearer {self.token}"}
         return {}
 
+    @log_call(
+        level_name="auth",
+        config=LogDecoratorConfig(
+            entity_extractor=DomoEntityExtractor(),
+            result_processor=DomoEntityResultProcessor()
+        )
+    )
     async def get_auth_token(
         self,
         session: Optional[httpx.AsyncClient] = None,
@@ -1028,6 +1070,13 @@ class DomoJupyterTokenAuth(
         )
 
 
+@log_call(
+    level_name="auth",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor()
+    )
+)
 def test_is_jupyter_auth(
     auth: DomoJupyterAuth,
     required_auth_type_ls: Optional[list] = None,
@@ -1049,13 +1098,13 @@ def test_is_jupyter_auth(
     if required_auth_type_ls is None:
         required_auth_type_ls = [DomoJupyterFullAuth, DomoJupyterTokenAuth]
 
-    tb = lg.get_traceback()
+    # TODO: Re-implement traceback functionality
 
     if auth.__class__.__name__ not in [
         auth_type.__name__ for auth_type in required_auth_type_ls
     ]:
         raise AuthError(
-            message=f"{tb.function_name} requires {[auth_type.__name__ for auth_type in required_auth_type_ls]} authentication, got {auth.__class__.__name__}",
-            function_name=tb.function_name,
+            message=f"test_is_jupyter_auth requires {[auth_type.__name__ for auth_type in required_auth_type_ls]} authentication, got {auth.__class__.__name__}",
+            function_name="test_is_jupyter_auth",
             domo_instance=auth.domo_instance,
         )
