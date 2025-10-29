@@ -3,7 +3,6 @@
 Example demonstrating the DomoSchedule inheritance hierarchy and factory method
 """
 
-import json
 import sys
 import os
 
