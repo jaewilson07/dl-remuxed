@@ -3,6 +3,13 @@ Datadog Logging Example for Domo Library
 
 This example demonstrates how to properly set up Datadog logging by overriding
 the global logger with a custom Datadog configuration.
+
+#DATADOG CONFIGURATION
+DATADOG_API_KEY = API KEY FROM DATADOG
+DATADOG_APP_KEY = APP KEY FROM DATADOG
+DATADOG_SITE = SITE FROM DATADOG
+DATADOG_SERVICE = SERVICE FROM DATADOG
+DATADOG_ENV = ENV FROM DATADOG
 """
 
 import asyncio
