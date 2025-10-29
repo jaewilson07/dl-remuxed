@@ -182,10 +182,10 @@ class DomoEntity_w_Lineage(DomoEntity):
 
     def __post_init__(self):
         """Initialize lineage tracking after entity creation."""
-        from ..classes.subentity import lineage as dmdl
+        from ..classes.subentity.lineage import DomoLineage
 
         # Using protected method until public interface is available
-        self.Lineage = dmdl.DomoLineage.from_parent(auth=self.auth, parent=self)
+        self.Lineage = DomoLineage.from_parent(auth=self.auth, parent=self)
 
 
 @dataclass

@@ -239,7 +239,7 @@ class DomoUser(DomoEntity):
 
         res = await user_routes.get_by_id(
             auth=auth,
-            id=id,
+            user_id=user_id,
             debug_api=debug_api,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
             session=session,
