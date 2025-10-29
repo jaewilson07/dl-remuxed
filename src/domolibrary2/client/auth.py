@@ -16,14 +16,14 @@ from dataclasses import dataclass, field
 from typing import Optional, Union
 
 import httpx
-from dc_logger.client.decorators import LogDecoratorConfig, log_call
+from dc_logger.decorators import LogDecoratorConfig, log_call
 
 from ..utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 from .exceptions import AuthError
 from .response import ResponseGetData
 
 
-class _DomoAuth_Required(ABC):
+class _DomoAuth_Required(ABC):  # noqa: N801
     """Abstract base class for required Domo authentication parameters.
 
     This class provides the minimal required functionality for Domo authentication,
@@ -57,7 +57,7 @@ class _DomoAuth_Required(ABC):
         return f"https://{self.domo_instance}.domo.com/auth/index?domoManualLogin=true"
 
 
-class _DomoAuth_Optional(ABC):
+class _DomoAuth_Optional(ABC):  # noqa: N801
     """Abstract base class for optional Domo authentication functionality.
 
     This class provides common authentication methods and token management
@@ -297,7 +297,7 @@ class DomoAuth(_DomoAuth_Optional, _DomoAuth_Required):
     """
 
 
-class _DomoFullAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):
+class _DomoFullAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):  # noqa: N801
     """Mixin for required parameters for DomoFullAuth.
 
     This class provides full authentication functionality using username and password
@@ -506,7 +506,7 @@ def test_is_full_auth(
         )
 
 
-class _DomoTokenAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):
+class _DomoTokenAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):  # noqa: N801
     """Mixin for required parameters for DomoTokenAuth.
 
     This class provides token-based authentication functionality using pre-generated
@@ -769,7 +769,7 @@ class DomoDeveloperAuth(_DomoAuth_Optional, _DomoAuth_Required):
         raise AuthError(message="Failed to retrieve developer token")
 
 
-class _DomoJupyter_Required:
+class _DomoJupyter_Required:  # noqa: N801
     """Required parameters and setup for Domo Jupyter authentication.
 
     This class provides the foundational authentication components needed for
