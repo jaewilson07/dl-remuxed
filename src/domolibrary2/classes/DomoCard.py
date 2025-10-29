@@ -44,6 +44,39 @@ class DomoCard(DomoEntity_w_Lineage):
 
     datasets: List[Any] = field(repr=False, default_factory=list)
 
+    @staticmethod
+    def _is_federated_card_obj(obj: dict) -> bool:
+        """Heuristic: decide if a card JSON represents a federated card.
+        
+        A card is considered federated if it's built on a federated datasource.
+        """
+        datasources = obj.get("datasources", [])
+        
+        if not datasources:
+            return False
+        
+        # Check if any datasource has federated indicators
+        for ds in datasources:
+            display_type = ds.get("displayType", "").upper()
+            data_type = ds.get("dataType", "").upper()
+            provider_type = ds.get("providerType", "").upper()
+            
+            has_federate = any([
+                "FEDERAT" in display_type,
+                "FEDERAT" in data_type,
+                "FEDERAT" in provider_type,
+            ])
+            
+            if has_federate:
+                return True
+        
+        return False
+
+    @property
+    def is_federated(self) -> bool:
+        """Heuristic: decide if a card represents a federated card."""
+        return self._is_federated_card_obj(self.raw)
+
     def __post_init__(self):
         # self.Definition = CardDefinition(self)
         self.Lineage = DomoLineage.from_parent(auth=self.auth, parent=self)
@@ -181,6 +214,58 @@ class DomoCard(DomoEntity_w_Lineage):
         )
 
         return self.datasets
+
+    async def get_publication(
+        self,
+        debug_api: bool = False,
+        session: Optional[httpx.AsyncClient] = None,
+        return_raw: bool = False,
+    ):
+        """Get the publication for this card if it is published.
+        
+        This method searches for a publication that contains this card.
+        
+        Args:
+            debug_api: Enable API debugging
+            session: Optional httpx client session
+            return_raw: Return raw response without processing
+            
+        Returns:
+            DomoPublication object if found, None otherwise
+            
+        Raises:
+            GET_Publish_Error: If API call fails
+        """
+        from ..routes import publish as publish_routes
+        from .publish import DomoPublication
+        
+        # Search for publications containing this card
+        res = await publish_routes.search_publications(
+            auth=self.auth,
+            debug_api=debug_api,
+            session=session,
+            parent_class=self.__class__.__name__,
+        )
+        
+        if return_raw:
+            return res
+        
+        # Look for a publication that contains this card
+        for pub_summary in res.response:
+            pub = await DomoPublication.get_by_id(
+                publication_id=pub_summary["id"],
+                auth=self.auth,
+                debug_api=debug_api,
+                session=session,
+            )
+            
+            # Check if this publication contains the current card
+            if pub.content:
+                for content in pub.content:
+                    if content.entity_type == "CARD" and content.entity_id == self.id:
+                        return pub
+        
+        return None
 
     async def share(
         self,
