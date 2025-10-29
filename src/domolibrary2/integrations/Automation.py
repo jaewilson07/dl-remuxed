@@ -20,7 +20,8 @@ from ..classes import (
     DomoGroup as dmdg,
 )
 from ..client.auth import DomoAuth
-from ..client.exceptions import DomoError, ClassError
+from ..client.exceptions import ClassError, DomoError
+from ..routes.account import ShareAccount_AccessLevel
 
 
 async def search_domo_groups_by_name(
@@ -127,7 +128,7 @@ async def share_domo_account_with_domo_group(
     upsert_group_if_no_exist: bool = True,
     is_hide_system_groups: bool = True,
     debug_api: bool = False,
-    access_level=dmacc.ShareAccount_AccessLevel.default,
+    access_level=ShareAccount_AccessLevel.CAN_VIEW,
 ) -> str:
     share_domo_group = await search_or_upsert_domo_group(
         auth=auth,

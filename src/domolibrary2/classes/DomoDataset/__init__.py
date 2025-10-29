@@ -29,7 +29,7 @@ Enums:
 
 # Import all classes and functionality from the package modules
 from .connector import DomoConnector, DomoConnectors
-from .dataset import (
+from .core import (
     DomoDataset,
     DomoDataset_Default,
     DomoPublishDataset,

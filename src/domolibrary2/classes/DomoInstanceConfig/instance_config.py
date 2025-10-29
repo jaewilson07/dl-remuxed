@@ -15,8 +15,8 @@ from ...routes import (
 )
 from ...routes.instance_config import authorized_domains as authorized_domains_routes
 from ...routes.instance_config import toggle as toggle_routes
-from ..bootstrap import DomoBootstrap
-from ..DomoAccount.account import DomoAccounts
+from ..DomoBootstrap import DomoBootstrap
+from ..DomoAccount.core import DomoAccounts
 from ..DomoApplication import DomoApplication
 from ..DomoDataset.connector import DomoConnectors
 from ..publish import DomoEverywhere
