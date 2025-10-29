@@ -10,6 +10,7 @@ __all__ = [
 
 import datetime as dt
 from dataclasses import dataclass, field
+from typing import Optional
 
 import httpx
 
@@ -22,6 +23,7 @@ from ...routes.dataset import (
 from ...utils import convert as dmcv
 from ..subentity import (
     certification as dmdc,
+    schedule as dmsch,
     tags as dmtg,
 )
 from . import (
@@ -63,6 +65,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
     PDP: dmpdp.DatasetPdpPolicies = field(default=None)
 
     Certification: dmdc.DomoCertification = field(default=None)
+    Schedule: Optional[dmsch.DomoSchedule] = field(default=None)
     # Lineage: dmdl.DomoLineage = field(default=None, repr=False)
 
     @property
@@ -109,6 +112,13 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
 
         self.Certification = dmdc.DomoCertification.from_parent(parent=self)
         self.Relations = None
+        
+        # Initialize Schedule from raw data if schedule information is present
+        if self.raw and any(
+            key in self.raw
+            for key in ["scheduleExpression", "scheduleStartDate", "advancedScheduleJson"]
+        ):
+            self.Schedule = dmsch.DomoSchedule.from_dict(self.raw)
 
     def display_url(self) -> str:
         return f"https://{self.auth.domo_instance}.domo.com/datasources/{self.id}/details/overview"

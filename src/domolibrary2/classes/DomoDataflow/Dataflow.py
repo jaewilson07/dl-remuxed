@@ -1,15 +1,17 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Optional
 
 import httpx
 
+from ...client.auth import DomoAuth
 from ...entities import DomoEntity_w_Lineage
 from ...routes import dataflow as dataflow_routes
 from ...utils import chunk_execution as dmce
 from ..DomoJupyter import Jupyter as dmdj
 from ...classes.subentity import lineage as dmdl
+from ...classes.subentity import schedule as dmsch
 
 __all__ = ["DomoDataflow", "DomoDataflows"]
 
@@ -35,6 +37,7 @@ class DomoDataflow(DomoEntity_w_Lineage):
     jupyter_workspace_config: dict = None
 
     History: DomoDataflow_History = None  # class for managing the history of a dataflow
+    Schedule: Optional[dmsch.DomoSchedule] = None  # schedule configuration
 
     JupyterWorkspace: dmdj.DomoJupyterWorkspace = None
 
@@ -48,6 +51,13 @@ class DomoDataflow(DomoEntity_w_Lineage):
         )
 
         self.Lineage = dmdl.DomoLineage.from_parent(auth=self.auth, parent=self)
+        
+        # Initialize Schedule from raw data if schedule information is present
+        if self.raw and any(
+            key in self.raw
+            for key in ["scheduleExpression", "scheduleStartDate", "advancedScheduleJson"]
+        ):
+            self.Schedule = dmsch.DomoSchedule.from_dict(self.raw)
 
     @classmethod
     def from_dict(cls, obj, auth, version_id=None, version_number=None):
