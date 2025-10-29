@@ -54,7 +54,7 @@ async def main():
     )
     
     # Get card information
-    card_response = await card_routes.get_card_metadata(
+    await card_routes.get_card_metadata(
         auth=auth,
         card_id=PARENT_CARD
     )
