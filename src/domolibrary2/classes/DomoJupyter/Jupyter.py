@@ -25,7 +25,7 @@ from ...utils import (
     chunk_execution as dmce,
     files as defi,
 )
-from ..DomoDataset import dataset as dmds
+from ..DomoDataset import DomoDataset as dmds
 from .. import DomoUser as dmdu
 from . import (
     Account as dmac,

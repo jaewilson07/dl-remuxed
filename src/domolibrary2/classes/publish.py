@@ -260,10 +260,8 @@ class DomoPublication(DomoEntity_w_Lineage):
         debug_num_stacks_to_drop=2,
         session: httpx.AsyncClient = None,
     ):
-
         if not subscriber_domain.lower().endswith(".domo.com"):
             subscriber_domain = f"{subscriber_domain}.domo.com"
-
 
         res = await publish_routes.get_subscriber_content_details(
             auth=self.auth,
@@ -295,9 +293,7 @@ class DomoPublication(DomoEntity_w_Lineage):
 
         return res
 
-        
-    
-    #REVIEW THIS PART DUPLICTED FUNCTION
+    # REVIEW THIS PART DUPLICTED FUNCTION
 
     # async def get_content_details(
     #     self,
@@ -306,7 +302,7 @@ class DomoPublication(DomoEntity_w_Lineage):
     #     session: httpx.AsyncClient = None,
     #     debug_num_stacks_to_drop: int = 2,
     # ):
-        
+
     #     print(self)
     #     print("2-------")
     #     res = await publish_routes.get_publication_by_id(
@@ -344,14 +340,12 @@ class DomoPublication(DomoEntity_w_Lineage):
         debug_num_stacks_to_drop: int = 2,
         is_suppress_errors: bool = False,
     ) -> Any:  # DomoCard, DomoDataset, DomoPage
-        
         res = await self.get_content_details(
             subscriber_domain=subscriber_domain,
             debug_api=debug_api,
             session=session,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        )   
-
+        )
 
         obj = next(
             (row for row in res.response if row["subscriberObjectId"] == subscriber.id),
@@ -430,7 +424,6 @@ class DomoPublication(DomoEntity_w_Lineage):
         )
 
         return cls.from_dict(obj=res.response, auth=auth)
-
 
     async def revoke_subscription_auth(
         self,
@@ -522,7 +515,7 @@ class DomoSubscription(dmen.DomoEntity):
             raw=obj,
             parent_publication=parent_publication,
         )
-    
+
     @property
     def entity_type(self):
         return "SUBSCRIPTION"
@@ -551,7 +544,7 @@ class DomoSubscription(dmen.DomoEntity):
             return res
 
         return cls.from_dict(obj=res.response, auth=auth)
-    
+
     @classmethod
     async def get_entity_by_id(cls, entity_id: str, auth: DomoAuth, **kwargs):
         return await cls.get_by_id(dataset_id=entity_id, auth=auth, **kwargs)
@@ -586,7 +579,6 @@ class DomoSubscription(dmen.DomoEntity):
         debug_num_stacks_to_drop=2,
         session: httpx.AsyncClient = None,
     ):
-
         if not self.parent_publication:
             await self.get_parent_publication(
                 parent_auth=parent_auth,
