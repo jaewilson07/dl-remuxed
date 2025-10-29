@@ -15,8 +15,8 @@ import httpx
 
 from ...client.auth import DomoAuth
 from ...entities.entities_federated import DomoFederatedEntity, DomoPublishedEntity
-from .dataset_default import DomoDataset_Default
 from ...utils import chunk_execution as dmce
+from .dataset_default import DomoDataset_Default
 
 
 @dataclass

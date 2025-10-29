@@ -19,8 +19,6 @@ from ..routes import publish as publish_routes
 from ..utils import chunk_execution as dmce
 from .subentity import lineage as dmdl
 
-from dc_logger.client.decorators import log_call
-
 __all__ = [
     "DomoPublication_Content_Enum",
     "DomoPublication_Content",
@@ -262,7 +260,6 @@ class DomoPublication(DomoEntity_w_Lineage):
         debug_num_stacks_to_drop=2,
         session: httpx.AsyncClient = None,
     ):
-
         if not subscriber_domain.lower().endswith(".domo.com"):
             subscriber_domain = f"{subscriber_domain}.domo.com"
 
@@ -343,7 +340,6 @@ class DomoPublication(DomoEntity_w_Lineage):
         debug_num_stacks_to_drop: int = 2,
         is_suppress_errors: bool = False,
     ) -> Any:  # DomoCard, DomoDataset, DomoPage
-
         res = await self.get_content_details(
             subscriber_domain=subscriber_domain,
             debug_api=debug_api,
@@ -583,7 +579,6 @@ class DomoSubscription(dmen.DomoEntity):
         debug_num_stacks_to_drop=2,
         session: httpx.AsyncClient = None,
     ):
-
         if not self.parent_publication:
             await self.get_parent_publication(
                 parent_auth=parent_auth,

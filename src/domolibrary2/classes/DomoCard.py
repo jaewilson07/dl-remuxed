@@ -8,17 +8,16 @@ from typing import Any, List, Optional
 
 import httpx
 
-from ..client.entities import DomoEntity_w_Lineage
 from ..client.auth import DomoAuth
+from ..client.entities import DomoEntity_w_Lineage
 from ..client.exceptions import DomoError
 from ..routes import card as card_routes
 from ..utils import (
-    DictDot as util_dd,
     chunk_execution as dmce,
     files as dmfi,
 )
-from .DomoUser import DomoUser
 from .DomoGroup import DomoGroup
+from .DomoUser import DomoUser
 from .subentity.lineage import DomoLineage
 
 
@@ -83,9 +82,10 @@ class DomoCard(DomoEntity_w_Lineage):
     async def get_owners(
         auth: DomoAuth, owners: List[dict], is_suppress_errors: bool = True
     ) -> List[Any]:  # DomoUser | DomoGroup]
-
-        from . import DomoGroup as dmgr
-        from . import DomoUser as dmdu
+        from . import (
+            DomoGroup as dmgr,
+            DomoUser as dmdu,
+        )
 
         print(owners)
         tasks = []

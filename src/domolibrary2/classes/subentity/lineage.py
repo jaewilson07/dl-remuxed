@@ -466,7 +466,6 @@ class DomoLineage:
 
 @dataclass
 class DomoLineage_Page(DomoLineage):
-
     cards: List[Any] = field(repr=False, default=None)
 
     @property
