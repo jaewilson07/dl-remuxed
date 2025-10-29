@@ -48,13 +48,13 @@ async def main():
     await auth.who_am_i()
     
     # Get dataset information
-    dataset_response = await dataset_routes.get_dataset_by_id(
+    await dataset_routes.get_dataset_by_id(
         dataset_id=PARENT_DATASET,
         auth=auth
     )
     
     # Get card information
-    card_response = await card_routes.get_card_metadata(
+    await card_routes.get_card_metadata(
         auth=auth,
         card_id=PARENT_CARD
     )
