@@ -2,14 +2,12 @@
 
 __all__ = [
     "DomoDataset_Default",
-    "FederatedDomoDataset",
-    "DomoPublishDataset",
-    "DomoDataset",
 ]
 
 
 import datetime as dt
 from dataclasses import dataclass, field
+from typing import Optional
 
 import httpx
 
@@ -33,7 +31,7 @@ from .dataset_data import DomoDataset_Data
 
 
 @dataclass
-class DomoDataset_Default(DomoEntity_w_Lineage):
+class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
     "interacts with domo datasets"
 
     id: str
@@ -43,26 +41,26 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
     data_provider_type: str = ""
     name: str = ""
     description: str = ""
-    row_count: int = None
-    column_count: int = None
+    row_count: Optional[int] = None
+    column_count: Optional[int] = None
 
-    stream_id: int = None
-    cloud_id: str = None
+    stream_id: Optional[int] = None
+    cloud_id: Optional[str] = None
 
-    last_touched_dt: dt.datetime = None
-    last_updated_dt: dt.datetime = None
-    created_dt: dt.datetime = None
+    last_touched_dt: Optional[dt.datetime] = None
+    last_updated_dt: Optional[dt.datetime] = None
+    created_dt: Optional[dt.datetime] = None
 
     owner: dict = field(default_factory=dict)
     formulas: dict = field(default_factory=dict)
 
-    Data: DomoDataset_Data = field(default=None)
-    Schema: dmdsc.DomoDataset_Schema = field(default=None)
-    Stream: dmdst.DomoStream = field(default=None)
-    Tags: dmtg.DomoTags = field(default=None)
-    PDP: dmpdp.DatasetPdpPolicies = field(default=None)
+    Data: Optional[DomoDataset_Data] = None
+    Schema: Optional[dmdsc.DomoDataset_Schema] = None
+    Stream: Optional[dmdst.DomoStream] = None
+    Tags: Optional[dmtg.DomoTags] = None
+    PDP: Optional[dmpdp.DatasetPdpPolicies] = None
 
-    Certification: dmdc.DomoCertification = field(default=None)
+    Certification: Optional[dmdc.DomoCertification] = None
     # Lineage: dmdl.DomoLineage = field(default=None, repr=False)
 
     @property
@@ -108,16 +106,17 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
         self.PDP = dmpdp.DatasetPdpPolicies.from_parent(parent=self)
 
         self.Certification = dmdc.DomoCertification.from_parent(parent=self)
-        self.Relations = None
+        self.Relations = None  # type: ignore
 
+    @property
     def display_url(self) -> str:
         return f"https://{self.auth.domo_instance}.domo.com/datasources/{self.id}/details/overview"
 
     @classmethod
     def from_dict(
         cls,
-        obj: dict,
         auth: DomoAuth,
+        obj: dict,
         is_use_default_dataset_class: bool = True,
         new_cls=None,
         **kwargs,
@@ -133,15 +132,15 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
 
         ds = cls(
             auth=auth,
-            id=obj.get("id"),
+            id=obj.get("id", ""),
             raw=obj,
-            display_type=obj.get("displayType"),
-            data_provider_type=obj.get("dataProviderType"),
-            name=obj.get("name"),
-            description=obj.get("description"),
-            owner=obj.get("owner"),
-            stream_id=obj.get("streamId"),
-            cloud_id=obj.get("cloudId"),
+            display_type=obj.get("displayType", ""),
+            data_provider_type=obj.get("dataProviderType", ""),
+            name=obj.get("name", ""),
+            description=obj.get("description", ""),
+            owner=obj.get("owner", {}),
+            stream_id=obj.get("streamId", None),
+            cloud_id=obj.get("cloudId", None),
             last_touched_dt=dmcv.convert_epoch_millisecond_to_datetime(
                 obj.get("lastTouched")
             ),
@@ -153,7 +152,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
             column_count=int(obj.get("columnCount") or 0),
             formulas=formulas,
             Lineage=None,
-            Relations=None,
+            Relations=None,  # type: ignore
             **kwargs,
         )
 
@@ -162,14 +161,14 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
     @classmethod
     async def get_by_id(
         cls,
-        dataset_id: str,
         auth: DomoAuth,
+        id: str,
         debug_api: bool = False,
         return_raw: bool = False,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         debug_num_stacks_to_drop: int = 2,
         is_use_default_dataset_class: bool = False,
-        parent_class: str = None,
+        parent_class: Optional[str] = None,
     ):
         """retrieves dataset metadata"""
 
@@ -179,7 +178,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
 
         res = await dataset_routes.get_dataset_by_id(
             auth=auth,
-            dataset_id=dataset_id,
+            dataset_id=id,
             debug_api=debug_api,
             session=session,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
@@ -197,15 +196,15 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
         )
 
     @classmethod
-    async def get_entity_by_id(cls, entity_id: str, auth: DomoAuth, **kwargs):
-        return await cls.get_by_id(dataset_id=entity_id, auth=auth, **kwargs)
+    async def get_entity_by_id(cls, auth: DomoAuth, entity_id: str, **kwargs):
+        return await cls.get_by_id(id=entity_id, auth=auth, **kwargs)
 
     async def delete(
         self,
-        dataset_id: str = None,
-        auth: DomoAuth = None,
+        dataset_id: Optional[str] = None,
+        auth: Optional[DomoAuth] = None,
         debug_api: bool = False,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
     ):
         dataset_id = dataset_id or self.id
         auth = auth or self.auth
@@ -219,12 +218,12 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
     async def share(
         self,
         member,  # DomoUser or DomoGroup
-        auth: DomoAuth = None,
+        auth: Optional[DomoAuth] = None,
         share_type: ShareDataset_AccessLevelEnum = ShareDataset_AccessLevelEnum.CAN_SHARE,
         is_send_email=False,
         debug_api: bool = False,
         debug_prn: bool = False,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
     ):
         # Import DomoGroup here to avoid circular imports
         from ...classes.DomoGroup import DomoGroup
@@ -249,12 +248,12 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
     @classmethod
     async def create(
         cls,
+        auth: DomoAuth,
         dataset_name: str,
         dataset_type: str = "api",
-        schema: dict = None,
-        auth: DomoAuth = None,
+        schema: Optional[dict] = None,
         debug_api: bool = False,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         return_raw: bool = False,
     ) -> "DomoDataset_Default":
         schema = schema or {
@@ -278,4 +277,4 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
 
         dataset_id = res.response.get("dataSource").get("dataSourceId")
 
-        return await cls.get_by_id(dataset_id=dataset_id, auth=auth)
+        return await cls.get_by_id(id=dataset_id, auth=auth)

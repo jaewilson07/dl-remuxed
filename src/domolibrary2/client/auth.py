@@ -16,14 +16,14 @@ from dataclasses import dataclass, field
 from typing import Optional, Union
 
 import httpx
-from dc_logger.decorators import log_call, LogDecoratorConfig
+from dc_logger.decorators import LogDecoratorConfig, log_call
 
+from ..utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 from .exceptions import AuthError
 from .response import ResponseGetData
-from ..utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 
 
-class _DomoAuth_Required(ABC):
+class _DomoAuth_Required(ABC):  # noqa: N801
     """Abstract base class for required Domo authentication parameters.
 
     This class provides the minimal required functionality for Domo authentication,
@@ -57,7 +57,7 @@ class _DomoAuth_Required(ABC):
         return f"https://{self.domo_instance}.domo.com/auth/index?domoManualLogin=true"
 
 
-class _DomoAuth_Optional(ABC):
+class _DomoAuth_Optional(ABC):  # noqa: N801
     """Abstract base class for optional Domo authentication functionality.
 
     This class provides common authentication methods and token management
@@ -126,8 +126,8 @@ class _DomoAuth_Optional(ABC):
         level_name="auth",
         config=LogDecoratorConfig(
             entity_extractor=DomoEntityExtractor(),
-            result_processor=DomoEntityResultProcessor()
-        )
+            result_processor=DomoEntityResultProcessor(),
+        ),
     )
     async def who_am_i(
         self,
@@ -176,8 +176,8 @@ class _DomoAuth_Optional(ABC):
         level_name="auth",
         config=LogDecoratorConfig(
             entity_extractor=DomoEntityExtractor(),
-            result_processor=DomoEntityResultProcessor()
-        )
+            result_processor=DomoEntityResultProcessor(),
+        ),
     )
     async def elevate_otp(
         self,
@@ -297,7 +297,7 @@ class DomoAuth(_DomoAuth_Optional, _DomoAuth_Required):
     """
 
 
-class _DomoFullAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):
+class _DomoFullAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):  # noqa: N801
     """Mixin for required parameters for DomoFullAuth.
 
     This class provides full authentication functionality using username and password
@@ -363,8 +363,8 @@ class _DomoFullAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):
         level_name="auth",
         config=LogDecoratorConfig(
             entity_extractor=DomoEntityExtractor(),
-            result_processor=DomoEntityResultProcessor()
-        )
+            result_processor=DomoEntityResultProcessor(),
+        ),
     )
     async def get_auth_token(
         self,
@@ -476,8 +476,8 @@ class DomoFullAuth(
     level_name="auth",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 def test_is_full_auth(
     auth,
@@ -506,7 +506,7 @@ def test_is_full_auth(
         )
 
 
-class _DomoTokenAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):
+class _DomoTokenAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):  # noqa: N801
     """Mixin for required parameters for DomoTokenAuth.
 
     This class provides token-based authentication functionality using pre-generated
@@ -562,8 +562,8 @@ class _DomoTokenAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):
         level_name="auth",
         config=LogDecoratorConfig(
             entity_extractor=DomoEntityExtractor(),
-            result_processor=DomoEntityResultProcessor()
-        )
+            result_processor=DomoEntityResultProcessor(),
+        ),
     )
     async def get_auth_token(
         self,
@@ -718,8 +718,8 @@ class DomoDeveloperAuth(_DomoAuth_Optional, _DomoAuth_Required):
         level_name="auth",
         config=LogDecoratorConfig(
             entity_extractor=DomoEntityExtractor(),
-            result_processor=DomoEntityResultProcessor()
-        )
+            result_processor=DomoEntityResultProcessor(),
+        ),
     )
     async def get_auth_token(
         self,
@@ -760,16 +760,26 @@ class DomoDeveloperAuth(_DomoAuth_Optional, _DomoAuth_Required):
 
         if isinstance(res, ResponseGetData) and res.is_success and res.response:
             self.is_valid_token = True
-            self.token = str(res.response.get("access_token", ""))
-            self.user_id = res.response.get("userId")
-            self.domo_instance = res.response.get("domain", self.domo_instance)
+            self.token = str(
+                res.response.get("access_token", "")
+                if isinstance(res.response, dict)
+                else ""
+            )
+            self.user_id = (
+                res.response.get("userId") if isinstance(res.response, dict) else ""
+            )
+            self.domo_instance = (
+                res.response.get("domain", self.domo_instance)
+                if isinstance(res.response, dict)
+                else ""
+            )
             self.token_name = self.token_name or "developer_auth"
             return self.token
 
         raise AuthError(message="Failed to retrieve developer token")
 
 
-class _DomoJupyter_Required:
+class _DomoJupyter_Required:  # noqa: N801
     """Required parameters and setup for Domo Jupyter authentication.
 
     This class provides the foundational authentication components needed for
@@ -1074,8 +1084,8 @@ class DomoJupyterTokenAuth(
     level_name="auth",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 def test_is_jupyter_auth(
     auth: DomoJupyterAuth,

@@ -27,38 +27,31 @@ from domolibrary2.routes import card as card_routes
 
 async def main():
     """Main function demonstrating automatic logging."""
-    
+
     # Get credentials from environment
     DOMO_INSTANCE = os.getenv("DOMO_INSTANCE")
     DOMO_ACCESS_TOKEN = os.getenv("DOMO_ACCESS_TOKEN")
     PARENT_DATASET = os.getenv("PARENT_DATASET")
     PARENT_CARD = os.getenv("PARENT_CARD")
-    
+
     if not all([DOMO_INSTANCE, DOMO_ACCESS_TOKEN, PARENT_DATASET, PARENT_CARD]):
         print("Missing required environment variables. Please check your .env file.")
         return
-    
+
     # Create authentication object
     auth = DomoTokenAuth(
-        domo_instance=DOMO_INSTANCE,
-        domo_access_token=DOMO_ACCESS_TOKEN
+        domo_instance=DOMO_INSTANCE, domo_access_token=DOMO_ACCESS_TOKEN
     )
-    
+
     # Test authentication
     await auth.who_am_i()
-    
+
     # Get dataset information
-    dataset_response = await dataset_routes.get_dataset_by_id(
-        dataset_id=PARENT_DATASET,
-        auth=auth
-    )
-    
+    await dataset_routes.get_dataset_by_id(dataset_id=PARENT_DATASET, auth=auth)
+
     # Get card information
-    card_response = await card_routes.get_card_metadata(
-        auth=auth,
-        card_id=PARENT_CARD
-    )
-    
+    await card_routes.get_card_metadata(auth=auth, card_id=PARENT_CARD)
+
     # The script completes - all operations were automatically logged
     # Check the log files to see the rich entity information captured
 
