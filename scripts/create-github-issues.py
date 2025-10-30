@@ -13,12 +13,13 @@ Usage:
 import os
 import re
 from pathlib import Path
+
 from github import Github
 
 
 def parse_issue_file(filepath):
     """Parse issue markdown file and extract title, body, and labels."""
-    with open(filepath, "r", encoding="utf-8") as f:
+    with open(filepath, encoding="utf-8") as f:
         content = f.read()
 
     # Extract title from frontmatter
@@ -99,19 +100,19 @@ def main():
 
     # Summary
     print("\n" + "=" * 80)
-    print(f"📊 Summary:")
+    print("📊 Summary:")
     print(f"   ✅ Created: {len(created)}")
     print(f"   ⏭️  Skipped: {len(skipped)}")
     print(f"   ❌ Failed: {len(failed)}")
 
     if created:
-        print(f"\n🎉 Created Issues:")
+        print("\n🎉 Created Issues:")
         for num, title, url in created:
             print(f"   #{num}: {title}")
             print(f"          {url}")
 
     if failed:
-        print(f"\n⚠️  Failed Issues:")
+        print("\n⚠️  Failed Issues:")
         for filename, title, error in failed:
             print(f"   {filename}: {error}")
 

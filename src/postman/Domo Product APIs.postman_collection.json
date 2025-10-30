@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "c7864beb-c4f8-47f0-91f6-d8a0a49e9c33",
 		"name": "Domo Product APIs",
-		"description": "# Introduction\n\nThe Domo Product APIs are the APIs that drive the entire Domo platform behind the scenes. Anything you can do via the user interface in Domo can be done via the Product APIs. The official documentation for these APIs can be found here: [Domo Developer - Product APIs Overview](https://developer.domo.com/portal/8ba9aedad3679-ap-is#product-apis). Now that I am a Domo employee, I will be working with them to pull my efforts into the official documentation over time. But, we wanted to provide the community with this information ASAP, which is why this Postman collection is being shared outside of the official documentation.\n\n# Disclaimer\n\nThis Postman collection is unofficial and not provided by Domo, Inc. I have been given permission by Domo to share this Postman collection with the Domo Community. However, use of this Postman collection is at your own risk. The Product APIs are subject to change without notice. You are responsible for anything done using these APIs. It is recommended to use them in a sandbox environment first so you don't accidentally mess up something in production. And it is not recommended to ever use these APIs with system critical processes.\n\nWhile this Postman collection is extensive, it isn't 100% comprehensive. Some endpoints and possible field values are missing. Most endpoints don't have response examples yet. I plan to continue to update this collection over time. If you fork this collection, you can pull these new updates as they become available to merge into your fork. You can also explore the Product APIs yourself by using a combination of this collection and the developer tools network console in your browser while in Domo. You can learn more about the developer tools in Google Chrome [here](https://developer.chrome.com/docs/devtools/overview#network).\n\n# Setup\n\n## Authentication\n\nAuthenticating to the Product APIs is achieved with an access token. This access token must be sent with every API request as the value to the header X-DOMO-Developer-Token. You can learn more about creating and managing access tokens [here](https://domo-support.domo.com/s/article/360042934494?language=en_US). In this collection, you can update the value of the variable X-DOMO-Developer-Token to have it included properly in your requests. You can do this by adding the access token to your Postman Vault (recommended), setting the value of the variable directly under the variables tab in this collection, or by creating an environment variable.\n\n## Instance\n\nYou must also set the value of the variable instance to properly ping your environment with this collection. You can find the value of instance by visitng your Domo environment in your browser, and copying the URL part between **https://** and **.domo.com**. You can either update the variable directly under the variables tab in this collection or by creating an environment variable to overwrite it.\n\n## Fork\n\nTo use the collection, you will need to fork it so you have a version saved to your own Postman account and workspace. Forking allows you to then modify the collection as you see fit, including saving responses as examples, adding specific IDs relevant to your environment, etc. As I update this collection over time, you can pull the updates from this main collection to your fork, and merge them how you see fit with any modifications you've made.\n\n# Help\n\nI've tried my best to document each endpoint using Postman's new [types feature](https://learning.postman.com/docs/design-apis/collections/view-properties-and-documentation/) as well as some written documentation. I plan to further the documentation over time. If you have questions or need additional help, the [Domo Community Forum](https://community-forums.domo.com/main/discussions) and [Domo User Group Slack](https://domousergroup.carrd.co/) are great resources. You can also send me a DM on the Domo User Group Slack.\n\n# Format\n\nThe folders in this collection are ordered alphabetically. The folders are named according to how they are referenced in the API endpoint. Sometimes, these terms don't match what you see in Domo. In those cases, I have added parentheses following the name that contain the common term used in the Domo user interface e.g., Pages (Dashboards).\n\nWithin each folder, endpoints are ordered top to bottom by the following categories, then by relevance within those:\n\n1. Subfolders\n    \n2. List/Search\n    \n3. Get\n    \n4. Operation (e.g., Share, Run, etc.)\n    \n5. Create\n    \n6. Update\n    \n7. Delete",
+		"description": "# Introduction\n\nThe Domo Product APIs are the APIs that drive the entire Domo platform behind the scenes. Anything you can do via the user interface in Domo can be done via the Product APIs. The official documentation for these APIs can be found here: [Domo Developer - Product APIs Overview](https://developer.domo.com/portal/8ba9aedad3679-ap-is#product-apis). Now that I am a Domo employee, I will be working with them to pull my efforts into the official documentation over time. But, we wanted to provide the community with this information ASAP, which is why this Postman collection is being shared outside of the official documentation.\n\n# Disclaimer\n\nThis Postman collection is unofficial and not provided by Domo, Inc. I have been given permission by Domo to share this Postman collection with the Domo Community. However, use of this Postman collection is at your own risk. The Product APIs are subject to change without notice. You are responsible for anything done using these APIs. It is recommended to use them in a sandbox environment first so you don't accidentally mess up something in production. And it is not recommended to ever use these APIs with system critical processes.\n\nWhile this Postman collection is extensive, it isn't 100% comprehensive. Some endpoints and possible field values are missing. Most endpoints don't have response examples yet. I plan to continue to update this collection over time. If you fork this collection, you can pull these new updates as they become available to merge into your fork. You can also explore the Product APIs yourself by using a combination of this collection and the developer tools network console in your browser while in Domo. You can learn more about the developer tools in Google Chrome [here](https://developer.chrome.com/docs/devtools/overview#network).\n\n# Setup\n\n## Authentication\n\nAuthenticating to the Product APIs is achieved with an access token. This access token must be sent with every API request as the value to the header X-DOMO-Developer-Token. You can learn more about creating and managing access tokens [here](https://domo-support.domo.com/s/article/360042934494?language=en_US). In this collection, you can update the value of the variable X-DOMO-Developer-Token to have it included properly in your requests. You can do this by adding the access token to your Postman Vault (recommended), setting the value of the variable directly under the variables tab in this collection, or by creating an environment variable.\n\n## Instance\n\nYou must also set the value of the variable instance to properly ping your environment with this collection. You can find the value of instance by visitng your Domo environment in your browser, and copying the URL part between **https://** and **.domo.com**. You can either update the variable directly under the variables tab in this collection or by creating an environment variable to overwrite it.\n\n## Fork\n\nTo use the collection, you will need to fork it so you have a version saved to your own Postman account and workspace. Forking allows you to then modify the collection as you see fit, including saving responses as examples, adding specific IDs relevant to your environment, etc. As I update this collection over time, you can pull the updates from this main collection to your fork, and merge them how you see fit with any modifications you've made.\n\n# Help\n\nI've tried my best to document each endpoint using Postman's new [types feature](https://learning.postman.com/docs/design-apis/collections/view-properties-and-documentation/) as well as some written documentation. I plan to further the documentation over time. If you have questions or need additional help, the [Domo Community Forum](https://community-forums.domo.com/main/discussions) and [Domo User Group Slack](https://domousergroup.carrd.co/) are great resources. You can also send me a DM on the Domo User Group Slack.\n\n# Format\n\nThe folders in this collection are ordered alphabetically. The folders are named according to how they are referenced in the API endpoint. Sometimes, these terms don't match what you see in Domo. In those cases, I have added parentheses following the name that contain the common term used in the Domo user interface e.g., Pages (Dashboards).\n\nWithin each folder, endpoints are ordered top to bottom by the following categories, then by relevance within those:\n\n1. Subfolders\n    \n2. list/Search\n    \n3. Get\n    \n4. Operation (e.g., Share, Run, etc.)\n    \n5. Create\n    \n6. Update\n    \n7. Delete",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "5049119",
 		"_collection_link": "https://domodatacrew.postman.co/workspace/Domo-Documentation~d46be0df-b02c-4c0b-b161-a1b653762a80/collection/5049119-c7864beb-c4f8-47f0-91f6-d8a0a49e9c33?action=share&source=collection_link&creator=5049119"
@@ -12,7 +12,7 @@
 			"name": "Accounts",
 			"item": [
 				{
-					"name": "List Accounts",
+					"name": "list Accounts",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -89,7 +89,7 @@
 					"response": []
 				},
 				{
-					"name": "List OAuth Configurations",
+					"name": "list OAuth Configurations",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -111,7 +111,7 @@
 					"response": []
 				},
 				{
-					"name": "List Providers with Accounts",
+					"name": "list Providers with Accounts",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -131,7 +131,7 @@
 					"response": []
 				},
 				{
-					"name": "List Providers",
+					"name": "list Providers",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -683,7 +683,7 @@
 			"name": "Achievements",
 			"item": [
 				{
-					"name": "List Achievements",
+					"name": "list Achievements",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -1266,7 +1266,7 @@
 			"name": "Activity Log",
 			"item": [
 				{
-					"name": "List Object Types",
+					"name": "list Object Types",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -1428,7 +1428,7 @@
 					"name": "AutoML",
 					"item": [
 						{
-							"name": "List Models on DataSet",
+							"name": "list Models on DataSet",
 							"request": {
 								"method": "GET",
 								"header": [],
@@ -1692,7 +1692,7 @@
 							"name": "Projects",
 							"item": [
 								{
-									"name": "List Projects",
+									"name": "list Projects",
 									"request": {
 										"method": "POST",
 										"header": [],
@@ -1722,7 +1722,7 @@
 									"response": []
 								},
 								{
-									"name": "List Associated AutoML Models",
+									"name": "list Associated AutoML Models",
 									"request": {
 										"method": "POST",
 										"header": [],
@@ -1791,7 +1791,7 @@
 							"name": "Text to SQL",
 							"item": [
 								{
-									"name": "List Models",
+									"name": "list Models",
 									"request": {
 										"method": "GET",
 										"header": [],
@@ -1870,7 +1870,7 @@
 							"name": "Text Generation",
 							"item": [
 								{
-									"name": "List Models",
+									"name": "list Models",
 									"request": {
 										"method": "GET",
 										"header": [],
@@ -1949,7 +1949,7 @@
 							"name": "Text to Beast Mode",
 							"item": [
 								{
-									"name": "List Models",
+									"name": "list Models",
 									"request": {
 										"method": "GET",
 										"header": [],
@@ -2028,7 +2028,7 @@
 							"name": "Text Summarization",
 							"item": [
 								{
-									"name": "List Models",
+									"name": "list Models",
 									"request": {
 										"method": "GET",
 										"header": [],
@@ -2107,7 +2107,7 @@
 							"name": "Forecasting",
 							"item": [
 								{
-									"name": "List Models",
+									"name": "list Models",
 									"request": {
 										"method": "GET",
 										"header": [],
@@ -2193,7 +2193,7 @@
 							"name": "Image to Text",
 							"item": [
 								{
-									"name": "List Models",
+									"name": "list Models",
 									"request": {
 										"method": "GET",
 										"header": [],
@@ -2385,7 +2385,7 @@
 							"name": "File Shares",
 							"item": [
 								{
-									"name": "List File Shares",
+									"name": "list File Shares",
 									"request": {
 										"method": "GET",
 										"header": [],
@@ -2790,7 +2790,7 @@
 							"description": "[File Shares Official Documentation](https://domo-support.domo.com/s/article/36004740075?language=en_US#file_sharing)"
 						},
 						{
-							"name": "List Jupyter Workspaces",
+							"name": "list Jupyter Workspaces",
 							"request": {
 								"method": "POST",
 								"header": [],
@@ -2819,7 +2819,7 @@
 							"response": []
 						},
 						{
-							"name": "List User AI Models",
+							"name": "list User AI Models",
 							"request": {
 								"method": "POST",
 								"header": [],
@@ -2884,7 +2884,7 @@
 			"name": "Alerts",
 			"item": [
 				{
-					"name": "List Alerts",
+					"name": "list Alerts",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -2921,7 +2921,7 @@
 					"response": []
 				},
 				{
-					"name": "List Immediate Alerts",
+					"name": "list Immediate Alerts",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -2943,7 +2943,7 @@
 					"response": []
 				},
 				{
-					"name": "List Alert Triggered Preferences",
+					"name": "list Alert Triggered Preferences",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -3427,7 +3427,7 @@
 			"name": "AppDB",
 			"item": [
 				{
-					"name": "List Datastores",
+					"name": "list Datastores",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -3445,7 +3445,7 @@
 					"response": []
 				},
 				{
-					"name": "List Collections",
+					"name": "list Collections",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -4295,7 +4295,7 @@
 			"name": "App Studio",
 			"item": [
 				{
-					"name": "List Apps",
+					"name": "list Apps",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -4410,7 +4410,7 @@
 			"name": "Brand Kit",
 			"item": [
 				{
-					"name": "List Color Palettes",
+					"name": "list Color Palettes",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -4430,7 +4430,7 @@
 					"response": []
 				},
 				{
-					"name": "List Email Configurations",
+					"name": "list Email Configurations",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -4518,7 +4518,7 @@
 			"name": "Bricks and Pro-Code Apps",
 			"item": [
 				{
-					"name": "List App Designs",
+					"name": "list App Designs",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -4997,7 +4997,7 @@
 					"description": "[Issues Offical Documentation](https://domo-support.domo.com/s/article/360042923834?language=en_US)"
 				},
 				{
-					"name": "List/Search Cards",
+					"name": "list/Search Cards",
 					"event": [
 						{
 							"listen": "test",
@@ -5047,7 +5047,7 @@
 					"response": []
 				},
 				{
-					"name": "List Cards Admin Summary",
+					"name": "list Cards Admin Summary",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -6002,7 +6002,7 @@
 			"name": "Certification",
 			"item": [
 				{
-					"name": "List Certifications",
+					"name": "list Certifications",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -6030,7 +6030,7 @@
 					"response": []
 				},
 				{
-					"name": "List Certification Templates",
+					"name": "list Certification Templates",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -6058,7 +6058,7 @@
 					"response": []
 				},
 				{
-					"name": "List Certified Entities",
+					"name": "list Certified Entities",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -6337,7 +6337,7 @@
 			"name": "Code Engine",
 			"item": [
 				{
-					"name": "List Packages",
+					"name": "list Packages",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -6524,7 +6524,7 @@
 			"name": "Company",
 			"item": [
 				{
-					"name": "List Customer Stats",
+					"name": "list Customer Stats",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -6544,7 +6544,7 @@
 					"response": []
 				},
 				{
-					"name": "List Time Zones",
+					"name": "list Time Zones",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -6853,7 +6853,7 @@
 			"name": "DataFlows",
 			"item": [
 				{
-					"name": "List DataFlows",
+					"name": "list DataFlows",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -6927,7 +6927,7 @@
 					"response": []
 				},
 				{
-					"name": "List DataFlow Versions",
+					"name": "list DataFlow Versions",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -7466,7 +7466,7 @@
 					"name": "Data Repair",
 					"item": [
 						{
-							"name": "List Data Versions",
+							"name": "list Data Versions",
 							"request": {
 								"method": "GET",
 								"header": [],
@@ -8480,7 +8480,7 @@
 					"description": "The Domo Webform connector is a unique connector in Domo, as you can add KPI cards powered by webforms directly to a page without having to open the Data Center or Appstore. If you want, you can also add webform DataSets from the Data Center or Appstore and then build cards afterward, just as you can with all of Domo's other connectors. \n\n[Webforms Official Documentation](https://domo-support.domo.com/s/article/360043436813?language=en_US)"
 				},
 				{
-					"name": "List/Search DataSets",
+					"name": "list/Search DataSets",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -8510,7 +8510,7 @@
 					"response": []
 				},
 				{
-					"name": "List Tags",
+					"name": "list Tags",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -9612,7 +9612,7 @@
 			"name": "FileSets",
 			"item": [
 				{
-					"name": "List/Search FileSets",
+					"name": "list/Search FileSets",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -10615,7 +10615,7 @@
 			"name": "Forms",
 			"item": [
 				{
-					"name": "List Forms",
+					"name": "list Forms",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -10836,7 +10836,7 @@
 			"name": "Functions (Beast Modes and Variables)",
 			"item": [
 				{
-					"name": "List Functions",
+					"name": "list Functions",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -11239,7 +11239,7 @@
 			"name": "Groups",
 			"item": [
 				{
-					"name": "List Groups",
+					"name": "list Groups",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -11746,7 +11746,7 @@
 			"name": "Objectives (Goals)",
 			"item": [
 				{
-					"name": "List Objectives",
+					"name": "list Objectives",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -11781,7 +11781,7 @@
 					"response": []
 				},
 				{
-					"name": "List Personal Objectives",
+					"name": "list Personal Objectives",
 					"event": [
 						{
 							"listen": "test",
@@ -11846,7 +11846,7 @@
 					"response": []
 				},
 				{
-					"name": "List Team Objectives",
+					"name": "list Team Objectives",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -11881,7 +11881,7 @@
 					"response": []
 				},
 				{
-					"name": "List Events",
+					"name": "list Events",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -11901,7 +11901,7 @@
 					"response": []
 				},
 				{
-					"name": "List Tags",
+					"name": "list Tags",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -11927,7 +11927,7 @@
 					"response": []
 				},
 				{
-					"name": "List Categories",
+					"name": "list Categories",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -11954,7 +11954,7 @@
 					"response": []
 				},
 				{
-					"name": "List Objectives to Update",
+					"name": "list Objectives to Update",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -11989,7 +11989,7 @@
 					"response": []
 				},
 				{
-					"name": "List Objective Drafts",
+					"name": "list Objective Drafts",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -12753,7 +12753,7 @@
 					"name": "Filter Views",
 					"item": [
 						{
-							"name": "List Filter Views",
+							"name": "list Filter Views",
 							"request": {
 								"method": "GET",
 								"header": [],
@@ -12850,7 +12850,7 @@
 					"description": "[Filter Views Official Documentation](https://domo-support.domo.com/s/article/360042923914?language=en_US)"
 				},
 				{
-					"name": "List Pages Admin Summary",
+					"name": "list Pages Admin Summary",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -12889,7 +12889,7 @@
 					"response": []
 				},
 				{
-					"name": "List Access",
+					"name": "list Access",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -13226,7 +13226,7 @@
 			"name": "Publications (Slideshows)",
 			"item": [
 				{
-					"name": "List Publications",
+					"name": "list Publications",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -13521,7 +13521,7 @@
 			"name": "Roles",
 			"item": [
 				{
-					"name": "List Roles",
+					"name": "list Roles",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -13540,7 +13540,7 @@
 					"response": []
 				},
 				{
-					"name": "List Grants",
+					"name": "list Grants",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -13559,7 +13559,7 @@
 					"response": []
 				},
 				{
-					"name": "List Users with a Certain Grant",
+					"name": "list Users with a Certain Grant",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -13668,7 +13668,7 @@
 			"name": "Sandbox",
 			"item": [
 				{
-					"name": "List Repositories",
+					"name": "list Repositories",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -13697,7 +13697,7 @@
 					"response": []
 				},
 				{
-					"name": "List Promotion History",
+					"name": "list Promotion History",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -13726,7 +13726,7 @@
 					"response": []
 				},
 				{
-					"name": "List Commit History",
+					"name": "list Commit History",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -13755,7 +13755,7 @@
 					"response": []
 				},
 				{
-					"name": "List Instances",
+					"name": "list Instances",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -13941,7 +13941,7 @@
 			"name": "Scheduled Reports",
 			"item": [
 				{
-					"name": "List Scheduled Reports",
+					"name": "list Scheduled Reports",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -14399,7 +14399,7 @@
 			"name": "Toolkit",
 			"item": [
 				{
-					"name": "List Applications",
+					"name": "list Applications",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -14745,7 +14745,7 @@
 					"response": []
 				},
 				{
-					"name": "List Users (identity/v1)",
+					"name": "list Users (identity/v1)",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -14826,7 +14826,7 @@
 					]
 				},
 				{
-					"name": "List Users (content/v3)",
+					"name": "list Users (content/v3)",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -15412,7 +15412,7 @@
 					"response": []
 				},
 				{
-					"name": "List Workflows",
+					"name": "list Workflows",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -15476,7 +15476,7 @@
 					]
 				},
 				{
-					"name": "List Executions",
+					"name": "list Executions",
 					"request": {
 						"method": "GET",
 						"header": [

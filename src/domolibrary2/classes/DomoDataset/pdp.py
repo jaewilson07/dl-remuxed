@@ -8,7 +8,7 @@ using DomoEnum for operators and the relationship system for user/group associat
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional, list
 
 from domolibrary2.entities.base import DomoEnumMixin
 from domolibrary2.entities.entities import DomoEntity, DomoSubEntity
@@ -72,7 +72,7 @@ class PdpParameter(DomoSubEntity):
 
     Attributes:
         column_name: The dataset column this parameter filters on
-        column_values: List of values to filter by
+        column_values: list of values to filter by
         operator: The comparison operator to use (equals, greater than, etc.)
         parameter_type: Whether this is a column-based or dynamic filter
         ignore_case: Whether string comparisons should ignore case
@@ -82,7 +82,7 @@ class PdpParameter(DomoSubEntity):
     """
 
     column_name: Optional[str] = None
-    column_values: List[str] = field(default_factory=list)
+    column_values: list[str] = field(default_factory=list)
     operator: Optional[PDPOperator] = PDPOperator.EQUALS
     parameter_type: Optional[PDPParameterType] = PDPParameterType.COLUMN
     ignore_case: bool = True
@@ -90,7 +90,7 @@ class PdpParameter(DomoSubEntity):
     description: Optional[str] = None
     trusted_attribute_key: Optional[str] = None
 
-    def to_api_dict(self) -> Dict[str, Any]:
+    def to_api_dict(self) -> dict[str, Any]:
         """Convert parameter to API format for Domo requests."""
         return {
             "columnName": self.column_name,
@@ -108,7 +108,7 @@ class PdpParameter(DomoSubEntity):
         }
 
     @classmethod
-    def from_api_dict(cls, data: Dict[str, Any]) -> "PdpParameter":
+    def from_api_dict(cls, data: dict[str, Any]) -> "PdpParameter":
         """Create parameter from API response data."""
         return cls(
             column_name=data.get("columnName"),
@@ -123,7 +123,7 @@ class PdpParameter(DomoSubEntity):
         raise NotImplementedError("find relationship not implemented yet")
 
 
-@dataclass
+@dataclass(eq=False)
 class PDPPolicy(DomoEntity):
     """Represents a PDP (Personalized Data Permissions) policy.
 
@@ -136,7 +136,7 @@ class PDPPolicy(DomoEntity):
     Attributes:
         dataset_id: ID of the dataset this policy applies to
         filter_group_id: Domo's internal ID for this policy
-        parameters: List of filter parameters that define the data restrictions
+        parameters: list of filter parameters that define the data restrictions
         policy_status: Current status of the policy (active, inactive, etc.)
         is_enabled: Whether the policy is currently enforced
         priority: Priority order when multiple policies apply
@@ -149,7 +149,7 @@ class PDPPolicy(DomoEntity):
 
     dataset_id: Optional[str] = None
     filter_group_id: Optional[str] = None
-    parameters: List[PdpParameter] = field(default_factory=list)
+    parameters: list[PdpParameter] = field(default_factory=list)
     policy_status: Optional[PDPPolicyStatus] = PDPPolicyStatus.ACTIVE
     is_enabled: bool = True
     priority: int = 1
@@ -184,7 +184,7 @@ class PDPPolicy(DomoEntity):
             created_by=created_by,
         )
 
-    def get_users(self) -> List[DomoRelationship]:
+    def get_users(self) -> list[DomoRelationship]:
         """Get all users associated with this policy."""
         return self.relationship_controller.find_relationships(
             target_entity_id=self.id or self.filter_group_id,
@@ -192,7 +192,7 @@ class PDPPolicy(DomoEntity):
             active_only=True,
         )
 
-    def get_groups(self) -> List[DomoRelationship]:
+    def get_groups(self) -> list[DomoRelationship]:
         """Get all groups associated with this policy."""
         return self.relationship_controller.find_relationships(
             target_entity_id=self.id or self.filter_group_id,
@@ -200,7 +200,7 @@ class PDPPolicy(DomoEntity):
             active_only=True,
         )
 
-    def remove_user(self, user_id: str) -> List[DomoRelationship]:
+    def remove_user(self, user_id: str) -> list[DomoRelationship]:
         """Remove a user from this policy."""
         return self.relationship_controller.revoke_relationship(
             source_entity_id=user_id,
@@ -208,7 +208,7 @@ class PDPPolicy(DomoEntity):
             relationship_type=RelationshipType.MEMBER,
         )
 
-    def remove_group(self, group_id: str) -> List[DomoRelationship]:
+    def remove_group(self, group_id: str) -> list[DomoRelationship]:
         """Remove a group from this policy."""
         return self.relationship_controller.revoke_relationship(
             source_entity_id=group_id,
@@ -241,7 +241,7 @@ class PDPPolicy(DomoEntity):
         return True
 
     @classmethod
-    def from_api_dict(cls, data: Dict[str, Any]) -> "PDPPolicy":
+    def from_api_dict(cls, data: dict[str, Any]) -> "PDPPolicy":
         """Create policy from API response data."""
         policy = cls(
             id=data.get("filterGroupId"),
@@ -290,7 +290,7 @@ class PDPPolicy(DomoEntity):
             created_by=created_by,
         )
 
-    def to_api_dict(self) -> Dict[str, Any]:
+    def to_api_dict(self) -> dict[str, Any]:
         """Convert policy to API format for Domo requests."""
         user_relationships = self.get_users()
         group_relationships = self.get_groups()
@@ -317,11 +317,11 @@ class DatasetPdpPolicies(DomoSubEntity):
 
     Attributes:
         dataset_id: ID of the dataset these policies apply to
-        policies: List of PDP policies for this dataset
+        policies: list of PDP policies for this dataset
         is_pdp_enabled: Whether PDP is enabled for this dataset
     """
 
-    policies: List[PDPPolicy] = field(default_factory=list)
+    policies: list[PDPPolicy] = field(default_factory=list)
     is_pdp_enabled: bool = False
 
     def add_policy(self, policy: PDPPolicy) -> None:
@@ -359,11 +359,11 @@ class DatasetPdpPolicies(DomoSubEntity):
                 (p for p in self.policies if name.lower() in p.name.lower()), None
             )
 
-    def get_active_policies(self) -> List[PDPPolicy]:
+    def get_active_policies(self) -> list[PDPPolicy]:
         """Get all currently active policies."""
         return [p for p in self.policies if p.is_active()]
 
-    def get_policies_for_user(self, user_id: str) -> List[PDPPolicy]:
+    def get_policies_for_user(self, user_id: str) -> list[PDPPolicy]:
         """Get all policies that apply to a specific user."""
         applicable_policies = []
 
@@ -374,7 +374,7 @@ class DatasetPdpPolicies(DomoSubEntity):
 
         return applicable_policies
 
-    def get_policies_for_group(self, group_id: str) -> List[PDPPolicy]:
+    def get_policies_for_group(self, group_id: str) -> list[PDPPolicy]:
         """Get all policies that apply to a specific group."""
         applicable_policies = []
 

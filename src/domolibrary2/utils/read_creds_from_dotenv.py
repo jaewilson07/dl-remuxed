@@ -29,7 +29,7 @@ Example:
 __all__ = ["read_creds_from_dotenv"]
 
 import os
-from typing import List, Optional
+from typing import Optional, list
 
 # Optional dependency with fallback
 try:
@@ -46,7 +46,7 @@ from .exceptions import CredentialsError
 
 def read_creds_from_dotenv(
     env_path: str = ".env",
-    params: Optional[List[str]] = None,
+    params: Optional[list[str]] = None,
 ) -> utils_dd.DictDot:
     """
     Read credentials from .env file and return as DictDot object for easy access.
@@ -56,7 +56,7 @@ def read_creds_from_dotenv(
 
     Args:
         env_path (str): Path to the .env file (default: ".env")
-        params (List[str], optional): List of specific parameters to extract.
+        params (list[str], optional): list of specific parameters to extract.
                                     If None, extracts all environment variables.
 
     Returns:

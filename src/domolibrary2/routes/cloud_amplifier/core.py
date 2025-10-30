@@ -238,7 +238,7 @@ async def get_integration_warehouses(
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
-    List available compute warehouses for a Cloud Amplifier integration.
+    list available compute warehouses for a Cloud Amplifier integration.
 
     User must have permission to view the integration.
 
@@ -458,7 +458,7 @@ async def update_integration_warehouses(
     Args:
         auth: Authentication object containing instance and credentials
         integration_id: Integration ID to update warehouses for
-        warehouses: List of warehouse configuration dictionaries
+        warehouses: list of warehouse configuration dictionaries
         session: Optional HTTP client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to omit in debug output

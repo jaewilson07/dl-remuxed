@@ -7,19 +7,20 @@ __all__ = [
 ]
 
 from dataclasses import dataclass
-from typing import Any, Dict, List
+from typing import Any
 
 import httpx
 
+from ..client.auth import DomoAuth
 from ..entities.entities import DomoEntity
 from ..routes import cloud_amplifier as cloud_amplifier_routes
 
 
 @dataclass
 class CloudAmplifier_PollingSchedule:
-    days_of_week: List[int]
+    days_of_week: list[int]
     interval: str
-    months_of_year: List[int]
+    months_of_year: list[int]
     once_a_day: bool
     timezone: str
     type: str
@@ -48,7 +49,7 @@ class CloudAmplifier_PollingSchedule:
 
 @dataclass
 class CloudAmplifier_Warehouse:
-    activities: List[str]
+    activities: list[str]
     activity: str
     device: str
     device_name: str
@@ -112,7 +113,7 @@ class DomoIntegration_PropertyConfig:
         )
 
 
-@dataclass
+@dataclass(eq=False)
 class DomoIntegration(DomoEntity):
     id: str
 
@@ -126,10 +127,10 @@ class DomoIntegration(DomoEntity):
     owner_entity: DomoIntegration_OwnerEntity
     polling_rate_min: int
     polling_schedule: CloudAmplifier_PollingSchedule
-    properties: Dict[str, DomoIntegration_PropertyConfig]
+    properties: dict[str, DomoIntegration_PropertyConfig]
     service_account_id: str
     ttl_minutes: int
-    warehouses: List[CloudAmplifier_Warehouse]
+    warehouses: list[CloudAmplifier_Warehouse]
     warehouses_valid_configuration: bool
     writeable: bool
 

@@ -11,7 +11,6 @@ __all__ = [
 ]
 
 from enum import Enum
-from typing import Union
 
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
@@ -163,9 +162,9 @@ async def get_card_metadata(
     session: httpx.AsyncClient = None,
     parent_class: str = None,
     debug_num_stacks_to_drop=1,
-    optional_parts: Union[
-        list[Card_OptionalParts_Enum], str
-    ] = "metadata,certification,datasources,owners,problems,domoapp",
+    optional_parts: (
+        list[Card_OptionalParts_Enum] | str
+    ) = "metadata,certification,datasources,owners,problems,domoapp",
 ) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/cards"
 

@@ -1,13 +1,15 @@
-"""
+r"""
 Test file generated from 50_DomoDataset.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
-import domolibrary2.client.auth as dmda
-import domolibrary2.classes.DomoDataset as dmds
+
 from dotenv import load_dotenv
+
+import domolibrary2.classes.DomoDataset as dmds
+import domolibrary2.client.auth as dmda
 
 assert load_dotenv()
 
@@ -81,9 +83,9 @@ async def test_cell_5(token_auth=token_auth):
 
 async def test_cell_6(token_auth=token_auth):
     """Test case from cell 6"""
-    from typing import Union
-   # import domolibrary2.classes.DomoDatacenter as dmdc
-    #import domolibrary2.classes.DomoPublish as dmpb
+
+    # import domolibrary2.classes.DomoDatacenter as dmdc
+    # import domolibrary2.classes.DomoPublish as dmpb
     import domolibrary2.client.auth as dmda
 
     FEDERATED_DS_ID = "58a75bc7-e626-4ea1-a3d9-b1ae96188b5c"
@@ -95,12 +97,12 @@ async def test_cell_6(token_auth=token_auth):
 
     # i should be able to "get_all datasets and have a list of 'normal' and federated datasets"
     ## PART 2!!!!
-    # all_datasets : List[Union[DomoDataset, FederatedDomoDataset]] = await dmdc.DomoDatacenter(auth= child_auth).search_datasets(maximum = 10)
+    # all_datasets : list[Union[DomoDataset, FederatedDomoDataset]] = await dmdc.DomoDatacenter(auth= child_auth).search_datasets(maximum = 10)
 
     # i should be able to define a "retrieve_auth" function that receives a subscription and can return a DomoAuth object
     # this is necessary assuming i am trying to retrieve lineage but don't already know my parent
 
-    def retreive_parent_auth_fn(subscription = None):
+    def retreive_parent_auth_fn(subscription=None):
 
         ## AN EXAMPLE OF HOW IT OUGHT TO WORK -- assumes you have multiple DOMO instances and access tokens stored in environment variables
         # parent_domain = subscription.domain
@@ -130,13 +132,15 @@ async def test_cell_6(token_auth=token_auth):
         dataset_id=FEDERATED_DS_ID, auth=child_auth
     )
 
-    await ds.get_federated_parent(parent_auth=parent_auth,parent_auth_retrieval_fn=retreive_parent_auth_fn)
+    await ds.get_federated_parent(
+        parent_auth=parent_auth, parent_auth_retrieval_fn=retreive_parent_auth_fn
+    )
 
-    
+    await ds.Lineage.get(
+        parent_auth=parent_auth, parent_auth_retrieval_fn=retreive_parent_auth_fn
+    )
 
-    test = await ds.Lineage.get(parent_auth=parent_auth,parent_auth_retrieval_fn=retreive_parent_auth_fn)
-
-    #print(test) 
+    # print(test)
 
     # try:
     #     await ds.get_federated_parent(parent_auth_retrieval_fn=retreive_parent_auth_fn)
@@ -151,7 +155,7 @@ async def main():
         # test_cell_3,
         # test_cell_4,
         # test_cell_5,
-         test_cell_6,
+        test_cell_6,
     ]
 
     for test_fn in test_fns:

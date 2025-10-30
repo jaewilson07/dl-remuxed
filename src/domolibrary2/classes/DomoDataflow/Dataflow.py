@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List
+from typing import list
 
 import httpx
 
+from ...classes.subentity import lineage as dmdl
 from ...entities import DomoEntity_w_Lineage
 from ...routes import dataflow as dataflow_routes
 from ...utils import chunk_execution as dmce
 from ..DomoJupyter import Jupyter as dmdj
-from ...classes.subentity import lineage as dmdl
 
 __all__ = ["DomoDataflow", "DomoDataflows"]
 
@@ -30,7 +30,7 @@ class DomoDataflow(DomoEntity_w_Lineage):
 
     version_id: int = None
     version_number: int = None
-    versions: List[dict] = None  # list of DomoDataflow Versions
+    versions: list[dict] = None  # list of DomoDataflow Versions
 
     jupyter_workspace_config: dict = None
 
@@ -275,7 +275,7 @@ class DomoDataflow(DomoEntity_w_Lineage):
 @dataclass
 class DomoDataflows:
     auth: DomoAuth = field(repr=False)
-    dataflows: List[DomoDataflow] = None
+    dataflows: list[DomoDataflow] = None
 
     async def get(
         self,

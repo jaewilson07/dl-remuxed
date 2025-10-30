@@ -91,7 +91,7 @@ default_img_bytes = b""  # Placeholder for actual byte data
 domo_default_img = None  # Placeholder for the default image
 
 
-@dataclass
+@dataclass(eq=False)
 class DomoUser(DomoEntity):
     """A class for interacting with a Domo User"""
 
@@ -128,6 +128,13 @@ class DomoUser(DomoEntity):
     Role: Optional[Any] = None  # DomoRole
     ApiClients: Optional[Any] = None  # DomoApiClients
 
+    def __post_init__(self):
+        from .DomoInstanceConfig.api_client import ApiClients
+
+        self.id = str(self.id)
+
+        self.ApiClients = ApiClients.from_parent(auth=self.auth, parent=self)
+
     @property
     def entity_type(self) -> str:
         return "USER"
@@ -136,13 +143,6 @@ class DomoUser(DomoEntity):
     def display_url(self) -> str:
         """Generate the URL to display this user in the Domo admin interface."""
         return f"https://{self.auth.domo_instance}.domo.com/admin/people/{self.id}"
-
-    def __post_init__(self):
-        from .DomoInstanceConfig.api_client import ApiClients
-
-        self.id = str(self.id)
-
-        self.ApiClients = ApiClients.from_parent(auth=self.auth, parent=self)
 
     @classmethod
     def from_dict(cls, auth, obj: dict):

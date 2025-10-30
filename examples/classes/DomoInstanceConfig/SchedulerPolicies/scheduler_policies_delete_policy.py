@@ -18,15 +18,16 @@ Example:
     python scheduler_policies_delete_policy.py
 """
 
-import asyncio
 import argparse
+import asyncio
 import os
+
 from dotenv import load_dotenv
 
-from domolibrary2.client.auth import DomoTokenAuth
 from domolibrary2.classes.DomoInstanceConfig.scheduler_policies import (
     DomoScheduler_Policies,
 )
+from domolibrary2.client.auth import DomoTokenAuth
 
 
 async def main(domo_instance: str, domo_access_token: str, policy_id: str):
@@ -63,7 +64,7 @@ async def main(domo_instance: str, domo_access_token: str, policy_id: str):
     )
 
     if policy_to_delete:
-        print(f"\n4. Found policy to delete:")
+        print("\n4. Found policy to delete:")
         print(f"   ID: {policy_to_delete.id}")
         print(f"   Name: {policy_to_delete.name}")
         print(f"   Created On: {policy_to_delete.created_on}")

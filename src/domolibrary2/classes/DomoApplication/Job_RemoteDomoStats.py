@@ -6,9 +6,11 @@ __all__ = [
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Optional, list
 
 import httpx
+
+from domolibrary2.entities.base import DomoBase
 
 from ...client.auth import DomoAuth
 from ...routes import application as application_routes
@@ -20,7 +22,7 @@ from .Job_Base import (
 
 
 @dataclass
-class RemoteDomoStats_Config_Policy:
+class RemoteDomoStats_Config_Policy(DomoBase):
     type: str
     dataset_id: str
 
@@ -36,7 +38,7 @@ class RemoteDomoStats_Config_Policy:
 
 @dataclass
 class RemoteDomoStats_Config:
-    policies: List[RemoteDomoStats_Config_Policy] = field(default_factory=lambda: [])
+    policies: list[RemoteDomoStats_Config_Policy] = field(default_factory=lambda: [])
 
     def _add_policy(self, report_type, dataset_id):
         new_policy = RemoteDomoStats_Config_Policy(
@@ -138,8 +140,8 @@ class DomoJob_RemoteDomoStats(DomoJob_Base):
         logs_dataset_id: str,
         description: str = f"created via domolibrary f{dt.date.today()}",
         remote_instance: str = None,
-        accounts: List[int] = None,
-        triggers: List[DomoTrigger_Schedule] = None,
+        accounts: list[int] = None,
+        triggers: list[DomoTrigger_Schedule] = None,
         execution_timeout: int = 1440,
         return_raw: bool = False,
         debug_api: bool = False,

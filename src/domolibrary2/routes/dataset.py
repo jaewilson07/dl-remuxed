@@ -36,13 +36,10 @@ __all__ = [
 
 import io
 from enum import Enum
-from typing import Any, Optional
 
 import httpx
 import pandas as pd
 from dc_logger.decorators import LogDecoratorConfig, log_call
-
-from domolibrary2.entities.base import DomoEnumMixin
 
 from ..client import (
     auth as dmda,
@@ -51,15 +48,13 @@ from ..client import (
     response as rgd,
 )
 from ..client.auth import DomoAuth
-from ..utils.logging import (
-    DomoEntityExtractor,
-    DomoEntityResultProcessor,
-)
+from ..entities.base import DomoEnumMixin
+from ..utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 
 
 class DatasetNotFoundError(de.RouteError):
     def __init__(
-        self, dataset_id, res: rgd.ResponseGetData, message: Optional[str] = None
+        self, dataset_id, res: rgd.ResponseGetData, message: str | None = None
     ):
         message = message or f"dataset - {dataset_id} not found"
 
@@ -114,7 +109,7 @@ async def query_dataset_public(
     sql: str,
     session: httpx.AsyncClient,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop=1,
 ):
     """query for hitting public apis, requires client_id and secret authentication"""
@@ -156,11 +151,11 @@ async def query_dataset_private(
     limit=100,  # maximum rows to return per request.  refers to PAGINATION
     skip=0,
     maximum=100,  # equivalent to the LIMIT or TOP clause in SQL, the number of rows to return total
-    filter_pdp_policy_id_ls: Optional[list[int]] = None,
+    filter_pdp_policy_id_ls: list[int] | None = None,
     timeout: int = 10,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_loop: bool = False,
     debug_num_stacks_to_drop=1,
 ):
@@ -174,7 +169,7 @@ async def query_dataset_private(
     # def body_fn(skip, limit):
     #     return {"sql": f"{sql} limit {limit} offset {skip}"}
 
-    def body_fn(skip, limit, body: Optional[dict[str, Any]] = None):
+    def body_fn(skip, limit, body: dict[str, object] | None = None):
         body = body or {"sql": f"{sql} limit {limit} offset {skip}"}
 
         if filter_pdp_policy_id_ls:
@@ -247,10 +242,10 @@ async def query_dataset_private(
 )
 async def get_dataset_by_id(
     dataset_id: str,  # dataset id from URL
-    auth: Optional[DomoAuth] = None,  # requires full authentication
+    auth: DomoAuth | None = None,  # requires full authentication
     debug_api: bool = False,  # for troubleshooting API request
-    session: Optional[httpx.AsyncClient] = None,
-    parent_class: Optional[str] = None,
+    session: httpx.AsyncClient | None = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop=1,
 ) -> rgd.ResponseGetData:  # returns metadata about a dataset
     """retrieve dataset metadata"""
@@ -289,8 +284,8 @@ async def get_schema(
     dataset_id: str,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
-    parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    parent_class: str | None = None,
+    session: httpx.AsyncClient | None = None,
 ) -> rgd.ResponseGetData:
     """retrieve the schema for a dataset"""
 
@@ -325,7 +320,7 @@ async def alter_schema(
     schema_obj: dict,
     dataset_id: str,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop: int = 1,
     session=httpx.AsyncClient(),
 ) -> rgd.ResponseGetData:
@@ -363,7 +358,7 @@ async def alter_schema_descriptions(
     schema_obj: dict,
     dataset_id: str,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop: int = 1,
     session=httpx.AsyncClient(),
 ) -> rgd.ResponseGetData:
@@ -402,8 +397,8 @@ async def set_dataset_tags(
     dataset_id: str,
     return_raw: bool = False,
     debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
-    parent_class: Optional[str] = None,
+    session: httpx.AsyncClient | None = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop: int = 1,
 ):
     """REPLACE tags on this dataset with a new list"""
@@ -444,7 +439,7 @@ class UploadDataError(de.RouteError):
         stage_num: int,
         dataset_id: str,
         res: rgd.ResponseGetData,
-        message: Optional[str] = None,
+        message: str | None = None,
     ):
         message = f"error uploading data during Stage {stage_num} - {message}"
 
@@ -463,8 +458,8 @@ async def upload_dataset_stage_1(
     auth: DomoAuth,
     dataset_id: str,
     #  restate_data_tag: str = None, # deprecated
-    partition_tag: Optional[str] = None,  # synonymous with data_tag
-    session: Optional[httpx.AsyncClient] = None,
+    partition_tag: str | None = None,  # synonymous with data_tag
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     return_raw: bool = False,
     debug_num_stacks_to_drop=1,
@@ -529,8 +524,8 @@ async def upload_dataset_stage_2_file(
     auth: DomoAuth,
     dataset_id: str,
     upload_id: str,  # must originate from  a stage_1 upload response
-    data_file: Optional[io.TextIOWrapper] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    data_file: io.TextIOWrapper | None = None,
+    session: httpx.AsyncClient | None = None,
     # only necessary if streaming multiple files into the same partition (multi-part upload)
     part_id: int = 2,
     debug_api: bool = False,
@@ -569,7 +564,7 @@ async def upload_dataset_stage_2_df(
     dataset_id: str,
     upload_id: str,  # must originate from  a stage_1 upload response
     upload_df: pd.DataFrame,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     part_id: int = 2,  # only necessary if streaming multiple files into the same partition (multi-part upload)
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
@@ -610,10 +605,10 @@ async def upload_dataset_stage_3(
     dataset_id: str,
     upload_id: str,  # must originate from  a stage_1 upload response
     update_method: str = "REPLACE",  # accepts REPLACE or APPEND
-    partition_tag: Optional[str] = None,  # synonymous with data_tag
+    partition_tag: str | None = None,  # synonymous with data_tag
     is_index: bool = False,  # index after uploading
     #  restate_data_tag: str = None, # deprecated
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
     parent_class=None,
@@ -662,10 +657,10 @@ async def upload_dataset_stage_3(
 async def index_dataset(
     auth: DomoAuth,
     dataset_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
 ) -> rgd.ResponseGetData:
     """manually index a dataset"""
 
@@ -695,10 +690,10 @@ async def index_status(
     auth: DomoAuth,
     dataset_id: str,
     index_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
 ) -> rgd.ResponseGetData:
     """get the completion status of an index"""
 
@@ -740,12 +735,12 @@ gd.route_function
 async def list_partitions(
     auth: DomoAuth,
     dataset_id: str,
-    body: Optional[dict] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    body: dict | None = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_loop: bool = False,
     debug_num_stacks_to_drop=2,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
 ):
     body = body or generate_list_partitions_body()
 
@@ -785,7 +780,7 @@ async def list_partitions(
 
 
 def generate_create_dataset_body(
-    dataset_name: str, dataset_type: str = "API", schema: Optional[dict] = None
+    dataset_name: str, dataset_type: str = "API", schema: dict | None = None
 ):
     schema = schema or {
         "columns": [
@@ -806,11 +801,11 @@ async def create(
     auth: DomoAuth,
     dataset_name: str,
     dataset_type: str = "api",
-    schema: Optional[dict] = None,
+    schema: dict | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
-    parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    parent_class: str | None = None,
+    session: httpx.AsyncClient | None = None,
 ):
     body = generate_create_dataset_body(
         dataset_name=dataset_name, dataset_type=dataset_type, schema=schema
@@ -865,7 +860,7 @@ async def create_dataset_enterprise_tookit(
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
     parent_class=None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ):
     url = f"https://{auth.domo_instance}.domo.com/api/executor/v1/datasets"
 
@@ -894,7 +889,7 @@ async def delete_partition_stage_1(
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
     parent_class=None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ):
     """Delete partition has 3 stages
     # Stage 1. This marks the data version associated with the partition tag as deleted.
@@ -928,7 +923,7 @@ async def delete_partition_stage_2(
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
     parent_class=None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ):
     """This will remove the partition association so that it doesn’t show up in the list call.
     Technically, this is not required as a partition against a deleted data version will not count against the 400 partition limit
@@ -960,7 +955,7 @@ async def delete(
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
     parent_class=None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ):
     url = f"https://{auth.domo_instance}.domo.com/api/data/v3/datasources/{dataset_id}?deleteMethod=hard"
 
@@ -1002,7 +997,7 @@ def generate_share_dataset_payload(
 
 class ShareDataset_Error(de.DomoError):  # noqa: N801
     def __init__(
-        self, dataset_id, res: rgd.ResponseGetData, message: Optional[str] = None
+        self, dataset_id, res: rgd.ResponseGetData, message: str | None = None
     ):
         message = message or str(res.response)
 
@@ -1017,7 +1012,7 @@ async def share_dataset(
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
     parent_class=None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ):
     url = f"https://{auth.domo_instance}.domo.com/api/data/v3/datasources/{dataset_id}/share"
 
@@ -1049,8 +1044,8 @@ async def get_permissions(
     dataset_id: str,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
-    parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    parent_class: str | None = None,
+    session: httpx.AsyncClient | None = None,
 ) -> rgd.ResponseGetData:
     """retrieve the schema for a dataset"""
 

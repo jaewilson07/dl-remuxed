@@ -241,7 +241,7 @@ async def search_users_by_id(
     """Search for users by their IDs using the v1 users search API.
 
     Args:
-        user_ids: List of user IDs to search for
+        user_ids: list of user IDs to search for
         auth: Authentication object
         debug_api: Enable API debugging
         return_raw: Return raw API response without processing
@@ -334,7 +334,7 @@ async def search_users_by_email(
     """Search for users by their email addresses using the v1 users search API.
 
     Args:
-        user_email_ls: List of user email addresses to search for
+        user_email_ls: list of user email addresses to search for
         auth: Authentication object
         debug_api: Enable API debugging
         return_raw: Return raw API response without processing
@@ -588,7 +588,7 @@ async def search_virtual_user_by_subscriber_instance(
 
     Args:
         auth: Authentication object for the publisher instance
-        subscriber_instance_ls: List of subscriber Domo instance names
+        subscriber_instance_ls: list of subscriber Domo instance names
         debug_api: Enable API debugging
         debug_num_stacks_to_drop: Stack frames to drop for debugging
         parent_class: Name of calling class for debugging
@@ -781,7 +781,7 @@ async def toggle_is_enable_user_direct_signon(
 
     Args:
         auth: Authentication object
-        user_ids: List of user IDs to modify
+        user_ids: list of user IDs to modify
         is_allow_dso: Whether to allow direct sign-on (default: True)
         debug_api: Enable API debugging
         debug_num_stacks_to_drop: Stack frames to drop for debugging

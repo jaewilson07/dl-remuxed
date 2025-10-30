@@ -25,16 +25,16 @@ Example:
     python scheduler_policies_upsert_policy.py
 """
 
-import asyncio
 import argparse
+import asyncio
 import json
 import os
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
+
 from dotenv import load_dotenv
 
-from domolibrary2.client.auth import DomoTokenAuth
 from domolibrary2.classes.DomoInstanceConfig.scheduler_policies import (
     DomoScheduler_Policies,
     DomoScheduler_Policy,
@@ -42,6 +42,7 @@ from domolibrary2.classes.DomoInstanceConfig.scheduler_policies import (
     DomoScheduler_Policy_Member,
     DomoScheduler_Policy_Restrictions,
 )
+from domolibrary2.client.auth import DomoTokenAuth
 
 
 def load_policy_from_json(json_file_path: str) -> dict:
@@ -70,7 +71,7 @@ def load_policy_from_json(json_file_path: str) -> dict:
     if not Path(json_file_path).exists():
         raise FileNotFoundError(f"Policy JSON file not found: {json_file_path}")
 
-    with open(json_file_path, "r") as f:
+    with open(json_file_path) as f:
         return json.load(f)
 
 

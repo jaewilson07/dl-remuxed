@@ -41,7 +41,7 @@ import os
 import pathlib
 import shutil
 import zipfile
-from typing import Any, Callable, List, Optional, Union
+from typing import Any, Callable, Optional, Union, list
 
 from .exceptions import FileOperationError
 
@@ -219,7 +219,7 @@ def download_zip(
     zip_bytes_content: Optional[bytes] = None,
     existing_zip_file_path: Optional[str] = None,
     is_unpack_archive: bool = True,
-) -> Union[str, List[str]]:
+) -> Union[str, list[str]]:
     """
     Save bytes content to a zip file and optionally extract contents.
 
@@ -230,7 +230,7 @@ def download_zip(
         is_unpack_archive (bool): Whether to extract the archive contents
 
     Returns:
-        Union[str, List[str]]: Success message or list of extracted files
+        Union[str, list[str]]: Success message or list of extracted files
 
     Raises:
         FileOperationError: If zip operations fail

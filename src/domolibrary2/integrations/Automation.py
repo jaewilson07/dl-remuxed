@@ -10,7 +10,6 @@ __all__ = [
 ]
 
 import datetime as dt
-from typing import List
 
 import pandas as pd
 
@@ -25,8 +24,8 @@ from ..routes.account import ShareAccount_AccessLevel
 
 
 async def search_domo_groups_by_name(
-    auth: DomoAuth, group_names: List[str], is_hide_system_groups: bool = True
-) -> List[dmdg.DomoGroup]:
+    auth: DomoAuth, group_names: list[str], is_hide_system_groups: bool = True
+) -> list[dmdg.DomoGroup]:
     domo_groups = dmdg.DomoGroups(auth=auth)
 
     await domo_groups.get(is_hide_system_groups=is_hide_system_groups)
@@ -38,7 +37,7 @@ async def upsert_domo_group(
     auth: DomoAuth,
     group_name: str,
     description: str = f"updated via {dt.date.today()}",
-    group_owner_names: List[str] = None,  # ["Role: Admin"]
+    group_owner_names: list[str] = None,  # ["Role: Admin"]
     group_type: dmdg.GroupType_Enum = dmdg.GroupType_Enum["CLOSED"].value,
     is_hide_system_groups: bool = True,
     debug_api: bool = False,

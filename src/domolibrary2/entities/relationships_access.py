@@ -5,7 +5,6 @@ __all__ = [
 ]
 
 from dataclasses import dataclass, field
-from typing import List
 
 from domolibrary2.entities.relationships import DomoRelationshipController
 
@@ -74,6 +73,6 @@ class DomoAccess(DomoRelationshipController, DomoSubEntity):
                 message="Share enum must be a subclass of ShareAccount.",
             )
 
-    async def get(self) -> List[Access_Relation]:
+    async def get(self) -> list[Access_Relation]:
         """Get all access relationships for this object."""
         raise NotImplementedError("DomoAccess.get not implemented")

@@ -2,12 +2,12 @@ import importlib.util
 import os
 import sys
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any
 
 
 def test_exports(
     export_folder: str, auth: dict, debug_api: bool = False, update_files: bool = True
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Test all exported functions in the given folder path and optionally update the source files.
 
     Args:

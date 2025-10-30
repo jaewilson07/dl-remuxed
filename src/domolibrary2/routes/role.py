@@ -14,14 +14,13 @@ __all__ = [
     "role_membership_add_users",
 ]
 
-from typing import List, Optional
+from typing import Optional
 
 import httpx
 
 from ..client import (
     get_data as gd,
 )
-
 from ..client.auth import DomoAuth
 from ..client.exceptions import RouteError
 from ..client.response import ResponseGetData
@@ -358,7 +357,7 @@ async def update_role_metadata(
 async def set_role_grants(
     auth: DomoAuth,
     role_id: str,
-    grants: List[str],
+    grants: list[str],
     session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -397,7 +396,7 @@ async def set_role_grants(
 async def role_membership_add_users(
     auth: DomoAuth,
     role_id: str,
-    user_ids: List[str],  # list of user ids
+    user_ids: list[str],  # list of user ids
     session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,

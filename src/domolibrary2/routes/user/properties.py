@@ -43,9 +43,10 @@ __all__ = [
 import base64
 import os
 from enum import Enum
-from typing import List, Optional
+from typing import Optional
 
 import httpx
+from dc_logger.decorators import LogDecoratorConfig, log_call
 
 from ...client import (
     get_data as gd,
@@ -56,7 +57,6 @@ from ...client.exceptions import DomoError
 from ...entities.base import DomoEnumMixin
 from ...utils import images
 from ...utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
-from dc_logger.decorators import log_call, LogDecoratorConfig
 from .exceptions import (
     DownloadAvatar_Error,
     ResetPassword_PasswordUsed,
@@ -118,11 +118,11 @@ class UserProperty:
         }
 
 
-def generate_patch_user_property_body(user_property_ls: List[UserProperty]) -> dict:
+def generate_patch_user_property_body(user_property_ls: list[UserProperty]) -> dict:
     """Generate request body for user property updates.
 
     Args:
-        user_property_ls: List of UserProperty objects to update
+        user_property_ls: list of UserProperty objects to update
 
     Returns:
         dict: Request body with attributes array for PATCH request
@@ -137,12 +137,12 @@ def generate_patch_user_property_body(user_property_ls: List[UserProperty]) -> d
     level_name="route",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 async def update_user(
     user_id: str,
-    user_property_ls: List[UserProperty],
+    user_property_ls: list[UserProperty],
     auth: DomoAuth,
     debug_api: bool = False,
     session: Optional[httpx.AsyncClient] = None,
@@ -154,7 +154,7 @@ async def update_user(
 
     Args:
         user_id: ID of the user to update
-        user_property_ls: List of UserProperty objects with updates
+        user_property_ls: list of UserProperty objects with updates
         auth: Authentication object
         debug_api: Enable API debugging
         session: HTTP client session
@@ -209,8 +209,8 @@ async def update_user(
     level_name="route",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 async def set_user_landing_page(
     auth: DomoAuth,
@@ -270,8 +270,8 @@ async def set_user_landing_page(
     level_name="route",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 async def reset_password(
     auth: DomoAuth,
@@ -347,8 +347,8 @@ async def reset_password(
     level_name="route",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 async def request_password_reset(
     domo_instance: str,
@@ -411,8 +411,8 @@ async def request_password_reset(
     level_name="route",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 async def download_avatar(
     user_id,
@@ -510,8 +510,8 @@ def generate_avatar_bytestr(img_bytestr, img_type):
     level_name="route",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 async def upload_avatar(
     auth: DomoAuth,
@@ -582,8 +582,8 @@ async def upload_avatar(
     level_name="route",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 async def user_is_allowed_direct_signon(
     auth: DomoAuth,
@@ -599,7 +599,7 @@ async def user_is_allowed_direct_signon(
 
     Args:
         auth: Authentication object
-        user_ids: List of user IDs to modify
+        user_ids: list of user IDs to modify
         is_allow_dso: Whether to allow direct sign-on (default: True)
         debug_api: Enable API debugging
         debug_num_stacks_to_drop: Stack frames to drop for debugging

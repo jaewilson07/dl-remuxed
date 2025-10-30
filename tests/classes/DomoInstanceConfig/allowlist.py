@@ -106,7 +106,7 @@ async def test_cell_4(token_auth=token_auth):
 @pytest.mark.integration
 async def test_cell_5(token_auth=token_auth):
     """Test removing IPs from allowlist (integration test - requires valid auth)"""
-    dmal = allowlist_module.DomoAllowlist(auth=token_auth)
+    allowlist_module.DomoAllowlist(auth=token_auth)
 
     # This is a test that should be run carefully
     # test_ips = ['0.0.0.0/0']
@@ -121,7 +121,7 @@ async def test_cell_5(token_auth=token_auth):
 @pytest.mark.integration
 async def test_cell_6(token_auth=token_auth):
     """Test setting allowlist (integration test - requires valid auth)"""
-    dmal = allowlist_module.DomoAllowlist(auth=token_auth)
+    allowlist_module.DomoAllowlist(auth=token_auth)
 
     # This is a test that should be run carefully
     # await dmal.set(ip_address_ls=[])
@@ -145,7 +145,7 @@ async def test_cell_7(token_auth=token_auth):
 @pytest.mark.integration
 async def test_cell_8(token_auth=token_auth):
     """Test toggling filter all traffic setting (integration test)"""
-    dmal = allowlist_module.DomoAllowlist(auth=token_auth)
+    allowlist_module.DomoAllowlist(auth=token_auth)
 
     # This is a test that should be run carefully
     # result = await dmal.toggle_is_filter_all_traffic_enabled(

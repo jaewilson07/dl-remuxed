@@ -11,7 +11,7 @@ __all__ = [
 import asyncio
 import io
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import Optional, list
 
 import httpx
 import pandas as pd
@@ -34,7 +34,7 @@ class DomoDataset_Data(DomoSubEntity):
         self,
         sql: str,
         session: Optional[httpx.AsyncClient] = None,
-        filter_pdp_policy_id_ls: List[int] = None,  # filter by pdp policy
+        filter_pdp_policy_id_ls: list[int] = None,  # filter by pdp policy
         loop_until_end: bool = False,  # retrieve all available rows
         limit=100,  # maximum rows to return per request.  refers to PAGINATION
         skip=0,

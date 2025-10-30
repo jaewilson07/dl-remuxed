@@ -14,12 +14,11 @@ Usage:
 import argparse
 import importlib
 import sys
-import traceback
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import list
 
 
-def discover_route_modules(routes_path: Path) -> List[Tuple[str, Path]]:
+def discover_route_modules(routes_path: Path) -> list[tuple[str, Path]]:
     """Discover all route modules to test."""
     modules = []
 
@@ -50,7 +49,7 @@ def discover_route_modules(routes_path: Path) -> List[Tuple[str, Path]]:
     return sorted(modules)
 
 
-def test_import(module_name: str, verbose: bool = False) -> Dict:
+def test_import(module_name: str, verbose: bool = False) -> dict:
     """Test importing a single module."""
     result = {
         "module": module_name,
@@ -129,7 +128,7 @@ def main():
 
             if args.fail_fast:
                 if not args.quiet:
-                    print(f"\n💥 Stopping on first failure (--fail-fast)")
+                    print("\n💥 Stopping on first failure (--fail-fast)")
                     print(f"   Module: {module_name}")
                     print(f"   Error: {result['error']}")
                 sys.exit(1)

@@ -3,17 +3,17 @@ Test suite for DomoInstanceConfig class
 Tests various instance configuration methods and properties
 """
 
-import os
 import datetime as dt
+import os
 from typing import Optional
 
 import pandas as pd
 import pytest
+from domolibrary2.classes.DomoInstanceConfig.instance_config import DomoInstanceConfig
 from dotenv import load_dotenv
 
-from domolibrary2.client.auth import DomoTokenAuth, DomoFullAuth, DomoAuth
-from domolibrary2.classes.DomoUser import DomoUsers, DomoUser
-from domolibrary2.classes.DomoInstanceConfig.instance_config import DomoInstanceConfig
+from domolibrary2.classes.DomoUser import DomoUser, DomoUsers
+from domolibrary2.client.auth import DomoFullAuth, DomoTokenAuth
 
 load_dotenv()
 

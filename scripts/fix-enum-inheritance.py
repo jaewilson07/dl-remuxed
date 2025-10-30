@@ -3,11 +3,10 @@
 Fix DomoEnum inheritance issues by updating all files to use DomoEnumMixin pattern.
 """
 
-import os
 import re
 from pathlib import Path
 
-# List of files that need to be updated
+# list of files that need to be updated
 FILES_TO_UPDATE = [
     "src/routes/card.py",
     "src/classes/DomoDataflow_Action.py",
@@ -35,7 +34,7 @@ def fix_enum_inheritance(file_path):
     """Fix enum inheritance in a single file."""
     print(f"Processing {file_path}...")
 
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, encoding="utf-8") as f:
         content = f.read()
 
     original_content = content

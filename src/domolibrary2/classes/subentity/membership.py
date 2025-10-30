@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, List
+from typing import Any, list
 
 import httpx
 
@@ -72,16 +72,16 @@ class DomoMembership(DomoRelationshipController, DomoSubEntity):
     """
 
     # Legacy compatibility
-    owners: List[Membership_Entity] = field(default_factory=lambda: [])
-    members: List[Membership_Entity] = field(default_factory=lambda: [])
+    owners: list[Membership_Entity] = field(default_factory=lambda: [])
+    members: list[Membership_Entity] = field(default_factory=lambda: [])
 
     # Relationship management
-    _add_member_ls: List[Membership_Entity] = field(default_factory=lambda: [])
-    _remove_member_ls: List[Membership_Entity] = field(default_factory=lambda: [])
-    _add_owner_ls: List[Membership_Entity] = field(default_factory=lambda: [])
-    _remove_owner_ls: List[Membership_Entity] = field(default_factory=lambda: [])
+    _add_member_ls: list[Membership_Entity] = field(default_factory=lambda: [])
+    _remove_member_ls: list[Membership_Entity] = field(default_factory=lambda: [])
+    _add_owner_ls: list[Membership_Entity] = field(default_factory=lambda: [])
+    _remove_owner_ls: list[Membership_Entity] = field(default_factory=lambda: [])
 
-    async def get(self) -> List[Membership_Entity]:
+    async def get(self) -> list[Membership_Entity]:
         """Get all membership relationships for this object."""
         raise NotImplementedError("DomoMembership.get not implemented")
 
@@ -94,12 +94,12 @@ class DomoMembership(DomoRelationshipController, DomoSubEntity):
         raise NotImplementedError("DomoMembership.add_relationship not implemented")
 
     @abstractmethod
-    async def get_owners(self) -> List[Membership_Entity]:
+    async def get_owners(self) -> list[Membership_Entity]:
         """Get all owner relationships."""
         pass
 
     @abstractmethod
-    async def get_members(self) -> List[Membership_Entity]:
+    async def get_members(self) -> list[Membership_Entity]:
         """Get all member relationships."""
         pass
 
@@ -199,7 +199,7 @@ class DomoMembership(DomoRelationshipController, DomoSubEntity):
 
     async def _extract_domo_entities_from_list(
         self, entity_ls, relation_type, session: httpx.AsyncClient = None
-    ) -> List[Membership_Entity]:
+    ) -> list[Membership_Entity]:
         session = session or httpx.AsyncClient()
 
         domo_groups = await self._extract_domo_groups_from_list(
@@ -240,8 +240,7 @@ class DomoMembership_Group(DomoMembership):
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
         debug_num_stacks_to_drop: int = 2,
-    ) -> List[Membership_Entity]:
-
+    ) -> list[Membership_Entity]:
         res = await group_routes.get_group_owners(
             group_id=self.parent_id,
             auth=self.auth,
@@ -264,8 +263,7 @@ class DomoMembership_Group(DomoMembership):
         session: httpx.AsyncClient = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
-    ) -> List[Membership_Entity]:
-
+    ) -> list[Membership_Entity]:
         res = await group_routes.get_group_membership(
             group_id=self.parent_id,
             auth=self.auth,
@@ -288,7 +286,7 @@ class DomoMembership_Group(DomoMembership):
 
         return self.members
 
-    async def get(self) -> List[Membership_Entity]:
+    async def get(self) -> list[Membership_Entity]:
         """Get all membership relationships for this group."""
         owners = await self.get_owners()
         members = await self.get_members()
@@ -341,7 +339,7 @@ class DomoMembership_Group(DomoMembership):
 
     async def add_members(
         self: DomoMembership_Group,
-        add_user_ls: List[Any],
+        add_user_ls: list[Any],
         return_raw: bool = False,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
@@ -369,7 +367,7 @@ class DomoMembership_Group(DomoMembership):
 
     async def remove_members(
         self: DomoMembership_Group,
-        remove_user_ls: List[Any],
+        remove_user_ls: list[Any],
         return_raw: bool = False,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
@@ -397,7 +395,7 @@ class DomoMembership_Group(DomoMembership):
 
     async def set_members(
         self: DomoMembership_Group,
-        user_ls: List[Any],
+        user_ls: list[Any],
         return_raw: bool = False,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
@@ -446,7 +444,7 @@ class DomoMembership_Group(DomoMembership):
 
     async def add_owners(
         self: DomoMembership_Group,
-        add_owner_ls: List[Any],
+        add_owner_ls: list[Any],
         return_raw: bool = False,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
@@ -474,7 +472,7 @@ class DomoMembership_Group(DomoMembership):
 
     async def remove_owners(
         self: DomoMembership_Group,
-        remove_owner_ls: List[Any],
+        remove_owner_ls: list[Any],
         return_raw: bool = False,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
@@ -502,7 +500,7 @@ class DomoMembership_Group(DomoMembership):
 
     async def set_owners(
         self: DomoMembership_Group,
-        owner_ls: List[Any],
+        owner_ls: list[Any],
         return_raw: bool = False,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
@@ -513,7 +511,7 @@ class DomoMembership_Group(DomoMembership):
         self._reset_obj()
 
         # Convert owners to Membership_Entity instances
-        owner_entities = [
+        [
             Membership_Entity(
                 relationship_type=RelationshipType("OWNER"),
                 parent_entity=self.parent,
@@ -522,7 +520,7 @@ class DomoMembership_Group(DomoMembership):
             for owner in owner_ls
         ]
 
-        membership: List[Membership_Entity] = await self.get_owners()
+        membership: list[Membership_Entity] = await self.get_owners()
 
         for domo_entity in owner_ls:
             self._add_owner(domo_entity)

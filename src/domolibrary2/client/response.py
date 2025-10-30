@@ -4,7 +4,7 @@ __all__ = ["STREAM_FILE_PATH", "ResponseGetData", "find_ip"]
 
 import re
 from dataclasses import dataclass, field
-from typing import Any, List, Optional, List
+from typing import Any, Optional
 
 import httpx
 import requests
@@ -18,7 +18,7 @@ class RequestMetadata:
     body: Optional[str] = field(default=None)
     params: Optional[dict] = field(default=None)
 
-    def to_dict(self, auth_headers: Optional[List[str]] = None) -> dict:
+    def to_dict(self, auth_headers: Optional[list[str]] = None) -> dict:
         """returns dict representation of RequestMetadata"""
 
         return {

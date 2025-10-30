@@ -1,11 +1,11 @@
-"""
+r"""
 Test file generated from 50_DomoInsanceConfig_SSO.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
-from domolibrary2.client.auth import DomoTokenAuth, DomoFullAuth
+
 from domolibrary2.classes.DomoInstanceConfig.sso import (
     SSO,
     SSO_OIDC_Config,
@@ -13,6 +13,7 @@ from domolibrary2.classes.DomoInstanceConfig.sso import (
     SSOConfig_InstantiationError,
 )
 from domolibrary2.classes.DomoUser import DomoUsers
+from domolibrary2.client.auth import DomoFullAuth, DomoTokenAuth
 
 # Setup authentication for tests
 token_auth = DomoTokenAuth(
@@ -38,19 +39,19 @@ async def test_cell_1(token_auth=token_auth):
     #     domo_access_token=os.environ["DOMO_DOJO_ACCESS_TOKEN"],
     # )
 
-    full_auth = DomoFullAuth(
+    DomoFullAuth(
         domo_instance=os.environ["DOMO_INSTANCE"],
         domo_username=os.environ["DOMO_USERNAME"],
         domo_password=os.environ["DOMO_PASSWORD"],
     )
 
     domo_users = await DomoUsers.all_users(auth=token_auth)
-    domo_user = next(
-        (
+    next(
+
             domo_user
             for domo_user in domo_users
             if "test" in domo_user.display_name.lower()
-        )
+
     )
 
 

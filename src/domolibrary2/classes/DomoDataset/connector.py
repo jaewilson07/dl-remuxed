@@ -2,7 +2,7 @@ __all__ = ["DomoConnector", "DomoConnectors"]
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import List
+from typing import list
 
 import httpx
 
@@ -23,8 +23,8 @@ class DomoConnector(DomoBase):
     last_modified: dt.datetime
     publisher_name: str
     writeback_enabled: bool
-    tags: List[str] = field(default_factory=list)
-    capabilities: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
+    capabilities: list[str] = field(default_factory=list)
 
     @classmethod
     def from_dict(cls, obj: dict):
@@ -50,7 +50,7 @@ class DomoConnector(DomoBase):
 class DomoConnectors(DomoManager):
     auth: DomoAuth = field(repr=False)
 
-    domo_connectors: List[DomoConnector] = field(default=None)
+    domo_connectors: list[DomoConnector] = field(default=None)
 
     async def get(
         self,

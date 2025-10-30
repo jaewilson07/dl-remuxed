@@ -4,18 +4,12 @@ Tests core functionality following domolibrary2 design patterns.
 """
 
 import os
+
 import pytest
 from dotenv import load_dotenv
 
-import domolibrary2.client.auth as dmda
 import domolibrary2.classes.DomoUser as dmdu
-import domolibrary2.routes.user as user_routes
-from domolibrary2.routes.user import UserProperty_Type, UserProperty
-from domolibrary2.routes.user.exceptions import (
-    User_GET_Error,
-    User_CRUD_Error,
-    SearchUser_NotFound,
-)
+import domolibrary2.client.auth as dmda
 
 load_dotenv()
 
@@ -30,20 +24,28 @@ token_auth = dmda.DomoTokenAuth(
 async def test_domouser_structure():
     """Test that DomoUser class has proper structure and inheritance."""
     # Verify DomoUser inherits from DomoEntity
-    from domolibrary2.client.entities import DomoEntity
+    from domolibrary2.entities.entities import DomoEntity
 
-    assert issubclass(dmdu.DomoUser, DomoEntity), "DomoUser should inherit from DomoEntity"
+    assert issubclass(
+        dmdu.DomoUser, DomoEntity
+    ), "DomoUser should inherit from DomoEntity"
 
     # Verify DomoUsers inherits from DomoManager
-    from domolibrary2.client.entities import DomoManager
+    from domolibrary2.entities.entities import DomoManager
 
-    assert issubclass(dmdu.DomoUsers, DomoManager), "DomoUsers should inherit from DomoManager"
+    assert issubclass(
+        dmdu.DomoUsers, DomoManager
+    ), "DomoUsers should inherit from DomoManager"
 
     # Verify required methods exist
-    assert hasattr(dmdu.DomoUser, 'get_by_id'), "DomoUser should have get_by_id method"
-    assert hasattr(dmdu.DomoUser, 'from_dict'), "DomoUser should have from_dict method"
-    assert hasattr(dmdu.DomoUser, 'display_url'), "DomoUser should have display_url property"
-    assert hasattr(dmdu.DomoUser, '__post_init__'), "DomoUser should have __post_init__ method"
+    assert hasattr(dmdu.DomoUser, "get_by_id"), "DomoUser should have get_by_id method"
+    assert hasattr(dmdu.DomoUser, "from_dict"), "DomoUser should have from_dict method"
+    assert hasattr(
+        dmdu.DomoUser, "display_url"
+    ), "DomoUser should have display_url property"
+    assert hasattr(
+        dmdu.DomoUser, "__post_init__"
+    ), "DomoUser should have __post_init__ method"
 
 
 @pytest.mark.asyncio
@@ -58,17 +60,17 @@ async def test_domouser_get_by_id():
 
     # Test get_by_id
     domo_user = await dmdu.DomoUser.get_by_id(
-        user_id=user_id,
-        auth=token_auth,
-        return_raw=False
+        user_id=user_id, auth=token_auth, return_raw=False
     )
 
     # Verify returned object
     assert domo_user is not None, "get_by_id should return a DomoUser object"
-    assert isinstance(domo_user, dmdu.DomoUser), "Returned object should be DomoUser instance"
+    assert isinstance(
+        domo_user, dmdu.DomoUser
+    ), "Returned object should be DomoUser instance"
     assert domo_user.id == str(user_id), "User ID should match"
     assert domo_user.auth == token_auth, "Auth should be set correctly"
-    assert hasattr(domo_user, 'raw'), "DomoUser should have raw attribute"
+    assert hasattr(domo_user, "raw"), "DomoUser should have raw attribute"
     assert isinstance(domo_user.raw, dict), "raw attribute should be a dict"
 
 
@@ -82,13 +84,12 @@ async def test_domouser_get_by_id_return_raw():
 
     # Test return_raw
     res = await dmdu.DomoUser.get_by_id(
-        user_id=user_id,
-        auth=token_auth,
-        return_raw=True
+        user_id=user_id, auth=token_auth, return_raw=True
     )
 
     # Verify response
     from domolibrary2.client.response import ResponseGetData
+
     assert isinstance(res, ResponseGetData), "return_raw should return ResponseGetData"
     assert res.is_success, "Response should be successful"
 
@@ -130,10 +131,7 @@ async def test_domouser_display_url():
         await token_auth.who_am_i()
 
     user_id = token_auth.user_id
-    domo_user = await dmdu.DomoUser.get_by_id(
-        user_id=user_id,
-        auth=token_auth
-    )
+    domo_user = await dmdu.DomoUser.get_by_id(user_id=user_id, auth=token_auth)
 
     # Test display_url
     url = domo_user.display_url
@@ -173,9 +171,13 @@ async def test_domousers_manager_structure():
 
     # Verify attributes
     assert domo_users.auth == token_auth, "Auth should be set"
-    assert hasattr(domo_users, 'get'), "Manager should have get method"
-    assert hasattr(domo_users, 'search_by_email'), "Manager should have search_by_email method"
-    assert hasattr(domo_users, 'search_by_id'), "Manager should have search_by_id method"
+    assert hasattr(domo_users, "get"), "Manager should have get method"
+    assert hasattr(
+        domo_users, "search_by_email"
+    ), "Manager should have search_by_email method"
+    assert hasattr(
+        domo_users, "search_by_id"
+    ), "Manager should have search_by_id method"
 
 
 @pytest.mark.asyncio
@@ -186,8 +188,7 @@ async def test_domousers_search_by_email():
 
     # Get current user first to know their email
     current_user = await dmdu.DomoUser.get_by_id(
-        user_id=token_auth.user_id,
-        auth=token_auth
+        user_id=token_auth.user_id, auth=token_auth
     )
 
     if current_user.email_address:
@@ -196,13 +197,15 @@ async def test_domousers_search_by_email():
         found_user = await domo_users.search_by_email(
             email=current_user.email_address,
             only_allow_one=True,
-            suppress_no_results_error=False
+            suppress_no_results_error=False,
         )
 
         # Verify result
         assert found_user is not None, "Search should find the user"
         assert isinstance(found_user, dmdu.DomoUser), "Should return DomoUser instance"
-        assert found_user.email_address == current_user.email_address, "Email should match"
+        assert (
+            found_user.email_address == current_user.email_address
+        ), "Email should match"
 
 
 @pytest.mark.asyncio
@@ -216,9 +219,7 @@ async def test_domousers_search_by_id():
     # Test search by ID
     domo_users = dmdu.DomoUsers(auth=token_auth)
     found_user = await domo_users.search_by_id(
-        user_ids=[user_id],
-        only_allow_one=True,
-        suppress_no_results_error=False
+        user_ids=[user_id], only_allow_one=True, suppress_no_results_error=False
     )
 
     # Verify result
@@ -234,9 +235,7 @@ async def test_exception_handling():
     invalid_user_id = "999999999999"
 
     domo_user = await dmdu.DomoUser.get_by_id(
-        user_id=invalid_user_id,
-        auth=token_auth,
-        return_raw=False
+        user_id=invalid_user_id, auth=token_auth, return_raw=False
     )
 
     # get_by_id returns None for non-existent users (not an exception)
@@ -247,26 +246,35 @@ async def test_exception_handling():
 async def test_exception_imports():
     """Test that exceptions are properly imported from route modules."""
     # Verify exceptions are available
-    assert hasattr(dmdu, 'User_GET_Error'), "User_GET_Error should be exported"
-    assert hasattr(dmdu, 'User_CRUD_Error'), "User_CRUD_Error should be exported"
-    assert hasattr(dmdu, 'SearchUser_NotFound'), "SearchUser_NotFound should be exported"
-    assert hasattr(dmdu, 'DeleteUser_Error'), "DeleteUser_Error should be exported"
+    assert hasattr(dmdu, "User_GET_Error"), "User_GET_Error should be exported"
+    assert hasattr(dmdu, "User_CRUD_Error"), "User_CRUD_Error should be exported"
+    assert hasattr(
+        dmdu, "SearchUser_NotFound"
+    ), "SearchUser_NotFound should be exported"
+    assert hasattr(dmdu, "DeleteUser_Error"), "DeleteUser_Error should be exported"
 
     # Verify they're from the route module
     from domolibrary2.routes.user.exceptions import RouteError
-    assert issubclass(dmdu.User_GET_Error, RouteError), "User_GET_Error should inherit from RouteError"
-    assert issubclass(dmdu.User_CRUD_Error, RouteError), "User_CRUD_Error should inherit from RouteError"
+
+    assert issubclass(
+        dmdu.User_GET_Error, RouteError
+    ), "User_GET_Error should inherit from RouteError"
+    assert issubclass(
+        dmdu.User_CRUD_Error, RouteError
+    ), "User_CRUD_Error should inherit from RouteError"
 
 
 @pytest.mark.asyncio
 async def test_all_exports():
     """Test that __all__ exports are complete."""
     # Check that key classes and exceptions are in __all__
-    assert 'DomoUser' in dmdu.__all__, "DomoUser should be in __all__"
-    assert 'DomoUsers' in dmdu.__all__, "DomoUsers should be in __all__"
-    assert 'User_GET_Error' in dmdu.__all__, "User_GET_Error should be in __all__"
-    assert 'User_CRUD_Error' in dmdu.__all__, "User_CRUD_Error should be in __all__"
-    assert 'SearchUser_NotFound' in dmdu.__all__, "SearchUser_NotFound should be in __all__"
+    assert "DomoUser" in dmdu.__all__, "DomoUser should be in __all__"
+    assert "DomoUsers" in dmdu.__all__, "DomoUsers should be in __all__"
+    assert "User_GET_Error" in dmdu.__all__, "User_GET_Error should be in __all__"
+    assert "User_CRUD_Error" in dmdu.__all__, "User_CRUD_Error should be in __all__"
+    assert (
+        "SearchUser_NotFound" in dmdu.__all__
+    ), "SearchUser_NotFound should be in __all__"
 
 
 if __name__ == "__main__":

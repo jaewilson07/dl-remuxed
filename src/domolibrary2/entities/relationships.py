@@ -172,13 +172,13 @@ class DomoRelationshipController(DomoBase):
         - DomoGroup.relationships -> GroupRelationshipController
 
         Each specialized controller provides domain-specific methods:
-        - dataset.relationships.get_owners() -> List[DomoUser]
+        - dataset.relationships.get_owners() -> list[DomoUser]
         - dataset.relationships.add_viewers([user1, user2])
-        - user.relationships.get_groups() -> List[DomoGroup]
-        - group.relationships.get_members() -> List[DomoUser]
+        - user.relationships.get_groups() -> list[DomoGroup]
+        - group.relationships.get_members() -> list[DomoUser]
 
     Attributes:
-        relationships (List[DomoRelationship]): Collection of managed relationships
+        relationships (list[DomoRelationship]): Collection of managed relationships
 
     Abstract Methods:
         add_relationship: Create new relationships between entities
@@ -277,7 +277,7 @@ class DomoRelationshipController(DomoBase):
         filtering, sorting, and pagination as needed.
 
         Returns:
-            List[DomoRelationship]: Collection of relationships that match
+            list[DomoRelationship]: Collection of relationships that match
                                    the controller's criteria
 
         Implementation Requirements:
@@ -289,7 +289,7 @@ class DomoRelationshipController(DomoBase):
             - Handle API errors gracefully
 
         Example Implementation:
-            async def get(self) -> List[DomoRelationship]:
+            async def get(self) -> list[DomoRelationship]:
                 # Query Domo API for relationships
                 api_response = await self._api_get_relationships()
 

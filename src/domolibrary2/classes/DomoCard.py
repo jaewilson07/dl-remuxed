@@ -4,10 +4,10 @@ import json
 import os
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Any, List, Optional
+from typing import Any, Optional, list
 
 import httpx
-from dc_logger.decorators import log_call, LogDecoratorConfig
+from dc_logger.decorators import LogDecoratorConfig, log_call
 
 from ..client.auth import DomoAuth
 from ..client.entities import DomoEntity_w_Lineage
@@ -18,7 +18,6 @@ from ..utils import (
     files as dmfi,
 )
 from ..utils.logging import DomoEntityObjectProcessor
-from .DomoUser import DomoUser
 from .DomoGroup import DomoGroup
 from .DomoUser import DomoUser
 from .subentity.lineage import DomoLineage
@@ -39,13 +38,13 @@ class DomoCard(DomoEntity_w_Lineage):
 
     datastore_id: Optional[str] = None
 
-    domo_collections: List[Any] = field(default_factory=list)
+    domo_collections: list[Any] = field(default_factory=list)
     domo_source_code: Any = None
 
     certification: Optional[dict] = None
-    owners: List[Any] = field(default_factory=list)
+    owners: list[Any] = field(default_factory=list)
 
-    datasets: List[Any] = field(repr=False, default_factory=list)
+    datasets: list[Any] = field(repr=False, default_factory=list)
 
     def __post_init__(self):
         # self.Definition = CardDefinition(self)
@@ -56,7 +55,7 @@ class DomoCard(DomoEntity_w_Lineage):
         return f"https://{self.auth.domo_instance}.domo.com/kpis/details/{self.id}"
 
     @classmethod
-    async def from_dict(cls, auth: DomoAuth, obj: dict, owners: List[Any] = None):
+    async def from_dict(cls, auth: DomoAuth, obj: dict, owners: list[Any] = None):
         owners = owners or []
 
         card = cls(
@@ -83,8 +82,8 @@ class DomoCard(DomoEntity_w_Lineage):
 
     @staticmethod
     async def get_owners(
-        auth: DomoAuth, owners: List[dict], is_suppress_errors: bool = True
-    ) -> List[Any]:  # DomoUser | DomoGroup]
+        auth: DomoAuth, owners: list[dict], is_suppress_errors: bool = True
+    ) -> list[Any]:  # DomoUser | DomoGroup]
         from . import (
             DomoGroup as dmgr,
             DomoUser as dmdu,
@@ -192,8 +191,8 @@ class DomoCard(DomoEntity_w_Lineage):
     async def share(
         self,
         auth: Optional[DomoAuth] = None,
-        domo_users: Optional[List[DomoUser]] = None,  # DomoUsers to share card with,
-        domo_groups: Optional[List[DomoGroup]] = None,  # DomoGroups to share card with
+        domo_users: Optional[list[DomoUser]] = None,  # DomoUsers to share card with,
+        domo_groups: Optional[list[DomoGroup]] = None,  # DomoGroups to share card with
         message: Optional[str] = None,  # message for automated email
         debug_api: bool = False,
         session: Optional[httpx.AsyncClient] = None,

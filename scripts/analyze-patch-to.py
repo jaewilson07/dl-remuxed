@@ -6,7 +6,6 @@ Analyze @patch_to usage and generate refactoring plan
 import ast
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict
 
 
 class PatchToAnalyzer(ast.NodeVisitor):
@@ -108,7 +107,7 @@ def analyze_file(file_path: Path) -> PatchToAnalyzer:
         return PatchToAnalyzer(str(file_path))
 
 
-def generate_refactoring_plan(src_dir: Path) -> Dict:
+def generate_refactoring_plan(src_dir: Path) -> dict:
     """Generate comprehensive refactoring plan"""
 
     # Priority order for processing
@@ -174,7 +173,7 @@ def generate_refactoring_plan(src_dir: Path) -> Dict:
     return plan
 
 
-def create_refactoring_guide(plan: Dict, output_file: str):
+def create_refactoring_guide(plan: dict, output_file: str):
     """Create detailed refactoring implementation guide"""
 
     with open(output_file, "w", encoding="utf-8") as f:

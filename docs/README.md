@@ -47,7 +47,7 @@ Complete system for systematically validating and testing all classes:
    ```powershell
    # Read the 5-minute quick start
    code docs/CLASS-VALIDATION-START-HERE.md
-   
+
    # Generate issues for high-priority classes
    python scripts/generate-class-validation-issues.py --priority high
    ```
@@ -56,7 +56,7 @@ Complete system for systematically validating and testing all classes:
    ```powershell
    # Run all tests
    pytest
-   
+
    # Run specific test file
    pytest tests/classes/DomoUser.py -v
    ```
@@ -72,7 +72,7 @@ Complete system for systematically validating and testing all classes:
    ```powershell
    # Generate all issues
    python scripts/generate-class-validation-issues.py
-   
+
    # Bulk import to GitHub
    gh issue create --body-file "EXPORTS/issues/issue_DomoDataset.md"
    ```
@@ -200,7 +200,7 @@ Located in `scripts/`:
 
 ---
 
-**Last Updated**: 2024  
-**Maintained By**: domolibrary2 team  
+**Last Updated**: 2024
+**Maintained By**: domolibrary2 team
 
 **Need to add something?** Submit a PR or create an issue!

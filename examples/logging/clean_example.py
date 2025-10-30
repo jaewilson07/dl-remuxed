@@ -14,6 +14,7 @@ All operations will be automatically logged with rich entity information.
 
 import asyncio
 import os
+
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -21,8 +22,10 @@ load_dotenv()
 
 # Import Domo classes
 from domolibrary2.client.auth import DomoTokenAuth
-from domolibrary2.routes import dataset as dataset_routes
-from domolibrary2.routes import card as card_routes
+from domolibrary2.routes import (
+    card as card_routes,
+    dataset as dataset_routes,
+)
 
 
 async def main():
