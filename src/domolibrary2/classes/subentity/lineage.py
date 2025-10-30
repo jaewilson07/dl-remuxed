@@ -385,7 +385,16 @@ class DomoLineage:
             parent_auth=parent_auth, parent_auth_retrieval_fn=parent_auth_retrieval_fn
         )
 
-        self.lineage.append(parent_entity)
+        # Wrap parent entity in DomoLineageLink_Dataset
+        parent_lineage_link = DomoLineageLink_Dataset(
+            auth=parent_auth,
+            id=parent_entity.id,
+            type="DATA_SOURCE",
+            entity=parent_entity,
+            children=[],
+            parents=[],
+        )
+        self.lineage.append(parent_lineage_link)
 
         # parent_entity.parent_auth = parent_auth
 

@@ -15,8 +15,9 @@ from pprint import pprint
 from typing import Any, Callable, Optional, Union
 
 import httpx
+
 # from dc_logger.client.base import get_global_logger
-from dc_logger.decorators import log_call, LogDecoratorConfig
+from dc_logger.decorators import LogDecoratorConfig, log_call
 
 from ..utils import chunk_execution as dmce
 from ..utils.logging import ResponseGetDataProcessor
@@ -88,7 +89,7 @@ def create_httpx_session(
 @log_call(
     action_name="get_data",
     level_name="client",
-    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor())
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
 )
 async def get_data(
     url: str,
@@ -139,7 +140,6 @@ async def get_data(
         additional_information["parent_class"] = parent_class
 
     try:
-        
         response = await session.request(
             method=method,
             url=url,
@@ -150,7 +150,6 @@ async def get_data(
             follow_redirects=is_follow_redirects,
             timeout=timeout,
         )
-
 
         if debug_api:
             print(f"Response Status: {response.status_code}")
@@ -179,7 +178,7 @@ async def get_data(
                 additional_information=additional_information,
             )
 
-            #await logger.info(message=res.to_dict())
+            # await logger.info(message=res.to_dict())
             return res
 
         # Process response into ResponseGetData using from_httpx_response
@@ -189,8 +188,8 @@ async def get_data(
             additional_information=additional_information,
         )
 
-        #if logger:
-            #await logger.info(message=res.response)
+        # if logger:
+        # await logger.info(message=res.response)
 
         return res
 
@@ -213,7 +212,7 @@ async def get_data(
 @log_call(
     action_name="get_data_stream",
     level_name="client",
-    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor())
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
 )
 async def get_data_stream(
     url: str,
@@ -357,7 +356,7 @@ class LooperError(DomoError):
         super().__init__(message=f"{loop_stage} - {message}")
 
 
-@log_call(action_name="looper",level_name="client")
+@log_call(action_name="looper", level_name="client")
 async def looper(
     auth: dmda.DomoAuth,
     session: Optional[httpx.AsyncClient],
