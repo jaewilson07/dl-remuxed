@@ -43,7 +43,7 @@ Usage:
 
 from abc import abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from typing import Any
 
 from .base import DomoBase, DomoEnum
 
@@ -136,11 +136,11 @@ class DomoRelationship(DomoBase):
     def parent_id(self):
         return self.parent_entity.id
 
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     @abstractmethod
-    def to_dict(self) -> str:
-        """Convert relationship to JSON string."""
+    def to_dict(self) -> dict:
+        """Convert relationship to dictionary."""
         raise NotImplementedError("Subclasses must implement to_dict method.")
 
     @abstractmethod
@@ -213,7 +213,7 @@ class DomoRelationshipController(DomoBase):
         created for specific entity types and relationship scenarios.
     """
 
-    relationships: List[DomoRelationship] = field(default_factory=list)
+    relationships: list[DomoRelationship] = field(default_factory=list)
 
     @abstractmethod
     def add_relationship(
@@ -268,7 +268,7 @@ class DomoRelationshipController(DomoBase):
     @abstractmethod
     async def get(
         self,
-    ) -> List[DomoRelationship]:
+    ) -> list[DomoRelationship]:
         """Find and retrieve relationships matching the specified criteria.
 
         Abstract method that must be implemented by concrete controller classes

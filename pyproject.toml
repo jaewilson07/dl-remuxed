@@ -90,7 +90,5 @@ mypy_path = "src"
 module = "domolibrary2.*"
 ignore_missing_imports = true
 
-
-[tool.setuptools]
-packages = ["domolibrary2"]
-package-dir = {"" = "src"}
+[tool.setuptools.packages.find]
+where = ["src"]
