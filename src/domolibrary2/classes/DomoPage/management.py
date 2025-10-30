@@ -3,7 +3,7 @@
 __all__ = ["DomoPages"]
 
 from dataclasses import dataclass, field
-from typing import List
+from typing import list
 
 import httpx
 
@@ -17,7 +17,7 @@ from .core import DomoPage
 @dataclass
 class DomoPages:
     auth: DomoAuth = field(repr=False)
-    pages: List[DomoPage] = None
+    pages: list[DomoPage] = None
 
     async def get(self, **kwargs):
         """calls get_admin_summary to retrieve all pages in an instance"""

@@ -12,10 +12,9 @@ Usage:
 
 import argparse
 import ast
-import re
 import sys
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
+from typing import list
 
 
 class LazyImportRefactorer:
@@ -36,7 +35,7 @@ class LazyImportRefactorer:
         """Log an error that occurred."""
         self.errors.append({"file": file_path, "error": error})
 
-    def analyze_imports(self, file_path: Path) -> Dict:
+    def analyze_imports(self, file_path: Path) -> dict:
         """Analyze imports in a file to identify candidates for lazy loading."""
         result = {
             "class_imports": [],  # Imports from same package (classes)
@@ -47,7 +46,7 @@ class LazyImportRefactorer:
         }
 
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             tree = ast.parse(content)
@@ -104,7 +103,7 @@ class LazyImportRefactorer:
 
     def find_import_usage(
         self, content: str, import_name: str, alias: str = None
-    ) -> List[int]:
+    ) -> list[int]:
         """Find line numbers where an import is used."""
         usage_lines = []
         lines = content.split("\n")
@@ -125,7 +124,7 @@ class LazyImportRefactorer:
 
         return usage_lines
 
-    def create_lazy_import_function(self, import_info: Dict, file_stem: str) -> str:
+    def create_lazy_import_function(self, import_info: dict, file_stem: str) -> str:
         """Create a lazy import function for an import."""
         alias = import_info.get("asname") or import_info["name"]
         module = import_info["module"]
@@ -151,7 +150,7 @@ class LazyImportRefactorer:
     def refactor_file(self, file_path: Path) -> bool:
         """Refactor a single file to use lazy imports."""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             original_content = content
@@ -249,7 +248,7 @@ class LazyImportRefactorer:
 
         return False
 
-    def process_directory(self, directory: Path) -> Dict:
+    def process_directory(self, directory: Path) -> dict:
         """Process all Python files in a directory."""
         results = {
             "files_processed": 0,
@@ -286,7 +285,7 @@ class LazyImportRefactorer:
             c for c in self.changes_made if c["type"] == "lazy_import_refactor"
         ]
 
-        report.append(f"📊 Summary:")
+        report.append("📊 Summary:")
         report.append(f"  • Files refactored: {len(refactor_changes)}")
         report.append(f"  • Errors: {len(self.errors)}")
         report.append("")

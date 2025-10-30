@@ -12,13 +12,11 @@ Run with: pytest tests/test_route_imports.py -v
 
 import importlib
 import inspect
-import os
-import pkgutil
 import subprocess
 import sys
 import traceback
 from pathlib import Path
-from typing import Dict, List, Tuple, Any
+from typing import Any, list
 
 import pytest
 
@@ -46,12 +44,12 @@ class RouteImportTester:
         self.import_results = {}
         self.failed_imports = {}
 
-    def discover_route_files(self) -> List[Tuple[str, Path]]:
+    def discover_route_files(self) -> list[tuple[str, Path]]:
         """
         Discover all route files and packages.
 
         Returns:
-            List of tuples (module_name, file_path)
+            list of tuples (module_name, file_path)
         """
         route_files = []
 
@@ -87,7 +85,7 @@ class RouteImportTester:
 
         return sorted(route_files)
 
-    def test_single_import(self, module_name: str, file_path: Path) -> Dict[str, Any]:
+    def test_single_import(self, module_name: str, file_path: Path) -> dict[str, Any]:
         """
         Test importing a single module.
 
@@ -131,7 +129,7 @@ class RouteImportTester:
 
         return result
 
-    def test_all_imports(self) -> Dict[str, Any]:
+    def test_all_imports(self) -> dict[str, Any]:
         """
         Test importing all discovered route files.
 
@@ -181,7 +179,7 @@ class RouteImportTester:
 
         return results
 
-    def get_import_dependencies(self, module_name: str) -> List[str]:
+    def get_import_dependencies(self, module_name: str) -> list[str]:
         """
         Analyze import dependencies for a module.
 
@@ -189,7 +187,7 @@ class RouteImportTester:
             module_name: The module to analyze
 
         Returns:
-            List of imported module names
+            list of imported module names
         """
         dependencies = []
 
@@ -206,12 +204,12 @@ class RouteImportTester:
 
         return dependencies
 
-    def discover_test_files(self) -> List[Path]:
+    def discover_test_files(self) -> list[Path]:
         """
         Discover all test files in the tests/routes directory.
 
         Returns:
-            List of test file paths
+            list of test file paths
         """
         test_files = []
 
@@ -268,7 +266,7 @@ class RouteImportTester:
         except Exception:
             return False
 
-    def run_single_test_file(self, test_file: Path) -> Dict[str, Any]:
+    def run_single_test_file(self, test_file: Path) -> dict[str, Any]:
         """
         Run a single test file using pytest.
 
@@ -330,7 +328,7 @@ class RouteImportTester:
 
         return result
 
-    def _parse_pytest_output(self, output: str) -> Dict[str, int]:
+    def _parse_pytest_output(self, output: str) -> dict[str, int]:
         """
         Parse pytest output to extract test statistics.
 
@@ -380,7 +378,7 @@ class RouteImportTester:
 
         return stats
 
-    def run_all_test_files(self, verbose: bool = True) -> Dict[str, Any]:
+    def run_all_test_files(self, verbose: bool = True) -> dict[str, Any]:
         """
         Run all test files in the tests/routes directory.
 
@@ -466,7 +464,7 @@ class RouteImportTester:
 
         if verbose:
             print(f"\n{'=' * 60}")
-            print(f"ROUTE TEST EXECUTION SUMMARY")
+            print("ROUTE TEST EXECUTION SUMMARY")
             print(f"{'=' * 60}")
             print(results["summary"])
 
@@ -479,7 +477,7 @@ class RouteImportTester:
 
         return results
 
-    def validate_module_exports(self, module_name: str) -> Dict[str, Any]:
+    def validate_module_exports(self, module_name: str) -> dict[str, Any]:
         """
         Validate that all exports in __all__ are actually available.
 
@@ -806,7 +804,7 @@ class TestRouteTestExecution:
 
         # Report on any failures but don't fail the test - just provide information
         if results["failed_files"] > 0:
-            print(f"\nℹ️  Some route test files had issues:")
+            print("\nℹ️  Some route test files had issues:")
             for failed in results["failed_files_list"]:
                 print(
                     f"  - {failed['file']}: {failed.get('error', 'Exit code ' + str(failed['exit_code']))}"
@@ -865,14 +863,14 @@ class TestRouteTestExecution:
             validation_results.append(validation)
 
         # Report validation results
-        print(f"\n📋 Route Test File Validation:")
+        print("\n📋 Route Test File Validation:")
         for result in validation_results:
             status = "✅" if result["syntax_valid"] and result["has_tests"] else "⚠️"
             print(f"  {status} {result['file']}")
             if not result["syntax_valid"]:
                 print(f"      ❌ {result['error']}")
             elif not result["has_tests"]:
-                print(f"      ⚠️  No test functions/classes found")
+                print("      ⚠️  No test functions/classes found")
 
         # Check that at least some files have valid tests
         valid_test_files = [
@@ -892,7 +890,7 @@ def run_import_tests_standalone():
     results = tester.test_all_imports()
 
     print(f"\n{'='*60}")
-    print(f"ROUTE IMPORT TEST RESULTS")
+    print("ROUTE IMPORT TEST RESULTS")
     print(f"{'='*60}")
     print(f"{results['summary']}")
 
@@ -918,19 +916,19 @@ def run_all_route_tests_standalone():
     tester = RouteImportTester()
 
     print(f"\n{'='*60}")
-    print(f"RUNNING ALL ROUTE TESTS")
+    print("RUNNING ALL ROUTE TESTS")
     print(f"{'='*60}")
 
     # First run import tests
     print("📦 STEP 1: Testing route imports...")
     import_success = run_import_tests_standalone()
 
-    print(f"\n📋 STEP 2: Running route test files...")
+    print("\n📋 STEP 2: Running route test files...")
     test_results = tester.run_all_test_files(verbose=True)
 
     # Overall summary
     print(f"\n{'='*60}")
-    print(f"OVERALL SUMMARY")
+    print("OVERALL SUMMARY")
     print(f"{'='*60}")
     print(f"📦 Import Tests: {'✅ PASSED' if import_success else '❌ FAILED'}")
     print(f"📋 Route Tests: {test_results['summary']}")
@@ -1016,7 +1014,7 @@ def discover_and_list_route_tests():
             if test_count > 0:
                 print(f"    Tests: ~{test_count} test functions/classes")
             else:
-                print(f"    Tests: No obvious test functions found")
+                print("    Tests: No obvious test functions found")
         except Exception as e:
             print(f"    Tests: Error reading file - {e}")
         print()

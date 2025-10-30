@@ -3,7 +3,7 @@
 __all__ = ["DomoPage"]
 
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Optional, list
 
 import httpx
 
@@ -18,7 +18,7 @@ from .. import (
     DomoUser as dmu,
 )
 from ..subentity import DomoLineage
-from . import DomoPage_Content as dmpg_c
+from . import page_content as dmpg_c
 
 
 @dataclass
@@ -48,8 +48,8 @@ class DomoPage(DomoEntity_w_Lineage):
 
     layout: dmpg_c.PageLayout = field(default_factory=dict)
 
-    cards: List["DomoCard"] = None
-    datasets: List["DomoDataset"] = None
+    cards: list["DomoCard"] = None
+    datasets: list["DomoDataset"] = None
 
     def __post_init__(self):
         self.Lineage = dmdl.DomoLineage_Page.from_parent(parent=self)

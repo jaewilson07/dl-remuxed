@@ -16,7 +16,6 @@ __all__ = [
     "search_dataflows_to_jupyter_workspaces",
 ]
 
-from typing import List
 
 import httpx
 
@@ -25,6 +24,7 @@ from ..client import (
     get_data as gd,
     response as rgd,
 )
+from ..client.auth import DomoAuth
 
 
 class GET_Dataflow_Error(dmde.RouteError):
@@ -164,7 +164,7 @@ def generate_tag_body(dataflow_id, tag_ls) -> dict:
 async def put_dataflow_tags_by_id(
     auth: DomoAuth,
     dataflow_id: int,
-    tag_ls: List[str],
+    tag_ls: list[str],
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
     parent_class: str = None,

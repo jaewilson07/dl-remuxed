@@ -16,7 +16,7 @@ Enums:
 
 import datetime as dt
 from enum import Enum
-from typing import List, Optional
+from typing import Optional
 
 import httpx
 
@@ -159,7 +159,7 @@ async def create_api_client(
     auth: DomoFullAuth,  # username and password (full) auth required for this API
     client_name: str,
     client_description: str = f"generated via DL {str(dt.date.today()).replace('-', '')}",
-    scope: Optional[List[ApiClient_ScopeEnum]] = None,  # defaults to [data, audit]
+    scope: Optional[list[ApiClient_ScopeEnum]] = None,  # defaults to [data, audit]
     session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -176,7 +176,7 @@ async def create_api_client(
         auth: DomoFullAuth object (username and password required)
         client_name: Name for the new API client
         client_description: Optional description for the API client
-        scope: List of ApiClient_ScopeEnum values, defaults to [data, audit]
+        scope: list of ApiClient_ScopeEnum values, defaults to [data, audit]
         session: Optional HTTP client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to omit in debug output

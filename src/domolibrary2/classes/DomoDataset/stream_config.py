@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 from enum import Enum
-from typing import Any, Union
+from typing import Any
 
 from sqlglot import exp, parse_one
 
@@ -61,7 +61,7 @@ class StreamConfig_Mapping(DomoBase):
     def search_keys_by_value(
         self,
         value_to_search: str,
-    ) -> Union[StreamConfig_Mapping, None]:
+    ) -> StreamConfig_Mapping | None:
         if self.is_default:
             if value_to_search in ["enteredCustomQuery", "query", "customQuery"]:
                 return "sql"
@@ -215,9 +215,7 @@ class StreamConfig_Mappings(DomoEnumMixin, Enum):
         )
 
     @classmethod
-    def search(
-        cls, value, debug_api: bool = False
-    ) -> Union[StreamConfig_Mappings, None]:
+    def search(cls, value, debug_api: bool = False) -> StreamConfig_Mappings | None:
         alt_search = value.lower().replace("-", "_")
 
         try:

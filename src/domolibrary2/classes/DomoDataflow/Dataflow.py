@@ -1,19 +1,19 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List
+from typing import list
 
 import httpx
 
-from ..client.entities import DomoEntity_w_Lineage
-from ..routes import dataflow as dataflow_routes
-from ..utils import chunk_execution as dmce
-from . import DomoJupyter as dmdj
-from ._base import DomoLineage as dmdl
+from ...classes.subentity import lineage as dmdl
+from ...entities import DomoEntity_w_Lineage
+from ...routes import dataflow as dataflow_routes
+from ...utils import chunk_execution as dmce
+from ..DomoJupyter import Jupyter as dmdj
 
 __all__ = ["DomoDataflow", "DomoDataflows"]
 
-from ..classes.DomoDataflow_History import DomoDataflow_History
+from ...classes.DomoDataflow.Dataflow_History import DomoDataflow_History
 from .Dataflow_Action import DomoDataflow_Action
 
 
@@ -30,13 +30,17 @@ class DomoDataflow(DomoEntity_w_Lineage):
 
     version_id: int = None
     version_number: int = None
-    versions: List[dict] = None  # list of DomoDataflow Versions
+    versions: list[dict] = None  # list of DomoDataflow Versions
 
     jupyter_workspace_config: dict = None
 
     History: DomoDataflow_History = None  # class for managing the history of a dataflow
 
     JupyterWorkspace: dmdj.DomoJupyterWorkspace = None
+
+    @property
+    def entity_type(self):
+        return "DATAFLOW"
 
     def __post_init__(self):
         self.History = DomoDataflow_History(
@@ -58,6 +62,7 @@ class DomoDataflow(DomoEntity_w_Lineage):
             version_id=version_id,
             version_number=version_number,
             Lineage=None,
+            Relations=None,
         )
 
         if obj.get("actions"):
@@ -270,7 +275,7 @@ class DomoDataflow(DomoEntity_w_Lineage):
 @dataclass
 class DomoDataflows:
     auth: DomoAuth = field(repr=False)
-    dataflows: List[DomoDataflow] = None
+    dataflows: list[DomoDataflow] = None
 
     async def get(
         self,

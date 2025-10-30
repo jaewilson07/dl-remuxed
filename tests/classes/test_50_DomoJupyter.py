@@ -1,10 +1,11 @@
-"""
+r"""
 Test file generated from 50_DomoJupyter.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
@@ -105,11 +106,11 @@ async def test_cell_9(token_auth=token_auth):
         djw_content = await djw.get_content()
 
         test_content = next(
-            (
+
                 content
                 for content in djw_content
                 if content.name.startswith("updated_") and content.folder == "new_folder/"
-            )
+
         )
         test_content.content = (
             f"jae rocks at debugging.  he's superfly -- updated {dt.date.today()}"

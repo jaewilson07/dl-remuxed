@@ -14,7 +14,7 @@ __all__ = [
     "role_membership_add_users",
 ]
 
-from typing import List
+from typing import Optional
 
 import httpx
 
@@ -48,7 +48,7 @@ class Role_CRUD_Error(RouteError):
 @gd.route_function
 async def get_roles(
     auth: DomoAuth,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
@@ -75,7 +75,7 @@ async def get_roles(
 async def get_role_by_id(
     auth: DomoAuth,
     role_id: str,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
     parent_class: str = None,
@@ -104,7 +104,7 @@ async def get_role_by_id(
 async def get_role_grants(
     auth: DomoAuth,
     role_id: str,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
     parent_class: str = None,
@@ -139,7 +139,7 @@ async def get_role_grants(
 async def get_role_membership(
     auth: DomoAuth,
     role_id: str,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     return_raw: bool = False,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -183,7 +183,7 @@ async def create_role(
     auth: DomoAuth,
     name: str,
     description: str,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
@@ -213,7 +213,7 @@ async def create_role(
 async def delete_role(
     auth: DomoAuth,
     role_id: int,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
@@ -251,7 +251,7 @@ async def delete_role(
 @gd.route_function
 async def get_default_role(
     auth,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
@@ -283,7 +283,7 @@ async def get_default_role(
 async def set_default_role(
     auth: DomoAuth,
     role_id: str,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class=None,
@@ -317,7 +317,7 @@ async def update_role_metadata(
     role_id,
     role_name,
     role_description: str = None,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
@@ -358,7 +358,7 @@ async def set_role_grants(
     auth: DomoAuth,
     role_id: str,
     grants: list[str],
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
@@ -396,8 +396,8 @@ async def set_role_grants(
 async def role_membership_add_users(
     auth: DomoAuth,
     role_id: str,
-    user_ids: List[str],  # list of user ids
-    session: httpx.AsyncClient = None,
+    user_ids: list[str],  # list of user ids
+    session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,

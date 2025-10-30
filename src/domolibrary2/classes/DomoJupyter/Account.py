@@ -11,13 +11,15 @@ __all__ = [
 
 import json
 from dataclasses import dataclass, field
-from typing import Any, Callable, Union
+from typing import Any, Callable
 
 import httpx
 
-from ..client import exceptions as dmde
-from ..utils import xkcd_password as dmxkcd
+from ...client import exceptions as dmde
+from ...utils import xkcd_password as dmxkcd
 from . import Account as dmac
+
+DomoError = dmde.DomoError
 
 
 class DJW_PermissionToAccountDenied(DomoError):
@@ -78,7 +80,7 @@ class DomoJupyter_Account:
 
     is_exists: bool = False
     domo_account: dmac.DomoAccount = None
-    creds: Union[str, dict] = field(default=None, repr=False)
+    creds: str | dict = field(default=None, repr=False)
 
     def __post_init__(self):
         self.account_id = int(self.account_id)

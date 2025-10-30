@@ -3,7 +3,7 @@ __all__ = ["DomoAccessToken", "DomoAccessTokens"]
 import asyncio
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import Any, List, Optional
+from typing import Any, Optional, list
 
 import httpx
 
@@ -16,7 +16,7 @@ from ...utils import (
 )
 
 
-@dataclass
+@dataclass(eq=False)
 class DomoAccessToken(DomoEntity):
     auth: DomoAuth = field(repr=False)
     id: str
@@ -59,11 +59,7 @@ class DomoAccessToken(DomoEntity):
 
     @staticmethod
     async def _get_owner(owner_id, auth: DomoAuth):
-<<<<<<< HEAD
         from ..DomoUser import DomoUser
-=======
-        from .. import DomoUser as dmu
->>>>>>> main
 
         return await DomoUser.get_by_id(auth=auth, id=owner_id)
 
@@ -172,7 +168,7 @@ class DomoAccessToken(DomoEntity):
 class DomoAccessTokens(DomoManager):
     auth: DomoAuth = field(repr=False)
 
-    domo_access_tokens: List[DomoAccessToken] = field(default_factory=list)
+    domo_access_tokens: list[DomoAccessToken] = field(default_factory=list)
 
     async def get(
         self,

@@ -10,25 +10,25 @@ __all__ = [
 import datetime as dt
 import os
 from dataclasses import dataclass, field
-from typing import Any, List
+from typing import Any, list
 
 import httpx
 
-from ..client import (
+from ...client import (
     auth as dmda,
     exceptions as dmde,
 )
-from ..client.entities import DomoEntity, DomoManager
-from ..routes import jupyter as jupyter_routes
-from ..routes.jupyter import JupyterAPI_Error
-from ..utils import (
+from ...client.entities import DomoEntity, DomoManager
+from ...routes import jupyter as jupyter_routes
+from ...routes.jupyter import JupyterAPI_Error
+from ...utils import (
     chunk_execution as dmce,
     files as defi,
 )
+from .. import DomoUser as dmdu
+from ..DomoDataset import DomoDataset as dmds
 from . import (
     Account as dmac,
-    DomoUser as dmdu,
-    dataset as dmds,
 )
 from .Account import DomoJupyter_Account
 from .Content import DomoJupyter_Content
@@ -58,7 +58,7 @@ class DJW_InvalidClass(dmde.ClassError):
         super().__init__(cls_instance=cls_instance, message=message)
 
 
-@dataclass
+@dataclass(eq=False)
 class DomoJupyterWorkspace(DomoEntity):
     auth: dmda.DomoJupyterAuth = field(repr=False)
     id: str
@@ -74,19 +74,19 @@ class DomoJupyterWorkspace(DomoEntity):
     memory: int
 
     last_run_dt: dt.datetime = None
-    instances: List[dict] = None
+    instances: list[dict] = None
 
-    input_configuration: List[DomoJupyter_DataSource] = field(
+    input_configuration: list[DomoJupyter_DataSource] = field(
         default_factory=lambda: []
     )
-    output_configuration: List[DomoJupyter_DataSource] = field(
+    output_configuration: list[DomoJupyter_DataSource] = field(
         default_factory=lambda: []
     )
-    account_configuration: List[DomoJupyter_Account] = field(default_factory=lambda: [])
-    content: List[DomoJupyter_Content] = field(default_factory=lambda: [])
+    account_configuration: list[DomoJupyter_Account] = field(default_factory=lambda: [])
+    content: list[DomoJupyter_Content] = field(default_factory=lambda: [])
 
-    collection_configuration: List[dict] = None
-    fileshare_configuration: List[dict] = None
+    collection_configuration: list[dict] = None
+    fileshare_configuration: list[dict] = None
 
     service_location: str = None
     service_prefix: str = None
@@ -379,7 +379,7 @@ def add_config_account(self, dja_account: DomoJupyter_Account):
 @dataclass
 class DomoJupyterWorkspaces(DomoManager):
     auth: DomoAuth
-    workspaces: List[DomoJupyterWorkspace] = None
+    workspaces: list[DomoJupyterWorkspace] = None
 
     parent: Any = None
 

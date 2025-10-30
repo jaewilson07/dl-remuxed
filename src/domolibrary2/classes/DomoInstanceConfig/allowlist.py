@@ -5,7 +5,7 @@ __all__ = [
 
 import ipaddress
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Optional, list
 
 import httpx
 
@@ -38,7 +38,7 @@ class DomoAllowlist:
     """
 
     auth: DomoAuth = field(repr=False)
-    allowlist: List[str] = field(default_factory=list)
+    allowlist: list[str] = field(default_factory=list)
     is_filter_all_traffic_enabled: Optional[bool] = None
     raw: dict = field(default_factory=dict, repr=False)
 
@@ -94,7 +94,7 @@ class DomoAllowlist:
 
     async def set(
         self,
-        ip_address_ls: List[str],
+        ip_address_ls: list[str],
         is_suppress_errors: bool = False,
         debug_api: bool = False,
         debug_prn: bool = False,
@@ -141,7 +141,7 @@ class DomoAllowlist:
         debug_api: bool = False,
         debug_prn: bool = False,
         session: Optional[httpx.AsyncClient] = None,
-    ) -> List[str]:
+    ) -> list[str]:
         """
         adds an IP or CIDR to the allowlist
         """
@@ -169,7 +169,7 @@ class DomoAllowlist:
         debug_api: bool = False,
         session: Optional[httpx.AsyncClient] = None,
         is_suppress_errors: bool = False,
-    ) -> List[str]:
+    ) -> list[str]:
         """
         removes an IP or CIDR to the allowlist
         """

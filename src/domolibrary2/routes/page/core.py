@@ -15,19 +15,28 @@ __all__ = [
     "get_page_definition",
 ]
 
-from typing import Optional, Union
+from typing import Optional
 
 import httpx
+from dc_logger.decorators import LogDecoratorConfig, log_call
 
 from ...client import (
     get_data as gd,
     response as rgd,
 )
 from ...client.auth import DomoAuth
+from ...utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 from .exceptions import Page_GET_Error, SearchPage_NotFound
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def get_pages_adminsummary(
     auth: DomoAuth,
     search_title: Optional[str] = None,
@@ -111,6 +120,13 @@ async def get_pages_adminsummary(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def get_page_by_id(
     auth: DomoAuth,
     page_id: str,
@@ -179,9 +195,16 @@ async def get_page_by_id(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def get_page_definition(
     auth: DomoAuth,
-    page_id: Union[int, str],
+    page_id: int | str,
     session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,

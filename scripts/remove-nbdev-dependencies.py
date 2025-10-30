@@ -14,11 +14,9 @@ Usage:
 """
 
 import argparse
-import ast
 import re
 import sys
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 
 class NBDevRemover:
@@ -42,7 +40,7 @@ class NBDevRemover:
     def remove_nbdev_imports(self, file_path: Path) -> bool:
         """Remove nbdev imports from a Python file."""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             original_content = content
@@ -87,7 +85,7 @@ class NBDevRemover:
     def remove_patch_to_decorators(self, file_path: Path) -> bool:
         """Remove @patch_to decorators from a Python file."""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             original_content = content
@@ -116,7 +114,7 @@ class NBDevRemover:
     def update_pyproject_toml(self, file_path: Path) -> bool:
         """Update pyproject.toml to remove nbdev dependencies."""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             original_content = content
@@ -160,7 +158,7 @@ class NBDevRemover:
     def update_setup_py(self, file_path: Path) -> bool:
         """Update setup.py to remove nbdev references."""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             original_content = content
@@ -185,7 +183,7 @@ class NBDevRemover:
 
         return False
 
-    def process_directory(self, directory: Path) -> Dict:
+    def process_directory(self, directory: Path) -> dict:
         """Process all Python files in a directory."""
         results = {"files_processed": 0, "imports_removed": 0, "decorators_removed": 0}
 
@@ -218,7 +216,7 @@ class NBDevRemover:
             c for c in self.changes_made if c["type"] == "dependency_removal"
         ]
 
-        report.append(f"📊 Summary:")
+        report.append("📊 Summary:")
         report.append(f"  • Import removals: {len(import_changes)}")
         report.append(f"  • Decorator removals: {len(decorator_changes)}")
         report.append(f"  • Dependency updates: {len(dependency_changes)}")

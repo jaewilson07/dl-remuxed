@@ -33,11 +33,15 @@ __all__ = [
     "DomoAccounts",
     "DomoAccounts_NoAccount",
     "UpsertAccount_MatchCriteria",
+    "ShareAccount_AccessLevel",
 ]
 
-# Import main classes
-from .account import DomoAccount, DomoAccounts, DomoAccounts_NoAccount
+# Import route enums used by account classes
+from ...routes.account import ShareAccount_AccessLevel
 from .account_credential import DomoAccount_Credential
 from .account_default import DomoAccount_Default, UpsertAccount_MatchCriteria
 from .account_oauth import DomoAccount_OAuth
 from .config import AccountConfig, DomoAccount_Config
+
+# Import main classes
+from .core import DomoAccount, DomoAccounts, DomoAccounts_NoAccount

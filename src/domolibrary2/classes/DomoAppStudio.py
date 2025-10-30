@@ -2,7 +2,7 @@ __all__ = ["DomoAppStudio", "DomoAppStudios"]
 
 
 from dataclasses import dataclass, field
-from typing import List
+from typing import list
 
 import httpx
 
@@ -232,9 +232,9 @@ class DomoAppStudio(DomoEntity_w_Lineage):
     async def add_appstudio_owner(
         cls,
         auth: DomoAuth,
-        appstudio_id_ls: List[int],  # AppStudio IDs to be updated by owner,
-        group_id_ls: List[int],  # DomoGroup IDs to share page with
-        user_id_ls: List[int],  # DomoUser IDs to share page with
+        appstudio_id_ls: list[int],  # AppStudio IDs to be updated by owner,
+        group_id_ls: list[int],  # DomoGroup IDs to share page with
+        user_id_ls: list[int],  # DomoUser IDs to share page with
         note: str = None,  # message for automated email
         send_email: bool = False,  # send or not email to the new owners
         debug_api: bool = False,

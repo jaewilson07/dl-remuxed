@@ -10,12 +10,12 @@ __all__ = [
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import List, Literal, Optional, Callable, Any
+from typing import Any, Callable, Literal, Optional, list
 
 import httpx
 
-from ...client.entities import DomoBase, DomoSubEntity, DomoEnumMixin
 from ...client.auth import DomoAuth
+from ...client.entities import DomoBase, DomoEnumMixin, DomoSubEntity
 from ...routes.instance_config import scheduler_policies as instance_config_routes
 
 
@@ -75,7 +75,7 @@ class DomoScheduler_Policy(DomoBase):
     created_on: datetime
     name: str
     frequencies: DomoScheduler_Policy_Frequencies
-    members: List[DomoScheduler_Policy_Member] = field(default_factory=list)
+    members: list[DomoScheduler_Policy_Member] = field(default_factory=list)
     id: Optional[str] = field(
         default=None
     )  # Will be None if the policy is not yet created (used on upsert)
@@ -105,7 +105,7 @@ class DomoScheduler_Policy(DomoBase):
 @dataclass
 class DomoScheduler_Policies(DomoSubEntity):
     auth: DomoAuth
-    policies: List[DomoScheduler_Policy] = field(default_factory=list)
+    policies: list[DomoScheduler_Policy] = field(default_factory=list)
 
     async def get(
         self,
@@ -182,4 +182,4 @@ class DomoScheduler_Policies(DomoSubEntity):
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
             session=session,
         )
-        return res.is_success == True
+        return res.is_success

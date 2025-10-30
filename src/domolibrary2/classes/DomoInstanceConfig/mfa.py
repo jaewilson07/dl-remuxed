@@ -1,7 +1,7 @@
 __all__ = ["MFAConfig_InstantiationError", "MFA_Config"]
 
 from dataclasses import dataclass, field
-from typing import List
+from typing import Optional
 
 import httpx
 
@@ -23,7 +23,7 @@ class MFA_Config:
     num_days_valid: int = None
 
     @classmethod
-    def from_dict(cls, auth: DomoAuth, obj: List[dict]):
+    def from_dict(cls, auth: DomoAuth, obj: dict):
         return cls(
             auth=auth,
             is_multifactor_required=obj.get("is_multifactor_required"),
@@ -38,7 +38,7 @@ class MFA_Config:
         incl_is_multifactor_required: bool = True,
         incl_num_days_valid: bool = True,
         incl_max_code_attempts: bool = True,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         return_raw: bool = False,
@@ -62,9 +62,9 @@ class MFA_Config:
 
     async def get(
         self,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
-        debug_num_stacks_to_drop=2,
+        debug_num_stacks_to_drop: int = 2,
         return_raw: bool = False,
     ):
         res = await mfa_routes.get_mfa_config(
@@ -112,7 +112,7 @@ class MFA_Config:
         self,
         is_enable_MFA: bool,
         is_ignore_test: bool = False,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         suppress_update_self: bool = False,
@@ -161,7 +161,7 @@ class MFA_Config:
     async def disable(
         self,
         is_ignore_test: bool = False,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
     ):
@@ -246,7 +246,7 @@ class MFA_Config:
         is_enable_MFA: bool = None,
         max_code_attempts: int = None,
         num_days_valid: int = None,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         return_raw: bool = False,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,

@@ -6,16 +6,16 @@ authentication, and various error scenarios.
 """
 
 import asyncio
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Union, Callable, Type
-from unittest.mock import AsyncMock, MagicMock, patch
 import json
+from dataclasses import dataclass, field
+from typing import Any, Callable, Optional, list
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-import httpx
 
 from domolibrary2.client.auth import DomoAuth
-from domolibrary2.client.response import ResponseGetData, RequestMetadata
-from domolibrary2.client.exceptions import RouteError, AuthError
+from domolibrary2.client.exceptions import AuthError, RouteError
+from domolibrary2.client.response import RequestMetadata, ResponseGetData
 
 
 @dataclass
@@ -23,9 +23,9 @@ class MockResponse:
     """Mock response for testing route functions."""
 
     status_code: int
-    json_data: Optional[Dict[str, Any]] = None
+    json_data: Optional[dict[str, Any]] = None
     text_data: Optional[str] = None
-    headers: Dict[str, str] = field(
+    headers: dict[str, str] = field(
         default_factory=lambda: {"Content-Type": "application/json"}
     )
     is_success: bool = True
@@ -55,9 +55,9 @@ class TestScenario:
     description: str
     mock_response: MockResponse
     expected_success: bool = True
-    expected_exception: Optional[Type[Exception]] = None
-    auth_config: Optional[Dict[str, Any]] = None
-    function_kwargs: Dict[str, Any] = field(default_factory=dict)
+    expected_exception: Optional[type[Exception]] = None
+    auth_config: Optional[dict[str, Any]] = None
+    function_kwargs: dict[str, Any] = field(default_factory=dict)
 
 
 class RouteTestHarness:
@@ -133,14 +133,14 @@ class RouteTestHarness:
         )
 
     def run_test_scenarios(
-        self, route_function: Callable, scenarios: List[TestScenario], **default_kwargs
-    ) -> Dict[str, Any]:
+        self, route_function: Callable, scenarios: list[TestScenario], **default_kwargs
+    ) -> dict[str, Any]:
         """
         Run multiple test scenarios against a route function.
 
         Args:
             route_function: The route function to test
-            scenarios: List of test scenarios to run
+            scenarios: list of test scenarios to run
             **default_kwargs: Default arguments for the route function
 
         Returns:
@@ -178,7 +178,7 @@ class RouteTestHarness:
 
     async def _run_single_scenario(
         self, route_function: Callable, scenario: TestScenario, **default_kwargs
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Run a single test scenario."""
 
         # Prepare function arguments
@@ -237,7 +237,7 @@ class RouteTestBuilder:
 
     def __init__(self, harness: RouteTestHarness):
         self.harness = harness
-        self.scenarios: List[TestScenario] = []
+        self.scenarios: list[TestScenario] = []
 
     def add_success_scenario(
         self,
@@ -272,7 +272,7 @@ class RouteTestBuilder:
         description: str,
         status_code: int = 400,
         error_response: Any = None,
-        expected_exception: Type[Exception] = RouteError,
+        expected_exception: type[Exception] = RouteError,
         **kwargs,
     ) -> "RouteTestBuilder":
         """Add an error response scenario."""
@@ -323,7 +323,7 @@ class RouteTestBuilder:
             **{**kwargs, "entity_id": entity_id},
         )
 
-    def build(self) -> List[TestScenario]:
+    def build(self) -> list[TestScenario]:
         """Build and return the test scenarios."""
         return self.scenarios
 
@@ -334,8 +334,8 @@ class RouteTestBuilder:
 def create_standard_route_tests(
     harness: RouteTestHarness,
     entity_name: str = "entity",
-    sample_data: Dict[str, Any] = None,
-) -> List[TestScenario]:
+    sample_data: dict[str, Any] = None,
+) -> list[TestScenario]:
     """Create standard test scenarios for most route functions."""
 
     if sample_data is None:
@@ -399,7 +399,7 @@ class PytestRouteTestCase:
         return harness.default_auth
 
     def run_route_test_scenarios(
-        self, route_function: Callable, scenarios: List[TestScenario], **kwargs
+        self, route_function: Callable, scenarios: list[TestScenario], **kwargs
     ):
         """Run test scenarios and assert results."""
         harness = RouteTestHarness()
@@ -421,7 +421,7 @@ class PerformanceTestHarness:
     @staticmethod
     async def measure_route_performance(
         route_function: Callable, iterations: int = 100, **kwargs
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Measure route function performance."""
         import time
 
@@ -466,9 +466,9 @@ class IntegrationTestHarness:
     async def test_route_integration(
         self,
         route_function: Callable,
-        test_params: Dict[str, Any],
+        test_params: dict[str, Any],
         expected_status_range: tuple = (200, 299),
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Test route function with real API calls."""
 
         try:

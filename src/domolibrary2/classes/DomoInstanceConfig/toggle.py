@@ -19,7 +19,7 @@ from ...routes.auth import InvalidAuthTypeError
 from ...routes.instance_config import toggle as toggle_routes
 
 
-class Toggle_InstantiationError(ClassError):
+class Toggle_InstantiationError(ClassError):  # noqa: N801
     """Exception raised when toggle instantiation fails."""
 
     def __init__(self, auth: DomoAuth, message: str, cls=None):
@@ -79,12 +79,18 @@ class DomoToggle:
             return self.customer_id
 
         # Avoid circular import by importing here
-        from ..DomoBootstrap import DomoBootstrap
+        from .bootstrap import DomoBootstrap
 
         try:
             bs = DomoBootstrap(auth=self.auth)
             self.customer_id = await bs.get_customer_id()
-            return self.customer_id
+            if self.customer_id:
+                return self.customer_id
+            else:
+                raise Toggle_InstantiationError(
+                    auth=self.auth,
+                    message="Customer ID not found",
+                )
 
         except InvalidAuthTypeError as e:
             raise Toggle_InstantiationError(
@@ -100,7 +106,7 @@ class DomoToggle:
         self,
         customer_id: Optional[str] = None,
         debug_api: bool = False,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         return_raw: bool = False,
     ) -> bool:
         """Check if social user invitations are enabled.
@@ -132,7 +138,11 @@ class DomoToggle:
             return res
 
         self.is_invite_social_users_enabled = res.response["is_enabled"]
-        return self.is_invite_social_users_enabled
+        return (
+            self.is_invite_social_users_enabled
+            if self.is_invite_social_users_enabled
+            else False
+        )
 
     async def toggle_is_invite_social_users_enabled(
         self,
@@ -140,7 +150,7 @@ class DomoToggle:
         customer_id: Optional[str] = None,
         debug_api: bool = False,
         debug_prn: bool = False,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         return_raw: bool = False,
     ) -> bool:
         """Enable or disable social user invitation capability.
@@ -202,7 +212,7 @@ class DomoToggle:
     async def get_is_user_invite_notifications_enabled(
         self,
         debug_api: bool = False,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         return_raw: bool = False,
     ) -> bool:
         """Check if user invite notification emails are enabled.
@@ -226,14 +236,18 @@ class DomoToggle:
             return res
 
         self.is_user_invite_notifications_enabled = res.response["is_enabled"]
-        return self.is_user_invite_notifications_enabled
+        return (
+            self.is_user_invite_notifications_enabled
+            if self.is_user_invite_notifications_enabled
+            else False
+        )
 
     async def toggle_is_user_invite_notifications_enabled(
         self,
         is_enabled: bool,
         debug_api: bool = False,
         debug_prn: bool = False,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         return_raw: bool = False,
     ) -> bool:
         """Enable or disable user invite notification emails.
@@ -274,7 +288,11 @@ class DomoToggle:
 
         # Route function refreshes state automatically
         self.is_user_invite_notifications_enabled = res.response["is_enabled"]
-        return self.is_user_invite_notifications_enabled
+        return (
+            self.is_user_invite_notifications_enabled
+            if self.is_user_invite_notifications_enabled
+            else False
+        )
 
     # ============================================================================
     # Weekly Digest
@@ -283,7 +301,7 @@ class DomoToggle:
     async def get_is_weekly_digest_enabled(
         self,
         debug_api: bool = False,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         return_raw: bool = False,
     ) -> bool:
         """Check if weekly digest emails are enabled.
@@ -307,14 +325,14 @@ class DomoToggle:
             return res
 
         self.is_weekly_digest_enabled = res.response["is_enabled"]
-        return self.is_weekly_digest_enabled
+        return self.is_weekly_digest_enabled if self.is_weekly_digest_enabled else False
 
     async def toggle_is_weekly_digest_enabled(
         self,
         is_enabled: bool,
         debug_api: bool = False,
         debug_prn: bool = False,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         return_raw: bool = False,
     ) -> bool:
         """Enable or disable weekly digest emails.
@@ -355,7 +373,7 @@ class DomoToggle:
 
         # Route function refreshes state automatically
         self.is_weekly_digest_enabled = res.response["is_enabled"]
-        return self.is_weekly_digest_enabled
+        return self.is_weekly_digest_enabled if self.is_weekly_digest_enabled else False
 
     # ============================================================================
     # Left Navigation
@@ -364,7 +382,7 @@ class DomoToggle:
     async def get_is_left_nav_enabled(
         self,
         debug_api: bool = False,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         return_raw: bool = False,
     ) -> bool:
         """Check if left navigation UI is enabled.
@@ -388,14 +406,14 @@ class DomoToggle:
             return res
 
         self.is_left_nav_enabled = res.response["is_enabled"]
-        return self.is_left_nav_enabled
+        return self.is_left_nav_enabled if self.is_left_nav_enabled else False
 
     async def toggle_is_left_nav_enabled(
         self,
         is_enabled: bool = True,
         debug_api: bool = False,
         debug_prn: bool = False,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
         return_raw: bool = False,
     ) -> bool:
         """Enable or disable left navigation UI.
@@ -448,7 +466,7 @@ class DomoToggle:
         self,
         customer_id: Optional[str] = None,
         debug_api: bool = False,
-        session: httpx.AsyncClient = None,
+        session: Optional[httpx.AsyncClient] = None,
     ) -> dict:
         """Retrieve all toggle states.
 
@@ -472,34 +490,34 @@ class DomoToggle:
         # Social user invites (requires customer_id)
         if customer_id:
             try:
-                results["is_invite_social_users_enabled"] = (
-                    await self.get_is_invite_social_users_enabled(
-                        customer_id=customer_id,
-                        session=session,
-                        debug_api=debug_api,
-                    )
+                results[
+                    "is_invite_social_users_enabled"
+                ] = await self.get_is_invite_social_users_enabled(
+                    customer_id=customer_id,
+                    session=session,
+                    debug_api=debug_api,
                 )
             except (RouteError, Toggle_InstantiationError) as e:
                 results["is_invite_social_users_enabled"] = f"Error: {str(e)}"
 
         # User invite notifications
         try:
-            results["is_user_invite_notifications_enabled"] = (
-                await self.get_is_user_invite_notifications_enabled(
-                    session=session,
-                    debug_api=debug_api,
-                )
+            results[
+                "is_user_invite_notifications_enabled"
+            ] = await self.get_is_user_invite_notifications_enabled(
+                session=session,
+                debug_api=debug_api,
             )
         except RouteError as e:
             results["is_user_invite_notifications_enabled"] = f"Error: {str(e)}"
 
         # Weekly digest
         try:
-            results["is_weekly_digest_enabled"] = (
-                await self.get_is_weekly_digest_enabled(
-                    session=session,
-                    debug_api=debug_api,
-                )
+            results[
+                "is_weekly_digest_enabled"
+            ] = await self.get_is_weekly_digest_enabled(
+                session=session,
+                debug_api=debug_api,
             )
         except RouteError as e:
             results["is_weekly_digest_enabled"] = f"Error: {str(e)}"

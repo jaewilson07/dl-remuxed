@@ -1,15 +1,17 @@
-"""
+r"""
 Test file generated from 50_DomoUser.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 from dotenv import load_dotenv
-import domolibrary2.client.auth as dmda
+
 import domolibrary2.classes.DomoUser as dmdu
-from domolibrary2.routes.user import UserProperty_Type, UserProperty
+import domolibrary2.client.auth as dmda
 import domolibrary2.utils.chunk_execution as dmce
+from domolibrary2.routes.user import UserProperty, UserProperty_Type
 
 load_dotenv()
 

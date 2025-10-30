@@ -32,7 +32,17 @@ from .core import (  # Core user functions
     search_users_by_id,
     search_virtual_user_by_subscriber_instance,
 )
-from .exceptions import *  # All exception classes
+from .exceptions import (
+    DeleteUser_Error,
+    DownloadAvatar_Error,
+    ResetPassword_PasswordUsed,
+    SearchUser_NotFound,
+    User_CRUD_Error,
+    User_GET_Error,
+    UserAttributes_CRUD_Error,
+    UserAttributes_GET_Error,
+    UserSharing_Error,
+)
 from .properties import (  # Property-related classes and functions; Property functions
     UserProperty,
     UserProperty_Type,

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, List, Optional
+from typing import Any, list
 
 import httpx
 
@@ -21,7 +21,7 @@ __all__ = [
 ]
 
 
-@dataclass
+@dataclass(eq=False)
 class DomoStream(DomoEntity):
     """A class for interacting with a Domo Stream (dataset connector)"""
 
@@ -37,8 +37,8 @@ class DomoStream(DomoEntity):
     account_userid: str = None
 
     has_mapping: bool = False
-    configuration: List[StreamConfig] = field(default_factory=list)
-    configuration_tables: List[str] = field(default_factory=list)
+    configuration: list[StreamConfig] = field(default_factory=list)
+    configuration_tables: list[str] = field(default_factory=list)
     configuration_query: str = None
 
     parent: Any = None  # DomoDataset
@@ -66,7 +66,7 @@ class DomoStream(DomoEntity):
     def from_dict(cls, auth, obj):
         data_provider = obj.get("dataProvider", {})
         transport = obj.get("transport", {})
-        datasource = obj.get("dataSource", {})
+        obj.get("dataSource", {})
 
         account = obj.get("account", {})
 
@@ -115,7 +115,7 @@ class DomoStream(DomoEntity):
         return_raw: bool = False,
         debug_num_stacks_to_drop=2,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ):
         """Get a stream by its ID.
 
@@ -157,7 +157,7 @@ class DomoStream(DomoEntity):
         cls,
         cnfg_body,
         auth: DomoAuth = None,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
     ):
         return await stream_routes.create_stream(
@@ -167,7 +167,7 @@ class DomoStream(DomoEntity):
     async def update(
         self,
         cnfg_body,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
     ):
         res = await stream_routes.update_stream(
@@ -182,13 +182,13 @@ class DomoStream(DomoEntity):
 
 @dataclass
 class DomoStreams(DomoManager):
-    streams: List[DomoStream] = field(default=None)
+    streams: list[DomoStream] = field(default=None)
 
     async def get(
         self,
         search_dataset_name: str = None,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ):
         from ...routes import datacenter as datacenter_routes
 
@@ -216,7 +216,7 @@ class DomoStreams(DomoManager):
         cnfg_body,
         match_name=None,
         auth: DomoAuth = None,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
     ):
         from ...routes import datacenter as datacenter_routes

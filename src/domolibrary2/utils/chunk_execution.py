@@ -5,7 +5,7 @@ This module provides utilities for async function execution with features like:
 - Automatic retry logic with customizable error handling
 - Concurrency control with semaphores
 - Sequential execution of async functions
-- List chunking for batch processing
+- list chunking for batch processing
 
 Functions:
     run_with_retry: Decorator for automatic retry logic on async functions
@@ -30,8 +30,6 @@ __all__ = ["run_with_retry", "gather_with_concurrency", "run_sequence", "chunk_l
 
 import asyncio
 import functools
-from collections.abc import Awaitable
-from typing import Any, Callable, List, Optional, Tuple, TypeVar
 
 # Import httpx with fallback for optional dependency
 try:
@@ -42,12 +40,10 @@ except ImportError:
     httpx = None
     _HTTPX_AVAILABLE = False
 
-T = TypeVar("T")
-
 
 def run_with_retry(
-    max_retry: int = 1, errors_to_retry_tp: Optional[Tuple[type, ...]] = None
-) -> Callable:
+    max_retry: int = 1, errors_to_retry_tp: tuple[type, ...] | None = None
+):
     """
     Decorator that adds automatic retry logic to async functions.
 
@@ -77,7 +73,7 @@ def run_with_retry(
     """
     errors_to_retry_tp = errors_to_retry_tp or ()
 
-    def actual_decorator(run_fn: Callable) -> Callable:
+    def actual_decorator(run_fn):
         @functools.wraps(run_fn)
         async def wrapper(*args, **kwargs):
             retry = 0
@@ -113,9 +109,9 @@ def run_with_retry(
 
 
 async def gather_with_concurrency(
-    *coros: Awaitable[T],
+    *coros,
     n: int = 60,
-) -> List[T]:
+):
     """
     Execute multiple coroutines with concurrency control.
 
@@ -127,7 +123,7 @@ async def gather_with_concurrency(
         n (int): Maximum number of concurrent coroutines (default: 60)
 
     Returns:
-        List[T]: Results from all coroutines in the same order as input
+        list[T]: Results from all coroutines in the same order as input
 
     Example:
         >>> async def fetch_url(url):
@@ -144,7 +140,7 @@ async def gather_with_concurrency(
     """
     semaphore = asyncio.Semaphore(n)
 
-    async def sem_coro(coro: Awaitable[T]) -> T:
+    async def sem_coro(coro):
         async with semaphore:
             return await coro
 
@@ -152,8 +148,8 @@ async def gather_with_concurrency(
 
 
 async def run_sequence(
-    *functions: Awaitable[Any],
-) -> List[Any]:
+    *functions,
+):
     """
     Execute a sequence of async functions sequentially.
 
@@ -165,7 +161,7 @@ async def run_sequence(
         *functions: Variable number of awaitable functions to execute
 
     Returns:
-        List[Any]: Results from all functions in execution order
+        list[Any]: Results from all functions in execution order
 
     Example:
         >>> async def step1():
@@ -185,9 +181,9 @@ async def run_sequence(
 
 
 def chunk_list(
-    obj_ls: List[Any],
+    obj_ls: list,
     chunk_size: int,
-) -> List[List[Any]]:
+):
     """
     Split a list into smaller chunks of specified size.
 
@@ -196,11 +192,11 @@ def chunk_list(
     is not evenly divisible by chunk_size.
 
     Args:
-        obj_ls (List[Any]): List of objects to split into chunks
+        obj_ls (list[Any]): list of objects to split into chunks
         chunk_size (int): Maximum number of items per chunk
 
     Returns:
-        List[List[Any]]: List of chunks, where each chunk is a list of objects
+        list[list[Any]]: list of chunks, where each chunk is a list of objects
 
     Raises:
         ValueError: If chunk_size is less than 1

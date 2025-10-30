@@ -53,7 +53,7 @@ __all__ = [
 
 import datetime as dt
 import random
-from typing import Callable, Optional, Tuple
+from typing import Callable, Optional
 
 # Optional dependency with fallback
 try:
@@ -124,7 +124,7 @@ def add_padding_characters_fn(
     return text
 
 
-def process_add_leet(my_pass: str, **kwargs) -> Tuple[str, bool]:
+def process_add_leet(my_pass: str, **kwargs) -> tuple[str, bool]:
     """
     Process password to add leet speak if applicable characters are present.
 
@@ -156,7 +156,7 @@ def process_add_leet(my_pass: str, **kwargs) -> Tuple[str, bool]:
     return my_pass, keep_loop
 
 
-def process_pad_suffix_fn(my_pass: str) -> Tuple[str, bool]:
+def process_pad_suffix_fn(my_pass: str) -> tuple[str, bool]:
     """
     Add padding suffix to password.
 
@@ -175,7 +175,7 @@ def process_pad_suffix_fn(my_pass: str) -> Tuple[str, bool]:
 
 def process_random_capitalization_fn(
     text: str, delimiter: str, **kwargs
-) -> Tuple[str, bool]:
+) -> tuple[str, bool]:
     """
     Apply random capitalization to words separated by delimiter.
 
@@ -202,7 +202,7 @@ def process_random_capitalization_fn(
 
 def process_first_capitalization_fn(
     text: str, delimiter: str, **kwargs
-) -> Tuple[str, bool]:
+) -> tuple[str, bool]:
     """
     Capitalize only the first word, lowercase the rest.
 
@@ -231,7 +231,7 @@ def process_first_capitalization_fn(
 
 def process_caps_first_word_add_year_and_add_suffix(
     my_pass: str, delimiter: str, **kwargs
-) -> Tuple[str, bool]:
+) -> tuple[str, bool]:
     """
     Comprehensive password processing: capitalize first word, add year, add padding.
 
@@ -301,7 +301,7 @@ def generate_xkcd_password(
     return xp.generate_xkcdpassword(mywords, numwords=3, delimiter=delimiter)
 
 
-def process_domo_password_fn(my_pass: str, delimiter: str) -> Tuple[str, bool]:
+def process_domo_password_fn(my_pass: str, delimiter: str) -> tuple[str, bool]:
     """
     Process password using Domo-specific rules.
 

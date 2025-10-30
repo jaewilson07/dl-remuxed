@@ -15,11 +15,12 @@ __all__ = [
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, List
+from typing import Any, Callable, list
 
 import httpx
 
 from ...client.auth import DomoAuth
+from ...client.exceptions import DomoError
 from ...entities.base import DomoEnumMixin
 from ...entities.entities import DomoEntity
 from ...routes import datacenter as datacenter_routes
@@ -34,8 +35,8 @@ class DomoLineage_Link(ABC):
 
     entity: Any = field(repr=False)  # DomoDataset, DomoDataflow, DomoPublication
 
-    parents: List["DomoLineage_Link"] = field(default_factory=list)
-    children: List["DomoLineage_Link"] = field(default_factory=list)
+    parents: list["DomoLineage_Link"] = field(default_factory=list)
+    children: list["DomoLineage_Link"] = field(default_factory=list)
 
     def __eq__(self, other):
         if other.__class__.__name__ != self.__class__.__name__:
@@ -57,7 +58,7 @@ class DomoLineage_Link(ABC):
 
     @classmethod
     @abstractmethod
-    async def getfrom_dict(cls, obj, auth):
+    async def from_dict(cls, obj, auth):
         """
         Create a DomoLineage_Link instance from a JSON object.
         """
@@ -101,12 +102,12 @@ class DomoLineageLink_Dataflow(DomoLineage_Link):
     async def get_entity(
         entity_id, auth, session: httpx.AsyncClient = None, debug_api: bool = False
     ):
-        from .. import DomoDataflow as dmdf
+        from ..DomoDataflow import Dataflow as dmdf
 
         return await dmdf.DomoDataflow.get_by_id(dataflow_id=entity_id, auth=auth)
 
     @classmethod
-    async def getfrom_dict(cls, obj, auth):
+    async def from_dict(cls, obj, auth):
         entity = await cls.get_entity(entity_id=obj["id"], auth=auth)
 
         return cls(
@@ -144,7 +145,7 @@ class DomoLineageLink_Publication(DomoLineage_Link):
         )
 
     @classmethod
-    async def getfrom_dict(cls, obj, auth):
+    async def from_dict(cls, obj, auth):
         """
         Initialize a DomoLineage instance for a publication.
         """
@@ -178,7 +179,7 @@ class DomoLineageLink_Card(DomoLineage_Link):
         )
 
     @classmethod
-    async def getfrom_dict(cls, obj, auth):
+    async def from_dict(cls, obj, auth):
         """
         Initialize a DomoLineage instance for a publication.
         """
@@ -208,14 +209,14 @@ class DomoLineageLink_Dataset(DomoLineage_Link):
         Get the entity associated with this lineage link.
         This method should be implemented by subclasses to return the appropriate entity.
         """
-        from .. import dataset as dmds
+        from ..DomoDataset.dataset_default import DomoDataset_Default as dmds
 
-        return await dmds.DomoDataset.get_by_id(
+        return await dmds.get_by_id(
             dataset_id=entity_id, auth=auth, session=session, debug_api=debug_api
         )
 
     @classmethod
-    async def getfrom_dict(cls, obj, auth):
+    async def from_dict(cls, obj, auth):
         """
         Initialize a DomoLineage instance for a publication.
         """
@@ -255,14 +256,18 @@ class DomoLineage_ParentTypeEnum(DomoEnumMixin, Enum):
 class DomoLineage:
     auth: DomoAuth = field(repr=False)
 
-    parent_id: Any = field(repr=False)
-    parent_type: DomoLineage_ParentTypeEnum = field(repr=False)
+    # parent_id: Any = field(repr=False)
+    # parent_type: DomoLineage_ParentTypeEnum = field(repr=False)
 
     parent: Any = field(repr=False, default=None)
 
-    lineage: List[DomoLineage_Link] = field(repr=False, default_factory=list)
+    lineage: list[DomoLineage_Link] = field(repr=False, default_factory=list)
 
     # raw_datacenter: dict = field(repr=False, default_factory=dict)
+
+    @property
+    def parent_type(self) -> DomoLineage_ParentTypeEnum:
+        return DomoLineage_ParentTypeEnum[self.parent.__class__.__name__]
 
     @classmethod
     def from_parent(cls, parent, auth: DomoAuth = None):
@@ -272,8 +277,7 @@ class DomoLineage:
         """
         return cls(
             auth=auth or parent.auth,
-            parent_id=parent.id,
-            parent_type=DomoLineage_ParentTypeEnum[parent.__class__.__name__],
+            # parent_id=parent.id,
             parent=parent,
         )
 
@@ -301,24 +305,26 @@ class DomoLineage:
 
         return self.parent
 
-    async def get_datacenter(
+    async def get_datacenter_lineage(
         self,
         session: httpx.AsyncClient = None,
         debug_api: bool = False,
         return_raw: bool = False,
     ):
-        parent_type = (
-            self.parent_type.value
-            if isinstance(self.parent_type, DomoLineage_ParentTypeEnum)
-            else self.parent_type
-        )
+        """queries the datacenter lineage api"""
 
-        parent_auth = self.parent.auth if self.parent else self.auth
+        # parent_type = (
+        #     self.parent_type.value
+        #     if isinstance(self.parent_type, DomoLineage_ParentTypeEnum)
+        #     else self.parent_type
+        # )
+
+        # auth = self.parent.auth if self.parent else self.auth
 
         res = await datacenter_routes.get_lineage_upstream(
-            auth=parent_auth,
-            entity_type=parent_type,
-            entity_id=self.parent_id or self.parent.id,
+            auth=self.parent.auth,
+            entity_type=self.parent_type.value,
+            entity_id=self.parent.id,
             session=session,
             debug_api=debug_api,
         )
@@ -328,65 +334,85 @@ class DomoLineage:
 
         # dmcv.merge_dict(res.response, self.raw_datacenter)
 
-        async def _get_entityfrom_dict(obj):
+        async def _get_entity_from_dict(obj):
             entity = DomoLineageLinkTypeFactory_Enum[obj["type"]].value  ## abc
 
-            return await entity.getfrom_dict(obj=obj, auth=self.auth)
+            return await entity.from_dict(obj=obj, auth=self.auth)
 
         dx_classes = await dmce.gather_with_concurrency(
             *[
-                _get_entityfrom_dict(obj)
+                _get_entity_from_dict(obj)
                 for _, obj in res.response.items()
-                if str(obj["id"]) != str(self.parent_id)
+                if str(obj["id"]) != str(self.parent.id)
             ],
             n=10,
         )
 
-        self.lineage += dx_classes
+        self.lineage.extend(dx_classes)
 
         return self.lineage
 
-    async def _get_federated_lineage(
+    async def get_federated_lineage(
         self,
         session: httpx.AsyncClient = None,
         debug_api: bool = False,
         return_raw: bool = False,
         parent_auth: DomoAuth = None,
-        parent_auth_retreival_fn: Callable = None,
+        parent_auth_retrieval_fn: Callable = None,
         debug_num_stacks_to_drop=3,
     ):
-        if not self.parent and (not self.parent_id or not self.parent_type):
-            raise DomoError("Parent ID and type must be set to get the parent entity.")
+        if not self.parent and (
+            # not self.parent_id or
+            not self.parent_type
+        ):
+            raise ValueError(
+                "Parent ID and parent type must be set to get the parent entity."
+            )
 
-        if parent_auth is None and parent_auth_retreival_fn is not None:
-            parent_auth = parent_auth_retreival_fn(self)
+        if parent_auth is None and parent_auth_retrieval_fn is not None:
+            parent_auth = parent_auth_retrieval_fn(self)
 
         if not parent_auth:
-            raise DomoError(
+            raise ValueError(
                 "Parent auth must be provided to get the federated parent entity."
             )
 
-        await self.get_datacenter(
-            session=session, debug_api=debug_api, return_raw=return_raw
-        )
+        # await self.get_datacenter_lineage(
+        #     session=session, debug_api=debug_api, return_raw=return_raw
+        # )
+
         parent_entity = await self.parent.get_federated_parent(
-            parent_auth=parent_auth, parent_auth_retrieval_fn=parent_auth_retreival_fn
+            parent_auth=parent_auth, parent_auth_retrieval_fn=parent_auth_retrieval_fn
         )
 
-        parent_lineage = await parent_entity.Lineage.get()
-        self.lineage += parent_lineage
+        # Wrap parent entity in DomoLineageLink_Dataset
+        parent_lineage_link = DomoLineageLink_Dataset(
+            auth=parent_auth,
+            id=parent_entity.id,
+            type="DATA_SOURCE",
+            entity=parent_entity,
+            children=[],
+            parents=[],
+        )
+        self.lineage.append(parent_lineage_link)
+
+        # parent_entity.parent_auth = parent_auth
+
+        parent_lineage = await parent_entity.Lineage.get(debug_api=debug_api)
+
+        self.lineage.extend(parent_lineage)
 
         return self.lineage
 
-    async def _get_standard_lineage(
-        self,
-        session: httpx.AsyncClient = None,
-        debug_api: bool = False,
-        return_raw: bool = False,
-    ):
-        return await self.get_datacenter(
-            session=session, debug_api=debug_api, return_raw=return_raw
-        )
+    # async def _get_standard_lineage(
+    #     self,
+    #     session: httpx.AsyncClient = None,
+    #     debug_api: bool = False,
+    #     return_raw: bool = False,
+    # ):
+    #     return await self.get_datacenter_lineage(
+    #         session=session, debug_api=debug_api, return_raw=return_raw
+    #     )
 
     async def get(
         self,
@@ -394,14 +420,19 @@ class DomoLineage:
         debug_api: bool = False,
         return_raw: bool = False,
         parent_auth: DomoAuth = None,
-        parent_auth_retreival_fn: Callable = None,
+        parent_auth_retrieval_fn: Callable = None,
+        is_recursive: bool = True,
     ):
         self.lineage = []  # reset lineage
 
+        if not self.parent:
+            print("no parent")
+            await self.get_parent()  # just in case Lineage instantiated without parent
+
         if self.parent.__class__.__name__ == "FederatedDomoDataset":
-            return await self._get_federated_lineage(
+            await self.get_federated_lineage(
                 parent_auth=parent_auth,
-                parent_auth_retreival_fn=parent_auth_retreival_fn,
+                parent_auth_retrieval_fn=parent_auth_retrieval_fn,
                 session=session,
                 debug_api=debug_api,
                 return_raw=return_raw,
@@ -410,22 +441,45 @@ class DomoLineage:
         ## if its federated do something else
         # await self.get_parent_content_details(parent_auth)
 
-        if not self.parent:
-            print("no parent")
-            await self.get_parent()  # just in case Lineage instantiated without parent
+        else:
+            await self.get_datacenter_lineage(
+                session=session, debug_api=debug_api, return_raw=return_raw
+            )
 
-        return await self._get_standard_lineage(
-            session=session, debug_api=debug_api, return_raw=return_raw
-        )
+        if is_recursive:
+            # recursively get lineage for all items in lineage
+            all_lineage = await dmce.gather_with_concurrency(
+                *[
+                    lin.get(
+                        session=session,
+                        debug_api=debug_api,
+                        return_raw=return_raw,
+                        is_recursive=is_recursive,
+                    )
+                    for lin in self.lineage
+                    if lin and hasattr(lin, "get")
+                ],
+                n=10,
+            )
+
+            # flatten list of lists
+            flattened_lineage = [item for sublist in all_lineage for item in sublist]
+
+            # add to self.lineage if not already present
+            for lin in flattened_lineage:
+                if lin and lin not in self.lineage:
+                    self.lineage.append(lin)
+
+        return self.lineage
 
 
 @dataclass
 class DomoLineage_Page(DomoLineage):
-    parent_type: DomoLineage_ParentTypeEnum = field(
-        default=DomoLineage_ParentTypeEnum.DomoPage, repr=False
-    )
+    cards: list[Any] = field(repr=False, default=None)
 
-    cards: List[Any] = field(repr=False, default=None)
+    @property
+    def parent_type(self) -> DomoLineage_ParentTypeEnum:
+        return DomoLineage_ParentTypeEnum.DomoPage
 
     async def get_cards(
         self,
@@ -491,10 +545,10 @@ class DomoLineage_Publication(DomoLineage):
         default=DomoLineage_ParentTypeEnum.DomoPublication, repr=False
     )
 
-    datasets: List[Any] = field(repr=False, default=None)
-    cards: List[Any] = field(repr=False, default=None)
-    page: List[Any] = field(repr=False, default=None)
-    unsorted: List[Any] = field(repr=False, default=None)
+    datasets: list[Any] = field(repr=False, default=None)
+    cards: list[Any] = field(repr=False, default=None)
+    page: list[Any] = field(repr=False, default=None)
+    unsorted: list[Any] = field(repr=False, default=None)
 
     async def get(
         self,

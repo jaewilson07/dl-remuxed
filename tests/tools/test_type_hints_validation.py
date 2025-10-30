@@ -33,7 +33,7 @@ def validate_function_type_hints(func, function_name: str = None):
 
     # Check parameter type hints
     try:
-        type_hints = get_type_hints(func)
+        get_type_hints(func)
     except (NameError, AttributeError) as e:
         issues.append(f"Error getting type hints: {e}")
         return False, issues
@@ -55,7 +55,7 @@ def validate_module_type_hints(module, exclude_functions=None, include_private=F
 
     Args:
         module: The module to validate
-        exclude_functions: List of function names to exclude from validation
+        exclude_functions: list of function names to exclude from validation
         include_private: Whether to include private functions (starting with _)
 
     Returns:

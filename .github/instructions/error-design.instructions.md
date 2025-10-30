@@ -252,7 +252,7 @@ class SearchDataset_NotFound(RouteError):
 class InvalidAuthTypeError(AuthError):
     """Raised when wrong authentication method is used for an API endpoint."""
 
-    def __init__(self, required_auth_types: List[str], current_auth_type: Optional[str] = None, **kwargs):
+    def __init__(self, required_auth_types: list[str], current_auth_type: Optional[str] = None, **kwargs):
         auth_list = ", ".join(required_auth_types)
         message = f"This API requires one of: {auth_list}"
         if current_auth_type:

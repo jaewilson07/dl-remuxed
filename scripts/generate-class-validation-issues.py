@@ -12,7 +12,7 @@ Usage:
 import argparse
 import os
 from pathlib import Path
-from typing import List
+from typing import list
 
 
 class ClassInfo:
@@ -68,7 +68,7 @@ class ClassInfo:
             return "low"
 
 
-def find_class_files(classes_dir: Path) -> List[ClassInfo]:
+def find_class_files(classes_dir: Path) -> list[ClassInfo]:
     """Find all class files in the classes directory."""
     class_files = []
 
@@ -173,7 +173,7 @@ DomoSubEntity (for composition - entities that belong to parents)
   - [ ] Check if entity should have `DomoCertification` (datasets, cards)
   - [ ] Check if entity should have `DomoAccess` (sharing/permissions)
   - [ ] Check if entity should have `DomoMembership` (groups, user groups)
-  - [ ] List any entity-specific subentities needed
+  - [ ] list any entity-specific subentities needed
 
 - [ ] **Task 2.2**: Implement subentity composition
   - [ ] Add subentity attributes as `field(default=None)`
@@ -220,7 +220,7 @@ DomoSubEntity (for composition - entities that belong to parents)
   - [ ] Test exception handling (not found, invalid auth, etc.)
 
 - [ ] **Task 5.3**: Document required environment variables
-  - [ ] List all `.env` constants needed for tests
+  - [ ] list all `.env` constants needed for tests
   - [ ] Example values provided (sanitized)
   - [ ] Document how to obtain test values
 
@@ -294,7 +294,7 @@ DOMO_ACCESS_TOKEN="your-token"
 **{class_info.priority.upper()}** - {_get_priority_description(class_info.priority)}
 
 ### Known Issues
-- [ ] List any known bugs or limitations
+- [ ] list any known bugs or limitations
 
 ### Related Issues
 - Related to #[issue-number]

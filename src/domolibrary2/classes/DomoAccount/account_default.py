@@ -10,7 +10,6 @@ __all__ = [
 import asyncio
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import Any, List
 
 import httpx
 
@@ -53,7 +52,7 @@ class AccountClass_CRUD_Error(ClassError):
         super().__init__(cls_instance=cls_instance, message=message)
 
 
-@dataclass
+@dataclass(eq=False)
 class DomoAccount_Default(DomoEntity):
     id: int
     auth: DomoAuth = field(repr=False)
@@ -64,7 +63,7 @@ class DomoAccount_Default(DomoEntity):
     created_dt: dt.datetime = None
     modified_dt: dt.datetime = None
 
-    owners: List[Any] = None  # DomoUser or DomoGroup
+    owners: list[Any] = None  # DomoUser or DomoGroup
 
     is_admin_summary: bool = True
 

@@ -7,7 +7,7 @@ import asyncio
 import importlib.util
 import sys
 from pathlib import Path
-from typing import List, Tuple
+from typing import list
 
 # Add the tests/classes directory to the path so we can import the test modules
 sys.path.insert(0, str(Path(__file__).parent / "classes"))
@@ -62,7 +62,7 @@ async def run_test_module(file_name: str, file_path: Path):
         raise
 
 
-def discover_test_files(test_dir) -> List[Tuple[str, Path]]:
+def discover_test_files(test_dir) -> list[tuple[str, Path]]:
     """Discover all test files in the given directory"""
     test_files = []
 
@@ -148,7 +148,7 @@ if __name__ == "__main__":
         "--list",
         "-l",
         action="store_true",
-        help="List available test files without running them",
+        help="list available test files without running them",
     )
 
     args = parser.parse_args()

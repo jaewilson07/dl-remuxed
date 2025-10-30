@@ -4,21 +4,22 @@ import json
 import os
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Any, List, Optional
+from typing import Any, Optional, list
 
 import httpx
+from dc_logger.decorators import LogDecoratorConfig, log_call
 
-from ..client.entities import DomoEntity_w_Lineage
 from ..client.auth import DomoAuth
+from ..client.entities import DomoEntity_w_Lineage
 from ..client.exceptions import DomoError
 from ..routes import card as card_routes
 from ..utils import (
-    DictDot as util_dd,
     chunk_execution as dmce,
     files as dmfi,
 )
-from .DomoUser import DomoUser
+from ..utils.logging import DomoEntityObjectProcessor
 from .DomoGroup import DomoGroup
+from .DomoUser import DomoUser
 from .subentity.lineage import DomoLineage
 
 
@@ -37,13 +38,13 @@ class DomoCard(DomoEntity_w_Lineage):
 
     datastore_id: Optional[str] = None
 
-    domo_collections: List[Any] = field(default_factory=list)
+    domo_collections: list[Any] = field(default_factory=list)
     domo_source_code: Any = None
 
     certification: Optional[dict] = None
-    owners: List[Any] = field(default_factory=list)
+    owners: list[Any] = field(default_factory=list)
 
-    datasets: List[Any] = field(repr=False, default_factory=list)
+    datasets: list[Any] = field(repr=False, default_factory=list)
 
     def __post_init__(self):
         # self.Definition = CardDefinition(self)
@@ -54,57 +55,68 @@ class DomoCard(DomoEntity_w_Lineage):
         return f"https://{self.auth.domo_instance}.domo.com/kpis/details/{self.id}"
 
     @classmethod
-    async def from_dict(
-        cls, auth: DomoAuth, obj: dict, is_suppress_errors: bool = False
-    ):
-        from . import DomoGroup as dmgr
-
-        dd = obj
-        if isinstance(obj, dict):
-            dd = util_dd.DictDot(obj)
+    async def from_dict(cls, auth: DomoAuth, obj: dict, owners: list[Any] = None):
+        owners = owners or []
 
         card = cls(
             auth=auth,
-            id=dd.id,
+            id=obj.get("id"),
             raw=obj,
-            title=dd.title,
-            description=dd.description,
-            type=dd.type,
-            urn=dd.urn,
-            certification=dd.certification,
-            chart_type=dd.metadata and dd.metadata.chartType,
-            dataset_id=dd.datasources[0].dataSourceId if dd.datasources else None,
+            title=obj.get("title"),
+            description=obj.get("description"),
+            type=obj.get("type"),
+            urn=obj.get("urn"),
+            certification=obj.get("certification"),
+            chart_type=obj.get("metadata", {}).get("chartType"),
+            dataset_id=(
+                obj.get("datasources", [])[0].get("dataSourceId")
+                if obj.get("datasources")
+                else None
+            ),
+            owners=owners,
+            datastore_id=obj.get("domoapp", {}).get("id"),
             Lineage=None,  # type: ignore
         )
 
+        return card
+
+    @staticmethod
+    async def get_owners(
+        auth: DomoAuth, owners: list[dict], is_suppress_errors: bool = True
+    ) -> list[Any]:  # DomoUser | DomoGroup]
+        from . import (
+            DomoGroup as dmgr,
+            DomoUser as dmdu,
+        )
+
+        print(owners)
         tasks = []
-        for user in dd.owners:
+        for ele in owners:
             try:
-                if user.type == "USER":
-                    tasks.append(DomoUser.get_by_id(auth=auth, id=user.id))
-                if user.type == "GROUP":
-                    tasks.append(dmgr.DomoGroup.get_by_id(group_id=user.id, auth=auth))
+                if ele["type"] == "USER":
+                    tasks.append(dmdu.DomoUser.get_by_id(auth=auth, user_id=ele["id"]))
+                if ele["type"] == "GROUP":
+                    tasks.append(
+                        dmgr.DomoGroup.get_by_id(group_id=ele["id"], auth=auth)
+                    )
 
             except DomoError as e:
                 if not is_suppress_errors:
                     raise e from e
                 else:
-                    print(
-                        f"Suppressed error getting owner {user.id} for card {card.id}: {e}"
-                    )
+                    print(f"Suppressed error getting owner {ele['id']} - {e}")
 
-        card.owners = await dmce.gather_with_concurrency(n=60, *tasks)
-
-        if obj.get("domoapp", {}).get("id"):
-            card.datastore_id = obj["domoapp"]["id"]
-
-        return card
+        return await dmce.gather_with_concurrency(n=60, *tasks)
 
     @classmethod
+    @log_call(
+        level_name="entity",
+        config=LogDecoratorConfig(result_processor=DomoEntityObjectProcessor()),
+    )
     async def get_by_id(
         cls,
         auth: DomoAuth,
-        entity_id: str,
+        card_id: str,
         optional_parts: str = "certification,datasources,drillPath,owners,properties,domoapp",
         debug_api: bool = False,
         session: Optional[httpx.AsyncClient] = None,
@@ -113,7 +125,7 @@ class DomoCard(DomoEntity_w_Lineage):
     ):
         res = await card_routes.get_card_metadata(
             auth=auth,
-            entity_id=entity_id,
+            card_id=card_id,
             optional_parts=optional_parts,
             debug_api=debug_api,
             session=session,
@@ -123,9 +135,13 @@ class DomoCard(DomoEntity_w_Lineage):
         if return_raw:
             return res
 
-        domo_card = await cls.from_dict(
-            auth=auth, obj=res.response, is_suppress_errors=is_suppress_errors
+        owners = await cls.get_owners(
+            auth=auth,
+            owners=res.response.get("owners", []),
+            is_suppress_errors=is_suppress_errors,
         )
+
+        domo_card = await cls.from_dict(auth=auth, obj=res.response, owners=owners)
 
         return domo_card
 
@@ -135,7 +151,7 @@ class DomoCard(DomoEntity_w_Lineage):
     ):
         return await cls.get_by_id(
             auth=auth,
-            entity_id=entity_id,
+            card_id=entity_id,
             is_suppress_errors=is_suppress_errors,
             **kwargs,
         )
@@ -160,7 +176,7 @@ class DomoCard(DomoEntity_w_Lineage):
         if return_raw:
             return res
 
-        from .DomoDataset import DomoDataset
+        from .DomoDataset.core import DomoDataset
 
         self.datasets = await dmce.gather_with_concurrency(
             *[
@@ -175,8 +191,8 @@ class DomoCard(DomoEntity_w_Lineage):
     async def share(
         self,
         auth: Optional[DomoAuth] = None,
-        domo_users: Optional[List[DomoUser]] = None,  # DomoUsers to share card with,
-        domo_groups: Optional[List[DomoGroup]] = None,  # DomoGroups to share card with
+        domo_users: Optional[list[DomoUser]] = None,  # DomoUsers to share card with,
+        domo_groups: Optional[list[DomoGroup]] = None,  # DomoGroups to share card with
         message: Optional[str] = None,  # message for automated email
         debug_api: bool = False,
         session: Optional[httpx.AsyncClient] = None,

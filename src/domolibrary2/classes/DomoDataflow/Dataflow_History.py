@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import List
+from typing import list
 
 import httpx
 
-from ..routes import dataflow as dataflow_routes
-from ..utils import (
+from ...routes import dataflow as dataflow_routes
+from ...utils import (
     chunk_execution as ce,
     convert as ct,
 )
@@ -36,7 +36,7 @@ class DomoDataflow_History_Execution:
     telemetry: dict
     execution_stats: dict
 
-    action_results: List[DomoDataflow_ActionResult] = None
+    action_results: list[DomoDataflow_ActionResult] = None
 
     @classmethod
     def from_dict(cls, de_obj, auth: DomoAuth):
@@ -204,7 +204,7 @@ class DomoDataflow_History:
 
     dataflow: None = field(repr=False, default=None)
 
-    execution_history: List[DomoDataflow_History_Execution] = None
+    execution_history: list[DomoDataflow_History_Execution] = None
 
     async def get_execution_history(
         self,

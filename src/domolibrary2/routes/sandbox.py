@@ -7,7 +7,7 @@ __all__ = [
     "get_repo_from_id",
 ]
 
-from typing import List, Optional
+from typing import Optional
 
 import httpx
 
@@ -166,7 +166,7 @@ async def get_shared_repos(
         "shared": False,
     }
 
-    def arr_fn(res: rgd.ResponseGetData) -> List[dict]:
+    def arr_fn(res: rgd.ResponseGetData) -> list[dict]:
         return res.response["repositories"]
 
     offset_params = {"offset": "offset", "limit": "limit"}

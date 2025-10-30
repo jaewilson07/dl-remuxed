@@ -1,10 +1,11 @@
-"""
+r"""
 Test file generated from 50_DomoDatacenter.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
@@ -26,7 +27,7 @@ async def test_cell_1(token_auth=token_auth):
 
 async def test_cell_2(token_auth=token_auth):
     """Test case from cell 2"""
-    additional_filters_ls = [
+    [
         datacenter_routes.generate_search_datacenter_filter(
             "dataprovidername_facet", "Jupyter Data"
         )
@@ -38,7 +39,7 @@ async def test_cell_2(token_auth=token_auth):
         entity_type=datacenter_routes.Datacenter_Enum.DATASET.value,
     )
 
-    dataset_id = res[0]['databaseId']
+    res[0]['databaseId']
     pd.DataFrame(res[0:5])
 
 

@@ -11,7 +11,8 @@ Modules:
     convert: Data conversion utilities for various formats and types
     DictDot: Dot notation access for dictionaries
     files: File and folder operation utilities
-    Image: Image processing and manipulation utilities
+    images: Image processing and manipulation utilities
+    logging: Custom logging processors and utilities for domolibrary2
     read_creds_from_dotenv: Environment credential reading utilities
     upload_data: Data upload utilities (may require external dependencies)
     xkcd_password: Password generation utilities
@@ -44,10 +45,10 @@ from . import (
     convert,
     files,
     images,
+    logging,
     read_creds_from_dotenv,
     xkcd_password,
 )
-
 
 # Import legacy exception names from convert module for backwards compatibility
 from .convert import (
@@ -85,6 +86,7 @@ __all__ = [
     "DictDot",
     "files",
     "images",
+    "logging",
     "read_creds_from_dotenv",
     "xkcd_password",
 ]

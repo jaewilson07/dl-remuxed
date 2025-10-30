@@ -12,10 +12,10 @@ Or set environment variable:
 
 import argparse
 import os
-import requests
 from datetime import datetime
-from typing import List, Dict, Any
-import json
+from typing import Any, list
+
+import requests
 
 
 class GitHubPRCommentCapture:
@@ -31,14 +31,14 @@ class GitHubPRCommentCapture:
             "Accept": "application/vnd.github.v3+json",
         }
 
-    def get_pr_info(self, pr_number: int) -> Dict[str, Any]:
+    def get_pr_info(self, pr_number: int) -> dict[str, Any]:
         """Get basic PR information"""
         url = f"{self.base_url}/repos/{self.owner}/{self.repo}/pulls/{pr_number}"
         response = requests.get(url, headers=self.headers)
         response.raise_for_status()
         return response.json()
 
-    def get_pr_comments(self, pr_number: int) -> List[Dict[str, Any]]:
+    def get_pr_comments(self, pr_number: int) -> list[dict[str, Any]]:
         """Get all issue comments (general PR comments)"""
         url = f"{self.base_url}/repos/{self.owner}/{self.repo}/issues/{pr_number}/comments"
         comments = []
@@ -59,7 +59,7 @@ class GitHubPRCommentCapture:
 
         return comments
 
-    def get_review_comments(self, pr_number: int) -> List[Dict[str, Any]]:
+    def get_review_comments(self, pr_number: int) -> list[dict[str, Any]]:
         """Get all review comments (line-specific comments)"""
         url = (
             f"{self.base_url}/repos/{self.owner}/{self.repo}/pulls/{pr_number}/comments"
@@ -82,7 +82,7 @@ class GitHubPRCommentCapture:
 
         return comments
 
-    def get_reviews(self, pr_number: int) -> List[Dict[str, Any]]:
+    def get_reviews(self, pr_number: int) -> list[dict[str, Any]]:
         """Get all PR reviews"""
         url = (
             f"{self.base_url}/repos/{self.owner}/{self.repo}/pulls/{pr_number}/reviews"
@@ -237,7 +237,7 @@ class GitHubPRCommentCapture:
         markdown_lines.append("- [ ] Schedule implementation")
         markdown_lines.append("")
 
-        markdown_lines.append(f"---")
+        markdown_lines.append("---")
         markdown_lines.append(
             f"*Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*"
         )

@@ -18,12 +18,14 @@ __all__ = [
     "elevate_user_otp",
 ]
 
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 import httpx
+from dc_logger.decorators import LogDecoratorConfig, log_call
 
 from ..client import response as rgd
 from ..client.exceptions import AuthError, RouteError
+from ..utils.logging import ResponseGetDataProcessor
 
 
 class InvalidCredentialsError(RouteError):
@@ -55,7 +57,7 @@ class InvalidAuthTypeError(RouteError):
         self,
         res=None,
         required_auth_type: Optional[Any] = None,
-        required_auth_type_ls: Optional[List[Any]] = None,
+        required_auth_type_ls: Optional[list[Any]] = None,
         **kwargs,
     ):
         # Convert class types to strings
@@ -105,6 +107,10 @@ class NoAccessTokenReturned(RouteError):
         )
 
 
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def get_full_auth(
     domo_instance: str,  # domo_instance.domo.com
     domo_username: str,  # email address
@@ -202,6 +208,10 @@ async def get_full_auth(
     return res
 
 
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def get_developer_auth(
     domo_client_id: str,
     domo_client_secret: str,
@@ -271,6 +281,10 @@ async def get_developer_auth(
     return res
 
 
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def who_am_i(
     auth: Any,
     session: Optional[httpx.AsyncClient] = None,
@@ -315,6 +329,10 @@ async def who_am_i(
         return_raw=return_raw,
     )
 
+    if not res.is_success:
+        # The @log_call decorator will handle error logging automatically
+        pass
+
     if return_raw:
         # Type assertion for raw return
         return res  # type: ignore
@@ -336,6 +354,10 @@ async def who_am_i(
     return res
 
 
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def elevate_user_otp(
     auth: Any,
     one_time_password: str,

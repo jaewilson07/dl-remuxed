@@ -28,7 +28,7 @@ import datetime as dt
 import os
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Optional
+from typing import list
 
 import httpx
 
@@ -60,10 +60,10 @@ class DomoCodeEngine_ConfigError(ClassError):
     def __init__(
         self,
         cls_instance=None,
-        package_id: Optional[str] = None,
-        version: Optional[str] = None,
-        message: Optional[str] = None,
-        domo_instance: Optional[str] = None,
+        package_id: str | None = None,
+        version: str | None = None,
+        message: str | None = None,
+        domo_instance: str | None = None,
     ):
         full_message = f"version {version} | {message}" if version else message
         super().__init__(
@@ -77,10 +77,10 @@ class DomoCodeEngine_ConfigError(ClassError):
 @dataclass
 class DomoCodeEngine_PackageVersion(DomoSubEntity):
     """CodeEngine Package Version subentity.
-    
+
     Represents a specific version of a CodeEngine package with its code,
     configuration, and function definitions.
-    
+
     Attributes:
         auth: Authentication object
         package_id: ID of the parent package
@@ -97,38 +97,37 @@ class DomoCodeEngine_PackageVersion(DomoSubEntity):
         accounts_mapping: Account mapping configuration
         ml_model: ML model configuration
     """
-    
+
     auth: DomoAuth = field(repr=False)
     package_id: str
     version: str
-    
-    language: Optional[str] = None
-    description: Optional[str] = None
-    createdby_id: Optional[int] = None
-    released_dt: Optional[dt.datetime] = None
-    configuration: Optional[dict] = None
-    
-    createdby: Optional[dmdu.DomoUser] = None
-    accounts_mapping: Optional[List[int]] = None
-    ml_model: Optional[List[str]] = None
-    
-    code: Optional[str] = field(repr=False, default=None)
-    functions: Optional[dict] = None
-    
-    Manifest: Optional[CodeEngineManifest] = field(default=None)
 
-    def _set_configuration(self, configuration: Optional[dict] = None):
-        """Set and parse configuration details.
-        
-        Args:
-            configuration: Configuration dict to set (optional)
-            
-        Returns:
-            self for method chaining
-            
-        Raises:
-            DomoCodeEngine_ConfigError: If configuration is invalid
-        """
+    language: str | None = None
+    description: str | None = None
+    createdby_id: int | None = None
+    released_dt: dt.datetime | None = None
+    configuration: dict | None = None
+
+    createdby: dmdu.DomoUser | None = None
+    accounts_mapping: list[int] | None = None
+    ml_model: list[str] | None = None
+
+    code: str | None = field(repr=False, default=None)
+    functions: dict | None = None
+
+    Manifest: CodeEngineManifest | None = field(default=None)
+
+    createdby: dmdu.DomoUser | None = None
+    accounts_mapping: list[int] | None = None
+    ml_model: list[str] | None = None
+
+    code: str = field(repr=False, default=None)
+    # functions_ls: list[CodeEngineManifest_Function] = field(repr=False, default=None)
+    functions: dict = None
+
+    Manifest: CodeEngineManifest = field(default=None)
+
+    def _set_configuration(self, configuration=None):
         if configuration:
             self.configuration = configuration
 
@@ -145,24 +144,75 @@ class DomoCodeEngine_PackageVersion(DomoSubEntity):
 
         return self
 
+    # def set_functions(
+    #     self,
+    #     code: str = None,
+    #     functions: list[dict] = None,
+    #     language: str = None,
+    #     # function_parser_fn: Callable = None,  # must receive code string, function_ls, language
+    # ):
+    #     self.code = code or self.code
+
+    #     self.functions_ls = functions or self.functions_ls
+
+    #     self.language = language or self.language
+
+    #     if not self.code or not self.configuration or not self.language:
+    #         raise DomoCodeEngine_ConfigError(
+    #             cls_instance=self,
+    #             package_id=self.package_id,
+    #             version=self.version,
+    #             message="API did not return code, configuration or language -- unable to set functions",
+    #         )
+    # try:
+    # function_parser_fn = function_parser_fn or extract_functions
+
+    # functions_ls = function_parser_fn(
+    #     code=self.code,
+    #     function_ls=self.functions_ls,
+    #     language=self.language
+    # )
+
+    # self.functions = [
+    #     DomoCodeEngine_Function.from_dict(
+    #         obj,
+    #         is_private= obj.pop("is_private", False),
+    #         language=self.language,
+    #         package_id=self.package_id,
+    #         version=self.version,
+    #         code_raw=self.code,
+    #     )
+    #     for obj in functions_ls
+    # ]
+    # return functions
+
+    # except Exception as e:
+    #     print(e)
+    #     raise DomoCodeEngine_ConfigError(
+    #         package_id=self.package_id,
+    #         version=self.version,
+    #         message=e,
+    #         domo_instance=self.auth.domo_instance,
+    #     )
+
     @classmethod
     def from_dict(
         cls,
         auth: DomoAuth,
         obj: dict,
         package_id: str,
-        language: Optional[str] = None,
+        language: str | None = None,
         is_supress_error: bool = True,
     ):
         """Create DomoCodeEngine_PackageVersion from API response.
-        
+
         Args:
             auth: Authentication object
             obj: API response dictionary
             package_id: Parent package ID
             language: Programming language (optional, will use obj value if not provided)
             is_supress_error: Whether to suppress configuration errors
-            
+
         Returns:
             DomoCodeEngine_PackageVersion instance
         """
@@ -187,7 +237,7 @@ class DomoCodeEngine_PackageVersion(DomoSubEntity):
         if domo_version.configuration:
             try:
                 domo_version._set_configuration()
-            except DomoCodeEngine_ConfigError as e:
+            except DomoCodeEngine_ConfigError:
                 if not is_supress_error:
                     raise
 
@@ -199,15 +249,15 @@ class DomoCodeEngine_PackageVersion(DomoSubEntity):
         auth: DomoAuth,
         package_id: str,
         version: str,
-        language: Optional[str] = None,
-        params: Optional[dict] = None,
+        language: str | None = None,
+        params: dict | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         return_raw: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ):
         """Retrieve a specific package version.
-        
+
         Args:
             auth: Authentication object
             package_id: Package identifier
@@ -218,10 +268,10 @@ class DomoCodeEngine_PackageVersion(DomoSubEntity):
             debug_num_stacks_to_drop: Stack frames to drop in logging
             return_raw: If True, return raw API response
             session: Optional httpx session
-            
+
         Returns:
             DomoCodeEngine_PackageVersion instance or ResponseGetData if return_raw=True
-            
+
         Raises:
             CodeEngine_GET_Error: If version retrieval fails
         """
@@ -250,25 +300,23 @@ class DomoCodeEngine_PackageVersion(DomoSubEntity):
         if not isinstance(other, DomoCodeEngine_PackageVersion):
             return False
 
-        return (
-            self.version == other.version and self.package_id == other.package_id
-        )
+        return self.version == other.version and self.package_id == other.package_id
 
     async def download_source_code(
         self,
         download_folder: str = "./EXPORT/codeengine",
-        file_name: Optional[str] = None,
+        file_name: str | None = None,
         debug_api: bool = False,
         replace_folder: bool = False,
     ):
         """Download the source code for this version to a file.
-        
+
         Args:
             download_folder: Folder to save the code
             file_name: Optional file name (auto-generated if not provided)
             debug_api: Enable API debugging
             replace_folder: Whether to replace existing folder
-            
+
         Returns:
             Path to the downloaded file
         """
@@ -306,17 +354,17 @@ class DomoCodeEngine_PackageVersion(DomoSubEntity):
 
     def export(
         self,
-        file_name: Optional[str] = None,
+        file_name: str | None = None,
         output_folder: str = "EXPORT/code_engine/",
         debug_prn: bool = False,
     ):
         """Export the source code to a file.
-        
+
         Args:
             file_name: Optional file name (defaults to package_id)
             output_folder: Output folder path
             debug_prn: Enable debug printing
-            
+
         Returns:
             Path to the exported file
         """
@@ -345,10 +393,10 @@ class DomoCodeEngine_PackageVersion(DomoSubEntity):
 @dataclass
 class DomoCodeEngine_Package(DomoEntity):
     """Domo CodeEngine Package entity.
-    
+
     Represents a CodeEngine package with versions and associated metadata.
     Packages contain executable code functions that can be deployed in Domo.
-    
+
     Attributes:
         id: Unique package identifier
         auth: Authentication object
@@ -366,31 +414,22 @@ class DomoCodeEngine_Package(DomoEntity):
         versions: List of DomoCodeEngine_PackageVersion instances
         owner: DomoUser instance of the package owner
     """
-    
+
     # Required DomoEntity attributes
     id: str
-    auth: DomoAuth = field(repr=False)
-    raw: dict = field(default_factory=dict, repr=False)
-    
-    # Package-specific attributes
-    name: Optional[str] = None
-    description: Optional[str] = None
-    language: Optional[str] = None
-    environment: Optional[str] = None
-    availability: Optional[str] = None
-    owner_id: Optional[int] = None
-    created: Optional[dt.datetime] = None
-    last_modified: Optional[dt.datetime] = None
-    functions: List = field(default_factory=list)
-    
-    current_version: Optional[str] = None
-    versions: List["DomoCodeEngine_PackageVersion"] = field(default_factory=list)
-    owner: Optional[dmdu.DomoUser] = None
+    name: str
+    description: str
+    language: str
+    environment: str
+    availability: str
+    owner_id: int
+    created: dt.datetime
+    last_modified: dt.datetime
+    functions: list
 
-    @property
-    def display_url(self) -> str:
-        """Generate the URL to display this package in the Domo interface."""
-        return f"https://{self.auth.domo_instance}.domo.com/appstore/manage/codeengine/{self.id}"
+    current_version: str = None
+    versions: list[DomoCodeEngine_PackageVersion] = None
+    owner: list[dmdu.DomoUser] = None
 
     def __post_init__(self):
         """Initialize package and set current version."""
@@ -408,17 +447,17 @@ class DomoCodeEngine_Package(DomoEntity):
     @classmethod
     def from_dict(cls, auth: DomoAuth, obj: dict):
         """Create DomoCodeEngine_Package from API response dictionary.
-        
+
         Args:
             auth: Authentication object
             obj: API response dictionary
-            
+
         Returns:
             DomoCodeEngine_Package instance
         """
         package_id = str(obj.get("id"))
         language = obj.get("language")
-        
+
         # Parse versions if present
         versions = []
         if obj.get("versions"):
@@ -453,14 +492,14 @@ class DomoCodeEngine_Package(DomoEntity):
         cls,
         auth: DomoAuth,
         package_id: str,
-        params: Optional[dict] = None,
+        params: dict | None = None,
         return_raw: bool = False,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ):
         """Retrieve a CodeEngine package by ID.
-        
+
         Args:
             auth: Authentication object
             package_id: Package identifier
@@ -469,10 +508,10 @@ class DomoCodeEngine_Package(DomoEntity):
             debug_api: Enable API debugging
             debug_num_stacks_to_drop: Stack frames to drop in logging
             session: Optional httpx session
-            
+
         Returns:
             DomoCodeEngine_Package instance or ResponseGetData if return_raw=True
-            
+
         Raises:
             CodeEngine_GET_Error: If package retrieval fails
         """
@@ -485,7 +524,7 @@ class DomoCodeEngine_Package(DomoEntity):
             parent_class=cls.__name__,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         )
-        
+
         if return_raw:
             return res
 
@@ -501,18 +540,18 @@ class DomoCodeEngine_Package(DomoEntity):
         self,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ) -> "DomoCodeEngine_PackageVersion":
         """Get the current (latest) version of this package.
-        
+
         Args:
             debug_api: Enable API debugging
             debug_num_stacks_to_drop: Stack frames to drop in logging
             session: Optional httpx session
-            
+
         Returns:
             DomoCodeEngine_PackageVersion instance
-            
+
         Raises:
             DomoCodeEngine_ConfigError: If no current version found
         """
@@ -540,15 +579,15 @@ class DomoCodeEngine_Package(DomoEntity):
         self,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
-        session: Optional[httpx.AsyncClient] = None,
-    ) -> Optional[dmdu.DomoUser]:
+        session: httpx.AsyncClient | None = None,
+    ) -> dmdu.DomoUser | None:
         """Get the owner (user) of this package.
-        
+
         Args:
             debug_api: Enable API debugging
             debug_num_stacks_to_drop: Stack frames to drop in logging
             session: Optional httpx session
-            
+
         Returns:
             DomoUser instance or None if owner_id not set
         """
@@ -569,31 +608,31 @@ class DomoCodeEngine_Package(DomoEntity):
 @dataclass
 class DomoCodeEngine_Packages(DomoManager):
     """Manager class for CodeEngine package collections.
-    
+
     Provides methods to retrieve, search, and manage multiple CodeEngine packages.
-    
+
     Attributes:
         auth: Authentication object
     """
-    
+
     auth: DomoAuth = field(repr=False)
 
     async def get(
         self,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
-        session: Optional[httpx.AsyncClient] = None,
-    ) -> List[DomoCodeEngine_Package]:
+        session: httpx.AsyncClient | None = None,
+    ) -> list[DomoCodeEngine_Package]:
         """Get all CodeEngine packages.
-        
+
         Args:
             debug_api: Enable API debugging
             debug_num_stacks_to_drop: Stack frames to drop in logging
             session: Optional httpx session
-            
+
         Returns:
             List of DomoCodeEngine_Package instances
-            
+
         Raises:
             CodeEngine_GET_Error: If package retrieval fails
         """
@@ -615,19 +654,19 @@ class DomoCodeEngine_Packages(DomoManager):
         name: str,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
-        session: Optional[httpx.AsyncClient] = None,
-    ) -> List[DomoCodeEngine_Package]:
+        session: httpx.AsyncClient | None = None,
+    ) -> list[DomoCodeEngine_Package]:
         """Search for packages by name.
-        
+
         Args:
             name: Package name to search for (case-insensitive partial match)
             debug_api: Enable API debugging
             debug_num_stacks_to_drop: Stack frames to drop in logging
             session: Optional httpx session
-            
+
         Returns:
             List of matching DomoCodeEngine_Package instances
-            
+
         Raises:
             SearchCodeEngine_NotFound: If no packages match the search
         """
@@ -638,9 +677,7 @@ class DomoCodeEngine_Packages(DomoManager):
         )
 
         matches = [
-            pkg
-            for pkg in all_packages
-            if name.lower() in (pkg.name or "").lower()
+            pkg for pkg in all_packages if name.lower() in (pkg.name or "").lower()
         ]
 
         if not matches:
@@ -653,27 +690,27 @@ class DomoCodeEngine_Packages(DomoManager):
 
 class CodeEngine_PackageAnalyzer:
     """Utility class for bidirectional Python <-> CodeEngine package conversion.
-    
+
     This class provides tools to:
     - Parse Python files into CodeEngine-compatible format
     - Convert CodeEngine packages back to Python files
     - Validate package manifests
     - Deploy new versions from Python code
-    
+
     Future Implementation:
         - from_python_file(): Parse .py file into CodeEngine manifest
         - to_python_file(): Export CodeEngine package as formatted .py
         - validate_manifest(): Validate package structure
         - deploy_version(): Deploy new version from Python file
     """
-    
+
     def __init__(self, auth: DomoAuth):
         """Initialize the analyzer.
-        
+
         Args:
             auth: Authentication object for API calls
         """
         self.auth = auth
-    
+
     # TODO: Implement analyzer methods in Phase 3
     # See Manifest_Function.py for existing AST parsing logic to integrate

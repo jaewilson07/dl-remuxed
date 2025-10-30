@@ -41,9 +41,7 @@ from typing import Union
 
 import numpy as np
 import PIL
-
 from PIL import Image
-
 
 from .exceptions import ImageProcessingError
 

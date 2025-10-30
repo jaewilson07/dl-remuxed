@@ -29,9 +29,10 @@ __all__ = [
 ]
 
 import asyncio
-from typing import Optional, List
+from typing import Optional
 
 import httpx
+from dc_logger.decorators import LogDecoratorConfig, log_call
 
 from ...client import (
     get_data as gd,
@@ -42,6 +43,7 @@ from ...utils import (
     chunk_execution as dmce,
 )
 from ...utils.convert import test_valid_email
+from ...utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 from .exceptions import (
     DeleteUser_Error,
     SearchUser_NotFound,
@@ -70,6 +72,13 @@ def process_v1_search_users(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def get_all_users(
     auth: DomoAuth,
     session: Optional[httpx.AsyncClient] = None,
@@ -124,6 +133,13 @@ async def get_all_users(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def search_users(
     auth: DomoAuth,
     body: dict,
@@ -169,7 +185,7 @@ async def search_users(
         return {**body, "limit": limit, "offset": skip}
 
     def arr_fn(res: rgd.ResponseGetData):
-        return res.response.get("users")
+        return res.response.get("users") if isinstance(res.response, dict) else []
 
     res = await gd.looper(
         auth=auth,
@@ -205,6 +221,13 @@ async def search_users(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def search_users_by_id(
     user_ids: list[str],  # list of user ids to search
     auth: DomoAuth,
@@ -218,7 +241,7 @@ async def search_users_by_id(
     """Search for users by their IDs using the v1 users search API.
 
     Args:
-        user_ids: List of user IDs to search for
+        user_ids: list of user IDs to search for
         auth: Authentication object
         debug_api: Enable API debugging
         return_raw: Return raw API response without processing
@@ -279,7 +302,7 @@ async def search_users_by_id(
     )
 
     if return_raw:
-        return res_ls
+        return res_ls[-1]
 
     res = res_ls[-1]
 
@@ -289,6 +312,13 @@ async def search_users_by_id(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def search_users_by_email(
     user_email_ls: list[
         str
@@ -299,12 +329,12 @@ async def search_users_by_email(
     suppress_no_results_error: bool = False,
     debug_num_stacks_to_drop=2,
     parent_class=None,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
 ) -> rgd.ResponseGetData:  # ResponseGetData with user list
     """Search for users by their email addresses using the v1 users search API.
 
     Args:
-        user_email_ls: List of user email addresses to search for
+        user_email_ls: list of user email addresses to search for
         auth: Authentication object
         debug_api: Enable API debugging
         return_raw: Return raw API response without processing
@@ -370,7 +400,7 @@ async def search_users_by_email(
     )
 
     if return_raw:
-        return res_ls
+        return res_ls[-1]
 
     res = res_ls[-1]
 
@@ -384,7 +414,7 @@ async def _get_by_id(
     auth: DomoAuth,
     debug_api: bool = False,
     return_raw: bool = False,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_num_stacks_to_drop=1,
     parent_class=None,
 ):
@@ -458,22 +488,33 @@ async def _get_by_id(
         raise User_GET_Error(res=res_v3)
 
     detail = {
-        **res_v3.response.pop("detail"),
+        **(res_v3.response.pop("detail") if isinstance(res_v3.response, dict) else {}),
         # **res_v2.response.pop('detail')
     }
 
-    res_v2.response = {**res_v2.response, **res_v3.response, **detail}
+    res_v2.response = {
+        **res_v2.response,
+        **(res_v3.response if isinstance(res_v3.response, dict) else {}),
+        **detail,
+    }
 
     return res_v2
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def get_by_id(
     user_id,
     auth: DomoAuth,
     debug_api: bool = False,
     return_raw: bool = False,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_num_stacks_to_drop=1,
     parent_class=None,
     is_v2: bool = True,
@@ -527,20 +568,27 @@ async def get_by_id(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def search_virtual_user_by_subscriber_instance(
     auth: DomoAuth,  # domo auth object
     subscriber_instance_ls: list[str],  # list of subscriber domo instances
     debug_api: bool = False,  # debug API requests
     debug_num_stacks_to_drop: int = 1,
-    parent_class: str = None,
-    session: httpx.AsyncClient = None,
+    parent_class: Optional[str] = None,
+    session: Optional[httpx.AsyncClient] = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:  # list of virtual domo users
     """Retrieve virtual users for subscriber instances tied to one publisher.
 
     Args:
         auth: Authentication object for the publisher instance
-        subscriber_instance_ls: List of subscriber Domo instance names
+        subscriber_instance_ls: list of subscriber Domo instance names
         debug_api: Enable API debugging
         debug_num_stacks_to_drop: Stack frames to drop for debugging
         parent_class: Name of calling class for debugging
@@ -584,15 +632,22 @@ async def search_virtual_user_by_subscriber_instance(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def create_user(
     auth: DomoAuth,
     display_name: str,
     email_address: str,
     role_id: int,
     debug_api: bool = False,
-    session: httpx.AsyncClient = None,
+    session: Optional[httpx.AsyncClient] = None,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: str = None,
+    parent_class: Optional[str] = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Create a new user in the Domo instance.
@@ -654,13 +709,20 @@ async def create_user(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def delete_user(
     auth: DomoAuth,
     user_id: str,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
-    parent_class: str = None,
-    session: httpx.AsyncClient = None,
+    parent_class: Optional[str] = None,
+    session: Optional[httpx.AsyncClient] = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Delete a user from the Domo instance.
@@ -707,19 +769,19 @@ async def delete_user(
 @gd.route_function
 async def toggle_is_enable_user_direct_signon(
     auth: DomoAuth,
-    user_ids: List[str],
+    user_ids: list[str],
     is_allow_dso: bool = True,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
-    parent_class: str = None,
-    session: httpx.AsyncClient = None,
+    parent_class: Optional[str] = None,
+    session: Optional[httpx.AsyncClient] = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Manage direct sign-on permissions for users.
 
     Args:
         auth: Authentication object
-        user_ids: List of user IDs to modify
+        user_ids: list of user IDs to modify
         is_allow_dso: Whether to allow direct sign-on (default: True)
         debug_api: Enable API debugging
         debug_num_stacks_to_drop: Stack frames to drop for debugging

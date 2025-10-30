@@ -35,7 +35,7 @@ __all__ = [
 import datetime as dt
 import re
 from enum import Enum
-from typing import List, Optional
+from typing import Optional
 
 import httpx
 
@@ -113,7 +113,7 @@ def generate_create_user_attribute_body(
 async def get_user_attributes(
     auth: DomoAuth,
     issuer_type_ls: Optional[
-        List[UserAttributes_IssuerType]
+        list[UserAttributes_IssuerType]
     ] = None,  # use `UserAttributes_IssuerType` enum
     session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
@@ -129,7 +129,7 @@ async def get_user_attributes(
 
     Args:
         auth: Authentication object
-        issuer_type_ls: List of issuer types to retrieve (default: all types)
+        issuer_type_ls: list of issuer types to retrieve (default: all types)
         session: HTTP client session (optional)
         debug_api: Enable API debugging
         parent_class: Name of calling class for debugging

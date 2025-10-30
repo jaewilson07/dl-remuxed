@@ -2,12 +2,12 @@
 
 __all__ = ["share_domo_account_with_domo_group"]
 
-from typing import List
 
 from ..classes import (
     DomoAccount as dmacc,
     DomoGroup as dmdg,
 )
+from ..client.auth import DomoAuth
 
 
 async def share_domo_account_with_domo_group(
@@ -16,7 +16,7 @@ async def share_domo_account_with_domo_group(
     group_name: str,
     is_upsert_group: bool = False,  # will not attempt to upsert group
     group_description: str = None,
-    group_owner_names: List[str] = None,  # will default to ["Role: Admin"]
+    group_owner_names: list[str] = None,  # will default to ["Role: Admin"]
     group_type: dmdg.GroupType_Enum = dmdg.GroupType_Enum["CLOSED"].value,
     is_search_system_accounts: bool = True,  # will default to True if no group_owner_name
 ):

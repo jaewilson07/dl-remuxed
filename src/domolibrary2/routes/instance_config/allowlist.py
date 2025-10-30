@@ -1,15 +1,16 @@
 __all__ = [
     "Config_GET_Error",
     "get_allowlist",
-    "Allowlist_UnableToUpdate",
+    "AllowlistUnableToUpdate",
     "set_allowlist",
     "get_allowlist_is_filter_all_traffic_enabled",
     "toggle_allowlist_is_filter_all_traffic_enabled",
 ]
 
 
+from typing import Optional
+
 import httpx
-from typing import Optional, List
 
 from ...client import (
     auth as dmda,
@@ -22,7 +23,7 @@ from ...utils.convert import convert_string_to_bool
 from .exceptions import Config_GET_Error
 
 
-class Allowlist_UnableToUpdate(dmde.RouteError):
+class AllowlistUnableToUpdate(dmde.RouteError):
     def __init__(self, res: rgd.ResponseGetData, reason: str = "", message: str = ""):
         if reason:
             reason_str = f"unable to update allowlist: {reason}"
@@ -77,7 +78,7 @@ async def get_allowlist(
 @gd.route_function
 async def set_allowlist(
     auth: DomoAuth,
-    ip_address_ls: List[str],
+    ip_address_ls: list[str],
     debug_api: bool = False,
     return_raw: bool = False,
     session: Optional[httpx.AsyncClient] = None,
@@ -106,7 +107,7 @@ async def set_allowlist(
         return res
 
     if not res.is_success:
-        raise Allowlist_UnableToUpdate(res=res, reason=str(res.response))
+        raise AllowlistUnableToUpdate(res=res, reason=str(res.response))
 
     return res
 
@@ -194,7 +195,7 @@ async def toggle_allowlist_is_filter_all_traffic_enabled(
     )
 
     if not res.is_success:
-        raise Allowlist_UnableToUpdate(res=res, reason=str(res.response))
+        raise AllowlistUnableToUpdate(res=res, reason=str(res.response))
 
     if return_raw:
         return res

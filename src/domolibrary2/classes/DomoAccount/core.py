@@ -2,7 +2,7 @@ __all__ = ["DomoAccount", "DomoAccounts_NoAccount", "DomoAccounts"]
 
 
 from dataclasses import dataclass
-from typing import List
+from typing import list
 
 import httpx
 
@@ -21,6 +21,13 @@ from .account_default import (
 )
 from .account_oauth import DomoAccount_OAuth
 from .config import AccountConfig
+
+
+class DomoAccounts_NoAccount(dmde.ClassError):
+    def __init__(self, cls=None, cls_instance=None, message=None, domo_instance=None):
+        super().__init__(
+            cls=cls, cls_instance=cls_instance, message=message, entity_id=domo_instance
+        )
 
 
 @dataclass
@@ -52,17 +59,10 @@ class DomoAccount(DomoAccount_Default):
         )
 
 
-class DomoAccounts_NoAccount(dmde.ClassError):
-    def __init__(self, cls=None, cls_instance=None, message=None, domo_instance=None):
-        super().__init__(
-            cls=cls, cls_instance=cls_instance, message=message, entity_id=domo_instance
-        )
-
-
 @dataclass
 class DomoAccounts(DomoManager):
-    accounts: List[DomoAccount] = None
-    oauths: List[DomoAccount_OAuth] = None
+    accounts: list[DomoAccount] = None
+    oauths: list[DomoAccount_OAuth] = None
 
     async def get_accounts_accountsapi(
         self,
