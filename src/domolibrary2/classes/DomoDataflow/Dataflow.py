@@ -53,11 +53,7 @@ class DomoDataflow(DomoEntity_w_Lineage):
         self.Lineage = dmdl.DomoLineage.from_parent(auth=self.auth, parent=self)
         
         # Initialize Schedule from raw data if schedule information is present
-        if self.raw and any(
-            key in self.raw
-            for key in ["scheduleExpression", "scheduleStartDate", "advancedScheduleJson"]
-        ):
-            self.Schedule = dmsch.DomoSchedule.from_dict(self.raw)
+        self.Schedule = self._initialize_schedule_from_raw()
 
     @classmethod
     def from_dict(cls, obj, auth, version_id=None, version_number=None):

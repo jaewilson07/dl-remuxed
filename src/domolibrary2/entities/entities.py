@@ -187,6 +187,29 @@ class DomoEntity_w_Lineage(DomoEntity):
         # Using protected method until public interface is available
         self.Lineage = DomoLineage.from_parent(auth=self.auth, parent=self)
 
+    def _initialize_schedule_from_raw(self):
+        """Initialize Schedule from raw API data if schedule information is present.
+        
+        This helper method checks for schedule-related fields in the raw API response
+        and creates a DomoSchedule instance if any are found. The DomoSchedule factory
+        method automatically determines the appropriate schedule type (Simple, Cron, 
+        or Advanced).
+        
+        This method should be called from subclass __post_init__ after setting self.raw.
+        
+        Returns:
+            Optional[DomoSchedule]: Schedule instance if schedule data exists, None otherwise
+        """
+        from ..classes.subentity.schedule import DomoSchedule
+        
+        if self.raw and any(
+            key in self.raw
+            for key in ["scheduleExpression", "scheduleStartDate", "advancedScheduleJson"]
+        ):
+            return DomoSchedule.from_dict(self.raw)
+        
+        return None
+
 
 @dataclass
 class DomoManager(DomoBase):

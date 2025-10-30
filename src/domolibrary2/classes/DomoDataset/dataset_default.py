@@ -114,11 +114,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):
         self.Relations = None
         
         # Initialize Schedule from raw data if schedule information is present
-        if self.raw and any(
-            key in self.raw
-            for key in ["scheduleExpression", "scheduleStartDate", "advancedScheduleJson"]
-        ):
-            self.Schedule = dmsch.DomoSchedule.from_dict(self.raw)
+        self.Schedule = self._initialize_schedule_from_raw()
 
     def display_url(self) -> str:
         return f"https://{self.auth.domo_instance}.domo.com/datasources/{self.id}/details/overview"
