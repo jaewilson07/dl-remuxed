@@ -37,7 +37,7 @@ __all__ = [
 ]
 
 from enum import Enum
-from typing import List, Optional
+from typing import Optional
 
 import httpx
 
@@ -140,7 +140,7 @@ class Search_BeastModeLink(DomoEnumMixin, Enum):
 
 def generate_beastmode_body(
     name: str = None,
-    filters: List[dict] = None,
+    filters: list[dict] = None,
     is_unlocked: bool = None,
     is_not_variable: bool = None,
     link: Search_BeastModeLink = None,
@@ -161,7 +161,7 @@ def generate_beastmode_body(
 @gd.route_function
 async def search_beastmodes(
     auth: DomoAuth,
-    filters: Optional[List[dict]] = None,
+    filters: Optional[list[dict]] = None,
     session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -374,7 +374,7 @@ async def get_card_beastmodes(
     session: Optional[httpx.AsyncClient] = None,
     debug_num_stacks_to_drop: int = 2,
     return_raw: bool = False,
-) -> List[dict]:
+) -> list[dict]:
     """
     Get BeastModes associated with a specific card.
 
@@ -391,7 +391,7 @@ async def get_card_beastmodes(
         return_raw: Return raw API response without filtering
 
     Returns:
-        List of BeastMode dictionaries containing id, name, locked status,
+        list of BeastMode dictionaries containing id, name, locked status,
         legacyId, status, and links
 
     Example:

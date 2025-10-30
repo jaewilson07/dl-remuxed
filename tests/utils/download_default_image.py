@@ -3,7 +3,6 @@ import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.utils.Image import Image
 
 
 def download_default_image(output_path="./default_image.png"):
@@ -13,8 +12,8 @@ def download_default_image(output_path="./default_image.png"):
     Args:
         output_path (str): The file path where the image will be saved. Defaults to './default_image.png'.
     """
-    from src.classes.DomoUser import domo_default_img, DomoUser
     import src.client.auth as dmda
+    from src.classes.DomoUser import domo_default_img
 
     auth = dmda.DomoTokenAuth(
         domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],

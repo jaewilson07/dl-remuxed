@@ -11,10 +11,9 @@ __all__ = [
 ]
 
 from enum import Enum
-from typing import List, Union
 
 import httpx
-from dc_logger.decorators import log_call, LogDecoratorConfig
+from dc_logger.decorators import LogDecoratorConfig, log_call
 
 from ..client import (
     exceptions as de,
@@ -23,15 +22,15 @@ from ..client import (
 )
 from ..client.auth import DomoAuth
 from ..entities.base import DomoEnumMixin
-from ..utils.logging import DomoEntityExtractor, DomoEntityResultProcessor, NoOpEntityExtractor
+from ..utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 
 
-class Cards_API_Exception(de.DomoError):
+class Cards_API_Exception(de.DomoError):  # noqa: N801
     def __init__(self, res, message=None):
         super().__init__(res=res, message=message)
 
 
-class CardSearch_NotFoundError(de.DomoError):
+class CardSearch_NotFoundError(de.DomoError):  # noqa: N801
     def __init__(
         self,
         card_id,
@@ -55,8 +54,8 @@ class CardSearch_NotFoundError(de.DomoError):
     level_name="route",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 async def get_card_by_id(
     card_id,
@@ -99,8 +98,8 @@ async def get_card_by_id(
     level_name="route",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 async def get_kpi_definition(
     auth: DomoAuth,
@@ -136,7 +135,7 @@ async def get_kpi_definition(
     return res
 
 
-class Card_OptionalParts_Enum(DomoEnumMixin, Enum):
+class Card_OptionalParts_Enum(DomoEnumMixin, Enum):  # noqa: N801
     CERTIFICATION = "certification"
     DATASOURCES = "datasources"
     DOMOAPP = "domoapp"
@@ -153,8 +152,8 @@ class Card_OptionalParts_Enum(DomoEnumMixin, Enum):
     level_name="route",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 async def get_card_metadata(
     auth: DomoAuth,
@@ -163,9 +162,9 @@ async def get_card_metadata(
     session: httpx.AsyncClient = None,
     parent_class: str = None,
     debug_num_stacks_to_drop=1,
-    optional_parts: Union[
-        List[Card_OptionalParts_Enum], str
-    ] = "metadata,certification,datasources,owners,problems,domoapp",
+    optional_parts: (
+        list[Card_OptionalParts_Enum] | str
+    ) = "metadata,certification,datasources,owners,problems,domoapp",
 ) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/cards"
 
@@ -209,7 +208,7 @@ def generate_body_search_cards_only_apps_filter():
 
 
 def generate_body_search_cards_admin_summary(
-    page_ids: List[str] = None,
+    page_ids: list[str] = None,
     #  searchPages: bool = True,
     card_search_text: str = None,
     page_search_text: str = None,
@@ -241,8 +240,8 @@ def generate_body_search_cards_admin_summary(
     level_name="route",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 async def search_cards_admin_summary(
     auth: DomoAuth,

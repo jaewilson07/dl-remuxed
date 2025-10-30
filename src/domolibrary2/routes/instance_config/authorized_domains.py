@@ -7,7 +7,7 @@ __all__ = [
     "set_authorized_custom_app_domains",
 ]
 
-from typing import List, Optional
+from typing import Optional, list
 
 import httpx
 
@@ -78,7 +78,7 @@ async def get_authorized_domains(
 @gd.route_function
 async def set_authorized_domains(
     auth: DomoAuth,
-    authorized_domain_ls: List[str],
+    authorized_domain_ls: list[str],
     debug_api: bool = False,
     session: Optional[httpx.AsyncClient] = None,
     parent_class=None,
@@ -159,7 +159,7 @@ async def get_authorized_custom_app_domains(
 @gd.route_function
 async def set_authorized_custom_app_domains(
     auth: DomoAuth,
-    authorized_custom_app_domain_ls: List[str],
+    authorized_custom_app_domain_ls: list[str],
     debug_api: bool = False,
     session: Optional[httpx.AsyncClient] = None,
     parent_class=None,

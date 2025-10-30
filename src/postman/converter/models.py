@@ -1,6 +1,6 @@
 import json
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union, list
 
 
 @dataclass
@@ -22,7 +22,7 @@ class PostmanRequest_Header:
     type: Optional[str] = None
 
     @classmethod
-    def from_dict(cls, header_data: Dict[str, Any]) -> "PostmanRequest_Header":
+    def from_dict(cls, header_data: dict[str, Any]) -> "PostmanRequest_Header":
         """Create a PostmanRequest_Header from header data.
 
         Args:
@@ -39,7 +39,7 @@ class PostmanRequest_Header:
             type=header_data.get("type"),
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary representation."""
         result = {"key": self.key, "value": self.value}
         if self.disabled:
@@ -68,7 +68,7 @@ class PostmanQueryParam:
     description: Optional[str] = None
 
     @classmethod
-    def from_dict(cls, param_data: Dict[str, Any]) -> "PostmanQueryParam":
+    def from_dict(cls, param_data: dict[str, Any]) -> "PostmanQueryParam":
         """Create a PostmanQueryParam from parameter data.
 
         Args:
@@ -84,7 +84,7 @@ class PostmanQueryParam:
             description=param_data.get("description"),
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary representation."""
         result = {"key": self.key, "value": self.value}
         if self.disabled:
@@ -109,7 +109,7 @@ class PostmanVariable:
     type: str = "string"
 
     @classmethod
-    def from_dict(cls, var_data: Dict[str, Any]) -> "PostmanVariable":
+    def from_dict(cls, var_data: dict[str, Any]) -> "PostmanVariable":
         """Create a PostmanVariable from variable data."""
         return cls(
             key=var_data["key"],
@@ -117,7 +117,7 @@ class PostmanVariable:
             type=var_data.get("type", "string"),
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary representation."""
         result = {"key": self.key, "value": self.value}
         if self.type != "string":
@@ -131,21 +131,21 @@ class PostmanScript:
 
     Attributes:
         type (str): Script type (e.g., 'text/javascript')
-        exec (List[str]): List of script lines
+        exec (list[str]): list of script lines
     """
 
     type: str = "text/javascript"
-    exec: List[str] = field(default_factory=list)
+    exec: list[str] = field(default_factory=list)
 
     @classmethod
-    def from_dict(cls, script_data: Dict[str, Any]) -> "PostmanScript":
+    def from_dict(cls, script_data: dict[str, Any]) -> "PostmanScript":
         """Create a PostmanScript from script data."""
         return cls(
             type=script_data.get("type", "text/javascript"),
             exec=script_data.get("exec", []),
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary representation."""
         return {"type": self.type, "exec": self.exec}
 
@@ -163,14 +163,14 @@ class PostmanEvent:
     script: PostmanScript
 
     @classmethod
-    def from_dict(cls, event_data: Dict[str, Any]) -> "PostmanEvent":
+    def from_dict(cls, event_data: dict[str, Any]) -> "PostmanEvent":
         """Create a PostmanEvent from event data."""
         return cls(
             listen=event_data["listen"],
             script=PostmanScript.from_dict(event_data.get("script", {})),
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary representation."""
         return {"listen": self.listen, "script": self.script.to_dict()}
 
@@ -181,18 +181,18 @@ class PostmanAuth:
 
     Attributes:
         type (str): Authentication type (e.g., 'bearer', 'basic', 'apikey')
-        bearer (List[Dict]): Bearer token configuration
-        basic (List[Dict]): Basic auth configuration
-        apikey (List[Dict]): API key configuration
+        bearer (list[Dict]): Bearer token configuration
+        basic (list[Dict]): Basic auth configuration
+        apikey (list[Dict]): API key configuration
     """
 
     type: Optional[str] = None
-    bearer: Optional[List[Dict[str, Any]]] = None
-    basic: Optional[List[Dict[str, Any]]] = None
-    apikey: Optional[List[Dict[str, Any]]] = None
+    bearer: Optional[list[dict[str, Any]]] = None
+    basic: Optional[list[dict[str, Any]]] = None
+    apikey: Optional[list[dict[str, Any]]] = None
 
     @classmethod
-    def from_dict(cls, auth_data: Optional[Dict[str, Any]]) -> Optional["PostmanAuth"]:
+    def from_dict(cls, auth_data: Optional[dict[str, Any]]) -> Optional["PostmanAuth"]:
         """Create a PostmanAuth from auth data."""
         if not auth_data:
             return None
@@ -204,7 +204,7 @@ class PostmanAuth:
             apikey=auth_data.get("apikey"),
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary representation."""
         result = {}
         if self.type:
@@ -225,21 +225,21 @@ class PostmanUrl:
     Attributes:
         raw (str): The complete URL as a string
         protocol (str): The protocol (e.g., 'http', 'https')
-        host (List[str]): The host components (e.g., ['api', 'example', 'com'])
-        path (List[str]): The path components
-        query (Optional[List[PostmanQueryParam]]): List of query parameters, if any
-        variable (Optional[List[PostmanVariable]]): List of URL variables
+        host (list[str]): The host components (e.g., ['api', 'example', 'com'])
+        path (list[str]): The path components
+        query (Optional[list[PostmanQueryParam]]): list of query parameters, if any
+        variable (Optional[list[PostmanVariable]]): list of URL variables
     """
 
     raw: str
     protocol: Optional[str] = None
-    host: Optional[List[str]] = None
-    path: Optional[List[str]] = None
-    query: Optional[List[PostmanQueryParam]] = None
-    variable: Optional[List[PostmanVariable]] = None
+    host: Optional[list[str]] = None
+    path: Optional[list[str]] = None
+    query: Optional[list[PostmanQueryParam]] = None
+    variable: Optional[list[PostmanVariable]] = None
 
     @classmethod
-    def from_dict(cls, url_data: Dict[str, Any]) -> "PostmanUrl":
+    def from_dict(cls, url_data: dict[str, Any]) -> "PostmanUrl":
         """Create a PostmanUrl from URL data.
 
         Args:
@@ -265,7 +265,7 @@ class PostmanUrl:
             ),
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary representation."""
         result = {"raw": self.raw}
         if self.protocol:
@@ -289,19 +289,19 @@ class PostmanRequest_Body:
         mode (str): The mode of the body (e.g., 'raw', 'formdata', 'urlencoded')
         raw (str): The actual content of the body
         options (Dict): Body options (e.g., raw language settings)
-        formdata (List): Form data fields
-        urlencoded (List): URL encoded fields
+        formdata (list): Form data fields
+        urlencoded (list): URL encoded fields
     """
 
     mode: str
     raw: Optional[str] = None
-    options: Optional[Dict[str, Any]] = None
-    formdata: Optional[List[Dict[str, Any]]] = None
-    urlencoded: Optional[List[Dict[str, Any]]] = None
+    options: Optional[dict[str, Any]] = None
+    formdata: Optional[list[dict[str, Any]]] = None
+    urlencoded: Optional[list[dict[str, Any]]] = None
 
     @classmethod
     def from_dict(
-        cls, body_data: Optional[Dict[str, Any]]
+        cls, body_data: Optional[dict[str, Any]]
     ) -> Optional["PostmanRequest_Body"]:
         """Create a PostmanRequest_Body from body data.
 
@@ -321,7 +321,7 @@ class PostmanRequest_Body:
             urlencoded=body_data.get("urlencoded"),
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary representation."""
         result = {"mode": self.mode}
         if self.raw:
@@ -344,23 +344,23 @@ class PostmanResponse:
         originalRequest (Dict): The original request that generated this response
         status (str): HTTP status text (e.g., 'OK')
         code (int): HTTP status code (e.g., 200)
-        header (List[PostmanRequest_Header]): Response headers
-        cookie (List): Response cookies
+        header (list[PostmanRequest_Header]): Response headers
+        cookie (list): Response cookies
         body (str): Response body content
         _postman_previewlanguage (str): Preview language (e.g., 'json', 'html')
     """
 
     name: Optional[str] = None
-    originalRequest: Optional[Dict[str, Any]] = None
+    originalRequest: Optional[dict[str, Any]] = None
     status: Optional[str] = None
     code: Optional[int] = None
-    header: Optional[List[PostmanRequest_Header]] = None
-    cookie: Optional[List[Dict[str, Any]]] = None
+    header: Optional[list[PostmanRequest_Header]] = None
+    cookie: Optional[list[dict[str, Any]]] = None
     body: Optional[str] = None
     _postman_previewlanguage: Optional[str] = None
 
     @classmethod
-    def from_dict(cls, response_data: Dict[str, Any]) -> "PostmanResponse":
+    def from_dict(cls, response_data: dict[str, Any]) -> "PostmanResponse":
         """Create a PostmanResponse from response data."""
         headers = None
         if response_data.get("header"):
@@ -379,7 +379,7 @@ class PostmanResponse:
             _postman_previewlanguage=response_data.get("_postman_previewlanguage"),
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary representation."""
         result = {}
         if self.name:
@@ -411,29 +411,29 @@ class PostmanRequest:
     Attributes:
         name (str): The name of the request
         method (str): The HTTP method (e.g., 'GET', 'POST', 'PUT')
-        header (List[PostmanRequest_Header]): List of HTTP headers
+        header (list[PostmanRequest_Header]): list of HTTP headers
         url (PostmanUrl): The request URL
         body (Optional[PostmanRequest_Body]): The request body, if any
-        response (List[PostmanResponse]): List of example responses
+        response (list[PostmanResponse]): list of example responses
         auth (Optional[PostmanAuth]): Authentication configuration
-        event (Optional[List[PostmanEvent]]): Request-level events
+        event (Optional[list[PostmanEvent]]): Request-level events
         description (Optional[str]): Request description
-        variable (Optional[List[PostmanVariable]]): Request-level variables
+        variable (Optional[list[PostmanVariable]]): Request-level variables
     """
 
     name: str
     method: str
-    header: List[PostmanRequest_Header]
+    header: list[PostmanRequest_Header]
     url: PostmanUrl
     body: Optional[PostmanRequest_Body] = None
-    response: List[PostmanResponse] = field(default_factory=list)
+    response: list[PostmanResponse] = field(default_factory=list)
     auth: Optional[PostmanAuth] = None
-    event: Optional[List[PostmanEvent]] = None
+    event: Optional[list[PostmanEvent]] = None
     description: Optional[str] = None
-    variable: Optional[List[PostmanVariable]] = None
+    variable: Optional[list[PostmanVariable]] = None
 
     @classmethod
-    def from_dict(cls, item_data: Dict[str, Any]) -> "PostmanRequest":
+    def from_dict(cls, item_data: dict[str, Any]) -> "PostmanRequest":
         """Create a PostmanRequest from item data.
 
         Args:
@@ -475,7 +475,7 @@ class PostmanRequest:
             variable=variables,
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary representation for validation."""
         request_data = {
             "method": self.method,
@@ -508,22 +508,22 @@ class PostmanFolder:
 
     Attributes:
         name (str): Name of the folder
-        item (List[Union['PostmanFolder', 'PostmanRequest']]): Items in the folder
+        item (list[Union['PostmanFolder', 'PostmanRequest']]): Items in the folder
         description (Optional[str]): Folder description
         auth (Optional[PostmanAuth]): Folder-level authentication
-        event (Optional[List[PostmanEvent]]): Folder-level events
-        variable (Optional[List[PostmanVariable]]): Folder-level variables
+        event (Optional[list[PostmanEvent]]): Folder-level events
+        variable (Optional[list[PostmanVariable]]): Folder-level variables
     """
 
     name: str
-    item: List[Union["PostmanFolder", "PostmanRequest"]] = field(default_factory=list)
+    item: list[Union["PostmanFolder", "PostmanRequest"]] = field(default_factory=list)
     description: Optional[str] = None
     auth: Optional[PostmanAuth] = None
-    event: Optional[List[PostmanEvent]] = None
-    variable: Optional[List[PostmanVariable]] = None
+    event: Optional[list[PostmanEvent]] = None
+    variable: Optional[list[PostmanVariable]] = None
 
     @classmethod
-    def from_dict(cls, folder_data: Dict[str, Any]) -> "PostmanFolder":
+    def from_dict(cls, folder_data: dict[str, Any]) -> "PostmanFolder":
         """Create a PostmanFolder from folder data."""
         items = []
         for item_data in folder_data.get("item", []):
@@ -549,7 +549,7 @@ class PostmanFolder:
             variable=variables,
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary representation."""
         result = {"name": self.name, "item": [item.to_dict() for item in self.item]}
 
@@ -564,7 +564,7 @@ class PostmanFolder:
 
         return result
 
-    def get_all_requests(self) -> List[PostmanRequest]:
+    def get_all_requests(self) -> list[PostmanRequest]:
         """Recursively get all requests from this folder and subfolders."""
         requests = []
         for item in self.item:
@@ -596,7 +596,7 @@ class PostmanCollectionInfo:
     description: Optional[str] = None
 
     @classmethod
-    def from_dict(cls, info_data: Dict[str, Any]) -> "PostmanCollectionInfo":
+    def from_dict(cls, info_data: dict[str, Any]) -> "PostmanCollectionInfo":
         """Create a PostmanCollectionInfo from info data.
 
         Args:
@@ -614,7 +614,7 @@ class PostmanCollectionInfo:
             description=info_data.get("description"),
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary representation."""
         result = {
             "_postman_id": self._postman_id,
@@ -642,21 +642,21 @@ class PostmanCollection:
 
     Attributes:
         info (PostmanCollectionInfo): Collection metadata
-        item (List[Union[PostmanRequest, PostmanFolder]]): Collection items (requests and folders)
+        item (list[Union[PostmanRequest, PostmanFolder]]): Collection items (requests and folders)
         auth (Optional[PostmanAuth]): Collection-level authentication
-        event (Optional[List[PostmanEvent]]): Collection-level events
-        variable (Optional[List[PostmanVariable]]): Collection-level variables
-        requests (List[PostmanRequest]): Flat list of all requests (computed property)
+        event (Optional[list[PostmanEvent]]): Collection-level events
+        variable (Optional[list[PostmanVariable]]): Collection-level variables
+        requests (list[PostmanRequest]): Flat list of all requests (computed property)
     """
 
     info: PostmanCollectionInfo
-    item: List[Union[PostmanRequest, PostmanFolder]] = field(default_factory=list)
+    item: list[Union[PostmanRequest, PostmanFolder]] = field(default_factory=list)
     auth: Optional[PostmanAuth] = None
-    event: Optional[List[PostmanEvent]] = None
-    variable: Optional[List[PostmanVariable]] = None
+    event: Optional[list[PostmanEvent]] = None
+    variable: Optional[list[PostmanVariable]] = None
 
     @property
-    def requests(self) -> List[PostmanRequest]:
+    def requests(self) -> list[PostmanRequest]:
         """Get a flat list of all requests in the collection."""
         requests = []
 
@@ -671,7 +671,7 @@ class PostmanCollection:
         return requests
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "PostmanCollection":
+    def from_dict(cls, data: dict[str, Any]) -> "PostmanCollection":
         """Creates a PostmanCollection object from a JSON dictionary.
 
         This helper function converts a JSON representation of a Postman
@@ -712,7 +712,7 @@ class PostmanCollection:
 
         return cls(info=info, item=items, auth=auth, event=events, variable=variables)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary representation for validation."""
         result = {
             "info": self.info.to_dict(),
@@ -749,11 +749,11 @@ class PostmanCollection:
 
         return cls.from_dict(data)
 
-    def list_all_headers(self) -> Dict[str, List[str]]:
-        """List all unique headers and their values from this collection.
+    def list_all_headers(self) -> dict[str, list[str]]:
+        """list all unique headers and their values from this collection.
 
         Returns:
-            Dict[str, List[str]]: Dictionary where keys are header names and values are lists of unique values
+            Dict[str, list[str]]: Dictionary where keys are header names and values are lists of unique values
         """
         headers_dict = {}
 
@@ -766,11 +766,11 @@ class PostmanCollection:
         # Convert sets to lists for better serialization
         return {key: list(values) for key, values in headers_dict.items()}
 
-    def list_all_params(self) -> Dict[str, List[str]]:
-        """List all unique query parameters and their values from this collection.
+    def list_all_params(self) -> dict[str, list[str]]:
+        """list all unique query parameters and their values from this collection.
 
         Returns:
-            Dict[str, List[str]]: Dictionary where keys are parameter names and values are lists of unique values
+            Dict[str, list[str]]: Dictionary where keys are parameter names and values are lists of unique values
         """
         params_dict = {}
 

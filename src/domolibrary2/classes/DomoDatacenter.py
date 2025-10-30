@@ -1,7 +1,7 @@
 __all__ = ["DomoDatacenter"]
 
 from dataclasses import dataclass, field
-from typing import Any, List, Union
+from typing import Any, Union, list
 
 import httpx
 
@@ -29,7 +29,7 @@ class DomoDatacenter:
         return_raw: bool = False,
         session: httpx.AsyncClient = None,
         debug_api: bool = False,
-    ) -> List[Any]:
+    ) -> list[Any]:
         res = await datacenter_routes.search_datacenter(
             auth=self.auth,
             maximum=maximum,
@@ -55,7 +55,7 @@ class DomoDatacenter:
         return_raw: bool = False,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
-    ) -> List[Any]:
+    ) -> list[Any]:
         from . import DomoDataset as dmds
 
         json_list = await self.search_datacenter(
@@ -105,7 +105,7 @@ class DomoDatacenter:
         return_raw: bool = False,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
-    ) -> List[Any]:
+    ) -> list[Any]:
         """search Domo Datacenter account api.
         Note: at the time of this writing 7/18/2023, the datacenter api does not support searching accounts by name
         """
@@ -159,7 +159,7 @@ class DomoDatacenter:
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
         is_suppress_errors: bool = False,
-    ) -> List[Any]:
+    ) -> list[Any]:
         from . import DomoCard as dmc
 
         json_list = await self.search_datacenter(
@@ -192,7 +192,7 @@ class DomoDatacenter:
     async def get_cards_admin_summary(
         self,
         auth=DomoAuth,
-        page_ids: List[str] = None,
+        page_ids: list[str] = None,
         card_search_text: str = None,
         page_search_text: str = None,
         maximum: int = None,  # maximum number of results to return
@@ -201,7 +201,7 @@ class DomoDatacenter:
         debug_api: bool = False,
         debug_loop: bool = False,
         session: httpx.AsyncClient = None,
-    ) -> List[Any]:
+    ) -> list[Any]:
         """search Domo Datacenter card api."""
 
         from ..routes import card as card_routes
@@ -242,7 +242,7 @@ class DomoDatacenter:
         return_raw: bool = False,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
-    ) -> List[Any]:
+    ) -> list[Any]:
         from .DomoCodeEngine import CodeEngine as dmceg
 
         res = await self.search_datacenter(

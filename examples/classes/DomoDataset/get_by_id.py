@@ -1,7 +1,9 @@
+import os
+
+from dotenv import load_dotenv
+
 import domolibrary2.classes.DomoDataset as dmds
 import domolibrary2.client.auth as dmda
-import os
-from dotenv import load_dotenv
 
 assert load_dotenv(".env")
 

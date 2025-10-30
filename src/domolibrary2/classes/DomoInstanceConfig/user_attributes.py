@@ -2,7 +2,7 @@ __all__ = ["UserAttribute", "UserAttributes"]
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import List, Any, Optional
+from typing import Any, Optional, list
 
 import httpx
 
@@ -12,12 +12,10 @@ from ...routes.instance_config import user_attributes as user_attribute_routes
 from ...routes.instance_config.user_attributes import (
     UserAttributes_CRUD_Error,
     UserAttributes_GET_Error,
-    UserAttributes_CRUD_Error,
 )
-from ...client.auth import DomoAuth
 
 
-@dataclass
+@dataclass(eq=False)
 class UserAttribute(DomoEntity):
     """utility class that absorbs many of the domo instance configuration methods"""
 
@@ -35,9 +33,6 @@ class UserAttribute(DomoEntity):
 
     security_voter: str
     custom: bool
-
-    def __eq__(self, other):
-        return self.id == other.id
 
     @property
     def display_url(self):
@@ -153,11 +148,11 @@ async def update(
 class UserAttributes(DomoManager):
     auth: DomoAuth = field(repr=False)
 
-    attributes: List[UserAttribute] = field(default_factory=list)
+    attributes: list[UserAttribute] = field(default_factory=list)
 
     async def get(
         self,
-        issuer_type_ls: List[
+        issuer_type_ls: list[
             user_attribute_routes.UserAttributes_IssuerType
         ] = [],  # use `UserAttributes_IssuerType` enum
         session: Optional[httpx.AsyncClient] = None,

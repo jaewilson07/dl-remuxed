@@ -1,8 +1,9 @@
 import os
-import domolibrary2.client.auth as dmda
+
+from dotenv import load_dotenv
+
 import domolibrary2.classes.DomoDataset as dmds
 import domolibrary2.client.auth as dmda
-from dotenv import load_dotenv
 
 assert load_dotenv()
 
@@ -31,7 +32,7 @@ def retreive_parent_auth_fn(subscription = None):
 
 
 async def dataset_lineage_test(token_auth=child_auth):
-    
+
     ds = await dmds.FederatedDomoDataset.get_by_id(
         dataset_id=CHILD_DATASET_ID, auth=child_auth
     )
@@ -45,7 +46,7 @@ async def dataset_lineage_test(token_auth=child_auth):
 
 
 
-    
+
 
 
 async def main():

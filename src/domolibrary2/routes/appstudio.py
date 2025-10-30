@@ -11,7 +11,7 @@ __all__ = [
     "share",
 ]
 
-from typing import List, Optional
+from typing import Optional
 
 import httpx
 
@@ -249,16 +249,16 @@ async def get_appstudios_adminsummary(
 
 
 def generate_body_add_page_owner_appstudios(
-    appstudio_id_ls: List[int],
-    group_id_ls: Optional[List[int]] = None,
-    user_id_ls: Optional[List[int]] = None,
+    appstudio_id_ls: list[int],
+    group_id_ls: Optional[list[int]] = None,
+    user_id_ls: Optional[list[int]] = None,
     note: str = "",
     send_email: bool = False,
 ) -> dict:
     """Generates request body for adding page owners to AppStudio pages.
 
     Args:
-        appstudio_id_ls: List of AppStudio IDs
+        appstudio_id_ls: list of AppStudio IDs
         group_id_ls: Optional list of group IDs
         user_id_ls: Optional list of user IDs
         note: Optional note to include
@@ -287,15 +287,15 @@ def generate_body_add_page_owner_appstudios(
 
 
 def generate_body_share_appstudio(
-    appstudio_ids: List[int],
-    group_ids: Optional[List[int]] = None,
-    user_ids: Optional[List[int]] = None,
+    appstudio_ids: list[int],
+    group_ids: Optional[list[int]] = None,
+    user_ids: Optional[list[int]] = None,
     message: Optional[str] = None,
 ) -> dict:
     """Generates request body for sharing AppStudio pages.
 
     Args:
-        appstudio_ids: List of AppStudio IDs to share
+        appstudio_ids: list of AppStudio IDs to share
         group_ids: Optional list of group IDs
         user_ids: Optional list of user IDs
         message: Optional message to include
@@ -339,9 +339,9 @@ def generate_body_share_appstudio(
 @gd.route_function
 async def add_page_owner(
     auth: DomoAuth,
-    appstudio_id_ls: List[int],
-    group_id_ls: Optional[List[int]] = None,
-    user_id_ls: Optional[List[int]] = None,
+    appstudio_id_ls: list[int],
+    group_id_ls: Optional[list[int]] = None,
+    user_id_ls: Optional[list[int]] = None,
     note: str = "",
     send_email: bool = False,
     session: Optional[httpx.AsyncClient] = None,
@@ -354,7 +354,7 @@ async def add_page_owner(
 
     Args:
         auth: Authentication object
-        appstudio_id_ls: List of AppStudio IDs
+        appstudio_id_ls: list of AppStudio IDs
         group_id_ls: Optional list of group IDs to add as owners
         user_id_ls: Optional list of user IDs to add as owners
         note: Optional note to include with the change
@@ -406,9 +406,9 @@ async def add_page_owner(
 @gd.route_function
 async def share(
     auth: DomoAuth,
-    appstudio_ids: List[int],
-    group_ids: Optional[List[int]] = None,
-    user_ids: Optional[List[int]] = None,
+    appstudio_ids: list[int],
+    group_ids: Optional[list[int]] = None,
+    user_ids: Optional[list[int]] = None,
     message: Optional[str] = None,
     session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
@@ -420,7 +420,7 @@ async def share(
 
     Args:
         auth: Authentication object
-        appstudio_ids: List of AppStudio IDs to share
+        appstudio_ids: list of AppStudio IDs to share
         group_ids: Optional list of group IDs to share with
         user_ids: Optional list of user IDs to share with
         message: Optional message to include in email notification

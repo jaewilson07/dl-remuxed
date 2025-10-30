@@ -72,7 +72,7 @@ __all__ = [
 import ast
 import datetime as dt
 import re
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union, list
 
 # Optional dependencies with fallbacks
 try:
@@ -251,7 +251,7 @@ def convert_python_to_ast_module(
     return ast.parse(python_str)
 
 
-def extract_ast_functions(ast_module: ast.Module) -> List[ast.FunctionDef]:
+def extract_ast_functions(ast_module: ast.Module) -> list[ast.FunctionDef]:
     """
     Extract all function definitions from an AST module.
 
@@ -259,7 +259,7 @@ def extract_ast_functions(ast_module: ast.Module) -> List[ast.FunctionDef]:
         ast_module (ast.Module): AST module to extract functions from
 
     Returns:
-        List[ast.FunctionDef]: List of function definition nodes
+        list[ast.FunctionDef]: list of function definition nodes
 
     Example:
         >>> code = '''
@@ -446,12 +446,12 @@ def convert_string_to_bool(v: Union[str, bool]) -> bool:
     return str(v).lower() in ("yes", "true", "t", "1")
 
 
-def concat_list_dataframe(df_ls: List[Any]) -> Any:
+def concat_list_dataframe(df_ls: list[Any]) -> Any:
     """
     Take a list of DataFrames and concatenate them into one DataFrame.
 
     Args:
-        df_ls (List[Any]): List of pandas DataFrames to concatenate
+        df_ls (list[Any]): list of pandas DataFrames to concatenate
 
     Returns:
         Any: Concatenated DataFrame (returns Any due to optional pandas dependency)
@@ -489,7 +489,7 @@ def concat_list_dataframe(df_ls: List[Any]) -> Any:
     return df
 
 
-def merge_dict(source: Dict[str, Any], destination: Dict[str, Any]) -> Dict[str, Any]:
+def merge_dict(source: dict[str, Any], destination: dict[str, Any]) -> dict[str, Any]:
     """
     Deep merge source dictionary into destination dictionary.
 

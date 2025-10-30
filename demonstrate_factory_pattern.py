@@ -99,7 +99,7 @@ def demonstrate_factory_logic():
     print("✓ Extensible for new schedule types")
     print("✓ Maintains backward compatibility")
 
-    print(f"\nInheritance Hierarchy Summary:")
+    print("\nInheritance Hierarchy Summary:")
     print("=" * 30)
     print("DomoSchedule (Abstract Base Class)")
     print("├── Common interface: get_human_readable_schedule()")

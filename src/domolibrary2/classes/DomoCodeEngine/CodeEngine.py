@@ -11,11 +11,12 @@ import datetime as dt
 import os
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List
+from typing import list
 
 import httpx
 
 from ...client import exceptions as dmde
+from ...client.auth import DomoAuth
 from ...routes import codeengine as codeengine_routes
 from ...utils import files as dmuf
 from ...utils.convert import convert_string_to_datetime
@@ -55,11 +56,11 @@ class DomoCodeEngine_PackageVersion:
     configuration: dict
 
     createdby: dmdu.DomoUser = None
-    accounts_mapping: List[int] = None
-    ml_model: List[str] = None
+    accounts_mapping: list[int] = None
+    ml_model: list[str] = None
 
     code: str = field(repr=False, default=None)
-    # functions_ls: List[CodeEngineManifest_Function] = field(repr=False, default=None)
+    # functions_ls: list[CodeEngineManifest_Function] = field(repr=False, default=None)
     functions: dict = None
 
     Manifest: CodeEngineManifest = field(default=None)
@@ -84,7 +85,7 @@ class DomoCodeEngine_PackageVersion:
     # def set_functions(
     #     self,
     #     code: str = None,
-    #     functions: List[dict] = None,
+    #     functions: list[dict] = None,
     #     language: str = None,
     #     # function_parser_fn: Callable = None,  # must receive code string, function_ls, language
     # ):
@@ -297,11 +298,11 @@ class DomoCodeEngine_Package:
     owner_id: int
     created: dt.datetime
     last_modified: dt.datetime
-    functions: List
+    functions: list
 
     current_version: str = None
-    versions: List[DomoCodeEngine_PackageVersion] = None
-    owner: List[dmdu.DomoUser] = None
+    versions: list[DomoCodeEngine_PackageVersion] = None
+    owner: list[dmdu.DomoUser] = None
 
     def __post_init__(self):
         self._set_current_version()

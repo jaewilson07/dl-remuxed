@@ -3,18 +3,16 @@
 Example demonstrating the DomoSchedule inheritance hierarchy and factory method
 """
 
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "src"))
 
 from domolibrary2.classes.subentity.schedule import (
-    DomoSchedule,
     DomoAdvancedSchedule,
     DomoCronSchedule,
+    DomoSchedule,
     DomoSimpleSchedule,
-    ScheduleFrequencyEnum,
-    ScheduleType,
 )
 
 

@@ -25,7 +25,7 @@ __all__ = [
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, List
+from typing import Any, list
 
 from ...client.exceptions import ClassError
 from ...entities.base import DomoEnumMixin
@@ -92,7 +92,7 @@ class DomoAccount_Config(DomoBase):
     def to_dict(
         self,
         obj=None,
-        column_filter: List[str] = None,  # enumerate columns to include
+        column_filter: list[str] = None,  # enumerate columns to include
         **kwargs,
     ) -> dict:
         s = {"allowExternalUse": self.allow_external_use, **(obj or {}), **kwargs}

@@ -50,7 +50,6 @@ from . import (
     xkcd_password,
 )
 
-
 # Import legacy exception names from convert module for backwards compatibility
 from .convert import (
     ConcatDataframe_InvalidElement,  # Legacy alias for ConcatDataframeError

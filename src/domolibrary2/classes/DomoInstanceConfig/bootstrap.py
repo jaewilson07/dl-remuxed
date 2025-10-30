@@ -2,10 +2,9 @@ __all__ = ["DomoBootstrap_Feature", "DomoBootstrap"]
 
 
 from dataclasses import dataclass, field
-from typing import List
+from typing import list
 
 import httpx
-
 
 from ...client.auth import DomoAuth
 from ...entities import DomoManager
@@ -99,7 +98,7 @@ class DomoBootstrap(DomoManager):
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
         session: httpx.AsyncClient = None,
-    ) -> List[dmpg.DomoPage]:
+    ) -> list[dmpg.DomoPage]:
         res = await bootstrap_routes.get_bootstrap_pages(
             auth=self.auth,
             debug_api=debug_api,

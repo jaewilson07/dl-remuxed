@@ -133,7 +133,7 @@ async def set_instance_switcher_mapping(
 
     Args:
         auth: Authentication object containing instance and credentials
-        mapping_payloads: List of mapping configurations, each with format:
+        mapping_payloads: list of mapping configurations, each with format:
             {'userAttribute': 'attribute_name', 'instance': 'instance.domo.com'}
         session: Optional HTTP client session for connection reuse
         debug_api: Enable detailed API request/response logging

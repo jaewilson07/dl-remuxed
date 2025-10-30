@@ -38,10 +38,30 @@ Enums:
 """
 
 # Import all functions and classes for backward compatibility
-from .collections import *
-from .datastores import *
-from .documents import *
-from .exceptions import *
+from .collections import (
+    Collection_Permission_Enum,
+    create_collection,
+    get_collection_by_id,
+    get_collections,
+    modify_collection_permissions,
+)
+from .datastores import (
+    create_datastore,
+    get_collections_from_datastore,
+    get_datastore_by_id,
+    get_datastores,
+)
+from .documents import (
+    create_document,
+    get_collection_document_by_id,
+    get_documents_from_collection,
+    update_document,
+)
+from .exceptions import (
+    AppDb_CRUD_Error,
+    AppDb_GET_Error,
+    SearchAppDb_NotFound,
+)
 
 __all__ = [
     # Exception classes

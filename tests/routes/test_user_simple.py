@@ -5,13 +5,57 @@ Simple test suite that validates all user route functions can be called.
 No mocking - just verifies function signatures, imports, and basic functionality.
 """
 
-import os
-import pytest
 import inspect
+import os
+
+import pytest
+
 from domolibrary2.client.auth import DomoTokenAuth
 
 # Import all user route functions to test they exist and are callable
-from domolibrary2.routes.user import *
+from domolibrary2.routes.user import (
+    DeleteUser_Error,
+    DownloadAvatar_Error,
+    ResetPassword_PasswordUsed,
+    SearchUser_NotFound,
+    User_CRUD_Error,
+    # Exception classes
+    User_GET_Error,
+    UserAttributes_CRUD_Error,
+    UserAttributes_GET_Error,
+    # User attributes
+    UserAttributes_IssuerType,
+    UserProperty,
+    # User properties
+    UserProperty_Type,
+    UserSharing_Error,
+    clean_attribute_id,
+    create_user,
+    create_user_attribute,
+    delete_user,
+    delete_user_attribute,
+    download_avatar,
+    generate_avatar_bytestr,
+    generate_create_user_attribute_body,
+    generate_patch_user_property_body,
+    # Core user functions
+    get_all_users,
+    get_by_id,
+    get_user_attribute_by_id,
+    get_user_attributes,
+    process_v1_search_users,
+    request_password_reset,
+    reset_password,
+    search_users,
+    search_users_by_email,
+    search_users_by_id,
+    search_virtual_user_by_subscriber_instance,
+    set_user_landing_page,
+    update_user,
+    update_user_attribute,
+    upload_avatar,
+    user_is_allowed_direct_signon,
+)
 
 
 class TestUserFunctionExistence:

@@ -4,17 +4,17 @@ Simple test of schedule inheritance without full module imports
 """
 
 # Let's just verify the schedule.py file can be imported directly
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "src"))
 
 try:
     # Test basic import
     from domolibrary2.classes.subentity.schedule import (
-        DomoSchedule,
         DomoAdvancedSchedule,
         DomoCronSchedule,
+        DomoSchedule,
         DomoSimpleSchedule,
     )
 

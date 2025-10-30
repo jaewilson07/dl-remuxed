@@ -760,9 +760,19 @@ class DomoDeveloperAuth(_DomoAuth_Optional, _DomoAuth_Required):
 
         if isinstance(res, ResponseGetData) and res.is_success and res.response:
             self.is_valid_token = True
-            self.token = str(res.response.get("access_token", ""))
-            self.user_id = res.response.get("userId")
-            self.domo_instance = res.response.get("domain", self.domo_instance)
+            self.token = str(
+                res.response.get("access_token", "")
+                if isinstance(res.response, dict)
+                else ""
+            )
+            self.user_id = (
+                res.response.get("userId") if isinstance(res.response, dict) else ""
+            )
+            self.domo_instance = (
+                res.response.get("domain", self.domo_instance)
+                if isinstance(res.response, dict)
+                else ""
+            )
             self.token_name = self.token_name or "developer_auth"
             return self.token
 
@@ -1089,7 +1099,7 @@ def test_is_jupyter_auth(
 
     Args:
         auth (DomoJupyterAuth): The authentication object to validate
-        required_auth_type_ls (Optional[list]): List of acceptable auth types.
+        required_auth_type_ls (Optional[list]): list of acceptable auth types.
             Defaults to [DomoJupyterFullAuth, DomoJupyterTokenAuth]
 
     Raises:

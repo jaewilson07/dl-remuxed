@@ -47,7 +47,7 @@ def test_basic_functionality():
         }
 
         header = PostmanRequest_Header.from_dict(header_data)
-        header_dict = header.to_dict()
+        header.to_dict()
 
         print(f"✅ Header round-trip test: {header.key} = {header.value}")
 
@@ -60,7 +60,7 @@ def test_basic_functionality():
         }
 
         param = PostmanQueryParam.from_dict(param_data)
-        param_dict = param.to_dict()
+        param.to_dict()
 
         print(f"✅ Query param round-trip test: {param.key} = {param.value}")
 
@@ -107,7 +107,7 @@ def test_complex_structure():
         print(f"✅ Found {len(collection.requests)} requests")
 
         # Test to_dict
-        result_dict = collection.to_dict()
+        collection.to_dict()
         print("✅ Collection converted back to dictionary")
 
         return True

@@ -5,7 +5,14 @@ This module provides custom logging processors and utilities specifically design
 for domolibrary2 components, keeping the codebase clean and organized.
 """
 
-from .processors import ResponseGetDataProcessor, DomoEntityProcessor, DomoEntityObjectProcessor, DomoEntityExtractor, DomoEntityResultProcessor, NoOpEntityExtractor
+from .processors import (
+    DomoEntityExtractor,
+    DomoEntityObjectProcessor,
+    DomoEntityProcessor,
+    DomoEntityResultProcessor,
+    NoOpEntityExtractor,
+    ResponseGetDataProcessor,
+)
 
 __all__ = [
     "ResponseGetDataProcessor",

@@ -15,7 +15,7 @@ import datetime as dt
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Optional
+from typing import Optional, list
 
 import httpx
 
@@ -25,7 +25,7 @@ from ..routes import application as application_routes
 
 @dataclass
 class Watchdog_Config(ABC):
-    entity_ids: List[str]
+    entity_ids: list[str]
     entity_type: str  # dataflow or dataset
     watcher_parameters: dict
     report_type: str
@@ -161,12 +161,12 @@ class DomoJob_Watchdog(DomoJob_Base):
     custom_message: str = None
     remote_instance: str = None
 
-    notify_emails: List[str] = field(default_factory=lambda: [])
-    notify_group_ids: List[str] = field(default_factory=lambda: [])
-    notify_user_ids: List[str] = field(default_factory=lambda: [])
+    notify_emails: list[str] = field(default_factory=lambda: [])
+    notify_group_ids: list[str] = field(default_factory=lambda: [])
+    notify_user_ids: list[str] = field(default_factory=lambda: [])
 
     Config: Watchdog_Config = None
-    webhooks: List[str] = None
+    webhooks: list[str] = None
 
     @classmethod
     def from_dict(cls, obj, auth):
@@ -240,13 +240,13 @@ class DomoJob_Watchdog(DomoJob_Base):
         notify_user_ids: list = None,
         notify_group_ids: list = None,
         notify_emails: list = None,
-        triggers: List[DomoTrigger_Schedule] = None,
+        triggers: list[DomoTrigger_Schedule] = None,
         description: str = f"created via domolibrary - {dt.date.today()}",
         execution_timeout=1440,
         accounts: list[int] = None,
         remote_instance=None,
         custom_message: str = None,
-        webhooks: List[str] = None,
+        webhooks: list[str] = None,
         debug_api: bool = False,
         session: Optional[httpx.AsyncClient] = None,
         return_raw: bool = False,

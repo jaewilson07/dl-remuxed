@@ -1,6 +1,6 @@
 import os
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from typing import Optional, list
 from urllib.parse import urljoin, urlparse
 
 from .. import utils
@@ -20,15 +20,15 @@ class PostmanRequestConverter:
 
     url: str = None
     function_name: str = None
-    params: Dict[str, str] = field(default_factory=dict)
-    headers: Dict[str, str] = field(default_factory=dict)
+    params: dict[str, str] = field(default_factory=dict)
+    headers: dict[str, str] = field(default_factory=dict)
 
     # Instance variables to store filter configurations
-    required_headers: List[str] = field(default_factory=list)
+    required_headers: list[str] = field(default_factory=list)
     # Removed ignored_headers
 
-    default_params: List[str] = field(default_factory=list)
-    ignored_params: List[str] = field(default_factory=list)
+    default_params: list[str] = field(default_factory=list)
+    ignored_params: list[str] = field(default_factory=list)
 
     def __post_init__(self):
         self.generate_function_name()
@@ -171,12 +171,12 @@ class PostmanRequestConverter:
 
     def generate_headers(
         self,
-        required_headers: Optional[List[str]] = None,
-    ) -> Dict[str, str]:
+        required_headers: Optional[list[str]] = None,
+    ) -> dict[str, str]:
         """Build headers dictionary from this PostmanRequest, optionally filtered by required headers.
 
         Args:
-            required_headers (Optional[List[str]]): List of header keys to include. If None, all headers are included.
+            required_headers (Optional[list[str]]): list of header keys to include. If None, all headers are included.
 
         Returns:
             Dict[str, str]: Dictionary of headers
@@ -217,14 +217,14 @@ class PostmanRequestConverter:
 
     def generate_params(
         self,
-        default_params: Optional[List[str]] = None,
-        ignored_params: Optional[List[str]] = None,
-    ) -> Dict[str, str]:
+        default_params: Optional[list[str]] = None,
+        ignored_params: Optional[list[str]] = None,
+    ) -> dict[str, str]:
         """Build query parameters dictionary from this PostmanRequest.
 
         Args:
-            default_params (Optional[List[str]]): List of parameter keys that must be included. If None, all parameters are included.
-            ignored_params (Optional[List[str]]): List of parameter keys that should be excluded. If None, no parameters are excluded.
+            default_params (Optional[list[str]]): list of parameter keys that must be included. If None, all parameters are included.
+            ignored_params (Optional[list[str]]): list of parameter keys that should be excluded. If None, no parameters are excluded.
 
         Returns:
             Dict[str, str]: Dictionary of query parameters
@@ -257,7 +257,7 @@ class PostmanRequestConverter:
         """Build the request code for a function.
 
         Args:
-            default_params (Optional[List[str]]): List of parameters to expose as function arguments
+            default_params (Optional[list[str]]): list of parameters to expose as function arguments
 
         Returns:
             str: The request code as a string
@@ -368,14 +368,14 @@ class PostmanRequestConverter:
     def build_test_code(
         self,
         func_name: Optional[str] = None,
-        default_params: Optional[List[str]] = None,
+        default_params: Optional[list[str]] = None,
     ) -> str:
         """Build the test code for a function.
 
         Args:
             func_name (Optional[str]): Name of the function to test.
                 If None, uses the converter's function_name.
-            default_params (Optional[List[str]]): List of parameters
+            default_params (Optional[list[str]]): list of parameters
                 exposed as function arguments.
 
         Returns:
@@ -408,10 +408,10 @@ class PostmanRequestConverter:
     def from_postman_request(
         cls,
         request: PostmanRequest,
-        required_headers: Optional[Dict] = None,
+        required_headers: Optional[dict] = None,
         # Removed ignored_headers parameter
-        default_params: Optional[Dict] = None,
-        ignored_params: Optional[Dict] = None,
+        default_params: Optional[dict] = None,
+        ignored_params: Optional[dict] = None,
         export_folder: Optional[str] = None,
         is_include_test_code: bool = True,
         is_replace: Optional[bool] = True,
@@ -446,18 +446,18 @@ class PostmanCollectionConverter:
 
     export_folder: str
     collection: PostmanCollection
-    converters: List[PostmanRequestConverter] = field(default_factory=list)
+    converters: list[PostmanRequestConverter] = field(default_factory=list)
 
-    customize: Dict[str, Dict] = field(default_factory=dict)
-    required_headers: List[str] = field(default_factory=list)
+    customize: dict[str, dict] = field(default_factory=dict)
+    required_headers: list[str] = field(default_factory=list)
 
     @classmethod
     def from_postman_collection(
         cls,
         postman_path: str,
         export_folder: str,
-        customize: Optional[Dict[str, Dict]] = None,
-        required_headers: Optional[List[str]] = None,
+        customize: Optional[dict[str, dict]] = None,
+        required_headers: Optional[list[str]] = None,
         is_replace: bool = False,
         is_include_test_code: bool = True,
         include_original_json: bool = False,
@@ -468,7 +468,7 @@ class PostmanCollectionConverter:
             postman_path (str): Path to the Postman collection file
             export_folder (str): Folder to export the generated files to
             customize (Optional[Dict[str, Dict]]): Customization options for functions
-            required_headers (Optional[List[str]]): List of header keys to include
+            required_headers (Optional[list[str]]): list of header keys to include
 
         Returns:
             PostmanCollectionConverter: Converter instance for the collection
@@ -501,7 +501,7 @@ class PostmanCollectionConverter:
         is_replace: bool = False,
         is_include_test_code: bool = True,
         include_original_json: bool = False,
-    ) -> List[PostmanRequestConverter]:
+    ) -> list[PostmanRequestConverter]:
         """Generate implementation files for each request in the collection.
 
         Args:
@@ -510,7 +510,7 @@ class PostmanCollectionConverter:
             include_original_json (bool): Whether to include original Postman JSON in generated functions. Defaults to False.
 
         Returns:
-            List[PostmanRequestConverter]: List of converters used to generate the files
+            list[PostmanRequestConverter]: list of converters used to generate the files
         """
 
         for request in self.collection.requests:

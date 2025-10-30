@@ -12,7 +12,7 @@ import json
 import time
 from functools import wraps
 from pprint import pprint
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable, Optional
 
 import httpx
 
@@ -37,15 +37,11 @@ class GetDataError(DomoError):
 
 
 def create_headers(
-    auth: Optional[
-        "dmda.DomoAuth"
-    ],  # The authentication object containing the Domo API token.
+    auth: "dmda.DomoAuth" = None,  # The authentication object containing the Domo API token.
     content_type: Optional[
         str
     ] = None,  # The content type for the request. Defaults to None.
-    headers: Optional[
-        dict
-    ] = None,  # Any additional headers for the request. Defaults to None.
+    headers: dict = None,  # Any additional headers for the request. Defaults to None.
 ) -> dict:  # The headers for the request.
     """
     Creates default headers for interacting with Domo APIs.
@@ -66,7 +62,7 @@ def create_headers(
 
 
 def create_httpx_session(
-    session: Optional[httpx.AsyncClient] = None, is_verify: bool = False
+    session: httpx.AsyncClient = None, is_verify: bool = False
 ) -> tuple[httpx.AsyncClient, bool]:
     """Creates or reuses an asynchronous HTTPX session.
 
@@ -94,11 +90,11 @@ def create_httpx_session(
 async def get_data(
     url: str,
     method: str,
-    auth: Optional["dmda.DomoAuth"] = None,
-    content_type: Optional[str] = None,
-    headers: Optional[dict] = None,
-    body: Union[dict, list, str, None] = None,
-    params: Optional[dict] = None,
+    auth: "dmda.DomoAuth" = None,
+    content_type: str = None,
+    headers: dict = None,
+    body: dict | list | str | None = None,
+    params: dict = None,
     debug_api: bool = False,
     session: Optional[httpx.AsyncClient] = None,
     return_raw: bool = False,
@@ -172,7 +168,7 @@ async def get_data(
         if return_raw:
             res = rgd.ResponseGetData(
                 status=response.status_code,
-                response=response,
+                response=response,  # type: ignore
                 is_success=True,
                 request_metadata=request_metadata,
                 additional_information=additional_information,
@@ -340,7 +336,7 @@ async def get_data_stream(
 
             res_obj = rgd.ResponseGetData(
                 status=res.status_code,
-                response=content,
+                response=content,  # type: ignore
                 is_success=True,
                 request_metadata=request_metadata,
                 additional_information=additional_information,
@@ -446,7 +442,7 @@ async def looper(
 
                 message = f"processing body_fn {str(e)}"
 
-                raise LooperError(loop_stage=message) from e
+                raise LooperError(loop_stage=message, message=str(e)) from e
 
         if debug_loop:
             print(f"\n🚀 Retrieving records {skip} through {skip + limit} via {url}")

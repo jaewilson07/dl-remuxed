@@ -4,9 +4,8 @@ Simple validation of schedule.py syntax and class hierarchy
 """
 
 # Let's test the schedule.py file by compiling it directly
-import py_compile
 import os
-import sys
+import py_compile
 
 schedule_file = os.path.join(
     os.path.dirname(__file__),
@@ -28,7 +27,7 @@ try:
 
     # Test 2: Read and validate the class structure
     print("\n2. Validating class structure...")
-    with open(schedule_file, "r") as f:
+    with open(schedule_file) as f:
         content = f.read()
 
     # Check for key components
@@ -50,7 +49,7 @@ try:
             print(f"   ✗ {description}")
 
     # Test 3: Count lines and classes
-    print(f"\n3. File statistics:")
+    print("\n3. File statistics:")
     lines = content.split("\n")
     print(f"   • Total lines: {len(lines)}")
 
@@ -60,13 +59,13 @@ try:
     method_count = content.count("def ")
     print(f"   • Methods defined: {method_count}")
 
-    print(f"\n4. Inheritance hierarchy:")
+    print("\n4. Inheritance hierarchy:")
     print("   DomoSchedule (Abstract Base)")
     print("   ├── DomoAdvancedSchedule")
     print("   ├── DomoCronSchedule")
     print("   └── DomoSimpleSchedule")
 
-    print(f"\n✅ DomoSchedule inheritance implementation is complete!")
+    print("\n✅ DomoSchedule inheritance implementation is complete!")
     print("\nKey Features Implemented:")
     print("• Abstract base class with common interface")
     print("• Specialized subclasses for different schedule types")

@@ -18,7 +18,7 @@ __all__ = [
     "elevate_user_otp",
 ]
 
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
@@ -57,7 +57,7 @@ class InvalidAuthTypeError(RouteError):
         self,
         res=None,
         required_auth_type: Optional[Any] = None,
-        required_auth_type_ls: Optional[List[Any]] = None,
+        required_auth_type_ls: Optional[list[Any]] = None,
         **kwargs,
     ):
         # Convert class types to strings

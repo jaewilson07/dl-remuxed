@@ -39,7 +39,7 @@ __all__ = [
     "CreatePolicy_Error",
 ]
 
-from typing import Optional, Union
+from typing import Optional
 
 import httpx
 
@@ -242,7 +242,7 @@ def search_pdp_policies_by_name(
     result_list: list[dict],
     is_exact_match: bool = True,
     is_suppress_errors: bool = False,
-) -> Union[dict, list[dict], bool]:
+) -> dict | list[dict | bool]:
     """
     Search for PDP policies by name within a list of policies.
 
@@ -251,7 +251,7 @@ def search_pdp_policies_by_name(
 
     Args:
         search_name: Name or partial name to search for
-        result_list: List of policy dictionaries from get_pdp_policies response
+        result_list: list of policy dictionaries from get_pdp_policies response
         is_exact_match: If True, search for exact name match; if False, partial match
         is_suppress_errors: If True, return False instead of raising error when not found
 
@@ -302,7 +302,7 @@ def generate_policy_parameter_simple(
     Args:
         column_name: Name of the column to filter on
         type: Parameter type (default: "COLUMN")
-        column_values_ls: List of column values to filter, or single value
+        column_values_ls: list of column values to filter, or single value
         operator: Comparison operator (default: "EQUALS")
         ignore_case: Whether to ignore case when comparing values (default: True)
 
@@ -347,11 +347,11 @@ def generate_policy_body(
     Args:
         policy_name: Name for the policy
         dataset_id: Unique identifier for the dataset
-        parameters_ls: List of parameter dicts (from generate_policy_parameter_simple)
+        parameters_ls: list of parameter dicts (from generate_policy_parameter_simple)
         policy_id: Policy ID (only for updates, omit for new policies)
-        user_ids: List of user IDs to assign the policy to
-        group_ids: List of group IDs to assign the policy to
-        virtual_user_ids: List of virtual user IDs to assign the policy to
+        user_ids: list of user IDs to assign the policy to
+        group_ids: list of group IDs to assign the policy to
+        virtual_user_ids: list of virtual user IDs to assign the policy to
 
     Returns:
         Dictionary representing complete policy request body

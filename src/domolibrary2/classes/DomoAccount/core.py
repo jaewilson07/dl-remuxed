@@ -2,7 +2,7 @@ __all__ = ["DomoAccount", "DomoAccounts_NoAccount", "DomoAccounts"]
 
 
 from dataclasses import dataclass
-from typing import List
+from typing import list
 
 import httpx
 
@@ -61,8 +61,8 @@ class DomoAccount(DomoAccount_Default):
 
 @dataclass
 class DomoAccounts(DomoManager):
-    accounts: List[DomoAccount] = None
-    oauths: List[DomoAccount_OAuth] = None
+    accounts: list[DomoAccount] = None
+    oauths: list[DomoAccount_OAuth] = None
 
     async def get_accounts_accountsapi(
         self,

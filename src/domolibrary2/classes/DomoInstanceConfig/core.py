@@ -2,7 +2,7 @@ __all__ = ["DomoInstanceConfig"]
 
 
 from dataclasses import dataclass, field
-from typing import Any, List
+from typing import Any, list
 
 import httpx
 import pandas as pd
@@ -136,7 +136,7 @@ class DomoInstanceConfig:
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
         return_raw: bool = False,
-    ) -> List[str]:
+    ) -> list[str]:
         """returns a list of authorized domains (str) does not update instance_config"""
 
         res = await domains_routes.get_authorized_domains(
@@ -150,7 +150,7 @@ class DomoInstanceConfig:
 
     async def set_authorized_domains(
         self,
-        authorized_domains: List[str],
+        authorized_domains: list[str],
         debug_api: bool = False,
         debug_num_stacks_to_drop=1,
         session: httpx.AsyncClient = None,
@@ -168,7 +168,7 @@ class DomoInstanceConfig:
 
     async def upsert_authorized_domains(
         self,
-        authorized_domains: List[str],
+        authorized_domains: list[str],
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
         debug_num_stacks_to_drop=2,
@@ -193,7 +193,7 @@ class DomoInstanceConfig:
         session: httpx.AsyncClient = None,
         return_raw: bool = False,
         debug_num_stacks_to_drop=2,
-    ) -> List[str]:
+    ) -> list[str]:
         res = await domains_routes.get_authorized_custom_app_domains(
             auth=self.auth,
             debug_api=debug_api,
@@ -212,7 +212,7 @@ class DomoInstanceConfig:
 
     async def set_authorized_custom_app_domains(
         self,
-        authorized_domains: List[str],
+        authorized_domains: list[str],
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
         session: httpx.AsyncClient = None,
@@ -230,7 +230,7 @@ class DomoInstanceConfig:
 
     async def upsert_authorized_custom_app_domains(
         self,
-        authorized_domains: List[str],
+        authorized_domains: list[str],
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         session: httpx.AsyncClient = None,

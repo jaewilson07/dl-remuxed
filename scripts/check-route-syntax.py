@@ -14,12 +14,11 @@ Usage:
 import argparse
 import ast
 import sys
-import traceback
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import list
 
 
-def check_syntax(file_path: Path) -> Dict:
+def check_syntax(file_path: Path) -> dict:
     """Check Python syntax without importing."""
     result = {
         "file": str(file_path.relative_to(Path.cwd())),
@@ -30,7 +29,7 @@ def check_syntax(file_path: Path) -> Dict:
     }
 
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             source = f.read()
 
         # Parse the AST to check syntax
@@ -49,7 +48,7 @@ def check_syntax(file_path: Path) -> Dict:
     return result
 
 
-def analyze_imports(file_path: Path) -> Dict:
+def analyze_imports(file_path: Path) -> dict:
     """Analyze import statements in a file."""
     result = {
         "file": str(file_path.relative_to(Path.cwd())),
@@ -60,7 +59,7 @@ def analyze_imports(file_path: Path) -> Dict:
     }
 
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             source = f.read()
 
         tree = ast.parse(source)
@@ -99,7 +98,7 @@ def analyze_imports(file_path: Path) -> Dict:
     return result
 
 
-def discover_python_files(routes_path: Path) -> List[Path]:
+def discover_python_files(routes_path: Path) -> list[Path]:
     """Discover all Python files in routes directory."""
     python_files = []
 
@@ -169,7 +168,7 @@ def main():
     # Analyze imports if requested
     if args.analyze_imports:
         if not args.quiet:
-            print(f"\n🔍 Analyzing import patterns...")
+            print("\n🔍 Analyzing import patterns...")
 
         import_issues = 0
         for file_path in python_files:

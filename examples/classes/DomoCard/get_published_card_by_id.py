@@ -1,15 +1,19 @@
-import domolibrary2.classes.DomoDataset as dmds
-
-import domolibrary2.client.auth as dmda
 import os
 
-from pprint import pprint
 from dotenv import load_dotenv
+
+import domolibrary2.classes.DomoDataset as dmds
+import domolibrary2.client.auth as dmda
 
 assert load_dotenv(".env")
 
-from dc_logger.client.base import get_global_logger, set_global_logger
-from dc_logger.client.base import Handler_BufferSettings, HandlerInstance, Logger
+from dc_logger.client.base import (
+    Handler_BufferSettings,
+    HandlerInstance,
+    Logger,
+    get_global_logger,
+    set_global_logger,
+)
 from dc_logger.logs.services.file import File_ServiceConfig, FileHandler
 
 json_config = File_ServiceConfig(
@@ -38,7 +42,7 @@ async def main():
         domo_access_token=os.environ["DOMO_CHILD_ACCESS_TOKEN"],
     )
 
-    child_card: dmds.FederatedDomoCard = await dmds.DomoCard.get_by_id(
+    await dmds.DomoCard.get_by_id(
         os.environ["CHILD_CARD_ID"], auth=child_auth
     )
 
@@ -48,26 +52,6 @@ async def main():
     )
 
     assert await parent_auth.who_am_i()
-
-    parent_ds: dmds.DomoDataset = await child_ds.get_federated_parent(
-        parent_auth=parent_auth
-    )
-
-    pprint(
-        {
-            "title": "child_ds",
-            "child instance": child_ds.auth.domo_instance,
-            "child_ds_id": child_ds.display_url(),
-        }
-    )
-
-    pprint(
-        {
-            "title": "parent_ds",
-            "parent instance": parent_ds.auth.domo_instance,
-            "parent_ds_id": parent_ds.display_url(),
-        }
-    )
 
 
 if __name__ == "__main__":

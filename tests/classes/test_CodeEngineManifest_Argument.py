@@ -1,22 +1,23 @@
-"""
+r"""
 Test file generated from CodeEngineManifest_Argument.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
 token_auth = dmda.DomoTokenAuth(
-    domo_instance=os.environ['DOMO_INSTANCE'],
-    domo_access_token=os.environ['DOMO_ACCESS_TOKEN'],
+    domo_instance=os.environ["DOMO_INSTANCE"],
+    domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],
 )
 
 
 async def test_cell_1(token_auth=token_auth):
     """Test case from cell 1"""
-    token_auth = dmda.DomoTokenAuth(
+    dmda.DomoTokenAuth(
         domo_instance=os.environ["DOMO_INSTANCE"],
         domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],
     )
@@ -28,7 +29,6 @@ async def test_cell_2(token_auth=token_auth):
     VERSION_ID = "1.0.0"
 
     FUNCTION_INDEX = 3
-    ARGUMENT_INDEX = 1
 
     res = await code_engine_routes.get_codeengine_package_by_id_and_version(
         auth=token_auth,
@@ -42,7 +42,7 @@ async def test_cell_2(token_auth=token_auth):
 
     ast_functions = dmcv.extract_ast_functions(ast_module)
 
-    test_fn = next((fn for fn in ast_functions if fn.name == compare_obj["name"]))
+    test_fn = next(fn for fn in ast_functions if fn.name == compare_obj["name"])
 
     assert test_fn.name == compare_obj["name"]
 
@@ -56,14 +56,18 @@ async def test_cell_3(token_auth=token_auth):
     pprint(
         {
             **test_arg.__dict__,
-            "🚀 extract_ast_arg_type_annotation": extract_ast_arg_type_annotation(test_arg),
+            "🚀 extract_ast_arg_type_annotation": extract_ast_arg_type_annotation(
+                test_arg
+            ),
         }
     )
 
 
 async def test_cell_4(token_auth=token_auth):
     """Test case from cell 4"""
-    pprint({**test_arg.__dict__, "🚀 extract_ast_arg_name": extract_ast_arg_name(test_arg)})
+    pprint(
+        {**test_arg.__dict__, "🚀 extract_ast_arg_name": extract_ast_arg_name(test_arg)}
+    )
 
 
 async def test_cell_5(token_auth=token_auth):
@@ -84,11 +88,11 @@ async def test_cell_6(token_auth=token_auth):
 async def test_cell_7(token_auth=token_auth):
     """Test case from cell 7"""
     {
-        "Optional[List[str]]": CodeEngine_Argument.init(
-            "Optional[List[str]]", has_default_value=False
+        "Optional[list[str]]": CodeEngine_Argument.init(
+            "Optional[list[str]]", has_default_value=False
         ).to_dict(),
-        "List[dict]": CodeEngine_Argument.init(
-            "List[dict]", has_default_value=True
+        "list[dict]": CodeEngine_Argument.init(
+            "list[dict]", has_default_value=True
         ).to_dict(),
         "str": CodeEngine_Argument.init("str", has_default_value=None).to_dict(),
     }

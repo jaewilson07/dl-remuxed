@@ -5,17 +5,16 @@ Tests scheduler policy management functionality
 
 import os
 from datetime import datetime
-from typing import List, Optional
 
 import pytest
 from dotenv import load_dotenv
 
-from domolibrary2.client.auth import DomoTokenAuth
 from domolibrary2.classes.DomoInstanceConfig.scheduler_policies import (
     DomoScheduler_Policies,
     DomoScheduler_Policy,
     DomoScheduler_Policy_Restrictions,
 )
+from domolibrary2.client.auth import DomoTokenAuth
 
 load_dotenv()
 
@@ -152,7 +151,6 @@ async def test_update_existing_scheduler_policy(
 
     # Get an existing policy
     policy_to_update = scheduler_policies.policies[0]
-    original_name = policy_to_update.name
     original_connector_freq = policy_to_update.frequencies.connector_frequency
 
     # Modify frequency and update

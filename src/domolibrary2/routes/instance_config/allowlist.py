@@ -11,7 +11,6 @@ __all__ = [
 from typing import Optional
 
 import httpx
-from typing import Optional
 
 from ...client import (
     auth as dmda,

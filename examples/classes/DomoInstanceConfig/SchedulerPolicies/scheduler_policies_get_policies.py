@@ -16,16 +16,16 @@ Example:
     python scheduler_policies_get_policies.py
 """
 
-import asyncio
 import argparse
+import asyncio
 import os
-from dotenv import load_dotenv
-from pprint import pprint
 
-from domolibrary2.client.auth import DomoTokenAuth
+from dotenv import load_dotenv
+
 from domolibrary2.classes.DomoInstanceConfig.scheduler_policies import (
     DomoScheduler_Policies,
 )
+from domolibrary2.client.auth import DomoTokenAuth
 
 
 async def main(domo_instance: str, domo_access_token: str):

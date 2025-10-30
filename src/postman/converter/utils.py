@@ -1,7 +1,7 @@
 import os
 import re
 import shutil
-from typing import Any, Dict, Optional, Union
+from typing import Any, Optional, Union
 
 import requests
 
@@ -66,9 +66,9 @@ def upsert_folder(folder_path: str, is_replace: bool = False) -> None:
 def gd_requests(
     method: str,
     url: str,
-    headers: Optional[Dict[str, str]] = None,
-    params: Optional[Dict[str, str]] = None,
-    body: Optional[Union[str, Dict[str, Any]]] = None,
+    headers: Optional[dict[str, str]] = None,
+    params: Optional[dict[str, str]] = None,
+    body: Optional[Union[str, dict[str, Any]]] = None,
     debug_api: bool = False,
 ) -> requests.Response:
     """Wrapper around requests.request that handles authentication and common parameters.

@@ -5,10 +5,9 @@ Quick progress checker for type hints implementation
 
 import ast
 from pathlib import Path
-from typing import Dict
 
 
-def count_functions_with_type_hints(file_path: Path) -> Dict[str, int]:
+def count_functions_with_type_hints(file_path: Path) -> dict[str, int]:
     """Count functions with and without type hints in a file"""
     try:
         with open(file_path, encoding="utf-8") as f:
