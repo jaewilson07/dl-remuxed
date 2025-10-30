@@ -18,10 +18,10 @@ __all__ = [
     "elevate_user_otp",
 ]
 
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 import httpx
-from dc_logger.decorators import log_call, LogDecoratorConfig
+from dc_logger.decorators import LogDecoratorConfig, log_call
 
 from ..client import response as rgd
 from ..client.exceptions import AuthError, RouteError
@@ -57,7 +57,7 @@ class InvalidAuthTypeError(RouteError):
         self,
         res=None,
         required_auth_type: Optional[Any] = None,
-        required_auth_type_ls: Optional[List[Any]] = None,
+        required_auth_type_ls: Optional[list[Any]] = None,
         **kwargs,
     ):
         # Convert class types to strings
@@ -109,7 +109,7 @@ class NoAccessTokenReturned(RouteError):
 
 @log_call(
     level_name="route",
-    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor())
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
 )
 async def get_full_auth(
     domo_instance: str,  # domo_instance.domo.com
@@ -210,7 +210,7 @@ async def get_full_auth(
 
 @log_call(
     level_name="route",
-    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor())
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
 )
 async def get_developer_auth(
     domo_client_id: str,
@@ -283,7 +283,7 @@ async def get_developer_auth(
 
 @log_call(
     level_name="route",
-    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor())
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
 )
 async def who_am_i(
     auth: Any,
@@ -356,7 +356,7 @@ async def who_am_i(
 
 @log_call(
     level_name="route",
-    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor())
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
 )
 async def elevate_user_otp(
     auth: Any,

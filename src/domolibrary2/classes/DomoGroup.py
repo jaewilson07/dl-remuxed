@@ -1,13 +1,13 @@
 __all__ = ["Group_Class_Error", "DomoGroup", "DomoGroups"]
 
 from dataclasses import dataclass, field
-from typing import List, Union
+from typing import Union, list
 
 import httpx
 
 from ..client import exceptions as dmde
-from ..client.exceptions import RouteError
 from ..client.auth import DomoAuth
+from ..client.exceptions import RouteError
 from ..entities.entities import DomoEntity
 from ..routes import group as group_routes
 from ..routes.group import Group_CRUD_Error, GroupType_Enum
@@ -26,7 +26,7 @@ class Group_Class_Error(dmde.ClassError):
         )
 
 
-@dataclass
+@dataclass(eq=False)
 class DomoGroup(DomoEntity):
     auth: DomoAuth = field(repr=False)
     id: str
@@ -47,16 +47,14 @@ class DomoGroup(DomoEntity):
 
     Membership: DomoMembership_Group = field(repr=False, default=None)
 
+    @property
+    def entity_type(self) -> str:
+        return "group"
+
     def __post_init__(self):
         self.Membership = DomoMembership_Group.from_parent(parent=self)
 
         self.is_system = True if self.type == "system" else False
-
-    def __eq__(self, other):
-        if self.__class__.__name__ != other.__class__.__name__:
-            return False
-
-        return self.id == other.id
 
     @classmethod
     def from_dict(cls, auth: DomoAuth, obj: dict):
@@ -91,7 +89,7 @@ class DomoGroup(DomoEntity):
         )
 
     @staticmethod
-    def _groups_to_domo_group(json_list, auth: DomoAuth) -> List[dict]:
+    def _groups_to_domo_group(json_list, auth: DomoAuth) -> list[dict]:
         domo_groups = [DomoGroup.from_dict(auth=auth, obj=obj) for obj in json_list]
 
         return domo_groups
@@ -339,7 +337,7 @@ class DomoGroups:
 
     is_hide_system_groups: bool = None
 
-    groups: List[DomoGroup] = None
+    groups: list[DomoGroup] = None
 
     @staticmethod
     def _groups_to_domo_group(json_list, auth: DomoAuth):
@@ -432,7 +430,7 @@ class DomoGroups:
 
     async def search_by_name(
         self,
-        group_name: List[str],
+        group_name: list[str],
         is_hide_system_groups: bool = None,
         only_allow_one: bool = True,
         return_raw: bool = False,
@@ -440,7 +438,7 @@ class DomoGroups:
         debug_num_stacks_to_drop: bool = False,
         session: httpx.AsyncClient = None,
     ) -> Union[
-        "DomoGroup", List["DomoGroup"]
+        "DomoGroup", list["DomoGroup"]
     ]:  # by default returns one DomoGroup, but can return a list of DomoGroups
         domo_groups = await self.get(
             is_hide_system_groups=is_hide_system_groups,
@@ -511,7 +509,7 @@ class DomoGroups:
                 session=session,
             )
 
-        except DomoError:
+        except RouteError:
             await group_routes.update_group(
                 auth=self.auth,
                 group_id=domo_group.id,
@@ -563,7 +561,7 @@ async def get(
 
 async def search_by_name(
     self,
-    group_name: List[str],
+    group_name: list[str],
     is_hide_system_groups: bool = None,
     only_allow_one: bool = True,
     return_raw: bool = False,
@@ -571,7 +569,7 @@ async def search_by_name(
     debug_num_stacks_to_drop: bool = False,
     session: httpx.AsyncClient = None,
 ) -> Union[
-    DomoGroup, List[DomoGroup]
+    DomoGroup, list[DomoGroup]
 ]:  # by default returns one DomoGroup, but can return a list of DomoGroups
     domo_groups = await self.get(
         is_hide_system_groups=is_hide_system_groups,
@@ -643,7 +641,7 @@ async def upsert(
             session=session,
         )
 
-    except DomoError:
+    except RouteError:
         await group_routes.update_group(
             auth=self.auth,
             group_id=domo_group.id,

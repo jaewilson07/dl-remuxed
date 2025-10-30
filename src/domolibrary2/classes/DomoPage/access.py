@@ -2,7 +2,7 @@
 
 __all__ = ["test_page_access", "get_accesslist", "share"]
 
-from typing import Dict, List, Optional, Union
+from typing import Optional, Union, list
 
 import httpx
 
@@ -85,7 +85,7 @@ async def get_accesslist(
     debug_api: bool = False,
     session: Optional[httpx.AsyncClient] = None,
     debug_num_stacks_to_drop: int = 2,
-) -> Union[ResponseGetData, Dict[str, Union[int, List]]]:
+) -> Union[ResponseGetData, dict[str, Union[int, list]]]:
     """Retrieve the access list for the page showing users and groups with access.
 
     This method fetches the comprehensive access list for a page, including:
@@ -108,11 +108,11 @@ async def get_accesslist(
             Dictionary containing:
                 - explicit_shared_user_count (int): Number of users with explicit shares
                 - total_user_count (int): Total number of users with access
-                - domo_users (List[DomoUser]): List of users with access, enriched with:
+                - domo_users (list[DomoUser]): list of users with access, enriched with:
                     - custom_attributes['is_explicit_share']: True if directly shared
-                    - custom_attributes['group_membership']: List of groups user belongs to
+                    - custom_attributes['group_membership']: list of groups user belongs to
                     - custom_attributes['is_owner']: True if user is an owner
-                - domo_groups (List[DomoGroup]): List of groups with access, enriched with:
+                - domo_groups (list[DomoGroup]): list of groups with access, enriched with:
                     - custom_attributes['is_owner']: True if group is an owner
 
     Raises:
@@ -244,8 +244,8 @@ async def get_accesslist(
 async def share(
     self,
     auth: Optional[DomoAuth] = None,
-    domo_users: Optional[Union[List, object]] = None,
-    domo_groups: Optional[Union[List, object]] = None,
+    domo_users: Optional[Union[list, object]] = None,
+    domo_groups: Optional[Union[list, object]] = None,
     message: Optional[str] = None,
     debug_api: bool = False,
     session: Optional[httpx.AsyncClient] = None,

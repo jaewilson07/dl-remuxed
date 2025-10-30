@@ -9,7 +9,7 @@ import ast
 import os
 from dataclasses import dataclass, field
 from pprint import pprint
-from typing import List
+from typing import list
 
 from ..utils import (
     compare as dmcp,
@@ -103,7 +103,7 @@ class CodeEngineManifest_Function:
     editor_end_index: int = None
     content: str = None
 
-    input_args: List[CodeEngineManifest_Argument] = field(default_factory=list)
+    input_args: list[CodeEngineManifest_Argument] = field(default_factory=list)
 
     _target_from_api: dict = field(
         default=None
@@ -128,7 +128,7 @@ class CodeEngineManifest_Function:
                 - name (str): Original function name
                 - displayName (str): Human-readable function name
                 - description (str): Function docstring
-                - inputs (List[Dict]): Parameter descriptions
+                - inputs (list[Dict]): Parameter descriptions
                 - output (Dict): Return value description
                 - variables (Dict): Variable descriptions (copy of inputs)
                 - isPrivate (bool): Whether function is private (based on underscore prefix)
@@ -203,7 +203,7 @@ class CodeEngineManifest_Function:
 
     def validate_json_to_manifest(
         self, test_obj=None, debug_prn: bool = False, is_suppress_none=False
-    ) -> List[dict]:
+    ) -> list[dict]:
         test_obj: dict = self._target_from_api or test_obj
 
         if not test_obj:

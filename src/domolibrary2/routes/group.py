@@ -21,7 +21,7 @@ __all__ = [
 ]
 
 from enum import Enum
-from typing import List, Union
+from typing import Union
 
 import httpx
 
@@ -392,7 +392,7 @@ async def update_group(
 @gd.route_function
 async def delete_groups(
     auth: DomoAuth,
-    group_ids: List[str],  # list of group_ids
+    group_ids: list[str],  # list of group_ids
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -559,10 +559,10 @@ async def get_group_membership(
 
 def generate_body_update_group_membership(
     group_id: str,
-    add_owner_arr: List[str] = None,
-    remove_owner_arr: List[str] = None,
-    remove_member_arr: List[str] = None,
-    add_member_arr: List[str] = None,
+    add_owner_arr: list[str] = None,
+    remove_owner_arr: list[str] = None,
+    remove_member_arr: list[str] = None,
+    add_member_arr: list[str] = None,
 ) -> list[dict]:
     """
     each member or owner obj should be an object of shape {"type", "id"}

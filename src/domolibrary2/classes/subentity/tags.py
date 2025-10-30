@@ -4,7 +4,7 @@ __all__ = ["DomoTags_SetTagsError", "DomoTags"]
 
 import json
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Optional, list
 
 import httpx
 
@@ -25,13 +25,13 @@ class DomoTags_SetTagsError(dmde.ClassError):
 class DomoTags(DomoSubEntity):
     """class for interacting with dataset tags"""
 
-    tags: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
 
     async def get(
         self,
         session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
-    ) -> List[str]:  # returns a list of tags
+    ) -> list[str]:  # returns a list of tags
         """gets the existing list of dataset_tags"""
 
         res = await dataset_routes.get_dataset_by_id(
@@ -50,10 +50,10 @@ class DomoTags(DomoSubEntity):
         self,
         debug_api: bool = False,
         session: Optional[httpx.AsyncClient] = None,
-    ) -> List[str]:  # returns a list of tags
+    ) -> list[str]:  # returns a list of tags
         """replaces all tags with a new list of dataset_tags"""
 
-        res = await dataset_routes.set_dataset_tags(
+        await dataset_routes.set_dataset_tags(
             auth=self.parent.auth,
             tag_ls=self.tags,
             dataset_id=self.parent.id,
@@ -67,10 +67,10 @@ class DomoTags(DomoSubEntity):
 
     async def add(
         self,
-        add_tags: List[str],
+        add_tags: list[str],
         debug_api: bool = False,
         session: Optional[httpx.AsyncClient] = None,
-    ) -> List[str]:  # returns a list of tags
+    ) -> list[str]:  # returns a list of tags
         """appends tags to the list of existing dataset_tags"""
 
         await self.get()
@@ -86,10 +86,10 @@ class DomoTags(DomoSubEntity):
 
     async def remove(
         self,
-        remove_tags: List[str],
+        remove_tags: list[str],
         debug_api: bool = False,
         session: Optional[httpx.AsyncClient] = None,
-    ) -> List[str]:  # returns a list of tags
+    ) -> list[str]:  # returns a list of tags
         """removes tags from the existing list of dataset_tags"""
 
         await self.get()

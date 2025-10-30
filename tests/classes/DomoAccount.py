@@ -6,17 +6,16 @@ with route functions according to domolibrary2 design patterns.
 """
 
 import os
-from dotenv import load_dotenv
+
 import pytest
+from dotenv import load_dotenv
 
 import domolibrary2.client.auth as dmda
 import domolibrary2.routes.account as account_routes
 from domolibrary2.classes.DomoAccount import (
     DomoAccount,
     DomoAccounts,
-    DomoAccount_Default,
 )
-from domolibrary2.routes.account import ShareAccount_AccessLevel
 
 load_dotenv()
 
@@ -176,7 +175,7 @@ if __name__ == "__main__":
 
     async def run_tests():
         print("Running DomoAccount tests...")
-        print("\n--- Test 0: Get Account List ---")
+        print("\n--- Test 0: Get Account list ---")
         account_id = await test_cell_0()
         print(f"Found account ID: {account_id}")
 

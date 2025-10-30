@@ -117,17 +117,31 @@ class DomoRole(
         )
 
     @classmethod
+    async def get_entity_by_id(cls, entity_id, auth, **kwargs):
+        return await cls.get_by_id(
+            auth=auth,
+            role_id=entity_id,
+            **kwargs,
+        )
+
+    async def get():
+        raise NotImplementedError("Subclasses must implement get method.")
+
+    async def add_relationship(self):
+        raise NotImplementedError("Subclasses must implement add_relationship method.")
+
+    @classmethod
     async def get_by_id(
         cls,
         auth: DomoAuth,
-        id: str,
+        role_id: str,
         session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
     ):
         res = await role_routes.get_role_by_id(
             auth=auth,
-            id=id,
+            role_id=role_id,
             session=session,
             debug_api=debug_api,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
@@ -461,7 +475,7 @@ class DomoRoles(DomoManager):
         # Get the full role object by ID
         self.default_role = await DomoRole.get_by_id(
             auth=self.auth,
-            id=default_role_id,
+            role_id=default_role_id,
             debug_api=debug_api,
             session=session,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,

@@ -496,7 +496,7 @@ async def get_accounts_accountsapi(
 **Line 109: `DomoAccounts.get_accounts_queryapi`**
 
 Parameter type hints:
-- `additional_filters_ls: List[str]`
+- `additional_filters_ls: list[str]`
 
 Return type: `Optional[DomoAccounts]`
 
@@ -504,7 +504,7 @@ Return type: `Optional[DomoAccounts]`
 ```python
 async def get_accounts_queryapi(
     self,
-    additional_filters_ls: List[str],
+    additional_filters_ls: list[str],
 ) -> Optional[DomoAccounts]:
     pass
 ```
@@ -1072,7 +1072,7 @@ async def update_config(
 
 **Add these imports:**
 ```python
-from typing import List, Optional
+from typing import list, Optional
 ```
 
 **Line 24: `generate_alt_search_str`**
@@ -2142,13 +2142,13 @@ from typing import Optional
 
 Parameter type hints:
 - `search_text: Any`
-- `additional_filters_ls: List[str]`
+- `additional_filters_ls: list[str]`
 
 **Suggested signature:**
 ```python
 async def search_datacenter(
     search_text: Any,
-    additional_filters_ls: List[str],
+    additional_filters_ls: list[str],
 ) -> None:
     pass
 ```
@@ -2157,13 +2157,13 @@ async def search_datacenter(
 
 Parameter type hints:
 - `search_text: Any`
-- `additional_filters_ls: List[str]`
+- `additional_filters_ls: list[str]`
 
 **Suggested signature:**
 ```python
 async def search_datasets(
     search_text: Any,
-    additional_filters_ls: List[str],
+    additional_filters_ls: list[str],
 ) -> None:
     pass
 ```
@@ -2171,12 +2171,12 @@ async def search_datasets(
 **Line 98: `get_accounts`**
 
 Parameter type hints:
-- `additional_filters_ls: List[str]`
+- `additional_filters_ls: list[str]`
 
 **Suggested signature:**
 ```python
 async def get_accounts(
-    additional_filters_ls: List[str],
+    additional_filters_ls: list[str],
 ) -> None:
     pass
 ```
@@ -2185,13 +2185,13 @@ async def get_accounts(
 
 Parameter type hints:
 - `search_text: Any`
-- `additional_filters_ls: List[str]`
+- `additional_filters_ls: list[str]`
 
 **Suggested signature:**
 ```python
 async def search_cards(
     search_text: Any,
-    additional_filters_ls: List[str],
+    additional_filters_ls: list[str],
 ) -> None:
     pass
 ```
@@ -2213,13 +2213,13 @@ async def get_cards_admin_summary(
 
 Parameter type hints:
 - `search_text: Any`
-- `additional_filters_ls: List[str]`
+- `additional_filters_ls: list[str]`
 
 **Suggested signature:**
 ```python
 async def search_codeengine(
     search_text: Any,
-    additional_filters_ls: List[str],
+    additional_filters_ls: list[str],
 ) -> None:
     pass
 ```
@@ -2664,7 +2664,7 @@ from typing import Optional, Union
 
 Parameter type hints:
 - `search_text: Any`
-- `additional_filters_ls: List[str]`
+- `additional_filters_ls: list[str]`
 - `debug_num_stacks_to_drop: int`
 
 Return type: `Union[DomoConnector, ResponseGetData, None]`
@@ -2674,7 +2674,7 @@ Return type: `Union[DomoConnector, ResponseGetData, None]`
 async def get(
     self,
     search_text: Any,
-    additional_filters_ls: List[str],
+    additional_filters_ls: list[str],
     debug_num_stacks_to_drop: int,
 ) -> Union[DomoConnector, ResponseGetData, None]:
     pass
@@ -2745,12 +2745,12 @@ async def get_policies(
 
 **Line 226: `search_pdp_policies`**
 
-Return type: `Union[Any, List[Any], None]`
+Return type: `Union[Any, list[Any], None]`
 
 **Suggested signature:**
 ```python
 async def search_pdp_policies(
-) -> Union[Any, List[Any], None]:
+) -> Union[Any, list[Any], None]:
     pass
 ```
 
@@ -3716,7 +3716,7 @@ async def update(
 
 **Add these imports:**
 ```python
-from typing import List, Optional, Union
+from typing import list, Optional, Union
 ```
 
 **Line 53: `SSO_Config.display_url`**
@@ -4342,14 +4342,14 @@ async def get(
 Parameter type hints:
 - `debug_num_stacks_to_drop: int`
 
-Return type: `Union[DomoJupyterWorkpace, List[DomoJupyterWorkpace], None]`
+Return type: `Union[DomoJupyterWorkpace, list[DomoJupyterWorkpace], None]`
 
 **Suggested signature:**
 ```python
 async def search_workspace_by_name(
     self,
     debug_num_stacks_to_drop: int,
-) -> Union[DomoJupyterWorkpace, List[DomoJupyterWorkpace], None]:
+) -> Union[DomoJupyterWorkpace, list[DomoJupyterWorkpace], None]:
     pass
 ```
 
@@ -4513,7 +4513,7 @@ def read_creds(
 
 **Add these imports:**
 ```python
-from typing import List, Optional, Union
+from typing import list, Optional, Union
 ```
 
 **Line 56: `DomoJupyter_Content.export`**
@@ -5120,12 +5120,12 @@ async def get_policies(
 
 **Line 226: `search_pdp_policies`**
 
-Return type: `Union[Any, List[Any], None]`
+Return type: `Union[Any, list[Any], None]`
 
 **Suggested signature:**
 ```python
 async def search_pdp_policies(
-) -> Union[Any, List[Any], None]:
+) -> Union[Any, list[Any], None]:
     pass
 ```
 
@@ -5603,14 +5603,14 @@ async def get_publications(
 Parameter type hints:
 - `debug_num_stacks_to_drop: int`
 
-Return type: `Union[DomoEverywhere, List[DomoEverywhere], None]`
+Return type: `Union[DomoEverywhere, list[DomoEverywhere], None]`
 
 **Suggested signature:**
 ```python
 async def search_publications(
     self,
     debug_num_stacks_to_drop: int,
-) -> Union[DomoEverywhere, List[DomoEverywhere], None]:
+) -> Union[DomoEverywhere, list[DomoEverywhere], None]:
     pass
 ```
 
@@ -5851,14 +5851,14 @@ async def get(
 Parameter type hints:
 - `debug_num_stacks_to_drop: int`
 
-Return type: `Union[DomoRole, List[DomoRole], None]`
+Return type: `Union[DomoRole, list[DomoRole], None]`
 
 **Suggested signature:**
 ```python
 async def search_by_name(
     self,
     debug_num_stacks_to_drop: int,
-) -> Union[DomoRole, List[DomoRole], None]:
+) -> Union[DomoRole, list[DomoRole], None]:
     pass
 ```
 
@@ -6278,7 +6278,7 @@ async def upsert_user(
 
 **Add these imports:**
 ```python
-from typing import List
+from typing import list
 ```
 
 **Line 79: `_DomoAuth_Optional.who_am_i`**
@@ -6410,7 +6410,7 @@ def convert_auth(
 
 Parameter type hints:
 - `function_name: str`
-- `required_auth_type_ls: List[str]`
+- `required_auth_type_ls: list[str]`
 
 Return type: `bool`
 
@@ -6418,7 +6418,7 @@ Return type: `bool`
 ```python
 def test_is_jupyter_auth(
     function_name: str,
-    required_auth_type_ls: List[str],
+    required_auth_type_ls: list[str],
 ) -> bool:
     pass
 ```
@@ -6743,7 +6743,7 @@ async def looper(
 
 **Add these imports:**
 ```python
-from typing import List, Optional
+from typing import list, Optional
 ```
 
 **Line 29: `get_access_tokens`**
@@ -6811,7 +6811,7 @@ async def revoke_access_token(
 
 **Add these imports:**
 ```python
-from typing import List, Optional
+from typing import list, Optional
 ```
 
 **Line 55: `get_available_data_providers`**
@@ -7051,7 +7051,7 @@ async def share_account_v1(
 
 **Add these imports:**
 ```python
-from typing import List, Optional
+from typing import list, Optional
 ```
 
 **Line 22: `get_activity_log_object_types`**
@@ -7200,7 +7200,7 @@ async def update_dataset_ai_readiness(
 
 **Add these imports:**
 ```python
-from typing import List, Optional
+from typing import list, Optional
 ```
 
 **Line 52: `get_datastores`**
@@ -7388,7 +7388,7 @@ async def update_document(
 
 **Add these imports:**
 ```python
-from typing import List, Optional
+from typing import list, Optional
 ```
 
 **Line 68: `get_applications`**
@@ -7734,14 +7734,14 @@ Parameter type hints:
 - `debug_num_stacks_to_drop: int`
 - `parent_class: Any`
 
-Return type: `Union[Any, List[Any], None]`
+Return type: `Union[Any, list[Any], None]`
 
 **Suggested signature:**
 ```python
 async def search_beastmodes(
     debug_num_stacks_to_drop: int,
     parent_class: Any,
-) -> Union[Any, List[Any], None]:
+) -> Union[Any, list[Any], None]:
     pass
 ```
 
@@ -7846,7 +7846,7 @@ async def get_page_beastmodes(
 
 **Add these imports:**
 ```python
-from typing import List, Optional
+from typing import list, Optional
 ```
 
 **Line 24: `get_bootstrap`**
@@ -8174,7 +8174,7 @@ async def delete_integration(
 
 **Add these imports:**
 ```python
-from typing import List, Optional
+from typing import list, Optional
 ```
 
 **Line 28: `get_packages`**
@@ -8292,7 +8292,7 @@ async def test_package_is_identical(
 
 **Add these imports:**
 ```python
-from typing import List, Optional
+from typing import list, Optional
 ```
 
 **Line 34: `deploy_code_engine_package`**
@@ -8391,13 +8391,13 @@ def generate_search_datacenter_account_body(
 
 Parameter type hints:
 - `search_text: Any`
-- `additional_filters_ls: List[str]`
+- `additional_filters_ls: list[str]`
 
 **Suggested signature:**
 ```python
 async def search_datacenter(
     search_text: Any,
-    additional_filters_ls: List[str],
+    additional_filters_ls: list[str],
 ) -> None:
     pass
 ```
@@ -8513,13 +8513,13 @@ async def update_dataflow_definition(
 
 Parameter type hints:
 - `dataflow_id: str`
-- `tag_ls: List[str]`
+- `tag_ls: list[str]`
 
 **Suggested signature:**
 ```python
 def generate_tag_body(
     dataflow_id: str,
-    tag_ls: List[str],
+    tag_ls: list[str],
 ) -> None:
     pass
 ```
@@ -8636,12 +8636,12 @@ def generate_search_dataflows_to_jupyter_workspaces_body(
 
 **Line 385: `search_dataflows_to_jupyter_workspaces`**
 
-Return type: `Union[Any, List[Any], None]`
+Return type: `Union[Any, list[Any], None]`
 
 **Suggested signature:**
 ```python
 async def search_dataflows_to_jupyter_workspaces(
-) -> Union[Any, List[Any], None]:
+) -> Union[Any, list[Any], None]:
     pass
 ```
 
@@ -9217,7 +9217,7 @@ async def add_design_admin(
 
 **Add these imports:**
 ```python
-from typing import List
+from typing import list
 ```
 
 **Line 21: `create_filesets_index`**
@@ -9255,13 +9255,13 @@ async def get_fileset_by_id(
 Parameter type hints:
 - `debug_num_stacks_to_drop: int`
 
-Return type: `Union[Any, List[Any], None]`
+Return type: `Union[Any, list[Any], None]`
 
 **Suggested signature:**
 ```python
 async def search_fileset_files(
     debug_num_stacks_to_drop: int,
-) -> Union[Any, List[Any], None]:
+) -> Union[Any, list[Any], None]:
     pass
 ```
 
@@ -9975,7 +9975,7 @@ async def set_sso_certificate(
 
 **Add these imports:**
 ```python
-from typing import List, Optional
+from typing import list, Optional
 ```
 
 **Line 49: `get_jupyter_workspaces`**
@@ -10422,12 +10422,12 @@ async def add_page_owner(
 
 **Line 89: `search_pdp_policies_by_name`**
 
-Return type: `Union[Any, List[Any], None]`
+Return type: `Union[Any, list[Any], None]`
 
 **Suggested signature:**
 ```python
 def search_pdp_policies_by_name(
-) -> Union[Any, List[Any], None]:
+) -> Union[Any, list[Any], None]:
     pass
 ```
 
@@ -10658,7 +10658,7 @@ async def accept_invite_by_id_v2(
 
 **Add these imports:**
 ```python
-from typing import List, Optional
+from typing import list, Optional
 ```
 
 **Line 99: `get_role_by_id`**
@@ -10781,7 +10781,7 @@ def body_fn(
 
 **Add these imports:**
 ```python
-from typing import List, Optional
+from typing import list, Optional
 ```
 
 **Line 25: `get_streams`**
@@ -11261,7 +11261,7 @@ async def delete_user_attribute(
 
 **Add these imports:**
 ```python
-from typing import List, Optional
+from typing import list, Optional
 ```
 
 **Line 17: `get_workflow`**
@@ -11965,7 +11965,7 @@ async def remove_partition_by_x_days(
 
 **Add these imports:**
 ```python
-from typing import List, Optional
+from typing import list, Optional
 ```
 
 **Line 9: `extract_role_hierarchy`**

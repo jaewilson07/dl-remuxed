@@ -18,7 +18,6 @@ __all__ = [
     "refresh_publish_jobs",
 ]
 
-from typing import List
 
 import httpx
 
@@ -162,8 +161,8 @@ async def get_subscription_by_id(
 
 def generate_publish_body(
     url: str,
-    sub_domain_ls: List[str],
-    content_ls: List[str],
+    sub_domain_ls: list[str],
+    content_ls: list[str],
     name: str,
     description: str,
     unique_id: str,

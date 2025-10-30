@@ -15,7 +15,7 @@ __all__ = [
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, List
+from typing import Any, Callable, list
 
 import httpx
 
@@ -35,8 +35,8 @@ class DomoLineage_Link(ABC):
 
     entity: Any = field(repr=False)  # DomoDataset, DomoDataflow, DomoPublication
 
-    parents: List["DomoLineage_Link"] = field(default_factory=list)
-    children: List["DomoLineage_Link"] = field(default_factory=list)
+    parents: list["DomoLineage_Link"] = field(default_factory=list)
+    children: list["DomoLineage_Link"] = field(default_factory=list)
 
     def __eq__(self, other):
         if other.__class__.__name__ != self.__class__.__name__:
@@ -261,7 +261,7 @@ class DomoLineage:
 
     parent: Any = field(repr=False, default=None)
 
-    lineage: List[DomoLineage_Link] = field(repr=False, default_factory=list)
+    lineage: list[DomoLineage_Link] = field(repr=False, default_factory=list)
 
     # raw_datacenter: dict = field(repr=False, default_factory=dict)
 
@@ -385,7 +385,16 @@ class DomoLineage:
             parent_auth=parent_auth, parent_auth_retrieval_fn=parent_auth_retrieval_fn
         )
 
-        self.lineage.append(parent_entity)
+        # Wrap parent entity in DomoLineageLink_Dataset
+        parent_lineage_link = DomoLineageLink_Dataset(
+            auth=parent_auth,
+            id=parent_entity.id,
+            type="DATA_SOURCE",
+            entity=parent_entity,
+            children=[],
+            parents=[],
+        )
+        self.lineage.append(parent_lineage_link)
 
         # parent_entity.parent_auth = parent_auth
 
@@ -466,7 +475,7 @@ class DomoLineage:
 
 @dataclass
 class DomoLineage_Page(DomoLineage):
-    cards: List[Any] = field(repr=False, default=None)
+    cards: list[Any] = field(repr=False, default=None)
 
     @property
     def parent_type(self) -> DomoLineage_ParentTypeEnum:
@@ -536,10 +545,10 @@ class DomoLineage_Publication(DomoLineage):
         default=DomoLineage_ParentTypeEnum.DomoPublication, repr=False
     )
 
-    datasets: List[Any] = field(repr=False, default=None)
-    cards: List[Any] = field(repr=False, default=None)
-    page: List[Any] = field(repr=False, default=None)
-    unsorted: List[Any] = field(repr=False, default=None)
+    datasets: list[Any] = field(repr=False, default=None)
+    cards: list[Any] = field(repr=False, default=None)
+    page: list[Any] = field(repr=False, default=None)
+    unsorted: list[Any] = field(repr=False, default=None)
 
     async def get(
         self,

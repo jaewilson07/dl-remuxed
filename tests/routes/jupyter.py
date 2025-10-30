@@ -9,9 +9,10 @@ Ensures backward compatibility and proper modular organization.
 # Add src directory to Python path for imports
 
 
-import pytest
 import inspect
 from typing import get_type_hints
+
+import pytest
 
 
 class TestJupyterImports:
@@ -20,28 +21,19 @@ class TestJupyterImports:
     def test_unified_imports_all_functions(self):
         """Test that all expected functions can be imported from main module."""
         from domolibrary2.routes.jupyter import (
-            # Core functions
-            get_jupyter_workspaces,
-            get_jupyter_workspace_by_id,
-            start_jupyter_workspace,
-            parse_instance_service_location_and_prefix,
-            get_workspace_auth_token_params,
-            # Content management functions
-            get_jupyter_content,
             create_jupyter_obj,
             delete_jupyter_content,
-            update_jupyter_file,
-            get_content,
-            get_content_recursive,
-            # Configuration functions
-            update_jupyter_workspace_config,
             # Utility functions
             generate_update_jupyter_body,
-            generate_update_jupyter_body__new_content_path,
-            generate_update_jupyter_body__text,
-            generate_update_jupyter_body__ipynb,
-            generate_update_jupyter_body__directory,
-            generate_update_jupyter_body_factory,
+            get_content,
+            get_jupyter_content,
+            get_jupyter_workspace_by_id,
+            # Core functions
+            get_jupyter_workspaces,
+            start_jupyter_workspace,
+            update_jupyter_file,
+            # Configuration functions
+            update_jupyter_workspace_config,
         )
 
         # Verify all functions are callable
@@ -67,13 +59,13 @@ class TestJupyterImports:
     def test_unified_imports_all_exceptions(self):
         """Test that all exception classes can be imported from main module."""
         from domolibrary2.routes.jupyter import (
-            Jupyter_GET_Error,
-            SearchJupyter_NotFound,
             Jupyter_CRUD_Error,
-            JupyterWorkspace_Error,
+            Jupyter_GET_Error,
             # Backward compatibility aliases
             JupyterAPI_Error,
             JupyterAPI_WorkspaceStarted,
+            JupyterWorkspace_Error,
+            SearchJupyter_NotFound,
         )
 
         # Verify all exceptions are proper exception classes
@@ -97,11 +89,11 @@ class TestJupyterImports:
     def test_modular_core_imports(self):
         """Test that core functions can be imported from core module."""
         from domolibrary2.routes.jupyter.core import (
-            get_jupyter_workspaces,
             get_jupyter_workspace_by_id,
-            start_jupyter_workspace,
-            parse_instance_service_location_and_prefix,
+            get_jupyter_workspaces,
             get_workspace_auth_token_params,
+            parse_instance_service_location_and_prefix,
+            start_jupyter_workspace,
         )
 
         # Verify functions have proper signatures and decorations
@@ -118,15 +110,12 @@ class TestJupyterImports:
     def test_modular_content_imports(self):
         """Test that content functions can be imported from content module."""
         from domolibrary2.routes.jupyter.content import (
-            get_jupyter_content,
             create_jupyter_obj,
             delete_jupyter_content,
-            update_jupyter_file,
-            get_content,
-            get_content_recursive,
             # Utility functions moved here
-            generate_update_jupyter_body,
-            generate_update_jupyter_body_factory,
+            get_content,
+            get_jupyter_content,
+            update_jupyter_file,
         )
 
         # Verify route functions have decorators
@@ -153,15 +142,14 @@ class TestJupyterImports:
 
     def test_modular_exception_imports(self):
         """Test that exceptions can be imported from exceptions module."""
-        from domolibrary2.routes.jupyter.exceptions import (
-            Jupyter_GET_Error,
-            SearchJupyter_NotFound,
-            Jupyter_CRUD_Error,
-            JupyterWorkspace_Error,
-        )
-
         # Verify exception hierarchy
         from domolibrary2.client.exceptions import RouteError
+        from domolibrary2.routes.jupyter.exceptions import (
+            Jupyter_CRUD_Error,
+            Jupyter_GET_Error,
+            JupyterWorkspace_Error,
+            SearchJupyter_NotFound,
+        )
 
         for exc in [
             Jupyter_GET_Error,
@@ -193,9 +181,9 @@ class TestJupyterImports:
     def test_function_signatures_have_proper_types(self):
         """Test that functions have proper type hints."""
         from domolibrary2.routes.jupyter import (
-            get_jupyter_workspaces,
-            get_jupyter_workspace_by_id,
             create_jupyter_obj,
+            get_jupyter_workspace_by_id,
+            get_jupyter_workspaces,
         )
 
         # Test a few key functions have type hints
@@ -260,11 +248,9 @@ class TestJupyterImports:
         # Test that we can import with the old style
         try:
             from domolibrary2.routes.jupyter import (
+                Jupyter_GET_Error,
                 JupyterAPI_Error,
                 JupyterAPI_WorkspaceStarted,
-            )
-            from domolibrary2.routes.jupyter import (
-                Jupyter_GET_Error,
                 JupyterWorkspace_Error,
             )
 
@@ -279,10 +265,7 @@ class TestJupyterImports:
         """Test that there are no circular import issues between modules."""
         # Import all modules to ensure no circular dependencies
         try:
-            from domolibrary2.routes.jupyter import exceptions
-            from domolibrary2.routes.jupyter import core
-            from domolibrary2.routes.jupyter import content
-            from domolibrary2.routes.jupyter import config
+            from domolibrary2.routes.jupyter import config, content, core, exceptions
 
             # Verify each module has its expected attributes
             assert hasattr(exceptions, "Jupyter_GET_Error")

@@ -1,10 +1,11 @@
-"""
+r"""
 Test file generated from 10_get_data.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
@@ -70,7 +71,6 @@ async def test_cell_3(token_auth=token_auth):
     await auth.who_am_i()
 
     pixels = 300
-    debug_api = False
 
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/avatar/USER/{auth.user_id}?size={pixels}"
 

@@ -7,15 +7,15 @@ the global logger with a custom Datadog configuration.
 
 import asyncio
 import os
-from dotenv import load_dotenv
 
 from dc_logger.client.base import (
-    Logger,
-    HandlerInstance,
     HandlerBufferSettings,
+    HandlerInstance,
+    Logger,
     set_global_logger,
 )
-from dc_logger.logs.services.cloud.datadog import DatadogServiceConfig, DatadogHandler
+from dc_logger.logs.services.cloud.datadog import DatadogHandler, DatadogServiceConfig
+from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
@@ -63,9 +63,11 @@ async def main():
 
     # Import Domo classes after logger setup
     from domolibrary2.client.auth import DomoTokenAuth
-    from domolibrary2.routes import dataset as dataset_routes
-    from domolibrary2.routes import card as card_routes
-    from domolibrary2.routes import user as user_routes
+    from domolibrary2.routes import (
+        card as card_routes,
+        dataset as dataset_routes,
+        user as user_routes,
+    )
 
     # Create authentication object
     auth = DomoTokenAuth(

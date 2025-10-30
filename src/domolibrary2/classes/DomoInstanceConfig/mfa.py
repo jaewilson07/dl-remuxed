@@ -2,6 +2,7 @@ __all__ = ["MFAConfig_InstantiationError", "MFA_Config"]
 
 from dataclasses import dataclass, field
 from typing import Optional
+
 import httpx
 
 from ...client import exceptions as dmde

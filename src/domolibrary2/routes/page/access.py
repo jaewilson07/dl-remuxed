@@ -15,9 +15,10 @@ __all__ = [
     "add_page_owner",
 ]
 
-from typing import List, Optional, Union
+from typing import Optional
 
 import httpx
+from dc_logger.decorators import LogDecoratorConfig, log_call
 
 from ...client import (
     get_data as gd,
@@ -25,7 +26,6 @@ from ...client import (
 )
 from ...client.auth import DomoAuth
 from ...utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
-from dc_logger.decorators import log_call, LogDecoratorConfig
 from .exceptions import (
     Page_CRUD_Error,
     Page_GET_Error,
@@ -39,8 +39,8 @@ from .exceptions import (
     level_name="route",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 async def get_page_access_test(
     auth: DomoAuth,
@@ -100,8 +100,8 @@ async def get_page_access_test(
     level_name="route",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 async def get_page_access_list(
     auth: DomoAuth,
@@ -187,14 +187,14 @@ async def get_page_access_list(
     level_name="route",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 async def add_page_owner(
     auth: DomoAuth,
-    page_id_ls: List[Union[int, str]],
-    group_id_ls: Optional[List[Union[int, str]]] = None,
-    user_id_ls: Optional[List[Union[int, str]]] = None,
+    page_id_ls: list[int | str],
+    group_id_ls: Optional[list[int | str]] = None,
+    user_id_ls: Optional[list[int | str]] = None,
     note: str = "",
     send_email: bool = False,
     session: Optional[httpx.AsyncClient] = None,
@@ -207,7 +207,7 @@ async def add_page_owner(
 
     Args:
         auth: Authentication object containing credentials and instance info
-        page_id_ls: List of page IDs to add owners to
+        page_id_ls: list of page IDs to add owners to
         group_id_ls: Optional list of group IDs to add as owners
         user_id_ls: Optional list of user IDs to add as owners
         note: Optional note to include with ownership changes

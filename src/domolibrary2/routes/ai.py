@@ -15,7 +15,7 @@ __all__ = [
 
 import json
 from enum import Enum
-from typing import List, Optional, TypedDict
+from typing import Optional, TypedDict
 
 import httpx
 
@@ -211,7 +211,7 @@ async def get_dataset_ai_readiness(
 class DataDictionary_ColumnsDict(TypedDict):
     name: str
     description: str
-    synonyms: List[str]
+    synonyms: list[str]
     subType: str
     agentEnabled: bool
     beastmodeId: str
@@ -223,7 +223,7 @@ async def create_dataset_ai_readiness(
     dataset_id: str,
     dictionary_name: str,
     description: Optional[str] = None,
-    columns: Optional[List[DataDictionary_ColumnsDict]] = None,
+    columns: Optional[list[DataDictionary_ColumnsDict]] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     session: Optional[httpx.AsyncClient] = None,
@@ -259,7 +259,7 @@ async def create_dataset_ai_readiness(
 class ColumnsDict(TypedDict):
     name: str
     description: str
-    synonyms: List[str]
+    synonyms: list[str]
     subType: str
     agentEnabled: bool
     beastmodeId: str
@@ -271,7 +271,7 @@ async def update_dataset_ai_readiness(
     dataset_id: str,
     dictionary_id: Optional[str] = None,
     dictionary_name: Optional[str] = None,
-    columns: Optional[List[ColumnsDict]] = None,
+    columns: Optional[list[ColumnsDict]] = None,
     description: Optional[str] = None,
     body: Optional[dict] = None,
     debug_api: bool = False,

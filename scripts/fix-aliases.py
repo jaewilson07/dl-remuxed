@@ -6,7 +6,6 @@ This script identifies and fixes common alias patterns that were removed
 during nbdev dependency removal.
 """
 
-import os
 import re
 from pathlib import Path
 
@@ -14,7 +13,7 @@ from pathlib import Path
 def fix_aliases_in_file(file_path: Path):
     """Fix common alias patterns in a Python file."""
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         original_content = content

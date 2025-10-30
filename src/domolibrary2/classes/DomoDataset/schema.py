@@ -10,7 +10,7 @@ __all__ = [
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, List, Optional
+from typing import Any, list
 
 import httpx
 import pandas as pd
@@ -29,7 +29,7 @@ class DatasetSchema_Types(Enum):
 
 
 class DatasetSchema_InvalidSchema(ClassError):
-    def __init__(self, missing_columns: List[str]):
+    def __init__(self, missing_columns: list[str]):
         message = (
             f"Dataset schema is missing required columns: {', '.join(missing_columns)}"
         )
@@ -44,7 +44,7 @@ class DomoDataset_Schema_Column:
     order: int = 0
     visible: bool = True
     upsert_key: bool = False
-    tags: List[Any] = field(default_factory=list)  # DomoTag
+    tags: list[Any] = field(default_factory=list)  # DomoTag
     raw: dict = field(repr=False, default_factory=dict)
 
     def __eq__(self, other):
@@ -85,7 +85,7 @@ class DomoDataset_Schema_Column:
 class DomoDataset_Schema(DomoSubEntity):
     """class for interacting with dataset schemas"""
 
-    columns: List[DomoDataset_Schema_Column] = field(default_factory=list)
+    columns: list[DomoDataset_Schema_Column] = field(default_factory=list)
 
     # @classmethod
     # def from_parent(cls, parent):
@@ -105,7 +105,7 @@ class DomoDataset_Schema(DomoSubEntity):
         self,
         debug_api: bool = False,
         return_raw: bool = False,  # return the raw response
-    ) -> List[DomoDataset_Schema_Column]:
+    ) -> list[DomoDataset_Schema_Column]:
         """method that retrieves schema for a dataset"""
 
         res = await dataset_routes.get_schema(
@@ -128,9 +128,6 @@ class DomoDataset_Schema(DomoSubEntity):
         self,
         df: pd.DataFrame,  # test dataframe to compare against
     ):
-        dataset_id = self.parent.id
-        auth = self.parent.auth
-
         await self.get()
 
         missing_columns = [
@@ -249,7 +246,7 @@ class DomoDataset_Schema(DomoSubEntity):
         if return_raw:
             return schema_obj
 
-        res = await dataset_routes.alter_schema_descriptions(
+        await dataset_routes.alter_schema_descriptions(
             dataset_id=dataset_id,
             auth=auth,
             schema_obj=schema_obj,

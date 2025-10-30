@@ -10,7 +10,7 @@ __all__ = [
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Optional, list
 
 import httpx
 
@@ -18,14 +18,14 @@ from ...client.auth import DomoAuth
 from ...client.entities import DomoEntity
 from ...routes import application as application_routes
 from ...routes.application import (
+    Application_CRUD_Error,
     Application_GET_Error,
     ApplicationError_NoJobRetrieved,
-    Application_CRUD_Error,
 )
 from .Job_Base import DomoJob_Base, DomoTrigger, DomoTrigger_Schedule
 
 
-@dataclass
+@dataclass(eq=False)
 class DomoJob(DomoEntity):
     """A class for interacting with Domo Application Jobs.
 
@@ -50,8 +50,8 @@ class DomoJob(DomoEntity):
         description: Job description
         execution_payload: Job execution configuration
         share_state: Job sharing state
-        accounts: List of account IDs associated with the job
-        triggers: List of job triggers
+        accounts: list of account IDs associated with the job
+        triggers: list of job triggers
     """
 
     # Required DomoEntity attributes
@@ -74,8 +74,8 @@ class DomoJob(DomoEntity):
     description: str = None
     execution_payload: dict = field(default_factory=dict)
     share_state: dict = field(default_factory=dict)
-    accounts: List[str] = field(default_factory=list)
-    triggers: List[DomoTrigger] = field(default_factory=list)
+    accounts: list[str] = field(default_factory=list)
+    triggers: list[DomoTrigger] = field(default_factory=list)
 
     @property
     def display_url(self) -> str:
@@ -271,8 +271,8 @@ class DomoJob(DomoEntity):
         execution_payload: dict,
         job_description: str = None,
         execution_timeout: int = 1440,
-        accounts: List[str] = None,
-        triggers: List[dict] = None,
+        accounts: list[str] = None,
+        triggers: list[dict] = None,
         return_raw: bool = False,
         debug_api: bool = False,
         session: Optional[httpx.AsyncClient] = None,
@@ -287,8 +287,8 @@ class DomoJob(DomoEntity):
             execution_payload: Job execution configuration
             job_description: Optional job description
             execution_timeout: Timeout in minutes (default 1440)
-            accounts: List of account IDs
-            triggers: List of job triggers
+            accounts: list of account IDs
+            triggers: list of job triggers
             return_raw: Return raw ResponseGetData instead of DomoJob
             debug_api: Enable API debugging
             session: Optional httpx session for request pooling

@@ -27,7 +27,7 @@ Route Functions:
 from __future__ import annotations
 
 from enum import Enum
-from typing import Dict, List, Optional, TypedDict, Union
+from typing import TypedDict
 
 import httpx
 
@@ -37,7 +37,6 @@ from ...client import (
 )
 from ...client.auth import DomoAuth
 from ...entities.base import DomoEnumMixin
-
 from .exceptions import (
     Datacenter_GET_Error,
     SearchDatacenter_NoResultsFound,
@@ -122,15 +121,15 @@ class LineageNode(TypedDict):
     type: str
     id: str
     complete: bool
-    children: List[LineageNode]
-    parents: List[LineageNode]
-    descendantCounts: Optional[Dict[str, int]]
-    ancestorCounts: Optional[Dict[str, int]]
+    children: list[LineageNode]
+    parents: list[LineageNode]
+    descendantCounts: dict[str, int] | None
+    ancestorCounts: dict[str, int] | None
 
 
 def generate_search_datacenter_filter(
-    field: Union[str, Enum],  # use Datacenter_Filter_Field_Enum
-    value: Union[str, Enum],
+    field: str | Enum,  # use Datacenter_Filter_Field_Enum
+    value: str | Enum,
     is_not: bool = False,  # to handle exclusion
 ):
     """Generate a filter object for datacenter search.
@@ -167,11 +166,11 @@ def generate_search_datacenter_filter_search_term(search_term: str) -> dict:
 
 
 def generate_search_datacenter_body(
-    search_text: Optional[str] = None,
-    entity_type: Union[
-        str, Datacenter_Enum, List[Datacenter_Enum]
-    ] = "DATASET",  # can accept one entity_type or a list of entity_types
-    additional_filters_ls: Optional[list[dict]] = None,
+    search_text: str | None = None,
+    entity_type: (
+        str | Datacenter_Enum | list[Datacenter_Enum]
+    ) = "DATASET",  # can accept one entity_type or a list of entity_types
+    additional_filters_ls: list[dict] | None = None,
     combineResults: bool = True,
     limit: int = 100,
     offset: int = 0,
@@ -256,20 +255,18 @@ def generate_search_datacenter_account_body(
 @gd.route_function
 async def search_datacenter(
     auth: DomoAuth,
-    maximum: Optional[int] = None,
-    body: Optional[
-        dict
-    ] = None,  # either pass a body or generate a body in the function using search_text, entity_type, and additional_filters parameters
-    search_text: Optional[str] = None,
-    entity_type: Union[
-        str, list
-    ] = "dataset",  # can accept one value or a list of values
-    additional_filters_ls: Optional[list] = None,
-    arr_fn: Optional[callable] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    maximum: int | None = None,
+    body: (
+        dict | None
+    ) = None,  # either pass a body or generate a body in the function using search_text, entity_type, and additional_filters parameters
+    search_text: str | None = None,
+    entity_type: str | list = "dataset",  # can accept one value or a list of values
+    additional_filters_ls: list | None = None,
+    arr_fn: callable | None = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_loop: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
@@ -350,12 +347,12 @@ async def search_datacenter(
 @gd.route_function
 async def get_connectors(
     auth: DomoAuth,
-    search_text: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    search_text: str | None = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
-    additional_filters_ls: Optional[List[dict]] = None,
+    parent_class: str | None = None,
+    additional_filters_ls: list[dict] | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Retrieve available connectors from datacenter.
@@ -419,9 +416,9 @@ async def get_lineage_upstream(
     auth: DomoAuth,
     entity_type: str,
     entity_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
@@ -470,14 +467,14 @@ async def get_lineage_upstream(
 @gd.route_function
 async def share_resource(
     auth: DomoAuth,
-    resource_ids: Union[list, str, int],
+    resource_ids: list | str | int,
     resource_type: ShareResource_Enum,
-    group_ids: Optional[Union[list, str, int]] = None,
-    user_ids: Optional[Union[list, str, int]] = None,
-    message: Optional[str] = None,  # email to user
+    group_ids: list | str | int | None = None,
+    user_ids: list | str | int | None = None,
+    message: str | None = None,  # email to user
     debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
-    parent_class: Optional[str] = None,
+    session: httpx.AsyncClient | None = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:

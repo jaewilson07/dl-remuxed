@@ -7,15 +7,15 @@ the global logger with a custom console configuration.
 
 import asyncio
 import os
-from dotenv import load_dotenv
 
 from dc_logger.client.base import (
-    Logger,
-    HandlerInstance,
     HandlerBufferSettings,
+    HandlerInstance,
+    Logger,
     set_global_logger,
 )
-from dc_logger.logs.services.console import ConsoleServiceConfig, ConsoleHandler
+from dc_logger.logs.services.console import ConsoleHandler, ConsoleServiceConfig
+from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
@@ -45,24 +45,24 @@ set_global_logger(logger)
 
 async def main():
     """Example with properly configured console logging."""
-    
+
     # Get credentials from environment
     DOMO_INSTANCE = os.getenv("DOMO_INSTANCE")
     DOMO_ACCESS_TOKEN = os.getenv("DOMO_ACCESS_TOKEN")
-    
+
     if not all([DOMO_INSTANCE, DOMO_ACCESS_TOKEN]):
         print("Missing required environment variables. Please check your .env file.")
         return
-    
+
     # Import Domo classes after logger setup
     from domolibrary2.client.auth import DomoTokenAuth
-    
+
     # Create authentication object
     auth = DomoTokenAuth(
         domo_instance=DOMO_INSTANCE,
         domo_access_token=DOMO_ACCESS_TOKEN
     )
-    
+
     # Test authentication - this will be logged to console with our custom configuration
     result = await auth.who_am_i()
 

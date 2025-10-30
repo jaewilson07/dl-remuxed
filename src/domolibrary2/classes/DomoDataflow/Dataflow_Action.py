@@ -3,7 +3,7 @@ from __future__ import annotations
 import datetime as dt
 from dataclasses import dataclass
 from enum import Enum
-from typing import List
+from typing import list
 
 from ...client.entities import DomoEnumMixin
 from ...utils import (
@@ -37,11 +37,11 @@ class DomoDataflow_Action(DomoAction):
     datasource_id: str = None
     sql: str = None
 
-    depends_on: List[str] = None
-    parent_actions: List[dict] = None
+    depends_on: list[str] = None
+    parent_actions: list[dict] = None
 
     @classmethod
-    def from_dict(cls, obj: dict, all_actions: List[DomoDataflow_Action] = None):
+    def from_dict(cls, obj: dict, all_actions: list[DomoDataflow_Action] = None):
         dd = obj
 
         if isinstance(dd, dict):
@@ -64,7 +64,7 @@ class DomoDataflow_Action(DomoAction):
 
         return action
 
-    def get_parents(self, domo_actions: List[DomoDataflow_Action]):
+    def get_parents(self, domo_actions: list[DomoDataflow_Action]):
         if self.depends_on and len(self.depends_on) > 0:
             self.parent_actions = [
                 parent_action

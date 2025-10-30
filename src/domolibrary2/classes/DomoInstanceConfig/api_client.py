@@ -7,7 +7,7 @@ __all__ = [
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import Any, List, Optional, Union
+from typing import Any, Optional, Union, list
 
 import httpx
 
@@ -31,7 +31,7 @@ from ...utils import chunk_execution as dmce
 from .. import DomoUser as dmdu
 
 
-@dataclass
+@dataclass(eq=False)
 class ApiClient(DomoEntity):
     id: str
     name: str
@@ -39,9 +39,9 @@ class ApiClient(DomoEntity):
     client_secret: str
     owner: dmdu.DomoUser
 
-    # authorization_grant_types: List[str] # no longer part of API 6/10/2025
+    # authorization_grant_types: list[str] # no longer part of API 6/10/2025
 
-    scopes: List[ApiClient_ScopeEnum]
+    scopes: list[ApiClient_ScopeEnum]
     description: Optional[str] = None
 
     @property
@@ -164,9 +164,9 @@ class ApiClient(DomoEntity):
 class ApiClients(DomoManager):
     auth: DomoAuth
 
-    domo_clients: List[ApiClient] = field(default_factory=lambda: [])
+    domo_clients: list[ApiClient] = field(default_factory=lambda: [])
 
-    invalid_clients: List[ApiClient] = field(default_factory=lambda: [])
+    invalid_clients: list[ApiClient] = field(default_factory=lambda: [])
 
     parent: Any = None
 
@@ -181,7 +181,7 @@ class ApiClients(DomoManager):
         debug_num_stacks_to_drop: int = 2,
         parent_class: Optional[str] = None,
         return_raw: bool = False,
-    ) -> List[ApiClient] | rgd.ResponseGetData:
+    ) -> list[ApiClient] | rgd.ResponseGetData:
         """
         Retrieve all API clients for the authenticated instance.
 
@@ -281,7 +281,7 @@ class ApiClients(DomoManager):
         self,
         client_name: str,
         client_description: str = f"created via DL {dt.date.today()}",
-        scope: Optional[List[ApiClient_ScopeEnum]] = None,
+        scope: Optional[list[ApiClient_ScopeEnum]] = None,
         session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
@@ -294,7 +294,7 @@ class ApiClients(DomoManager):
         Args:
             client_name: Name for the new API client
             client_description: Optional description for the API client
-            scope: List of ApiClient_ScopeEnum values, defaults to [data, audit]
+            scope: list of ApiClient_ScopeEnum values, defaults to [data, audit]
             session: Optional HTTP client session for connection reuse
             debug_api: Enable detailed API request/response logging
             debug_num_stacks_to_drop: Number of stack frames to omit in debug output
@@ -339,7 +339,7 @@ class ApiClients(DomoManager):
         self,
         client_name: str,
         client_description: Optional[str] = None,
-        scope: Optional[List[ApiClient_ScopeEnum]] = None,
+        scope: Optional[list[ApiClient_ScopeEnum]] = None,
         is_regenerate: bool = False,
         session: Optional[httpx.AsyncClient] = None,
         debug_api: bool = False,
@@ -352,7 +352,7 @@ class ApiClients(DomoManager):
         Args:
             client_name: Name of the API client to create or update
             client_description: Optional description for the API client
-            scope: List of ApiClient_ScopeEnum values, defaults to [data, audit]
+            scope: list of ApiClient_ScopeEnum values, defaults to [data, audit]
             is_regenerate: If True, revoke existing client and create new one
             session: Optional HTTP client session for connection reuse
             debug_api: Enable detailed API request/response logging

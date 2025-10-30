@@ -7,13 +7,13 @@ import argparse
 import ast
 import os
 from pathlib import Path
-from typing import Dict, List
+from typing import list
 
 
 class TypeHintChecker(ast.NodeVisitor):
     def __init__(self, filename: str):
         self.filename = filename
-        self.issues: List[Dict[str, any]] = []
+        self.issues: list[dict[str, any]] = []
         self.current_class = None
 
     def visit_ClassDef(self, node: ast.ClassDef):
@@ -71,7 +71,7 @@ class TypeHintChecker(ast.NodeVisitor):
             )
 
 
-def analyze_file(file_path: Path) -> List[Dict]:
+def analyze_file(file_path: Path) -> list[dict]:
     """Analyze a single Python file for type hint issues"""
     try:
         with open(file_path, encoding="utf-8") as f:
@@ -86,7 +86,7 @@ def analyze_file(file_path: Path) -> List[Dict]:
         return []
 
 
-def find_python_files(directory: Path) -> List[Path]:
+def find_python_files(directory: Path) -> list[Path]:
     """Find all Python files in directory recursively"""
     python_files = []
     for root, dirs, files in os.walk(directory):

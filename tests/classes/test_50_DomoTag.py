@@ -1,10 +1,11 @@
-"""
+r"""
 Test file generated from 50_DomoTag.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
@@ -32,12 +33,12 @@ async def test_cell_1(token_auth=token_auth):
     ).response
 
     dataset = next(
-        (
+
             dataset
             for dataset in datasets
             if dataset["rowCount"] != 0
             # and dataset["ownedById"] == token_auth.user_id
-        )
+
     )
     dataset
     dataset_id = dataset["databaseId"]

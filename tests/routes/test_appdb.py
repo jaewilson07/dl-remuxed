@@ -1,10 +1,11 @@
-"""
+r"""
 Test file generated from appdb.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
@@ -16,8 +17,6 @@ token_auth = dmda.DomoTokenAuth(
 
 async def test_cell_1(token_auth=token_auth):
     """Test case from cell 1"""
-    DATASTORE_ID = "5e871f13-69d4-4012-8710-b61f654bb2b9"
-    COLLECTION_ID = "d2b23a60-b1d3-4577-ac85-32ecc619708a"
 
 
 async def test_cell_2(token_auth=token_auth):

@@ -16,7 +16,7 @@ __all__ = [
     "generate_update_jupyter_body__text",
     "generate_update_jupyter_body__ipynb",
     "generate_update_jupyter_body__directory",
-    "generate_update_jupyter_body_factory",
+    "GenerateUpdateJupyterBodyFactory",
     "generate_update_jupyter_body",
 ]
 
@@ -91,7 +91,7 @@ def generate_update_jupyter_body__directory(content_path, body):
     return body
 
 
-class generate_update_jupyter_body_factory(DomoEnumMixin, Enum):
+class GenerateUpdateJupyterBodyFactory(DomoEnumMixin, Enum):
     """Factory for generating different types of Jupyter request bodies."""
 
     IPYNB = partial(generate_update_jupyter_body__ipynb)
@@ -129,7 +129,7 @@ def generate_update_jupyter_body(
         "content": new_content,
         "path": content_path,
     }
-    return generate_update_jupyter_body_factory.get(content_type).value(
+    return GenerateUpdateJupyterBodyFactory.get(content_type).value(
         body=body, content_path=content_path
     )
 
@@ -238,7 +238,7 @@ async def create_jupyter_obj(
     content_path_split = os.path.normpath(content_path).split(os.sep)
 
     # new content gets created as "untitled folder" // removes the 'future name' and saves for later
-    path_to_rename = content_path_split.pop(-1)
+    content_path_split.pop(-1)
 
     base_url = f"https://{auth.domo_instance}.{auth.service_location}{auth.service_prefix}api/contents/"
 
@@ -413,7 +413,7 @@ async def update_jupyter_file(
 
     body = body or generate_update_jupyter_body(new_content, content_path)
 
-    content_path_split = os.path.normpath(content_path).split(os.sep)
+    os.path.normpath(content_path).split(os.sep)
 
     base_url = f"https://{auth.domo_instance}.{auth.service_location}{auth.service_prefix}api/contents/"
 

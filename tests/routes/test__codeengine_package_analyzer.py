@@ -1,10 +1,11 @@
-"""
+r"""
 Test file generated from _codeengine_package_analyzer.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
@@ -23,20 +24,18 @@ async def test_cell_1(token_auth=token_auth):
     auth
 
 
-    PACKAGE_ID = "517ca12c-3459-4e66-b0bb-40f000720a84"
-    VERSION_ID = "1.0.0"
 
 
 async def test_cell_2(token_auth=token_auth):
     """Test case from cell 2"""
     ca = CodeEngineScriptAnalyzer()
-    with open('../test/int_package.py', 'r') as f:
+    with open('../test/int_package.py') as f:
         code_content = f.read()
 
     ca = CodeEngineScriptAnalyzer()
     manifest = ca.generate_manifest_from_string(code_content)
     int_package_builder = CodeEnginePackageBuilder().set_code(code_content).set_environment("LAMBDA").set_language("PYTHON").set_name("GM Int Package").set_version("1.0.0").set_manifest(manifest)
-    res = await create_package(int_package_builder, auth=auth, debug_api=False)
+    await create_package(int_package_builder, auth=auth, debug_api=False)
 
 
 async def test_cell_3(token_auth=token_auth):

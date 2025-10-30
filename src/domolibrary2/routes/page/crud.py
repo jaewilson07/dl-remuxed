@@ -20,6 +20,7 @@ __all__ = [
 from typing import Optional
 
 import httpx
+from dc_logger.decorators import LogDecoratorConfig, log_call
 
 from ...client import (
     get_data as gd,
@@ -27,7 +28,6 @@ from ...client import (
 )
 from ...client.auth import DomoAuth
 from ...utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
-from dc_logger.decorators import log_call, LogDecoratorConfig
 from .exceptions import Page_CRUD_Error
 
 
@@ -36,8 +36,8 @@ from .exceptions import Page_CRUD_Error
     level_name="route",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 async def update_page_layout(
     auth: DomoAuth,
@@ -99,8 +99,8 @@ async def update_page_layout(
     level_name="route",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 async def put_writelock(
     auth: DomoAuth,
@@ -170,8 +170,8 @@ async def put_writelock(
     level_name="route",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 async def delete_writelock(
     auth: DomoAuth,

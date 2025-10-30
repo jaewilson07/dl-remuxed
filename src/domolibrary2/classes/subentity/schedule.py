@@ -340,6 +340,7 @@ class DomoSchedule(DomoBase, ABC):
         # Otherwise, create instance of the specific subclass
         field_mappings = cls._extract_field_mappings(obj)
         start_date = cls._parse_datetime_input(field_mappings["start_date_raw"])
+        # advanced_json = cls._parse_json_input(field_mappings["advanced_json"])
 
         return cls(
             schedule_start_date=start_date,

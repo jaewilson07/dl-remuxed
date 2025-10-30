@@ -1099,7 +1099,7 @@ def test_is_jupyter_auth(
 
     Args:
         auth (DomoJupyterAuth): The authentication object to validate
-        required_auth_type_ls (Optional[list]): List of acceptable auth types.
+        required_auth_type_ls (Optional[list]): list of acceptable auth types.
             Defaults to [DomoJupyterFullAuth, DomoJupyterTokenAuth]
 
     Raises:

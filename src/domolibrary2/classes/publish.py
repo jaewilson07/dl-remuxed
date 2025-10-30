@@ -4,7 +4,7 @@ import datetime as dt
 import uuid
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, List, Optional
+from typing import Any, Callable, list
 
 import httpx
 
@@ -152,13 +152,13 @@ class DomoPublication(DomoEntity_w_Lineage):
 
     updated_dt: dt.datetime = None
 
-    subscriptions: List[DomoSubscription] = None
+    subscriptions: list[DomoSubscription] = None
 
-    content: List[DomoPublication_Content] = None
+    content: list[DomoPublication_Content] = None
 
-    # content_page_id_ls: List[str] = default = None
-    # content_dataset_id_ls: List[str] = field(default_factory=list)
-    # content_data_app_id_ls: List[str] = field(default_factory=list)
+    # content_page_id_ls: list[str] = default = None
+    # content_dataset_id_ls: list[str] = field(default_factory=list)
+    # content_data_app_id_ls: list[str] = field(default_factory=list)
 
     @property
     def entity_type(self):
@@ -391,8 +391,8 @@ class DomoPublication(DomoEntity_w_Lineage):
         cls,
         auth: DomoAuth,
         name: str,
-        content_ls: List[DomoPublication_Content],
-        subscription_ls: List[DomoSubscription],
+        content_ls: list[DomoPublication_Content],
+        subscription_ls: list[DomoSubscription],
         unique_id: str = None,
         description: str = None,
         debug_api: bool = False,
@@ -445,10 +445,10 @@ class DomoPublication(DomoEntity_w_Lineage):
     async def update_publication(
         self,
         auth: DomoAuth = None,
-        content_ls: List[DomoPublication_Content] = None,
+        content_ls: list[DomoPublication_Content] = None,
         description: str = None,
         name: str = None,
-        subscription_ls: List[DomoSubscription] = None,
+        subscription_ls: list[DomoSubscription] = None,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
         debug_num_stacks_to_drop: int = 2,
@@ -496,7 +496,7 @@ class DomoSubscription(dmen.DomoEntity):
     subscriber_domain: str
     publisher_domain: str
     parent_publication: DomoPublication = field(repr=False, default=None)
-    created_dt: Optional[dt.datetime] = None
+    created_dt: dt.datetime | None = None
 
     @classmethod
     def from_dict(cls, obj, auth: DomoAuth, parent_publication: Any = None):
@@ -625,11 +625,11 @@ class DomoSubscription(dmen.DomoEntity):
 class DomoEverywhere:
     auth: DomoAuth = field(repr=False)
 
-    publications: List[DomoPublication] = field(default=None)
+    publications: list[DomoPublication] = field(default=None)
 
-    subscriptions: List[DomoSubscription] = field(default=None)
+    subscriptions: list[DomoSubscription] = field(default=None)
 
-    invitations: List[dict] = field(default=None)
+    invitations: list[dict] = field(default=None)
 
     async def get_publications(
         self,

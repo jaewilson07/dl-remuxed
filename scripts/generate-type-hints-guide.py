@@ -8,7 +8,7 @@ import argparse
 import ast
 import os
 from pathlib import Path
-from typing import Dict, List
+from typing import list
 
 
 class TypeHintAnalyzer(ast.NodeVisitor):
@@ -16,7 +16,7 @@ class TypeHintAnalyzer(ast.NodeVisitor):
 
     def __init__(self, filename: str):
         self.filename = filename
-        self.suggestions: List[Dict] = []
+        self.suggestions: list[dict] = []
         self.current_class = None
         self.imports = set()
         self.existing_typing_imports = set()
@@ -55,7 +55,6 @@ class TypeHintAnalyzer(ast.NodeVisitor):
         if node.name.startswith("_"):
             return
 
-        suggestions = []
 
         # Analyze parameters
         missing_param_hints = []
@@ -109,9 +108,9 @@ class TypeHintAnalyzer(ast.NodeVisitor):
             "dataset_id": "str",
             "password": "str",
             "token": "str",
-            "user_ids": "List[str]",
-            "email_ls": "List[str]",
-            "property_ls": "List[UserProperty]",
+            "user_ids": "list[str]",
+            "email_ls": "list[str]",
+            "property_ls": "list[UserProperty]",
             "only_allow_one": "bool",
             "suppress_no_results_error": "bool",
             "pixels": "int",
@@ -123,15 +122,15 @@ class TypeHintAnalyzer(ast.NodeVisitor):
 
         # Check exact matches first
         if param_name in param_patterns:
-            self.needs_typing_imports.update(["Optional", "List"])
+            self.needs_typing_imports.update(["Optional", "list"])
             return param_patterns[param_name]
 
         # Pattern matching
         if param_name.endswith("_id") or param_name.endswith("_name"):
             return "str"
         elif param_name.endswith("_ls") or param_name.endswith("_list"):
-            self.needs_typing_imports.add("List")
-            return "List[str]"  # Default to List[str], may need manual adjustment
+            self.needs_typing_imports.add("list")
+            return "list[str]"  # Default to list[str], may need manual adjustment
         elif param_name.startswith("is_") or param_name.startswith("has_"):
             return "bool"
         elif "date" in param_name or "time" in param_name:
@@ -170,9 +169,9 @@ class TypeHintAnalyzer(ast.NodeVisitor):
             return "Optional[Any]"
         elif func_name.startswith("get_") and func_name.endswith("_all"):
             if self.current_class:
-                self.needs_typing_imports.add("List")
-                return f"List[{self.current_class.replace('s', '')}]"  # Remove trailing 's'
-            return "List[Any]"
+                self.needs_typing_imports.add("list")
+                return f"list[{self.current_class.replace('s', '')}]"  # Remove trailing 's'
+            return "list[Any]"
         elif func_name in ["create", "upsert"]:
             if self.current_class:
                 return self.current_class.replace(
@@ -181,10 +180,10 @@ class TypeHintAnalyzer(ast.NodeVisitor):
             return "Any"
         elif func_name.startswith("search_"):
             if self.current_class:
-                self.needs_typing_imports.update(["Union", "List", "Optional"])
+                self.needs_typing_imports.update(["Union", "list", "Optional"])
                 base_class = self.current_class.replace("s", "")
-                return f"Union[{base_class}, List[{base_class}], None]"
-            return "Union[Any, List[Any], None]"
+                return f"Union[{base_class}, list[{base_class}], None]"
+            return "Union[Any, list[Any], None]"
         elif func_name in ["delete", "update", "reset_password", "upload_avatar"]:
             if is_async:
                 return "ResponseGetData"
@@ -236,7 +235,7 @@ def analyze_file(file_path: Path) -> TypeHintAnalyzer:
         return TypeHintAnalyzer(str(file_path))
 
 
-def generate_type_hint_suggestions(directory: Path) -> Dict[str, TypeHintAnalyzer]:
+def generate_type_hint_suggestions(directory: Path) -> dict[str, TypeHintAnalyzer]:
     """Generate type hint suggestions for all Python files in directory"""
     python_files = []
     for root, dirs, files in os.walk(directory):
@@ -254,7 +253,7 @@ def generate_type_hint_suggestions(directory: Path) -> Dict[str, TypeHintAnalyze
     return results
 
 
-def create_implementation_guide(results: Dict[str, TypeHintAnalyzer], output_file: str):
+def create_implementation_guide(results: dict[str, TypeHintAnalyzer], output_file: str):
     """Create a detailed implementation guide"""
 
     with open(output_file, "w", encoding="utf-8") as f:

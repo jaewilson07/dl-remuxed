@@ -17,10 +17,10 @@ Example:
 
 __all__ = ["compare_dicts"]
 
-from typing import Any, Dict, List
+from typing import Any, list
 
 
-def compare_dicts(dict1: Any, dict2: Any, path: str = "") -> List[Dict[str, str]]:
+def compare_dicts(dict1: Any, dict2: Any, path: str = "") -> list[dict[str, str]]:
     """
     Recursively compare two dictionaries (and lists) and return differences.
 
@@ -34,7 +34,7 @@ def compare_dicts(dict1: Any, dict2: Any, path: str = "") -> List[Dict[str, str]
         path (str): Current path in the data structure (used for recursion)
 
     Returns:
-        List[Dict[str, str]]: List of difference dictionaries, each containing:
+        list[Dict[str, str]]: list of difference dictionaries, each containing:
             - 'key': The path to the difference
             - 'message': Description of the difference
 

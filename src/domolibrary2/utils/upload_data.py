@@ -81,7 +81,7 @@ async def upload_data(
     debug_prn: bool = False,
     debug_fn: bool = True,
     debug_api: bool = False,
-    logger: Logger = logger,
+    logger: Optional[Logger] = None,
     max_retry: int = 2,  # number of times to attempt upload
 ):
     try:

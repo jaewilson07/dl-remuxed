@@ -1,16 +1,21 @@
-import domolibrary2.classes.DomoDataset as dmds
-
-import domolibrary2.client.auth as dmda
 import os
-
 from pprint import pprint
+
 from dotenv import load_dotenv
+
+import domolibrary2.classes.DomoDataset as dmds
+import domolibrary2.client.auth as dmda
 
 assert load_dotenv(".env", override=True)
 
 
-from dc_logger.client.base import get_global_logger, set_global_logger
-from dc_logger.client.base import Handler_BufferSettings, HandlerInstance, Logger
+from dc_logger.client.base import (
+    Handler_BufferSettings,
+    HandlerInstance,
+    Logger,
+    get_global_logger,
+    set_global_logger,
+)
 from dc_logger.logs.services.file import File_ServiceConfig, FileHandler
 
 json_config = File_ServiceConfig(
@@ -55,7 +60,7 @@ async def main():
     )
 
     print(child_ds.Lineage.parent.__class__.__name__)
-    print((await child_ds.Lineage.get(parent_auth=parent_auth, debug_api=False)))
+    print(await child_ds.Lineage.get(parent_auth=parent_auth, debug_api=False))
     print(child_ds.Lineage.parent.__class__.__name__)
 
     pprint(

@@ -10,14 +10,14 @@ parameters, events, authentication, folders, and other components.
 import json
 import sys
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, list
 
 from .models import PostmanCollection
 
 
 def deep_compare_structures(
     original: Any, reconstructed: Any, path: str = ""
-) -> List[str]:
+) -> list[str]:
     """
     Recursively compare two data structures and return a list of differences.
 
@@ -27,7 +27,7 @@ def deep_compare_structures(
         path: Current path in the structure (for error reporting)
 
     Returns:
-        List of difference descriptions
+        list of difference descriptions
     """
     differences = []
 
@@ -81,7 +81,7 @@ def deep_compare_structures(
     return differences
 
 
-def analyze_collection_features(collection_data: Dict[str, Any]) -> Dict[str, Any]:
+def analyze_collection_features(collection_data: dict[str, Any]) -> dict[str, Any]:
     """
     Analyze what features are present in a Postman collection.
 
@@ -118,7 +118,7 @@ def analyze_collection_features(collection_data: Dict[str, Any]) -> Dict[str, An
             features["event_types"].add(event.get("listen", "unknown"))
 
     # Analyze items recursively
-    def analyze_items(items: List[Dict[str, Any]], depth: int = 0):
+    def analyze_items(items: list[dict[str, Any]], depth: int = 0):
         features["max_nesting_depth"] = max(features["max_nesting_depth"], depth)
 
         for item in items:
@@ -162,7 +162,7 @@ def analyze_collection_features(collection_data: Dict[str, Any]) -> Dict[str, An
     return features
 
 
-def validate_postman_collection(json_file_path: str) -> Dict[str, Any]:
+def validate_postman_collection(json_file_path: str) -> dict[str, Any]:
     """
     Validate that PostmanCollection dataclass completely models a Postman collection.
 
