@@ -1,9 +1,11 @@
 __all__ = [
     "GetDataError",
+    "GetDataError",
     "get_data",
     "get_data_stream",
     "LooperError",
     "looper",
+    "RouteFunctionResponseTypeError",
     "RouteFunctionResponseTypeError",
     "route_function",
 ]
@@ -27,6 +29,7 @@ from . import (
 )
 from .exceptions import DomoError
 
+# logger: Logger = get_global_logger()
 # logger: Logger = get_global_logger()
 # assert logger, "A global logger must be set before using get_data functions."
 

@@ -17,7 +17,6 @@ from ...client.auth import DomoAuth
 from ...client.exceptions import ClassError
 from ...entities.entities import DomoEntity, DomoManager
 from ...entities.relationships import (
-    DomoRelationship,
     DomoRelationshipController,
 )
 from ...routes import role as role_routes
@@ -116,24 +115,6 @@ class DomoRole(
             raw=obj,
             Relations=None,  # type: ignore
         )
-
-    @classmethod
-    async def get_entity_by_id(cls, auth: DomoAuth, entity_id: str, **kwargs):
-        return await cls.get_by_id(
-            auth=auth,
-            id=entity_id,
-            **kwargs,
-        )
-
-    async def get(self):
-        raise NotImplementedError("Subclasses must implement get method.")
-
-    def add_relationship(
-        self,
-        relative_id,
-        relationship_type,
-    ) -> DomoRelationship:
-        raise NotImplementedError("Subclasses must implement add_relationship method.")
 
     @classmethod
     async def get_by_id(
