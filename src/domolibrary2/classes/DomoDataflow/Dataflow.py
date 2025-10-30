@@ -6,10 +6,11 @@ from typing import list
 import httpx
 
 from ...classes.subentity import lineage as dmdl
+from ...client.auth import DomoAuth
 from ...entities import DomoEntity_w_Lineage
 from ...routes import dataflow as dataflow_routes
 from ...utils import chunk_execution as dmce
-from ..DomoJupyter import Jupyter as dmdj
+from ..DomoJupyter import Jupyter
 
 __all__ = ["DomoDataflow", "DomoDataflows"]
 
@@ -36,7 +37,7 @@ class DomoDataflow(DomoEntity_w_Lineage):
 
     History: DomoDataflow_History = None  # class for managing the history of a dataflow
 
-    JupyterWorkspace: dmdj.DomoJupyterWorkspace = None
+    JupyterWorkspace: Jupyter.DomoJupyterWorkspace = None
 
     @property
     def entity_type(self):
@@ -48,6 +49,8 @@ class DomoDataflow(DomoEntity_w_Lineage):
         )
 
         self.Lineage = dmdl.DomoLineage.from_parent(auth=self.auth, parent=self)
+        # Initialize Schedule from raw data if schedule information is present
+        self.Schedule = self._initialize_schedule_from_raw()
 
     @classmethod
     def from_dict(cls, obj, auth, version_id=None, version_number=None):
@@ -162,8 +165,6 @@ class DomoDataflow(DomoEntity_w_Lineage):
         debug_num_stacks_to_drop: int = 2,
         session: httpx.AsyncClient = None,
     ):
-        from . import DomoJupyter as dmdj
-
         res = await dataflow_routes.search_dataflows_to_jupyter_workspaces(
             auth=self.auth,
             dataflow_id=self.id,
@@ -177,13 +178,11 @@ class DomoDataflow(DomoEntity_w_Lineage):
         if return_raw:
             return res
 
-        self.jupyter_workspace = await dmdj.DomoJupyterWorkspace.get_by_id(
+        self.jupyter_workspace = await Jupyter.DomoJupyterWorkspace.get_by_id(
             auth=self.auth, workspace_id=res.response["workspaceId"]
         )
-
         self.jupyter_workspace_config = res.response
         self.jupyter_workspace_config["workspace_name"] = self.jupyter_workspace.name
-
         return self.jupyter_workspace
 
     async def execute(
