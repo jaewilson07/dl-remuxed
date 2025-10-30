@@ -13,8 +13,6 @@ from domolibrary2.classes.subentity.schedule import (
     DomoAdvancedSchedule,
     DomoCronSchedule,
     DomoSimpleSchedule,
-    ScheduleFrequencyEnum,
-    ScheduleType,
 )
 
 

@@ -36,10 +36,11 @@ __all__ = [
 
 import io
 from enum import Enum
-from typing import List, Optional
+from typing import Optional
 
 import httpx
 import pandas as pd
+from dc_logger.decorators import LogDecoratorConfig, log_call
 
 from ..client import (
     auth as dmda,
@@ -48,9 +49,8 @@ from ..client import (
     response as rgd,
 )
 from ..client.auth import DomoAuth
-from ..utils.logging import DomoEntityExtractor, DomoEntityResultProcessor, NoOpEntityExtractor
-from dc_logger.decorators import log_call, LogDecoratorConfig
 from ..entities.base import DomoEnumMixin
+from ..utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 
 
 class DatasetNotFoundError(de.RouteError):
@@ -60,7 +60,7 @@ class DatasetNotFoundError(de.RouteError):
         super().__init__(message=message, res=res, entity_id=dataset_id)
 
 
-class Dataset_GetError(de.RouteError):
+class Dataset_GetError(de.RouteError):  # noqa: N801
     def __init__(
         self,
         dataset_id,
@@ -70,7 +70,7 @@ class Dataset_GetError(de.RouteError):
         super().__init__(message=message, res=res, entity_id=dataset_id)
 
 
-class Dataset_CRUDError(de.RouteError):
+class Dataset_CRUDError(de.RouteError):  # noqa: N801
     def __init__(
         self,
         res: rgd.ResponseGetData,
@@ -99,8 +99,8 @@ class QueryRequestError(de.RouteError):
     level_name="route",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 async def query_dataset_public(
     dev_auth: dmda.DomoDeveloperAuth,
@@ -139,8 +139,8 @@ async def query_dataset_public(
     level_name="route",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 async def query_dataset_private(
     auth: DomoAuth,
@@ -150,7 +150,7 @@ async def query_dataset_private(
     limit=100,  # maximum rows to return per request.  refers to PAGINATION
     skip=0,
     maximum=100,  # equivalent to the LIMIT or TOP clause in SQL, the number of rows to return total
-    filter_pdp_policy_id_ls: List[int] = None,
+    filter_pdp_policy_id_ls: list[int] = None,
     timeout: int = 10,
     session: Optional[httpx.AsyncClient] = None,
     debug_api: bool = False,
@@ -236,8 +236,8 @@ async def query_dataset_private(
     level_name="route",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 async def get_dataset_by_id(
     dataset_id: str,  # dataset id from URL
@@ -275,8 +275,8 @@ async def get_dataset_by_id(
     level_name="route",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 async def get_schema(
     auth: DomoAuth,
@@ -311,8 +311,8 @@ async def get_schema(
     level_name="route",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 async def alter_schema(
     auth: DomoAuth,
@@ -349,8 +349,8 @@ async def alter_schema(
     level_name="route",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 async def alter_schema_descriptions(
     auth: DomoAuth,
@@ -387,12 +387,12 @@ async def alter_schema_descriptions(
     level_name="route",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 async def set_dataset_tags(
     auth: DomoAuth,
-    tag_ls: List[str],  # complete list of tags for dataset
+    tag_ls: list[str],  # complete list of tags for dataset
     dataset_id: str,
     return_raw: bool = False,
     debug_api: bool = False,
@@ -450,8 +450,8 @@ class UploadDataError(de.RouteError):
     level_name="route",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 async def upload_dataset_stage_1(
     auth: DomoAuth,
@@ -516,8 +516,8 @@ async def upload_dataset_stage_1(
     level_name="route",
     config=LogDecoratorConfig(
         entity_extractor=DomoEntityExtractor(),
-        result_processor=DomoEntityResultProcessor()
-    )
+        result_processor=DomoEntityResultProcessor(),
+    ),
 )
 async def upload_dataset_stage_2_file(
     auth: DomoAuth,
@@ -830,7 +830,7 @@ async def create(
 
 
 def generate_enterprise_toolkit_body(
-    dataset_name, dataset_description, datasource_type, columns_schema: List[dict]
+    dataset_name, dataset_description, datasource_type, columns_schema: list[dict]
 ):
     return {
         "dataSourceName": dataset_name,
@@ -841,7 +841,7 @@ def generate_enterprise_toolkit_body(
 
 
 def generate_remote_domostats_body(
-    dataset_name, dataset_description, columns_schema: List[dict] = None
+    dataset_name, dataset_description, columns_schema: list[dict] = None
 ):
     return generate_enterprise_toolkit_body(
         dataset_name=dataset_name,
@@ -974,7 +974,7 @@ async def delete(
     return res
 
 
-class ShareDataset_AccessLevelEnum(DomoEnumMixin, Enum):
+class ShareDataset_AccessLevelEnum(DomoEnumMixin, Enum):  # noqa: N801
     CO_OWNER = "CO_OWNER"
     CAN_EDIT = "CAN_EDIT"
     CAN_SHARE = "CAN_SHARE"
@@ -994,7 +994,7 @@ def generate_share_dataset_payload(
     }
 
 
-class ShareDataset_Error(de.DomoError):
+class ShareDataset_Error(de.DomoError):  # noqa: N801
     def __init__(self, dataset_id, res: rgd.ResponseGetData, message: str = None):
         message = message or res.response
 

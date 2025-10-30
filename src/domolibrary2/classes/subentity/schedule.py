@@ -15,7 +15,7 @@ import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Callable, Optional
 
 from ...client.auth import DomoAuth
 from ...client.entities import DomoBase, DomoEnumMixin
@@ -58,9 +58,9 @@ class DomoSchedule(DomoBase, ABC):
     interval: int = 1
     minute: Optional[int] = None
     hour: Optional[int] = None
-    day_of_week: Optional[List[int]] = None  # 0=Sunday, 6=Saturday
-    day_of_month: Optional[List[int]] = None
-    month: Optional[List[int]] = None
+    day_of_week: Optional[list[int]] = None  # 0=Sunday, 6=Saturday
+    day_of_month: Optional[list[int]] = None
+    month: Optional[list[int]] = None
 
     # Schedule metadata
     timezone: Optional[str] = None
@@ -68,7 +68,7 @@ class DomoSchedule(DomoBase, ABC):
     next_run_time: Optional[dt.datetime] = None
 
     # Raw data for reference
-    raw: Dict[str, Any] = field(default_factory=dict, repr=False)
+    raw: dict[str, Any] = field(default_factory=dict, repr=False)
 
     def __post_init__(self):
         """Post-initialization to interpret the schedule configuration"""
@@ -80,7 +80,7 @@ class DomoSchedule(DomoBase, ABC):
         pass
 
     @staticmethod
-    def _extract_schedule_components(schedule_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _extract_schedule_components(schedule_data: dict[str, Any]) -> dict[str, Any]:
         """Extract schedule components from advanced JSON configuration"""
         components = {
             "timezone": schedule_data.get("timezone"),
@@ -130,7 +130,7 @@ class DomoSchedule(DomoBase, ABC):
         return len(parts) >= 5 and len(parts) <= 6
 
     @staticmethod
-    def _parse_cron_components(expr: str) -> Dict[str, Any]:
+    def _parse_cron_components(expr: str) -> dict[str, Any]:
         """Parse cron expression components and return parsed data"""
         parts = expr.split()
 
@@ -178,7 +178,7 @@ class DomoSchedule(DomoBase, ABC):
             self.hour = cron_data["hour"]
 
     @staticmethod
-    def _parse_simple_expression_components(expr: str) -> Dict[str, Any]:
+    def _parse_simple_expression_components(expr: str) -> dict[str, Any]:
         """Parse simple schedule expression and return components"""
         expr_lower = expr.lower()
 
@@ -229,7 +229,7 @@ class DomoSchedule(DomoBase, ABC):
             self.frequency = ScheduleFrequencyEnum.CUSTOM_CRON
 
     @staticmethod
-    def _extract_field_mappings(obj: Dict[str, Any]) -> Dict[str, Any]:
+    def _extract_field_mappings(obj: dict[str, Any]) -> dict[str, Any]:
         """Extract and map field names from input dictionary"""
         return {
             "start_date_raw": obj.get("scheduleStartDate") or obj.get("startDate"),
@@ -288,7 +288,7 @@ class DomoSchedule(DomoBase, ABC):
         return None
 
     @staticmethod
-    def _parse_json_input(json_input: Any) -> Optional[Dict[str, Any]]:
+    def _parse_json_input(json_input: Any) -> Optional[dict[str, Any]]:
         """Parse JSON input that might be string or dict"""
         if not json_input:
             return None
@@ -305,7 +305,7 @@ class DomoSchedule(DomoBase, ABC):
         return None
 
     @classmethod
-    def determine_schedule_type(cls, obj: Dict[str, Any]) -> Type["DomoSchedule"]:
+    def determine_schedule_type(cls, obj: dict[str, Any]) -> type["DomoSchedule"]:
         """Determine the appropriate schedule subclass based on input data"""
         field_mappings = cls._extract_field_mappings(obj)
 
@@ -328,7 +328,7 @@ class DomoSchedule(DomoBase, ABC):
 
     @classmethod
     def from_dict(
-        cls, obj: Dict[str, Any], auth: Optional[DomoAuth] = None, **kwargs
+        cls, obj: dict[str, Any], auth: Optional[DomoAuth] = None, **kwargs
     ) -> "DomoSchedule":
         """Create appropriate DomoSchedule subclass from dictionary/API response"""
 
@@ -340,7 +340,6 @@ class DomoSchedule(DomoBase, ABC):
         # Otherwise, create instance of the specific subclass
         field_mappings = cls._extract_field_mappings(obj)
         start_date = cls._parse_datetime_input(field_mappings["start_date_raw"])
-        advanced_json = cls._parse_json_input(field_mappings["advanced_json"])
 
         return cls(
             schedule_start_date=start_date,
@@ -350,7 +349,7 @@ class DomoSchedule(DomoBase, ABC):
             **kwargs,
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self, override_fn: Optional[Callable] = None) -> dict[str, Any]:
         """Convert schedule to dictionary format"""
         result = super().to_dict()
         result.update(
@@ -364,12 +363,6 @@ class DomoSchedule(DomoBase, ABC):
 
         if self.schedule_start_date:
             result["scheduleStartDate"] = self.schedule_start_date.isoformat()
-
-        if self.schedule_expression:
-            result["scheduleExpression"] = self.schedule_expression
-
-        if self.advanced_schedule_json:
-            result["advancedScheduleJson"] = self.advanced_schedule_json
 
         if self.timezone:
             result["timezone"] = self.timezone
@@ -465,8 +458,6 @@ class DomoSchedule(DomoBase, ABC):
                 base_desc += f" on day(s) {', '.join(map(str, self.day_of_month))}"
         elif self.frequency == ScheduleFrequencyEnum.CUSTOM_CRON:
             base_desc = "Custom schedule"
-            if self.schedule_expression:
-                base_desc += f": {self.schedule_expression}"
 
         if self.timezone:
             base_desc += f" ({self.timezone})"
@@ -502,7 +493,7 @@ class DomoSchedule(DomoBase, ABC):
 class DomoAdvancedSchedule(DomoSchedule):
     """Schedule based on advanced JSON configuration"""
 
-    advanced_schedule_json: Optional[Dict[str, Any]] = None
+    advanced_schedule_json: Optional[dict[str, Any]] = None
 
     def _interpret_schedule(self):
         """Interpret advanced schedule JSON configuration"""
@@ -534,7 +525,7 @@ class DomoAdvancedSchedule(DomoSchedule):
 
     @classmethod
     def from_dict(
-        cls, obj: Dict[str, Any], auth: Optional[DomoAuth] = None, **kwargs
+        cls, obj: dict[str, Any], auth: Optional[DomoAuth] = None, **kwargs
     ) -> "DomoAdvancedSchedule":
         """Create DomoAdvancedSchedule from dictionary/API response"""
         field_mappings = cls._extract_field_mappings(obj)
@@ -582,7 +573,7 @@ class DomoCronSchedule(DomoSchedule):
 
     @classmethod
     def from_dict(
-        cls, obj: Dict[str, Any], auth: Optional[DomoAuth] = None, **kwargs
+        cls, obj: dict[str, Any], auth: Optional[DomoAuth] = None, **kwargs
     ) -> "DomoCronSchedule":
         """Create DomoCronSchedule from dictionary/API response"""
         field_mappings = cls._extract_field_mappings(obj)
@@ -617,7 +608,7 @@ class DomoSimpleSchedule(DomoSchedule):
 
     @classmethod
     def from_dict(
-        cls, obj: Dict[str, Any], auth: Optional[DomoAuth] = None, **kwargs
+        cls, obj: dict[str, Any], auth: Optional[DomoAuth] = None, **kwargs
     ) -> "DomoSimpleSchedule":
         """Create DomoSimpleSchedule from dictionary/API response"""
         field_mappings = cls._extract_field_mappings(obj)
