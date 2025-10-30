@@ -9,8 +9,6 @@ Exception Classes:
     ShareResource_Error: Raised when resource sharing operations fail
 """
 
-from typing import Optional
-
 from ...client.exceptions import RouteError
 
 
