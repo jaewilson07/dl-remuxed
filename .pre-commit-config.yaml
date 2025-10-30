@@ -18,13 +18,8 @@ repos:
           - id: check-merge-conflict
           - id: check-added-large-files
 
-    # Python formatting
-    - repo: https://github.com/psf/black
-      rev: 24.8.0
-      hooks:
-          - id: black
-            files: ^src/
-            additional_dependencies: ["setuptools==70.0.0"]
+    # Python formatting - using ruff-format (faster, black-compatible)
+    # Black removed to avoid conflicts with ruff-format
 
     # Import sorting
     - repo: https://github.com/pycqa/isort
