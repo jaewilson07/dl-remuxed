@@ -16,7 +16,7 @@ from typing import Any, Callable, Optional, Union
 
 import httpx
 from dc_logger.client.base import get_global_logger
-from dc_logger.client.decorators import log_call
+from dc_logger.decorators import log_call
 
 from ..utils import chunk_execution as dmce
 from . import (

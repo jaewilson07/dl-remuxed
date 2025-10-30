@@ -21,7 +21,7 @@ __all__ = [
 from typing import Any, List, Optional
 
 import httpx
-from dc_logger.client.decorators import log_call
+from dc_logger.decorators import log_call
 
 from ..client import response as rgd
 from ..client.exceptions import AuthError, RouteError

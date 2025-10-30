@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 from typing import Optional, Union
 
 import httpx
-from dc_logger.client.decorators import log_call
+from dc_logger.decorators import log_call
 
 from .exceptions import AuthError
 from .response import ResponseGetData
