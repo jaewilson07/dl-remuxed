@@ -82,9 +82,8 @@ async def test_cell_5(token_auth=token_auth):
 async def test_cell_6(token_auth=token_auth):
     """Test case from cell 6"""
     from typing import Union
-   # import domolibrary2.classes.DomoDatacenter as dmdc
-    #import domolibrary2.classes.DomoPublish as dmpb
-    import domolibrary2.client.auth as dmda
+    # import domolibrary2.classes.DomoDatacenter as dmdc
+    # import domolibrary2.classes.DomoPublish as dmpb
 
     FEDERATED_DS_ID = "58a75bc7-e626-4ea1-a3d9-b1ae96188b5c"
 
@@ -100,7 +99,7 @@ async def test_cell_6(token_auth=token_auth):
     # i should be able to define a "retrieve_auth" function that receives a subscription and can return a DomoAuth object
     # this is necessary assuming i am trying to retrieve lineage but don't already know my parent
 
-    def retreive_parent_auth_fn(subscription = None):
+    def retrieve_parent_auth_fn(subscription = None):
 
         ## AN EXAMPLE OF HOW IT OUGHT TO WORK -- assumes you have multiple DOMO instances and access tokens stored in environment variables
         # parent_domain = subscription.domain
@@ -130,16 +129,16 @@ async def test_cell_6(token_auth=token_auth):
         dataset_id=FEDERATED_DS_ID, auth=child_auth
     )
 
-    await ds.get_federated_parent(parent_auth=parent_auth,parent_auth_retrieval_fn=retreive_parent_auth_fn)
+    await ds.get_federated_parent(parent_auth=parent_auth,parent_auth_retrieval_fn=retrieve_parent_auth_fn)
 
     
 
-    test = await ds.Lineage.get(parent_auth=parent_auth,parent_auth_retrieval_fn=retreive_parent_auth_fn)
+    await ds.Lineage.get(parent_auth=parent_auth,parent_auth_retrieval_fn=retrieve_parent_auth_fn)
 
     #print(test) 
 
     # try:
-    #     await ds.get_federated_parent(parent_auth_retrieval_fn=retreive_parent_auth_fn)
+    #     await ds.get_federated_parent(parent_auth_retrieval_fn=retrieve_parent_auth_fn)
     # except Exception as e:
     #     print(e)
 
