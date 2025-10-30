@@ -69,35 +69,15 @@ __all__ = [
     "merge_dict",
 ]
 
+
 import ast
 import datetime as dt
 import re
-from typing import Any, Optional, Union, list
 
 # Optional dependencies with fallbacks
-try:
-    import pandas as pd
-
-    _PANDAS_AVAILABLE = True
-except ImportError:
-    pd = None
-    _PANDAS_AVAILABLE = False
-
-try:
-    from dateutil import parser as date_parser
-
-    _DATEUTIL_AVAILABLE = True
-except ImportError:
-    date_parser = None
-    _DATEUTIL_AVAILABLE = False
-
-try:
-    from IPython.display import display_markdown
-
-    _IPYTHON_AVAILABLE = True
-except ImportError:
-    display_markdown = None
-    _IPYTHON_AVAILABLE = False
+import pandas as pd
+from dateutil import parser as date_parser
+from IPython.display import display_markdown
 
 # Import custom exceptions
 from .exceptions import ConcatDataframeError, InvalidEmailError
@@ -139,8 +119,8 @@ def print_md(md_str: str) -> None:
 
 
 def convert_epoch_millisecond_to_datetime(
-    epoch: Optional[int],
-) -> Optional[dt.datetime]:
+    epoch: int | None,
+) -> dt.datetime | None:
     """
     Convert Epoch time with milliseconds to datetime object.
 
@@ -159,8 +139,8 @@ def convert_epoch_millisecond_to_datetime(
 
 
 def convert_datetime_to_epoch_millisecond(
-    datetime: Optional[dt.datetime],
-) -> Optional[int]:
+    datetime: dt.datetime | None,
+) -> int | None:
     """
     Convert datetime object to Epoch time with milliseconds.
 
@@ -179,7 +159,7 @@ def convert_datetime_to_epoch_millisecond(
     return int(datetime.timestamp() * 1000) if datetime else None
 
 
-def convert_string_to_datetime(datestr: Optional[str]) -> Optional[dt.datetime]:
+def convert_string_to_datetime(datestr: str | None) -> dt.datetime | None:
     """
     Convert a date string to datetime object using flexible parsing.
 
@@ -210,10 +190,10 @@ def convert_string_to_datetime(datestr: Optional[str]) -> Optional[dt.datetime]:
 
 
 def convert_python_to_ast_module(
-    python_str: Optional[str] = None,
-    python_file_path: Optional[str] = None,
+    python_str: str | None = None,
+    python_file_path: str | None = None,
     return_str: bool = False,
-) -> Union[ast.Module, str]:
+) -> ast.Module | str:
     """
     Parse Python code string or file and return its AST module.
 
@@ -418,7 +398,7 @@ def test_valid_email(email: str) -> bool:
         raise InvalidEmail(email=email)
 
 
-def convert_string_to_bool(v: Union[str, bool]) -> bool:
+def convert_string_to_bool(v: str | bool) -> bool:
     """
     Convert string representation to boolean value.
 
@@ -446,7 +426,7 @@ def convert_string_to_bool(v: Union[str, bool]) -> bool:
     return str(v).lower() in ("yes", "true", "t", "1")
 
 
-def concat_list_dataframe(df_ls: list[Any]) -> Any:
+def concat_list_dataframe(df_ls: list[object]) -> object:
     """
     Take a list of DataFrames and concatenate them into one DataFrame.
 
@@ -489,7 +469,9 @@ def concat_list_dataframe(df_ls: list[Any]) -> Any:
     return df
 
 
-def merge_dict(source: dict[str, Any], destination: dict[str, Any]) -> dict[str, Any]:
+def merge_dict(
+    source: dict[str, object], destination: dict[str, object]
+) -> dict[str, object]:
     """
     Deep merge source dictionary into destination dictionary.
 

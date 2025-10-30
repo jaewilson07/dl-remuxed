@@ -14,10 +14,10 @@ from typing import Optional
 from ...client.exceptions import RouteError
 
 
-class SearchDatacenter_NoResultsFound(RouteError):
+class SearchDatacenterNoResultsFoundError(RouteError):
     """Raised when datacenter search operations return no results."""
 
-    def __init__(self, res=None, message: Optional[str] = None, **kwargs):
+    def __init__(self, res=None, message: str | None = None, **kwargs):
         super().__init__(
             res=res,
             entity_id=(
@@ -30,10 +30,10 @@ class SearchDatacenter_NoResultsFound(RouteError):
         )
 
 
-class Datacenter_GET_Error(RouteError):
+class DatacenterGetError(RouteError):
     """Raised when datacenter retrieval operations fail."""
 
-    def __init__(self, res=None, message: Optional[str] = None, **kwargs):
+    def __init__(self, res=None, message: str | None = None, **kwargs):
         super().__init__(
             res=res,
             entity_id=(
@@ -46,15 +46,15 @@ class Datacenter_GET_Error(RouteError):
         )
 
 
-class ShareResource_Error(RouteError):
+class ShareResourceError(RouteError):
     """Raised when resource sharing operations fail."""
 
     def __init__(
         self,
-        message: Optional[str] = None,
-        domo_instance: Optional[str] = None,
-        parent_class: Optional[str] = None,
-        function_name: Optional[str] = None,
+        message: str | None = None,
+        domo_instance: str | None = None,
+        parent_class: str | None = None,
+        function_name: str | None = None,
         res=None,
         **kwargs,
     ):
