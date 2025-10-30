@@ -10,13 +10,13 @@ Modules:
 
 # Import all exception classes
 from .exceptions import (
-    Datacenter_GET_Error,
-    SearchDatacenter_NoResultsFound,
-    ShareResource_Error,
+    DatacenterGetError,
+    SearchDatacenterNoResultsFoundError,
+    ShareResourceError,
 )
 
 # Backward compatibility alias
-SearchDatacenter_GET_Error = Datacenter_GET_Error
+SearchDatacenter_GET_Error = DatacenterGetError
 
 # Import route functions
 # Import utility functions

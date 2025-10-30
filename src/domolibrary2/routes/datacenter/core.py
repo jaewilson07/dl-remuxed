@@ -38,9 +38,9 @@ from ...client import (
 from ...client.auth import DomoAuth
 from ...entities.base import DomoEnumMixin
 from .exceptions import (
-    Datacenter_GET_Error,
-    SearchDatacenter_NoResultsFound,
-    ShareResource_Error,
+    DatacenterGetError,
+    SearchDatacenterNoResultsFoundError,
+    ShareResourceError,
 )
 
 
@@ -334,12 +334,12 @@ async def search_datacenter(
         return res
 
     if res.is_success and len(res.response) == 0:
-        raise SearchDatacenter_NoResultsFound(
+        raise SearchDatacenterNoResultsFoundError(
             res=res, message="no results for query parameters"
         )
 
     if not res.is_success:
-        raise Datacenter_GET_Error(res=res)
+        raise DatacenterGetError(res=res)
 
     return res
 
@@ -396,7 +396,7 @@ async def get_connectors(
         return res
 
     if not res.is_success:
-        raise Datacenter_GET_Error(res=res)
+        raise DatacenterGetError(res=res)
 
     if search_text:
         s = [
@@ -459,7 +459,7 @@ async def get_lineage_upstream(
         return res
 
     if not res.is_success:
-        raise Datacenter_GET_Error(res=res)
+        raise DatacenterGetError(res=res)
 
     return res
 
@@ -562,7 +562,7 @@ async def share_resource(
         return res
 
     if not res.is_success:
-        raise ShareResource_Error(
+        raise ShareResourceError(
             message=res.response,
             domo_instance=auth.domo_instance,
             parent_class=parent_class,
