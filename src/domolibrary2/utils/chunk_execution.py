@@ -30,8 +30,6 @@ __all__ = ["run_with_retry", "gather_with_concurrency", "run_sequence", "chunk_l
 
 import asyncio
 import functools
-from collections.abc import Awaitable
-from typing import Any, Callable, Optional, TypeVar, list
 
 # Import httpx with fallback for optional dependency
 try:
@@ -42,12 +40,10 @@ except ImportError:
     httpx = None
     _HTTPX_AVAILABLE = False
 
-T = TypeVar("T")
-
 
 def run_with_retry(
-    max_retry: int = 1, errors_to_retry_tp: Optional[tuple[type, ...]] = None
-) -> Callable:
+    max_retry: int = 1, errors_to_retry_tp: tuple[type, ...] | None = None
+):
     """
     Decorator that adds automatic retry logic to async functions.
 
@@ -77,7 +73,7 @@ def run_with_retry(
     """
     errors_to_retry_tp = errors_to_retry_tp or ()
 
-    def actual_decorator(run_fn: Callable) -> Callable:
+    def actual_decorator(run_fn):
         @functools.wraps(run_fn)
         async def wrapper(*args, **kwargs):
             retry = 0
@@ -113,9 +109,9 @@ def run_with_retry(
 
 
 async def gather_with_concurrency(
-    *coros: Awaitable[T],
+    *coros,
     n: int = 60,
-) -> list[T]:
+):
     """
     Execute multiple coroutines with concurrency control.
 
@@ -144,7 +140,7 @@ async def gather_with_concurrency(
     """
     semaphore = asyncio.Semaphore(n)
 
-    async def sem_coro(coro: Awaitable[T]) -> T:
+    async def sem_coro(coro):
         async with semaphore:
             return await coro
 
@@ -152,8 +148,8 @@ async def gather_with_concurrency(
 
 
 async def run_sequence(
-    *functions: Awaitable[Any],
-) -> list[Any]:
+    *functions,
+):
     """
     Execute a sequence of async functions sequentially.
 
@@ -185,9 +181,9 @@ async def run_sequence(
 
 
 def chunk_list(
-    obj_ls: list[Any],
+    obj_ls: list,
     chunk_size: int,
-) -> list[list[Any]]:
+):
     """
     Split a list into smaller chunks of specified size.
 
