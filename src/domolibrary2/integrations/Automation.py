@@ -2,7 +2,7 @@ __all__ = [
     "search_domo_groups_by_name",
     "upsert_domo_group",
     "search_or_upsert_domo_group",
-    "DJW_NoAccount",
+    "DJW_NoAccountError",
     "search_domo_account_by_name",
     "share_domo_account_with_domo_group",
     "remove_partition_by_x_days",
@@ -91,7 +91,7 @@ async def search_or_upsert_domo_group(
         raise e from e
 
 
-class DJW_NoAccount(ClassError):
+class DJW_NoAccountError(ClassError):
     def __init__(self, account_name, domo_instance):
         super().__init__(
             f"unable to retrieve account - {account_name} from {domo_instance}"
@@ -115,7 +115,7 @@ async def search_domo_account_by_name(
     )
 
     if not domo_account:
-        raise DJW_NoAccount(account_name, auth.domo_instance)
+        raise DJW_NoAccountError(account_name, auth.domo_instance)
 
     return domo_account
 

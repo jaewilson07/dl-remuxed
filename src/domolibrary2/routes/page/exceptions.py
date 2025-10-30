@@ -35,7 +35,7 @@ class Page_GET_Error(RouteError):
         )
 
 
-class SearchPage_NotFound(RouteError):
+class SearchPageNotFoundError(RouteError):
     """Raised when page search operations return no results."""
 
     def __init__(

@@ -1,6 +1,6 @@
 import os
 from dataclasses import dataclass, field
-from typing import Optional, list
+from typing import Optional
 from urllib.parse import urljoin, urlparse
 
 from .. import utils

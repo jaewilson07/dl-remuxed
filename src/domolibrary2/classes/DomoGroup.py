@@ -1,7 +1,4 @@
-__all__ = ["Group_Class_Error", "DomoGroup", "DomoGroups"]
-
 from dataclasses import dataclass, field
-from typing import Union, list
 
 import httpx
 
@@ -12,6 +9,8 @@ from ..entities.entities import DomoEntity
 from ..routes import group as group_routes
 from ..routes.group import Group_CRUD_Error, GroupType_Enum
 from .subentity.membership import DomoMembership_Group
+
+__all__ = ["Group_Class_Error", "DomoGroup", "DomoGroups"]
 
 
 class Group_Class_Error(dmde.ClassError):
@@ -137,7 +136,7 @@ class DomoGroup(DomoEntity):
         cls: "DomoGroup",
         auth: "DomoAuth",
         group_name: str = None,
-        group_type: Union[GroupType_Enum, str] = "open",  # use GroupType_Enum
+        group_type: GroupType_Enum | str = "open",  # use GroupType_Enum
         description: str = None,
         is_include_manage_groups_role: bool = True,
         debug_api: bool = False,
@@ -235,7 +234,7 @@ async def create_from_name(
     cls: DomoGroup,
     auth: DomoAuth,
     group_name: str = None,
-    group_type: Union[GroupType_Enum, str] = "open",  # use GroupType_Enum
+    group_type: GroupType_Enum | str = "open",  # use GroupType_Enum
     description: str = None,
     is_include_manage_groups_role: bool = True,
     debug_api: bool = False,
@@ -437,9 +436,9 @@ class DomoGroups:
         debug_api: bool = False,
         debug_num_stacks_to_drop: bool = False,
         session: httpx.AsyncClient = None,
-    ) -> Union[
-        "DomoGroup", list["DomoGroup"]
-    ]:  # by default returns one DomoGroup, but can return a list of DomoGroups
+    ) -> (
+        DomoGroup | list[DomoGroup]
+    ):  # by default returns one DomoGroup, but can return a list of DomoGroups
         domo_groups = await self.get(
             is_hide_system_groups=is_hide_system_groups,
             debug_api=debug_api,
@@ -568,9 +567,9 @@ async def search_by_name(
     debug_api: bool = False,
     debug_num_stacks_to_drop: bool = False,
     session: httpx.AsyncClient = None,
-) -> Union[
-    DomoGroup, list[DomoGroup]
-]:  # by default returns one DomoGroup, but can return a list of DomoGroups
+) -> (
+    DomoGroup | list[DomoGroup]
+):  # by default returns one DomoGroup, but can return a list of DomoGroups
     domo_groups = await self.get(
         is_hide_system_groups=is_hide_system_groups,
         debug_api=debug_api,

@@ -60,7 +60,7 @@ class InstanceSwitcher_CRUD_Error(RouteError):
 @gd.route_function
 async def get_instance_switcher_mapping(
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -118,7 +118,7 @@ async def get_instance_switcher_mapping(
 async def set_instance_switcher_mapping(
     auth: DomoAuth,
     mapping_payloads: list[dict],
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,

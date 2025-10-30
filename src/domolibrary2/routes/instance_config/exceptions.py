@@ -7,14 +7,14 @@ Exception Classes:
     ApiClient_GET_Error: Raised when API client retrieval operations fail
     ApiClient_CRUD_Error: Raised when API client create/update/delete operations fail
     ApiClient_RevokeError: Raised when API client revocation operations fail
-    SearchApiClient_NotFound: Raised when API client search operations return no results
+    SearchApiClientNotFoundError: Raised when API client search operations return no results
 """
 
 __all__ = [
     "ApiClient_GET_Error",
     "ApiClient_CRUD_Error",
     "ApiClient_RevokeError",
-    "SearchApiClient_NotFound",
+    "SearchApiClientNotFoundError",
 ]
 
 from typing import Optional
@@ -117,7 +117,7 @@ class ApiClient_RevokeError(RouteError):
         )
 
 
-class SearchApiClient_NotFound(RouteError):
+class SearchApiClientNotFoundError(RouteError):
     """
     Raised when API client search operations return no results.
 

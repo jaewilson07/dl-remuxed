@@ -216,7 +216,7 @@ async with httpx.AsyncClient() as session:
 ```python
 async def function_name(
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ):
     # Function handles both with and without session
     res = await route_function(auth=auth, session=session)

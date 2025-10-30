@@ -1,7 +1,6 @@
 __all__ = ["DomoJob_Types", "DomoApplication"]
 
 from dataclasses import dataclass, field
-from typing import Optional, list
 
 import httpx
 import pandas as pd
@@ -98,7 +97,7 @@ class DomoApplication:
     async def get_jobs(
         self,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         return_raw: bool = False,
     ):
         res = await application_routes.get_application_jobs(

@@ -8,8 +8,7 @@ This module tests all user route functions including:
 """
 
 import inspect
-from typing import list
-from unittest.mock import patch
+
 
 import pytest
 from dotenv import load_dotenv

@@ -7,7 +7,7 @@ __all__ = [
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import Any, Optional, Union, list
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -28,7 +28,7 @@ from ...routes.instance_config.exceptions import (
     SearchApiClient_NotFound,
 )
 from ...utils import chunk_execution as dmce
-from .. import DomoUser as dmdu
+from ..DomoUser import DomoUser
 
 
 @dataclass(eq=False)
@@ -37,7 +37,7 @@ class ApiClient(DomoEntity):
     name: str
     client_id: str  # will be masked in UI
     client_secret: str
-    owner: dmdu.DomoUser
+    owner: DomoUser
 
     # authorization_grant_types: list[str] # no longer part of API 6/10/2025
 
@@ -51,9 +51,9 @@ class ApiClient(DomoEntity):
     @staticmethod
     async def get_user_by_id(
         user_id: str, auth: DomoAuth
-    ) -> Union[dmdu.DomoUser, bool, None]:
+    ) -> Union[DomoUser, bool, None]:
         try:
-            return await dmdu.DomoUser.get_by_id(auth=auth, id=user_id)
+            return await DomoUser.get_by_id(auth=auth, id=user_id)
         except DomoError:
             return False
 
@@ -81,7 +81,7 @@ class ApiClient(DomoEntity):
         cls,
         auth: DomoAuth,
         id: str,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         parent_class: Optional[str] = None,
@@ -127,7 +127,7 @@ class ApiClient(DomoEntity):
 
     async def revoke(
         self,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         parent_class: Optional[str] = None,
@@ -176,7 +176,7 @@ class ApiClients(DomoManager):
 
     async def get(
         self,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         parent_class: Optional[str] = None,
@@ -232,7 +232,7 @@ class ApiClients(DomoManager):
     async def get_by_name(
         self,
         client_name: str,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         parent_class: Optional[str] = None,
@@ -282,7 +282,7 @@ class ApiClients(DomoManager):
         client_name: str,
         client_description: str = f"created via DL {dt.date.today()}",
         scope: Optional[list[ApiClient_ScopeEnum]] = None,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         parent_class: Optional[str] = None,
@@ -341,7 +341,7 @@ class ApiClients(DomoManager):
         client_description: Optional[str] = None,
         scope: Optional[list[ApiClient_ScopeEnum]] = None,
         is_regenerate: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         parent_class: Optional[str] = None,

@@ -17,13 +17,13 @@ Functions:
 
 Exception Classes:
     PDP_GET_Error: Raised when PDP policy retrieval fails
-    SearchPDP_NotFound: Raised when PDP policy search returns no results
+    SearchPDPNotFoundError: Raised when PDP policy search returns no results
     PDP_CRUD_Error: Raised when PDP policy create/update/delete operations fail
 """
 
 __all__ = [
     "PDP_GET_Error",
-    "SearchPDP_NotFound",
+    "SearchPDPNotFoundError",
     "PDP_CRUD_Error",
     "get_pdp_policies",
     "search_pdp_policies_by_name",
@@ -75,7 +75,7 @@ class PDP_GET_Error(RouteError):
         super().__init__(message=message, entity_id=dataset_id, res=res, **kwargs)
 
 
-class SearchPDP_NotFound(RouteError):
+class SearchPDPNotFoundError(RouteError):
     """
     Raised when PDP policy search operations return no results.
 
@@ -131,7 +131,7 @@ class PDP_CRUD_Error(RouteError):
 
 
 # Legacy error classes for backward compatibility
-class PDP_NotRetrieved(PDP_GET_Error):
+class PDPNotRetrievedError(PDP_GET_Error):
     """Legacy error class - use PDP_GET_Error instead."""
 
     def __init__(
@@ -149,8 +149,8 @@ class PDP_NotRetrieved(PDP_GET_Error):
         )
 
 
-class SearchPDP_Error(SearchPDP_NotFound):
-    """Legacy error class - use SearchPDP_NotFound instead."""
+class SearchPDP_Error(SearchPDPNotFoundError):
+    """Legacy error class - use SearchPDPNotFoundError instead."""
 
     def __init__(
         self, status=None, message=None, domo_instance=None, function_name=None
@@ -172,7 +172,7 @@ async def get_pdp_policies(
     auth: DomoAuth,
     dataset_id: str,
     include_all_rows: bool = True,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -260,7 +260,7 @@ def search_pdp_policies_by_name(
         or False if no matches and is_suppress_errors is True
 
     Raises:
-        SearchPDP_NotFound: If no policies match the search criteria (unless is_suppress_errors is True)
+    SearchPDPNotFoundError: If no policies match the search criteria (unless is_suppress_errors is True)
 
     Example:
         >>> policies = await get_pdp_policies(auth, "abc123")
@@ -279,7 +279,7 @@ def search_pdp_policies_by_name(
         ]
 
     if not policy_search and not is_suppress_errors:
-        raise SearchPDP_NotFound(
+        raise SearchPDPNotFoundError(
             search_criteria=f"name: {search_name}",
         )
 
@@ -401,7 +401,7 @@ async def create_policy(
     body: dict,
     override_same_name: bool = False,
     is_suppress_errors: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -503,7 +503,7 @@ async def update_policy(
     dataset_id: str,
     policy_id: str,
     body: dict,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -575,7 +575,7 @@ async def delete_policy(
     auth: DomoAuth,
     dataset_id: str,
     policy_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -639,7 +639,7 @@ async def toggle_pdp(
     auth: DomoAuth,
     dataset_id: str,
     is_enable: bool = True,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,

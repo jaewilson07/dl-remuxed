@@ -1,10 +1,10 @@
-__all__ = ["DomoCard", "Card_DownloadSourceCode"]
+__all__ = ["DomoCard", "Card_DownloadSourceCodeError"]
 
 import json
 import os
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Any, Optional, list
+from typing import Any, Optional
 
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
@@ -119,7 +119,7 @@ class DomoCard(DomoEntity_w_Lineage):
         card_id: str,
         optional_parts: str = "certification,datasources,drillPath,owners,properties,domoapp",
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         return_raw: bool = False,
         is_suppress_errors: bool = False,
     ):
@@ -159,7 +159,7 @@ class DomoCard(DomoEntity_w_Lineage):
     async def get_datasets(
         self,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         return_raw: bool = False,
     ):
         res = await card_routes.get_card_metadata(
@@ -195,7 +195,7 @@ class DomoCard(DomoEntity_w_Lineage):
         domo_groups: Optional[list[DomoGroup]] = None,  # DomoGroups to share card with
         message: Optional[str] = None,  # message for automated email
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ):
         from ..routes import datacenter as datacenter_routes
 
@@ -268,7 +268,7 @@ class DomoCard(DomoEntity_w_Lineage):
         )
 
         if not code_collection:
-            raise Card_DownloadSourceCode(
+            raise Card_DownloadSourceCodeError(
                 card=deepcopy(self),
                 auth=self.auth,
                 message=f"collection - {collection_name} not found for {self.title} - {self.id}",
@@ -279,7 +279,7 @@ class DomoCard(DomoEntity_w_Lineage):
         )
 
         if not documents:
-            raise Card_DownloadSourceCode(
+            raise Card_DownloadSourceCodeError(
                 card=deepcopy(self),
                 auth=self.auth,
                 message=f"collection - {collection_name} - {code_collection.id} - unable to retrieve documents for {self.title} - {self.id}",
@@ -333,7 +333,7 @@ class DomoCard(DomoEntity_w_Lineage):
         return doc
 
 
-class Card_DownloadSourceCode(DomoError):
+class Card_DownloadSourceCodeError(DomoError):
     def __init__(self, card: DomoCard, auth: DomoAuth, message: str):
         super().__init__(
             parent_class=card.__class__.__name__, entity_id=card.id, message=message

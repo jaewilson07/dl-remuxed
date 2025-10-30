@@ -10,7 +10,7 @@ parameters, events, authentication, folders, and other components.
 import json
 import sys
 from pathlib import Path
-from typing import Any, list
+from typing import Any
 
 from .models import PostmanCollection
 

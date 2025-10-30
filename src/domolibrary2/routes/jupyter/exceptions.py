@@ -34,7 +34,7 @@ class Jupyter_GET_Error(RouteError):
         )
 
 
-class SearchJupyter_NotFound(RouteError):
+class SearchJupyterNotFoundError(RouteError):
     """Raised when Jupyter workspace search operations return no results."""
 
     def __init__(

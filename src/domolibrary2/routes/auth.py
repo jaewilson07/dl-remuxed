@@ -96,7 +96,7 @@ class InvalidInstanceError(RouteError):
         )
 
 
-class NoAccessTokenReturned(RouteError):
+class NoAccessTokenReturnedError(RouteError):
     """Raised when no access token is returned from the authentication API."""
 
     def __init__(self, res=None, **kwargs):
@@ -116,7 +116,7 @@ async def get_full_auth(
     domo_username: str,  # email address
     domo_password: str,
     auth: Optional[Any] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
@@ -132,7 +132,7 @@ async def get_full_auth(
         domo_username (str): User's email address
         domo_password (str): User's password
         auth (Optional[Any]): Existing auth object (optional)
-        session (Optional[httpx.AsyncClient]): HTTP client session to use
+        session (httpx.AsyncClient | None): HTTP client session to use
         debug_api (bool): Whether to enable API debugging
         parent_class (Optional[str]): Name of calling class for debugging
         debug_num_stacks_to_drop (int): Number of stack frames to drop for debugging
@@ -198,7 +198,7 @@ async def get_full_auth(
         # Check for empty response
         if res.response == {} or res.response == "":
             res.is_success = False
-            raise NoAccessTokenReturned(res=res)
+            raise NoAccessTokenReturnedError(res=res)
 
     # Validate session token presence
     if isinstance(res.response, dict) and not res.response.get("sessionToken"):
@@ -216,7 +216,7 @@ async def get_developer_auth(
     domo_client_id: str,
     domo_client_secret: str,
     auth: Optional[Any] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
@@ -231,7 +231,7 @@ async def get_developer_auth(
         domo_client_id (str): OAuth2 client ID from developer app registration
         domo_client_secret (str): OAuth2 client secret
         auth (Optional[Any]): Existing auth object (optional)
-        session (Optional[httpx.AsyncClient]): HTTP client session to use
+        session (httpx.AsyncClient | None): HTTP client session to use
         debug_api (bool): Whether to enable API debugging
         parent_class (Optional[str]): Name of calling class for debugging
         debug_num_stacks_to_drop (int): Number of stack frames to drop for debugging
@@ -287,7 +287,7 @@ async def get_developer_auth(
 )
 async def who_am_i(
     auth: Any,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 0,
     debug_api: bool = False,
@@ -300,7 +300,7 @@ async def who_am_i(
 
     Args:
         auth (Any): Authentication object containing domo_instance and auth tokens
-        session (Optional[httpx.AsyncClient]): HTTP client session to use
+        session (httpx.AsyncClient | None): HTTP client session to use
         parent_class (Optional[str]): Name of calling class for debugging
         debug_num_stacks_to_drop (int): Number of stack frames to drop for debugging
         debug_api (bool): Whether to enable API debugging
@@ -364,7 +364,7 @@ async def elevate_user_otp(
     user_id: Optional[str] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     parent_class: Optional[str] = None,
 ) -> rgd.ResponseGetData:
     """Elevate authentication using a one-time password (OTP).
@@ -378,7 +378,7 @@ async def elevate_user_otp(
         user_id (Optional[str]): User ID (will be retrieved from auth if not provided)
         debug_api (bool): Whether to enable API debugging
         debug_num_stacks_to_drop (int): Number of stack frames to drop for debugging
-        session (Optional[httpx.AsyncClient]): HTTP client session to use
+        session (httpx.AsyncClient | None): HTTP client session to use
         parent_class (Optional[str]): Name of calling class for debugging
 
     Returns:

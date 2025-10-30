@@ -1,7 +1,6 @@
 __all__ = ["MFAConfig_InstantiationError", "MFA_Config"]
 
 from dataclasses import dataclass, field
-from typing import Optional
 
 import httpx
 
@@ -38,7 +37,7 @@ class MFA_Config:
         incl_is_multifactor_required: bool = True,
         incl_num_days_valid: bool = True,
         incl_max_code_attempts: bool = True,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         return_raw: bool = False,
@@ -62,7 +61,7 @@ class MFA_Config:
 
     async def get(
         self,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         return_raw: bool = False,
@@ -112,7 +111,7 @@ class MFA_Config:
         self,
         is_enable_MFA: bool,
         is_ignore_test: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         suppress_update_self: bool = False,
@@ -161,7 +160,7 @@ class MFA_Config:
     async def disable(
         self,
         is_ignore_test: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
     ):
@@ -246,7 +245,7 @@ class MFA_Config:
         is_enable_MFA: bool = None,
         max_code_attempts: int = None,
         num_days_valid: int = None,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         return_raw: bool = False,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,

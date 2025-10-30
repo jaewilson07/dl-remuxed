@@ -28,7 +28,6 @@ import datetime as dt
 import os
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import list
 
 import httpx
 

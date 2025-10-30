@@ -135,7 +135,7 @@ class DomoRole(
         cls,
         auth: DomoAuth,
         role_id: str,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
     ):
@@ -155,7 +155,7 @@ class DomoRole(
         description: Optional[str] = None,
         grants: Optional[list["DomoGrant"]] = None,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         return_raw: bool = False,
         debug_num_stacks_to_drop=2,
     ):
@@ -188,7 +188,7 @@ class DomoRole(
         auth: DomoAuth,
         role_id: Optional[str] = None,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ) -> list[DomoGrant]:
         res = await role_routes.get_role_grants(
             auth=auth,
@@ -206,7 +206,7 @@ class DomoRole(
         grants: list[DomoGrant],
         role_id: Optional[str] = None,
         is_replace: bool = True,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ):
         all_grants = await self.get_grants(
             role_id=role_id or self.id,
@@ -238,7 +238,7 @@ class DomoRole(
         auth: DomoAuth,
         user_id: Optional[str] = None,
         user: Optional[DomoUser] = None,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ):
         if user_id is None:
             if isinstance(user, DomoUser):
@@ -260,7 +260,7 @@ class DomoRole(
     async def set_as_default_role(
         self,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop: int = 2,
     ):
         return await role_routes.set_default_role(
@@ -280,7 +280,7 @@ class DomoRole(
         description,
         grants: list[DomoGrant],
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop=2,
         return_raw: bool = False,
     ):
@@ -310,7 +310,7 @@ class DomoRole(
         auth: Optional[DomoAuth] = None,
         return_raw: bool = False,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop=2,
     ):
         from .. import DomoUser
@@ -337,7 +337,7 @@ class DomoRole(
     async def delete(
         self,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop=2,
     ):
         return await role_routes.delete_role(
@@ -357,7 +357,7 @@ class DomoRoles(DomoManager):
 
     async def get(
         self,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
     ) -> list[DomoRole]:
@@ -377,7 +377,7 @@ class DomoRoles(DomoManager):
     async def by_name(
         self,
         search_name: str,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         is_suppress_error: bool = False,
         debug_num_stacks_to_drop: int = 3,
@@ -411,7 +411,7 @@ class DomoRoles(DomoManager):
         name: str,
         description: Optional[str] = None,
         grants: Optional[list["DomoGrant"]] = None,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_prn: bool = False,
         debug_num_stacks_to_drop=2,

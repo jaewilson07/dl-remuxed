@@ -3,7 +3,7 @@
 __all__ = ["DomoPage"]
 
 from dataclasses import dataclass, field
-from typing import Optional, list
+from typing import Optional
 
 import httpx
 

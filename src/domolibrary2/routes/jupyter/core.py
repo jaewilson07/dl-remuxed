@@ -28,7 +28,7 @@ from .exceptions import Jupyter_GET_Error, JupyterWorkspace_Error
 @gd.route_function
 async def get_jupyter_workspaces(
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_loop: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -97,7 +97,7 @@ async def get_jupyter_workspaces(
 async def get_jupyter_workspace_by_id(
     auth: DomoAuth,
     workspace_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 2,
     parent_class: Optional[str] = None,
@@ -188,7 +188,7 @@ async def get_workspace_auth_token_params(workspace_id, auth, return_raw: bool =
 async def start_jupyter_workspace(
     auth: DomoAuth,
     workspace_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,

@@ -4,7 +4,7 @@ import datetime as dt
 import uuid
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, list
+from typing import Any, Callable
 
 import httpx
 

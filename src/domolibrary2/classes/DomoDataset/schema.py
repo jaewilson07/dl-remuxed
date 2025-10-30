@@ -4,13 +4,12 @@ __all__ = [
     "DatasetSchema_Types",
     "DomoDataset_Schema_Column",
     "DomoDataset_Schema",
-    "DatasetSchema_InvalidSchema",
-    "CRUD_Dataset_Error",
+    "DatasetSchema_InvalidSchemaError",
 ]
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, list
+from typing import Any
 
 import httpx
 import pandas as pd
@@ -28,7 +27,7 @@ class DatasetSchema_Types(Enum):
     DATETIME = "DATETIME"
 
 
-class DatasetSchema_InvalidSchema(ClassError):
+class DatasetSchema_InvalidSchemaError(ClassError):
     def __init__(self, missing_columns: list[str]):
         message = (
             f"Dataset schema is missing required columns: {', '.join(missing_columns)}"
@@ -135,7 +134,7 @@ class DomoDataset_Schema(DomoSubEntity):
         ]
 
         if len(missing_columns) > 0:
-            raise DatasetSchema_InvalidSchema(
+            raise DatasetSchema_InvalidSchemaError(
                 cls_instance=self.parent,
                 missing_columns=missing_columns,
             )

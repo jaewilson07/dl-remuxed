@@ -25,7 +25,7 @@ async def update_jupyter_workspace_config(
     auth: DomoAuth,
     workspace_id: str,
     config: dict,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 2,
     parent_class: Optional[str] = None,

@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import list
 
 import httpx
 
+from ...client.auth import DomoAuth
 from ...routes import dataflow as dataflow_routes
 from ...utils import (
     chunk_execution as ce,

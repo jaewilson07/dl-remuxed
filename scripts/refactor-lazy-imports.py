@@ -14,7 +14,6 @@ import argparse
 import ast
 import sys
 from pathlib import Path
-from typing import list
 
 
 class LazyImportRefactorer:

@@ -179,7 +179,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
         id: str,
         debug_api: bool = False,
         return_raw: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop: int = 2,
         is_use_default_dataset_class: bool = False,
         parent_class: Optional[str] = None,
@@ -218,7 +218,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
         dataset_id: Optional[str] = None,
         auth: Optional[DomoAuth] = None,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ):
         dataset_id = dataset_id or self.id
         auth = auth or self.auth
@@ -237,7 +237,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
         is_send_email=False,
         debug_api: bool = False,
         debug_prn: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ):
         # Import DomoGroup here to avoid circular imports
         from ...classes.DomoGroup import DomoGroup
@@ -267,7 +267,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
         dataset_type: str = "api",
         schema: Optional[dict] = None,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         return_raw: bool = False,
     ) -> "DomoDataset_Default":
         schema = schema or {

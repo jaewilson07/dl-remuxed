@@ -1,7 +1,7 @@
 __all__ = ["DomoDatacenter"]
 
 from dataclasses import dataclass, field
-from typing import Any, Union, list
+from typing import Any, Union
 
 import httpx
 

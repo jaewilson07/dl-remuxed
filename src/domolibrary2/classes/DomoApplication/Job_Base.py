@@ -9,7 +9,7 @@ __all__ = [
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import Optional, list
+from typing import Optional
 
 import httpx
 
@@ -190,7 +190,7 @@ class DomoJob_Base(DomoEntity):
         auth: DomoAuth,
         application_id: str,
         job_id: str,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         parent_class: Optional[str] = None,
@@ -261,7 +261,7 @@ class DomoJob_Base(DomoEntity):
         auth: DomoAuth,
         application_id: str,
         job_id: str,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         return_raw: bool = False,

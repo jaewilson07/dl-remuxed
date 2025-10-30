@@ -77,7 +77,7 @@ class FederatedDomoDataset(DomoDataset_Default, DomoFederatedEntity):
         id: str,
         debug_api: bool = False,
         return_raw: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop: int = 2,
         is_use_default_dataset_class: bool = False,
         parent_class: Optional[str] = None,

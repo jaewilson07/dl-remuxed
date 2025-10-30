@@ -2,7 +2,7 @@ __all__ = ["UserAttribute", "UserAttributes"]
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import Any, Optional, list
+from typing import Any, Optional
 
 import httpx
 
@@ -62,7 +62,7 @@ class UserAttribute(DomoEntity):
         cls,
         auth: DomoAuth,
         entity_id: str,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
         return_raw: bool = False,
@@ -87,7 +87,7 @@ class UserAttribute(DomoEntity):
         issuer_type: Optional[user_attribute_routes.UserAttributes_IssuerType] = None,
         data_type: Optional[str] = None,
         security_voter=None,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
     ):
@@ -119,7 +119,7 @@ async def update(
     issuer_type: Optional[user_attribute_routes.UserAttributes_IssuerType] = None,
     data_type: Optional[str] = None,
     security_voter=None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=2,
 ):
@@ -155,7 +155,7 @@ class UserAttributes(DomoManager):
         issuer_type_ls: list[
             user_attribute_routes.UserAttributes_IssuerType
         ] = [],  # use `UserAttributes_IssuerType` enum
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
         return_raw: bool = False,
@@ -189,7 +189,7 @@ class UserAttributes(DomoManager):
         issuer_type: Optional[
             user_attribute_routes.UserAttributes_IssuerType
         ] = user_attribute_routes.UserAttributes_IssuerType.CUSTOM,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
         return_raw: bool = False,
@@ -229,7 +229,7 @@ async def create(
     issuer_type: Optional[
         user_attribute_routes.UserAttributes_IssuerType
     ] = user_attribute_routes.UserAttributes_IssuerType.CUSTOM,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=2,
     return_raw: bool = False,
@@ -267,7 +267,7 @@ async def upsert(
     issuer_type: Optional[user_attribute_routes.UserAttributes_IssuerType] = None,
     data_type: Optional[str] = None,
     security_voter=None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=2,
     debug_prn: bool = False,
@@ -327,7 +327,7 @@ async def upsert(
 async def delete(
     self: UserAttributes,
     attribute_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=2,
     return_raw: bool = False,

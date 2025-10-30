@@ -15,7 +15,6 @@ import datetime as dt
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional, list
 
 import httpx
 
@@ -199,7 +198,7 @@ class DomoJob_Watchdog(DomoJob_Base):
         job_id,
         auth: DomoAuth,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop=2,
         return_raw: bool = False,
     ):
@@ -248,7 +247,7 @@ class DomoJob_Watchdog(DomoJob_Base):
         custom_message: str = None,
         webhooks: list[str] = None,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         return_raw: bool = False,
     ):
         domo_job = cls(
@@ -288,7 +287,7 @@ class DomoJob_Watchdog(DomoJob_Base):
 async def update(
     self: DomoJob_Base,
     debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_num_stacks_to_drop=2,
 ):
     res = await application_routes.update_application_job(
@@ -308,7 +307,7 @@ async def update(
 async def execute(
     self,
     debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_num_stacks_to_drop=2,
 ):
     res = await application_routes.execute_application_job(

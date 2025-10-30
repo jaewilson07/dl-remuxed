@@ -145,7 +145,7 @@ async def update_user(
     user_property_ls: list[UserProperty],
     auth: DomoAuth,
     debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
@@ -219,7 +219,7 @@ async def set_user_landing_page(
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
 ):
     """Set a user's landing page.
@@ -280,7 +280,7 @@ async def reset_password(
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Reset a user's password.
@@ -355,7 +355,7 @@ async def request_password_reset(
     email: str,
     locale="en-us",
     debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
     return_raw: bool = False,
@@ -425,7 +425,7 @@ async def download_avatar(
     return_raw: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ):
     """Download a user's avatar image.
 
@@ -520,7 +520,7 @@ async def upload_avatar(
     img_type: str,  #'jpg or png'
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     parent_class: Optional[str] = None,
     return_raw: bool = False,
 ):
@@ -592,7 +592,7 @@ async def user_is_allowed_direct_signon(
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Manage direct sign-on permissions for users.

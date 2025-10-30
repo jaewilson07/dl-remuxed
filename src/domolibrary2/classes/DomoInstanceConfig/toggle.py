@@ -106,7 +106,7 @@ class DomoToggle:
         self,
         customer_id: Optional[str] = None,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         return_raw: bool = False,
     ) -> bool:
         """Check if social user invitations are enabled.
@@ -150,7 +150,7 @@ class DomoToggle:
         customer_id: Optional[str] = None,
         debug_api: bool = False,
         debug_prn: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         return_raw: bool = False,
     ) -> bool:
         """Enable or disable social user invitation capability.
@@ -212,7 +212,7 @@ class DomoToggle:
     async def get_is_user_invite_notifications_enabled(
         self,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         return_raw: bool = False,
     ) -> bool:
         """Check if user invite notification emails are enabled.
@@ -247,7 +247,7 @@ class DomoToggle:
         is_enabled: bool,
         debug_api: bool = False,
         debug_prn: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         return_raw: bool = False,
     ) -> bool:
         """Enable or disable user invite notification emails.
@@ -301,7 +301,7 @@ class DomoToggle:
     async def get_is_weekly_digest_enabled(
         self,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         return_raw: bool = False,
     ) -> bool:
         """Check if weekly digest emails are enabled.
@@ -332,7 +332,7 @@ class DomoToggle:
         is_enabled: bool,
         debug_api: bool = False,
         debug_prn: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         return_raw: bool = False,
     ) -> bool:
         """Enable or disable weekly digest emails.
@@ -382,7 +382,7 @@ class DomoToggle:
     async def get_is_left_nav_enabled(
         self,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         return_raw: bool = False,
     ) -> bool:
         """Check if left navigation UI is enabled.
@@ -413,7 +413,7 @@ class DomoToggle:
         is_enabled: bool = True,
         debug_api: bool = False,
         debug_prn: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         return_raw: bool = False,
     ) -> bool:
         """Enable or disable left navigation UI.
@@ -466,7 +466,7 @@ class DomoToggle:
         self,
         customer_id: Optional[str] = None,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ) -> dict:
         """Retrieve all toggle states.
 

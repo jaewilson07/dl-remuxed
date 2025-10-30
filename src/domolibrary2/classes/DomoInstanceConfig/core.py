@@ -2,7 +2,7 @@ __all__ = ["DomoInstanceConfig"]
 
 
 from dataclasses import dataclass, field
-from typing import Any, list
+from typing import Any
 
 import httpx
 import pandas as pd

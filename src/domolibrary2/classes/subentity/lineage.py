@@ -15,7 +15,7 @@ __all__ = [
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, list
+from typing import Any, Callable
 
 import httpx
 
@@ -606,29 +606,29 @@ class DomoLineage_Publication(DomoLineage):
             n=10,
         )
 
-        self.lineage = [l for l in lineage if l]
+        self.lineage = [ele for ele in lineage if ele]
 
-        for l in self.lineage:
-            if l.__class__.__name__ == "DomoDataset":
+        for ele in self.lineage:
+            if ele.__class__.__name__ == "DomoDataset":
                 if not self.datasets:
                     self.datasets = []
-                self.datasets.append(l)
-            elif l.__class__.__name__ == "DomoCard":
+                self.datasets.append(ele)
+            elif ele.__class__.__name__ == "DomoCard":
                 if not self.cards:
                     self.cards = []
-                self.cards.append(l)
-            elif l.__class__.__name__ == "DomoPage":
+                self.cards.append(ele)
+            elif ele.__class__.__name__ == "DomoPage":
                 if not self.page:
                     self.page = []
-                self.page.append(l)
+                self.page.append(ele)
             else:
                 if not self.unsorted:
                     self.unsorted = []
-                self.unsorted.append(l)
+                self.unsorted.append(ele)
 
         if self.unsorted:
             print(
-                f"Unsorted lineage items: {', '.join([l.__class__.__name__ for l in self.unsorted])}"
+                f"Unsorted lineage items: {', '.join([ele.__class__.__name__ for ele in self.unsorted])}"
             )
 
         return self.lineage

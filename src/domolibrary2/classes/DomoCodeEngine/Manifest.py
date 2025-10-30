@@ -1,9 +1,9 @@
 __all__ = ["CodeEngineManifest"]
 
 from dataclasses import dataclass
-from typing import Any, list
+from typing import Any
 
-from ..utils import (
+from ...utils import (
     convert as dmcv,
     files as dmfi,
 )

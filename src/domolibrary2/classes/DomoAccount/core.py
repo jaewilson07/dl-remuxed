@@ -2,7 +2,6 @@ __all__ = ["DomoAccount", "DomoAccounts_NoAccount", "DomoAccounts"]
 
 
 from dataclasses import dataclass
-from typing import list
 
 import httpx
 
