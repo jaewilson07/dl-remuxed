@@ -15,7 +15,7 @@ __all__ = [
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, List
+from typing import Any, Callable, List, Optional
 
 import httpx
 
@@ -25,6 +25,7 @@ from ...entities.base import DomoEnumMixin
 from ...entities.entities import DomoEntity
 from ...routes import datacenter as datacenter_routes
 from ...utils import chunk_execution as dmce
+
 
 
 @dataclass
@@ -198,6 +199,7 @@ class DomoLineageLink_Card(DomoLineage_Link):
 
 @dataclass
 class DomoLineageLink_Dataset(DomoLineage_Link):
+    is_federated: bool = field(default=False, repr=False)
     def __eq__(self, other):
         return super().__eq__(self, other)
 
@@ -230,6 +232,7 @@ class DomoLineageLink_Dataset(DomoLineage_Link):
             entity=entity,
             children=obj.get("children", []),
             parents=obj.get("parents", []),
+            is_federated=getattr(entity, "is_federated", False),
         )
 
 
@@ -310,6 +313,8 @@ class DomoLineage:
         session: httpx.AsyncClient = None,
         debug_api: bool = False,
         return_raw: bool = False,
+        parent_auth: Optional[DomoAuth] = None,
+        parent_auth_retrieval_fn: Optional[Callable] = None,
     ):
         """queries the datacenter lineage api"""
 
@@ -335,18 +340,75 @@ class DomoLineage:
         # dmcv.merge_dict(res.response, self.raw_datacenter)
 
         async def _get_entity_from_dict(obj):
-            entity = DomoLineageLinkTypeFactory_Enum[obj["type"]].value  ## abc
+            entity_cls = DomoLineageLinkTypeFactory_Enum[obj["type"]].value  # class
 
-            return await entity.from_dict(obj=obj, auth=self.auth)
+            return await entity_cls.from_dict(obj=obj, auth=self.auth)
+
+        # Detect placeholder DATA_SOURCE entries returned by the datacenter API
+        # We consider a placeholder one when ancestorCounts == {} and type == 'DATA_SOURCE'
+        candidate_ds_ids = [
+            str(obj["id"])
+            for _, obj in res.response.items()
+            if obj.get("type") == "DATA_SOURCE" and obj.get("ancestorCounts", {}) == {} and str(obj["id"]) != str(self.parent.id)
+        ]
+
+        id_to_dataset = {}
+        if candidate_ds_ids:
+            # Lazy import to avoid circular imports
+            from ..DomoDataset.core import DomoDataset as dmds
+
+            # Prefetch dataset objects concurrently
+            ds_objs = await dmce.gather_with_concurrency(
+                *[
+                    dmds.get_by_id(dataset_id=did, auth=(self.parent.auth if self.parent else self.auth), session=session, debug_api=debug_api)
+                    for did in candidate_ds_ids
+                ],
+                n=10,
+            )
+
+            # Normalize results into id -> DomoDataset_Default mapping
+            for did, ds in zip(candidate_ds_ids, ds_objs):
+                # If the route returned a dataset instance directly
+                if hasattr(ds, "id"):
+                    id_to_dataset[did] = ds
+                # If it returned a ResponseGetData-like object with .response
+                elif getattr(ds, "response", None):
+                    try:
+                        id_to_dataset[did] = dmds.from_dict(auth=(self.parent.auth if self.parent else self.auth), obj=ds.response)
+                    except Exception:
+                        # swallow - leave out of mapping if we can't convert
+                        pass
+
+        async def _get_entity_from_dict_with_override(obj):
+            """
+            If we prefetched a federated dataset for this DATA_SOURCE placeholder,
+            create the lineage link using the prefetched entity to replace the placeholder.
+            Otherwise fall back to the standard from_dict path.
+            """
+            obj_id_str = str(obj["id"])
+
+            entity_cls = DomoLineageLinkTypeFactory_Enum[obj["type"]].value
+            test = await entity_cls.from_dict(obj=obj, auth=self.auth)
+
+            if obj.get("type") == "DATA_SOURCE" and obj_id_str in id_to_dataset:
+                ds = id_to_dataset[obj_id_str]
+                if getattr(ds, "is_federated", False):
+                    fed_lineage = await ds.Lineage.get_federated_lineage(parent_auth=parent_auth, parent_auth_retrieval_fn=parent_auth_retrieval_fn)
+                    test.parents = fed_lineage
+                    pass
+
+
+            return test
 
         dx_classes = await dmce.gather_with_concurrency(
             *[
-                _get_entity_from_dict(obj)
+                _get_entity_from_dict_with_override(obj)
                 for _, obj in res.response.items()
                 if str(obj["id"]) != str(self.parent.id)
             ],
             n=10,
         )
+       
 
         self.lineage.extend(dx_classes)
 
@@ -437,14 +499,17 @@ class DomoLineage:
                 debug_api=debug_api,
                 return_raw=return_raw,
             )
+
         # parent_auth = parent_auth or if parent....
         ## if its federated do something else
         # await self.get_parent_content_details(parent_auth)
 
         else:
             await self.get_datacenter_lineage(
-                session=session, debug_api=debug_api, return_raw=return_raw
+                session=session, debug_api=debug_api, return_raw=return_raw, parent_auth=parent_auth, parent_auth_retrieval_fn=parent_auth_retrieval_fn
             )
+
+
 
         if is_recursive:
             # recursively get lineage for all items in lineage
@@ -461,6 +526,7 @@ class DomoLineage:
                 ],
                 n=10,
             )
+            
 
             # flatten list of lists
             flattened_lineage = [item for sublist in all_lineage for item in sublist]
@@ -469,6 +535,8 @@ class DomoLineage:
             for lin in flattened_lineage:
                 if lin and lin not in self.lineage:
                     self.lineage.append(lin)
+
+        
 
         return self.lineage
 

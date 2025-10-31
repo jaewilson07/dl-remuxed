@@ -10,10 +10,10 @@ assert load_dotenv(".env", override=True)
 
 
 from dc_logger.client.base import get_global_logger, set_global_logger
-from dc_logger.client.base import Handler_BufferSettings, HandlerInstance, Logger
-from dc_logger.logs.services.file import File_ServiceConfig, FileHandler
+from dc_logger.client.base import HandlerBufferSettings, HandlerInstance, Logger
+from dc_logger.logs.services.file import FileServiceConfig, FileHandler
 
-json_config = File_ServiceConfig(
+json_config = FileServiceConfig(
     destination="LOGGER/classes/DomoDataset/get_federated_dataset_by_id.json",
     output_mode="file",
     format="json",
@@ -21,7 +21,7 @@ json_config = File_ServiceConfig(
 )
 
 json_file_handler = FileHandler(
-    buffer_settings=Handler_BufferSettings(), service_config=json_config
+    buffer_settings=HandlerBufferSettings(), service_config=json_config
 )
 
 json_handler_instance = HandlerInstance(
