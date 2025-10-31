@@ -1,8 +1,8 @@
 __all__ = [
     "DomoAccount_Config",
-    "AccountConfig_UsesOauth",
-    "DomoAccount_NoConfig_OAuth",
-    "AccountConfig_ProviderTypeNotDefined",
+    "AccountConfig_UsesOauthError",
+    "DomoAccount_NoConfig_OAuthError",
+    "AccountConfig_ProviderTypeNotDefinedError",
     "DomoAccount_NoConfig",
     "DomoAccount_Config_AbstractCredential",
     "DomoAccount_Config_DatasetCopy",
@@ -25,7 +25,7 @@ __all__ = [
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, list
+from typing import Any
 
 from ...client.exceptions import ClassError
 from ...entities.base import DomoEnumMixin
@@ -36,7 +36,7 @@ from ...utils import (
 )
 
 
-class AccountConfig_UsesOauth(ClassError):
+class AccountConfig_UsesOauthError(ClassError):
     def __init__(self, cls_instance, data_provider_type):
         super().__init__(
             cls_instance=cls_instance,
@@ -44,7 +44,7 @@ class AccountConfig_UsesOauth(ClassError):
         )
 
 
-class AccountConfig_ProviderTypeNotDefined(ClassError):
+class AccountConfig_ProviderTypeNotDefinedError(ClassError):
     def __init__(self, cls_instance, data_provider_type):
         super().__init__(
             cls_instance=cls_instance,
@@ -104,11 +104,11 @@ class DomoAccount_Config(DomoBase):
 
 
 @dataclass
-class DomoAccount_NoConfig_OAuth(DomoAccount_Config):
+class DomoAccount_NoConfig_OAuthError(DomoAccount_Config):
     is_oauth: bool = True
 
     def __super_init__(self):
-        raise AccountConfig_UsesOauth(
+        raise AccountConfig_UsesOauthError(
             cls_instance=self, data_provider_type=self.data_provider_type
         )
 
@@ -118,7 +118,7 @@ class DomoAccount_NoConfig(DomoAccount_Config):
     is_oauth: bool = False
 
     def __super_init__(self):
-        raise AccountConfig_ProviderTypeNotDefined(
+        raise AccountConfig_ProviderTypeNotDefinedError(
             cls_instance=self, data_provider_type=self.data_provider_type
         )
 
@@ -701,7 +701,7 @@ class AccountConfig(DomoEnumMixin, Enum):
 
     _uses_oauth = ["google_spreadsheets"]
 
-    _config_oauth = DomoAccount_NoConfig_OAuth
+    _config_oauth = DomoAccount_NoConfig_OAuthError
     _config_notdefined = DomoAccount_NoConfig
 
     @staticmethod
@@ -718,29 +718,27 @@ class AccountConfig(DomoEnumMixin, Enum):
                 None,
             )
 
-            ## best case scenario alt_search yields a result
+            # best case scenario alt_search yields a result
             if config_match:
                 return config_match
 
-            ## second best case, display_type is an oauth and therefore has mo matching config
+            # second best case, display_type is an oauth and therefore has no matching config
             oauth_match = next(
                 (
                     oauth_str
-                    for oauth_str in cls._uses_oauth.value
+                    for oauth_str in cls._uses_oauth
                     if oauth_str in [value, alt_search_str]
                 ),
                 None,
             )
             if oauth_match:
-                raise AccountConfig_UsesOauth(value)
+                raise AccountConfig_UsesOauthError(value)
 
-            ## worst case, unencountered display_type
-            raise AccountConfig_ProviderTypeNotDefined(value)
-
-        except AccountConfig_UsesOauth as e:
+            # worst case, unencountered display_type
+            raise AccountConfig_ProviderTypeNotDefinedError(value)
+        except AccountConfig_UsesOauthError as e:
             print(e)
             return cls._config_oauth
-
-        except AccountConfig_ProviderTypeNotDefined as e:
+        except AccountConfig_ProviderTypeNotDefinedError as e:
             print(e)
             return cls._config_notdefined

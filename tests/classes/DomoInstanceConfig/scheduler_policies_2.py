@@ -5,7 +5,6 @@ Tests scheduler policy management functionality
 
 import os
 from datetime import datetime
-from typing import list
 
 import pytest
 from dotenv import load_dotenv

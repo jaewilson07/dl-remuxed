@@ -2,7 +2,7 @@ __all__ = ["DomoInstanceConfig"]
 
 
 from dataclasses import dataclass, field
-from typing import Any, list
+from typing import Any
 
 import httpx
 import pandas as pd
@@ -19,12 +19,12 @@ from ...routes.instance_config import (
     toggle as toggle_routes,
 )
 from ..DomoDataset.connector import DomoConnectors
-from ..publish import DomoEverywhere
 from .access_token import DomoAccessTokens
 from .allowlist import DomoAllowlist
 from .api_client import ApiClients
 from .instance_switcher import InstanceSwitcher
 from .mfa import MFA_Config
+from .publish import DomoEverywhere
 from .role import DomoRoles
 from .role_grant import DomoGrants
 from .sso import SSO as SSO_Class

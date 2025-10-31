@@ -12,7 +12,6 @@ Usage:
 import argparse
 import os
 from pathlib import Path
-from typing import list
 
 
 class ClassInfo:

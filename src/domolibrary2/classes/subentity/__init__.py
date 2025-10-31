@@ -60,8 +60,17 @@ from .membership import (
     Membership_Entity,
     UpdateMembership,
 )
-from .schedule import DomoSchedule
+from .schedule import DomoSchedule_Base
 from .tags import DomoTags
+from .trigger import (
+    DomoTrigger,
+    DomoTriggerCondition,
+    DomoTriggerEvent_Base,
+    DomoTriggerEvent_DatasetUpdated,
+    DomoTriggerEvent_Schedule,
+    DomoTriggerSettings,
+    TriggerEventType,
+)
 
 __all__ = [
     # New unified relationship system (recommended)
@@ -76,6 +85,14 @@ __all__ = [
     # Other subentities
     "DomoCertification",
     "DomoLineage",
-    "DomoSchedule",
+    "DomoSchedule_Base",
     "DomoTags",
+    # Trigger system
+    "DomoTrigger",
+    "DomoTriggerCondition",
+    "DomoTriggerEvent_Base",
+    "DomoTriggerEvent_DatasetUpdated",
+    "DomoTriggerEvent_Schedule",
+    "DomoTriggerSettings",
+    "TriggerEventType",
 ]

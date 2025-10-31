@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 import domolibrary2.classes.DomoDataset as dmds
 import domolibrary2.client.auth as dmda
 from domolibrary2.classes.subentity.schedule import (
-    DomoSchedule,
+    DomoSchedule_Base,
     ScheduleFrequencyEnum,
     ScheduleType,
 )
@@ -35,7 +35,7 @@ async def test_schedule_initialization_from_dict():
         "isActive": True,
     }
 
-    schedule = DomoSchedule.from_dict(test_data, auth=token_auth)
+    schedule = DomoSchedule_Base.from_dict(test_data, auth=token_auth)
 
     assert schedule is not None
     assert schedule.frequency == ScheduleFrequencyEnum.DAILY
@@ -54,7 +54,7 @@ async def test_schedule_with_cron_expression():
         "scheduleStartDate": "2024-01-01T00:00:00",
     }
 
-    schedule = DomoSchedule.from_dict(test_data, auth=token_auth)
+    schedule = DomoSchedule_Base.from_dict(test_data, auth=token_auth)
 
     assert schedule is not None
     assert schedule.schedule_type == ScheduleType.CRON
@@ -78,7 +78,7 @@ async def test_schedule_with_advanced_json():
         "scheduleStartDate": "2024-01-01T00:00:00",
     }
 
-    schedule = DomoSchedule.from_dict(test_data, auth=token_auth)
+    schedule = DomoSchedule_Base.from_dict(test_data, auth=token_auth)
 
     assert schedule is not None
     assert schedule.frequency == ScheduleFrequencyEnum.WEEKLY
@@ -99,7 +99,7 @@ async def test_schedule_manual():
         "scheduleExpression": "MANUAL",
     }
 
-    schedule = DomoSchedule.from_dict(test_data, auth=token_auth)
+    schedule = DomoSchedule_Base.from_dict(test_data, auth=token_auth)
 
     assert schedule is not None
     assert schedule.frequency == ScheduleFrequencyEnum.MANUAL
@@ -131,9 +131,9 @@ async def test_dataset_schedule_field():
     )
 
     assert dataset is not None
-    assert hasattr(dataset, 'Schedule')
+    assert hasattr(dataset, "Schedule")
     assert dataset.Schedule is not None
-    assert isinstance(dataset.Schedule, DomoSchedule)
+    assert isinstance(dataset.Schedule, DomoSchedule_Base)
     assert dataset.Schedule.frequency == ScheduleFrequencyEnum.DAILY
 
     print(f"✓ Dataset Schedule: {dataset.Schedule.get_human_readable_schedule()}")
@@ -159,7 +159,7 @@ async def test_dataset_without_schedule():
     )
 
     assert dataset is not None
-    assert hasattr(dataset, 'Schedule')
+    assert hasattr(dataset, "Schedule")
     assert dataset.Schedule is None  # Should be None when no schedule data
 
     print("✓ Dataset without schedule: Schedule field is None")
@@ -184,8 +184,10 @@ async def test_real_dataset_schedule(token_auth=token_auth):
         print(f"✓ Retrieved dataset: {dataset.name}")
 
         if dataset.Schedule:
-            print(f"✓ Dataset has schedule: {dataset.Schedule.get_human_readable_schedule()}")
-            assert isinstance(dataset.Schedule, DomoSchedule)
+            print(
+                f"✓ Dataset has schedule: {dataset.Schedule.get_human_readable_schedule()}"
+            )
+            assert isinstance(dataset.Schedule, DomoSchedule_Base)
         else:
             print("⊘ Dataset has no schedule information")
 

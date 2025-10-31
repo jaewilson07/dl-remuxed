@@ -10,7 +10,7 @@ parameters, events, authentication, folders, and other components.
 import json
 import sys
 from pathlib import Path
-from typing import Any, list
+from typing import Any
 
 from .models import PostmanCollection
 
@@ -27,7 +27,7 @@ def deep_compare_structures(
         path: Current path in the structure (for error reporting)
 
     Returns:
-        list of difference descriptions
+        List of difference descriptions
     """
     differences = []
 

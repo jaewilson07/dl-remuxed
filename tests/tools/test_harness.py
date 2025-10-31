@@ -8,7 +8,7 @@ authentication, and various error scenarios.
 import asyncio
 import json
 from dataclasses import dataclass, field
-from typing import Any, Callable, Optional, list
+from typing import Any, Callable, Optional
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest

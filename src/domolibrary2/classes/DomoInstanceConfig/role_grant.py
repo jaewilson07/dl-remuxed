@@ -1,7 +1,7 @@
 __all__ = ["DomoGrant", "DomoGrants"]
 
 from dataclasses import dataclass, field
-from typing import Optional, list
+from typing import Optional
 
 import httpx
 
@@ -54,7 +54,7 @@ class DomoGrants(DomoManager):
 
     async def get(
         self,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         return_raw: bool = False,
     ):

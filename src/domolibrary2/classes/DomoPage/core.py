@@ -3,7 +3,7 @@
 __all__ = ["DomoPage"]
 
 from dataclasses import dataclass, field
-from typing import Optional, list
+from typing import TYPE_CHECKING, Optional
 
 import httpx
 
@@ -17,8 +17,12 @@ from ...utils import (
 from .. import (
     DomoUser as dmu,
 )
-from ..subentity import DomoLineage
+from ..subentity.lineage import DomoLineage, DomoLineage_Page
 from . import page_content as dmpg_c
+
+if TYPE_CHECKING:
+    from ..DomoCard import DomoCard
+    from ..DomoDataset import DomoDataset
 
 
 @dataclass
@@ -52,7 +56,7 @@ class DomoPage(DomoEntity_w_Lineage):
     datasets: list["DomoDataset"] = None
 
     def __post_init__(self):
-        self.Lineage = dmdl.DomoLineage_Page.from_parent(parent=self)
+        self.Lineage = DomoLineage_Page.from_parent(parent=self)
 
     def display_url(self):
         return f"https://{self.auth.domo_instance}.domo.com/page/{self.id}"

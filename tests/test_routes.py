@@ -16,7 +16,7 @@ import subprocess
 import sys
 import traceback
 from pathlib import Path
-from typing import Any, list
+from typing import Any
 
 import pytest
 

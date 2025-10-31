@@ -35,7 +35,7 @@ def fix_aliases_in_file(file_path: Path):
             # util_dd -> DictDot patterns
             r"util_dd\(": "DictDot(",
             # other common patterns
-            r"SearchUser_NoResults": "SearchUser_NotFound",
+            r"SearchUser_NoResults": "SearchUserNotFoundError",
             r"GetUser_Error": "User_GET_Error",
         }
 

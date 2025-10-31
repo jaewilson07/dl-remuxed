@@ -15,7 +15,6 @@ import argparse
 import importlib
 import sys
 from pathlib import Path
-from typing import list
 
 
 def discover_route_modules(routes_path: Path) -> list[tuple[str, Path]]:

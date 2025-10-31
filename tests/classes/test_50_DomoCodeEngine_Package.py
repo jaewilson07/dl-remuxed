@@ -49,12 +49,12 @@ async def test_cell_1(token_auth=token_auth):
     assert package.auth == token_auth, "Auth should be set"
     assert isinstance(package.raw, dict), "Raw should be a dictionary"
     assert package.name, "Package should have a name"
-    
+
     print(f"✓ Retrieved package: {package.name} (ID: {package.id})")
     print(f"  Language: {package.language}")
     print(f"  Current Version: {package.current_version}")
     print(f"  Display URL: {package.display_url}")
-    
+
     return package
 
 
@@ -84,59 +84,59 @@ async def test_cell_2(token_auth=token_auth):
     assert package.name == "Test Package"
     assert package.language == "PYTHON"
     assert package.auth == token_auth
-    
+
     print("✓ from_dict() creates package correctly")
     print(f"  Package: {package.name}")
     print(f"  Display URL: {package.display_url}")
-    
+
     return package
 
 
 async def test_cell_3(token_auth=token_auth):
     """Test DomoCodeEngine_Packages manager class - get all packages."""
     packages_manager = dmce.DomoCodeEngine_Packages(auth=token_auth)
-    
+
     packages = await packages_manager.get(debug_api=False)
-    
+
     assert isinstance(packages, list), "Should return a list of packages"
     print(f"✓ Retrieved {len(packages)} CodeEngine packages")
-    
+
     if packages:
         sample_pkg = packages[0]
         print(f"  Sample package: {sample_pkg.name} (ID: {sample_pkg.id})")
         print(f"  Language: {sample_pkg.language}")
-    
+
     return packages
 
 
 async def test_cell_4(token_auth=token_auth):
     """Test DomoCodeEngine_Packages.search_by_name() method."""
     packages_manager = dmce.DomoCodeEngine_Packages(auth=token_auth)
-    
+
     # Get all packages first to find a name to search for
     all_packages = await packages_manager.get(debug_api=False)
-    
+
     if not all_packages:
         print("⚠ No packages found to test search")
         return None
-    
+
     # Search for the first package by partial name
     search_term = all_packages[0].name[:5] if all_packages[0].name else "test"
-    
+
     try:
         matches = await packages_manager.search_by_name(
             name=search_term,
             debug_api=False,
         )
-        
+
         assert len(matches) > 0, "Should find at least one match"
         print(f"✓ Search for '{search_term}' found {len(matches)} package(s)")
-        
+
         for pkg in matches[:3]:  # Show first 3 matches
             print(f"  - {pkg.name}")
-        
+
         return matches
-        
+
     except dmce.SearchCodeEngine_NotFound as e:
         print(f"⚠ No packages found matching '{search_term}'")
         print(f"  Error: {e}")
@@ -160,14 +160,14 @@ async def test_cell_5(token_auth=token_auth):
     assert version.package_id == TEST_PACKAGE_ID
     assert version.version == TEST_PACKAGE_VERSION
     assert version.auth == token_auth
-    
+
     print(f"✓ Retrieved version: {version.version}")
     print(f"  Package ID: {version.package_id}")
     print(f"  Language: {version.language}")
     print(f"  Description: {version.description}")
     print(f"  Has code: {version.code is not None}")
     print(f"  Has Manifest: {version.Manifest is not None}")
-    
+
     return version
 
 
@@ -184,14 +184,14 @@ async def test_cell_6(token_auth=token_auth):
     )
 
     current_version = await package.get_current_version(debug_api=False)
-    
+
     assert current_version is not None, "Current version should not be None"
     assert current_version.version == package.current_version
-    
+
     print(f"✓ Current version: {current_version.version}")
     print(f"  Package: {package.name}")
     print(f"  Language: {current_version.language}")
-    
+
     return current_version
 
 
@@ -209,11 +209,11 @@ async def test_cell_7(token_auth=token_auth):
 
     if package.owner_id:
         owner = await package.get_owner(debug_api=False)
-        
+
         assert owner is not None, "Owner should not be None"
         print(f"✓ Package owner: {owner.display_name}")
         print(f"  Email: {owner.email_address}")
-        
+
         return owner
     else:
         print("⚠ Package has no owner_id set")
@@ -238,16 +238,16 @@ async def test_cell_8(token_auth=token_auth):
             download_folder="/tmp/codeengine_test",
             debug_api=False,
         )
-        
+
         print(f"✓ Downloaded source code to: {file_path}")
         print(f"  Code length: {len(version.code)} characters")
-        
+
         # Show first few lines of code
         code_lines = version.code.split('\n')[:5]
         print("  First few lines:")
         for line in code_lines:
             print(f"    {line}")
-        
+
         return file_path
     else:
         print("⚠ Version has no code to download")
@@ -277,7 +277,7 @@ async def test_cell_9(token_auth=token_auth):
     assert version1 == version2, "Same package versions should be equal"
     print(f"✓ Version equality works correctly")
     print(f"  {version1.package_id} v{version1.version} == {version2.package_id} v{version2.version}")
-    
+
     return True
 
 
@@ -297,11 +297,11 @@ async def test_cell_10(token_auth=token_auth):
     assert hasattr(raw_response, 'response'), "Should return ResponseGetData object"
     assert hasattr(raw_response, 'is_success'), "Should have is_success attribute"
     assert raw_response.is_success, "Response should be successful"
-    
+
     print("✓ return_raw parameter works correctly")
     print(f"  Response type: {type(raw_response)}")
     print(f"  Has response data: {raw_response.response is not None}")
-    
+
     return raw_response
 
 
@@ -311,7 +311,7 @@ async def run_all_tests():
     print("=" * 60)
     print("Running DomoCodeEngine_Package Tests")
     print("=" * 60)
-    
+
     tests = [
         ("Setup Authentication", test_cell_0),
         ("Get Package By ID", test_cell_1),
@@ -325,7 +325,7 @@ async def run_all_tests():
         ("Version Equality", test_cell_9),
         ("Return Raw Response", test_cell_10),
     ]
-    
+
     results = []
     for test_name, test_func in tests:
         print(f"\n{test_name}:")
@@ -336,14 +336,14 @@ async def run_all_tests():
         except Exception as e:
             print(f"✗ Test failed: {e}")
             results.append((test_name, False, str(e)))
-    
+
     print("\n" + "=" * 60)
     print("Test Summary")
     print("=" * 60)
     passed = sum(1 for _, success, _ in results if success)
     total = len(results)
     print(f"Passed: {passed}/{total}")
-    
+
     return results
 
 

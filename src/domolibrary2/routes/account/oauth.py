@@ -17,13 +17,13 @@ from ...client import (
     response as rgd,
 )
 from ...client.auth import DomoAuth
-from .exceptions import Account_GET_Error, Account_NoMatch
+from .exceptions import Account_GET_Error, AccountNoMatchError
 
 
 @gd.route_function
 async def get_oauth_accounts(
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -69,7 +69,7 @@ async def get_oauth_accounts(
 async def get_oauth_account_by_id(
     auth: DomoAuth,
     account_id: Union[int, str],
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -93,7 +93,7 @@ async def get_oauth_account_by_id(
         ResponseGetData object containing OAuth account metadata
 
     Raises:
-        Account_NoMatch: If OAuth account is not found
+        AccountNoMatchError: If OAuth account is not found
         Account_GET_Error: If OAuth account retrieval fails
     """
     res = await get_oauth_accounts(
@@ -113,6 +113,6 @@ async def get_oauth_account_by_id(
     res.response = next((obj for obj in res.response if obj["id"] == target_id), None)
 
     if not res.response:
-        raise Account_NoMatch(account_id=str(account_id), res=res)
+        raise AccountNoMatchError(account_id=str(account_id), res=res)
 
     return res

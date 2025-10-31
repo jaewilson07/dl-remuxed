@@ -2,7 +2,6 @@ __all__ = ["DomoAppStudio", "DomoAppStudios"]
 
 
 from dataclasses import dataclass, field
-from typing import list
 
 import httpx
 

@@ -1,33 +1,39 @@
-__all__ = ["DomoCard", "Card_DownloadSourceCode"]
+"""Default DomoCard implementation"""
+
+__all__ = ["DomoCard_Default", "CardDatasets", "Card_DownloadSourceCodeError"]
 
 import json
 import os
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Any, Optional, list
+from typing import Any, Optional
 
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
 
-from ..client.auth import DomoAuth
-from ..client.entities import DomoEntity_w_Lineage
-from ..client.exceptions import DomoError
-from ..routes import card as card_routes
-from ..utils import (
+from ...client.auth import DomoAuth
+from ...client.entities import DomoManager
+from ...client.exceptions import DomoError
+from ...entities.entities import DomoEntity_w_Lineage
+from ...routes import card as card_routes
+from ...utils import (
     chunk_execution as dmce,
     files as dmfi,
 )
-from ..utils.logging import DomoEntityObjectProcessor
-from .DomoGroup import DomoGroup
-from .DomoUser import DomoUser
-from .subentity.lineage import DomoLineage
+from ...utils.logging import DomoEntityObjectProcessor
+from ..DomoGroup import DomoGroup
+from ..DomoUser import DomoUser
+from ..subentity.lineage import DomoLineage
 
 
 @dataclass
-class DomoCard(DomoEntity_w_Lineage):
+class DomoCard_Default(DomoEntity_w_Lineage):
+    """Base DomoCard implementation with core functionality"""
+
     id: str
     auth: DomoAuth = field(repr=False)
     Lineage: Optional[DomoLineage] = field(repr=False, default=None)
+    Datasets: Optional["CardDatasets"] = field(repr=False, default=None)
 
     title: Optional[str] = None
     description: Optional[str] = None
@@ -44,15 +50,62 @@ class DomoCard(DomoEntity_w_Lineage):
     certification: Optional[dict] = None
     owners: list[Any] = field(default_factory=list)
 
-    datasets: list[Any] = field(repr=False, default_factory=list)
+    @property
+    def datasets(self) -> list[Any]:  # DomoDataset
+        """Legacy property access - prefer using Datasets.get() for async operations"""
+        # This property can't be async, so it returns empty list if not already fetched
+        # Users should call await card.Datasets.get() to populate datasets
+        return []
+
+    @property
+    def entity_type(self):
+        return "CARD"
 
     def __post_init__(self):
-        # self.Definition = CardDefinition(self)
         self.Lineage = DomoLineage.from_parent(auth=self.auth, parent=self)
+        self.Datasets = CardDatasets(auth=self.auth, parent=self)
 
     @property
     def display_url(self) -> str:
         return f"https://{self.auth.domo_instance}.domo.com/kpis/details/{self.id}"
+
+    @staticmethod
+    def _is_federated(obj: dict) -> bool:
+        """Heuristic: decide if a card JSON represents a federated card.
+
+        A card is considered federated if it's built on a federated datasource.
+        """
+        # First check explicit flag
+        if obj.get("isFederated") is True:
+            return True
+
+        # Then check datasources for federation indicators
+        datasources = obj.get("datasources", [])
+        if not datasources:
+            return False
+
+        for ds in datasources:
+            display_type = ds.get("displayType", "").upper()
+            data_type = ds.get("dataType", "").upper()
+            provider_type = ds.get("providerType", "").upper()
+
+            has_federate = any(
+                [
+                    "FEDERAT" in display_type,
+                    "FEDERAT" in data_type,
+                    "FEDERAT" in provider_type,
+                ]
+            )
+
+            if has_federate:
+                return True
+
+        return False
+
+    @property
+    def is_federated(self) -> bool:
+        """Check if this card is federated"""
+        return self._is_federated(self.raw)
 
     @classmethod
     async def from_dict(cls, auth: DomoAuth, obj: dict, owners: list[Any] = None):
@@ -62,6 +115,7 @@ class DomoCard(DomoEntity_w_Lineage):
             auth=auth,
             id=obj.get("id"),
             raw=obj,
+            Relations=None,  # type: ignore
             title=obj.get("title"),
             description=obj.get("description"),
             type=obj.get("type"),
@@ -83,8 +137,8 @@ class DomoCard(DomoEntity_w_Lineage):
     @staticmethod
     async def get_owners(
         auth: DomoAuth, owners: list[dict], is_suppress_errors: bool = True
-    ) -> list[Any]:  # DomoUser | DomoGroup]
-        from . import (
+    ) -> list[Any]:  # DomoUser | DomoGroup
+        from .. import (
             DomoGroup as dmgr,
             DomoUser as dmdu,
         )
@@ -119,7 +173,7 @@ class DomoCard(DomoEntity_w_Lineage):
         card_id: str,
         optional_parts: str = "certification,datasources,drillPath,owners,properties,domoapp",
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         return_raw: bool = False,
         is_suppress_errors: bool = False,
     ):
@@ -156,48 +210,16 @@ class DomoCard(DomoEntity_w_Lineage):
             **kwargs,
         )
 
-    async def get_datasets(
-        self,
-        debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
-        return_raw: bool = False,
-    ):
-        res = await card_routes.get_card_metadata(
-            auth=self.auth,
-            card_id=self.id,
-            optional_parts="datasources",
-            debug_api=debug_api,
-            session=session,
-            parent_class=self.__class__.__name__,
-        )
-
-        res.response = res.response["datasources"]
-
-        if return_raw:
-            return res
-
-        from .DomoDataset.core import DomoDataset
-
-        self.datasets = await dmce.gather_with_concurrency(
-            *[
-                DomoDataset.get_by_id(dataset_id=obj["dataSourceId"], auth=self.auth)
-                for obj in res.response
-            ],
-            n=10,
-        )
-
-        return self.datasets
-
     async def share(
         self,
         auth: Optional[DomoAuth] = None,
-        domo_users: Optional[list[DomoUser]] = None,  # DomoUsers to share card with,
-        domo_groups: Optional[list[DomoGroup]] = None,  # DomoGroups to share card with
-        message: Optional[str] = None,  # message for automated email
+        domo_users: Optional[list[DomoUser]] = None,
+        domo_groups: Optional[list[DomoGroup]] = None,
+        message: Optional[str] = None,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ):
-        from ..routes import datacenter as datacenter_routes
+        from ...routes import datacenter as datacenter_routes
 
         if domo_groups:
             domo_groups = (
@@ -225,7 +247,7 @@ class DomoCard(DomoEntity_w_Lineage):
         return_raw: bool = False,
         debug_num_stacks_to_drop=2,
     ):
-        from . import DomoAppDb as dmdb
+        from .. import DomoAppDb as dmdb
 
         domo_collections = await dmdb.AppDbCollections.get_collections(
             datastore_id=self.datastore_id,
@@ -268,7 +290,7 @@ class DomoCard(DomoEntity_w_Lineage):
         )
 
         if not code_collection:
-            raise Card_DownloadSourceCode(
+            raise Card_DownloadSourceCodeError(
                 card=deepcopy(self),
                 auth=self.auth,
                 message=f"collection - {collection_name} not found for {self.title} - {self.id}",
@@ -279,7 +301,7 @@ class DomoCard(DomoEntity_w_Lineage):
         )
 
         if not documents:
-            raise Card_DownloadSourceCode(
+            raise Card_DownloadSourceCodeError(
                 card=deepcopy(self),
                 auth=self.auth,
                 message=f"collection - {collection_name} - {code_collection.id} - unable to retrieve documents for {self.title} - {self.id}",
@@ -333,8 +355,81 @@ class DomoCard(DomoEntity_w_Lineage):
         return doc
 
 
-class Card_DownloadSourceCode(DomoError):
-    def __init__(self, card: DomoCard, auth: DomoAuth, message: str):
+@dataclass
+class CardDatasets(DomoManager):
+    """Manager for datasets associated with a DomoCard
+
+    Provides access to all datasets used by a card through its datasources.
+    Inherits from DomoManager to follow standard entity manager patterns.
+    """
+
+    auth: DomoAuth = field(repr=False)
+    parent: "DomoCard_Default" = field(repr=False, default=None)
+
+    async def get(
+        self,
+        debug_api: bool = False,
+        session: httpx.AsyncClient | None = None,
+    ) -> list[Any]:  # Returns list[DomoDataset]
+        """Get all datasets associated with this card
+
+        This retrieves datasets from the card's datasources and returns
+        DomoDataset instances for each one.
+
+        Args:
+            debug_api: Enable API debugging
+            session: Optional httpx session for request reuse
+
+        Returns:
+            list[DomoDataset]: List of dataset objects associated with the card
+        """
+        from ..DomoDataset import DomoDataset
+
+        # Get datasources from card metadata if not already loaded
+        if not self.parent.raw.get("datasources"):
+            # Reload card with datasources
+            res = await card_routes.get_card_metadata(
+                auth=self.auth,
+                card_id=self.parent.id,
+                optional_parts="datasources",
+                debug_api=debug_api,
+                session=session,
+                parent_class=self.parent.__class__.__name__,
+            )
+            self.parent.raw = res.response
+
+        datasources = self.parent.raw.get("datasources", [])
+
+        if not datasources:
+            return []
+
+        # Get dataset IDs from datasources
+        dataset_ids = [
+            ds.get("dataSourceId") for ds in datasources if ds.get("dataSourceId")
+        ]
+
+        if not dataset_ids:
+            return []
+
+        # Fetch all datasets concurrently
+        datasets = await dmce.gather_with_concurrency(
+            *[
+                DomoDataset.get_by_id(
+                    auth=self.auth,
+                    id=dataset_id,
+                    debug_api=debug_api,
+                    session=session,
+                )
+                for dataset_id in dataset_ids
+            ],
+            n=60,
+        )
+
+        return datasets
+
+
+class Card_DownloadSourceCodeError(DomoError):
+    def __init__(self, card: DomoCard_Default, auth: DomoAuth, message: str):
         super().__init__(
             parent_class=card.__class__.__name__, entity_id=card.id, message=message
         )

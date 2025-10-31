@@ -8,7 +8,6 @@ import argparse
 import ast
 import os
 from pathlib import Path
-from typing import list
 
 
 class TypeHintAnalyzer(ast.NodeVisitor):
@@ -55,7 +54,6 @@ class TypeHintAnalyzer(ast.NodeVisitor):
         if node.name.startswith("_"):
             return
 
-
         # Analyze parameters
         missing_param_hints = []
         for arg in node.args.args:
@@ -94,7 +92,7 @@ class TypeHintAnalyzer(ast.NodeVisitor):
         # Common parameter patterns in the project
         param_patterns = {
             "auth": "dmda.DomoAuth",
-            "session": "Optional[httpx.AsyncClient]",
+            "session": "httpx.AsyncClient | None",
             "debug_api": "bool",
             "debug_num_stacks_to_drop": "int",
             "return_raw": "bool",

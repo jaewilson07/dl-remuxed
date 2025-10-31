@@ -9,7 +9,7 @@ __all__ = [
 
 import asyncio
 from dataclasses import dataclass, field
-from typing import Optional, list
+from typing import Optional
 
 import httpx
 
@@ -48,7 +48,7 @@ class InstanceSwitcher_Mapping:
         Returns:
             bool: True if both have the same user_attribute and target_instance
         """
-        if type(self) != type(other):
+        if type(self) is not type(other):
             return False
         else:
             return (
@@ -147,7 +147,7 @@ class InstanceSwitcher:
         self,
         debug_api: bool = False,
         return_raw: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop: int = 2,
         timeout: int = 20,
     ) -> list[InstanceSwitcher_Mapping]:
@@ -185,7 +185,7 @@ class InstanceSwitcher:
         mapping_ls: Optional[
             list[InstanceSwitcher_Mapping]
         ] = None,  # will default to self.domo_instance_switcher_mapping
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         return_raw: bool = False,
         debug_num_stacks_to_drop: int = 2,
@@ -234,7 +234,7 @@ class InstanceSwitcher:
     async def add_mapping(
         self,
         mapping_to_add_ls: list[InstanceSwitcher_Mapping],
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         timeout: int = 20,

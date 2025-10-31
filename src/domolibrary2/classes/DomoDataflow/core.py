@@ -1,21 +1,23 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import list
 
 import httpx
 
-from ...classes.subentity import lineage as dmdl
 from ...client.auth import DomoAuth
 from ...entities import DomoEntity_w_Lineage
 from ...routes import dataflow as dataflow_routes
 from ...utils import chunk_execution as dmce
-from ..DomoJupyter import Jupyter
+from ..DomoJupyter import Jupyter as dmdj
+from ..subentity import lineage as dmdl
+from ..subentity.trigger import DomoTriggerSettings
+from .action import DomoDataflow_Action
+from .history import DomoDataflow_History
 
-__all__ = ["DomoDataflow", "DomoDataflows"]
-
-from ...classes.DomoDataflow.Dataflow_History import DomoDataflow_History
-from .Dataflow_Action import DomoDataflow_Action
+__all__ = [
+    "DomoDataflow",
+    "DomoDataflows",
+]
 
 
 @dataclass
@@ -36,8 +38,11 @@ class DomoDataflow(DomoEntity_w_Lineage):
     jupyter_workspace_config: dict = None
 
     History: DomoDataflow_History = None  # class for managing the history of a dataflow
+    TriggerSettings: DomoTriggerSettings = (
+        None  # trigger configuration for dataflow execution
+    )
 
-    JupyterWorkspace: Jupyter.DomoJupyterWorkspace = None
+    JupyterWorkspace: dmdj.DomoJupyterWorkspace = None
 
     @property
     def entity_type(self):
@@ -49,8 +54,12 @@ class DomoDataflow(DomoEntity_w_Lineage):
         )
 
         self.Lineage = dmdl.DomoLineage.from_parent(auth=self.auth, parent=self)
-        # Initialize Schedule from raw data if schedule information is present
-        self.Schedule = self._initialize_schedule_from_raw()
+
+        # Initialize TriggerSettings if present in raw data
+        if self.raw.get("triggerSettings"):
+            self.TriggerSettings = DomoTriggerSettings.from_parent(
+                parent=self, obj=self.raw["triggerSettings"]
+            )
 
     @classmethod
     def from_dict(cls, obj, auth, version_id=None, version_number=None):
@@ -66,6 +75,7 @@ class DomoDataflow(DomoEntity_w_Lineage):
             version_number=version_number,
             Lineage=None,
             Relations=None,
+            TriggerSettings=None,  # Will be initialized in __post_init__
         )
 
         if obj.get("actions"):
@@ -76,6 +86,7 @@ class DomoDataflow(DomoEntity_w_Lineage):
 
         return domo_dataflow
 
+    @property
     def display_url(self):
         return f"https://{self.auth.domo_instance}.domo.com/datacenter/dataflows/{self.id}/details"
 
@@ -178,11 +189,13 @@ class DomoDataflow(DomoEntity_w_Lineage):
         if return_raw:
             return res
 
-        self.jupyter_workspace = await Jupyter.DomoJupyterWorkspace.get_by_id(
+        self.jupyter_workspace = await dmdj.DomoJupyterWorkspace.get_by_id(
             auth=self.auth, workspace_id=res.response["workspaceId"]
         )
+
         self.jupyter_workspace_config = res.response
         self.jupyter_workspace_config["workspace_name"] = self.jupyter_workspace.name
+
         return self.jupyter_workspace
 
     async def execute(

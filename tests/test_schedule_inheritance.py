@@ -14,7 +14,7 @@ try:
     from domolibrary2.classes.subentity.schedule import (
         DomoAdvancedSchedule,
         DomoCronSchedule,
-        DomoSchedule,
+        DomoSchedule_Base,
         DomoSimpleSchedule,
     )
 
@@ -22,31 +22,33 @@ try:
 
     # Test class hierarchy
     print(
-        f"✓ DomoAdvancedSchedule inherits from DomoSchedule: {issubclass(DomoAdvancedSchedule, DomoSchedule)}"
+        f"✓ DomoAdvancedSchedule inherits from DomoSchedule: {issubclass(DomoAdvancedSchedule, DomoSchedule_Base)}"
     )
     print(
-        f"✓ DomoCronSchedule inherits from DomoSchedule: {issubclass(DomoCronSchedule, DomoSchedule)}"
+        f"✓ DomoCronSchedule inherits from DomoSchedule: {issubclass(DomoCronSchedule, DomoSchedule_Base)}"
     )
     print(
-        f"✓ DomoSimpleSchedule inherits from DomoSchedule: {issubclass(DomoSimpleSchedule, DomoSchedule)}"
+        f"✓ DomoSimpleSchedule inherits from DomoSchedule: {issubclass(DomoSimpleSchedule, DomoSchedule_Base)}"
     )
 
     # Test factory method exists
     print(
-        f"✓ Factory method exists: {hasattr(DomoSchedule, 'determine_schedule_type')}"
+        f"✓ Factory method exists: {hasattr(DomoSchedule_Base, 'determine_schedule_type')}"
     )
-    print(f"✓ from_dict method exists: {hasattr(DomoSchedule, 'from_dict')}")
+    print(f"✓ from_dict method exists: {hasattr(DomoSchedule_Base, 'from_dict')}")
 
     # Test type determination without instantiation
     print("\nTesting schedule type determination:")
 
-    advanced_type = DomoSchedule.determine_schedule_type(
+    advanced_type = DomoSchedule_Base.determine_schedule_type(
         {"advancedScheduleJson": {"frequency": "DAILY"}}
     )
-    cron_type = DomoSchedule.determine_schedule_type(
+    cron_type = DomoSchedule_Base.determine_schedule_type(
         {"scheduleExpression": "0 9 * * *"}
     )
-    simple_type = DomoSchedule.determine_schedule_type({"scheduleExpression": "MANUAL"})
+    simple_type = DomoSchedule_Base.determine_schedule_type(
+        {"scheduleExpression": "MANUAL"}
+    )
 
     print(f"✓ Advanced schedule type: {advanced_type.__name__}")
     print(f"✓ Cron schedule type: {cron_type.__name__}")

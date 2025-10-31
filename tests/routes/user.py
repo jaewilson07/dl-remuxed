@@ -8,8 +8,7 @@ This module tests all user route functions including:
 """
 
 import inspect
-from typing import list
-from unittest.mock import patch
+
 
 import pytest
 from dotenv import load_dotenv
@@ -17,7 +16,7 @@ from dotenv import load_dotenv
 # Import user route functions and exceptions
 import domolibrary2.routes.user as user_routes
 from domolibrary2.routes.user import (
-    SearchUser_NotFound,
+    SearchUserNotFoundError,
     create_user_attribute,
     get_by_id,
     get_user_attributes,
@@ -233,7 +232,7 @@ class TestUserCoreRoutes(PytestRouteTestCase):
             )
 
             # Test not found scenario
-            with pytest.raises(SearchUser_NotFound):
+            with pytest.raises(SearchUserNotFoundError):
                 await get_by_id(auth=harness.default_auth, user_id="nonexistent")
 
 
@@ -345,7 +344,7 @@ def test_user_route_module_completeness():
         # Exception classes
         "User_GET_Error",
         "User_CRUD_Error",
-        "SearchUser_NotFound",
+        "SearchUserNotFoundError",
         "UserSharing_Error",
         "UserAttributes_GET_Error",
         "UserAttributes_CRUD_Error",

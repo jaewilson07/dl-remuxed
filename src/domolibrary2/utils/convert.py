@@ -33,7 +33,7 @@ Functions:
 
 Exception Classes:
     InvalidEmail: Raised when email validation fails
-    ConcatDataframe_InvalidElement: Raised when dataframe concat fails
+    ConcatDataframeInvalidElementError: Raised when dataframe concat fails
 
 Example:
     >>> # Datetime conversions
@@ -61,10 +61,10 @@ __all__ = [
     "convert_programming_text_to_title_case",
     "convert_snake_to_pascal",
     "convert_str_to_snake_case",
-    "InvalidEmail",
+    "InvalidEmailError",
     "test_valid_email",
     "convert_string_to_bool",
-    "ConcatDataframe_InvalidElement",
+    "ConcatDataframeError",
     "concat_list_dataframe",
     "merge_dict",
 ]
@@ -83,19 +83,7 @@ from IPython.display import display_markdown
 from .exceptions import ConcatDataframeError, InvalidEmailError
 
 
-# Legacy exception names for backwards compatibility
-class InvalidEmail(InvalidEmailError):
-    """Legacy alias for InvalidEmailError."""
-
-    pass
-
-
-class ConcatDataframe_InvalidElement(ConcatDataframeError):
-    """Legacy alias for ConcatDataframeError."""
-
-    pass
-
-
+## Legacy exception aliases removed for N818 compliance
 def print_md(md_str: str) -> None:
     """
     Display markdown string in Jupyter notebook environment.
@@ -388,7 +376,7 @@ def test_valid_email(email: str) -> bool:
     if re.fullmatch(pattern, email):
         return True
     else:
-        raise InvalidEmail(email=email)
+        raise InvalidEmailError(email=email)
 
 
 def convert_string_to_bool(v: str | bool) -> bool:
@@ -446,7 +434,7 @@ def concat_list_dataframe(df_ls: list[object]) -> object:
     df = None
     for elem in df_ls:
         if not isinstance(elem, pd.DataFrame):
-            raise ConcatDataframe_InvalidElement(elem)
+            raise ConcatDataframeError(elem)
 
         if len(elem.index) == 0:
             continue

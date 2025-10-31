@@ -1,6 +1,6 @@
 import json
 from dataclasses import dataclass, field
-from typing import Any, Optional, Union, list
+from typing import Any, Optional, Union
 
 
 @dataclass
@@ -131,7 +131,7 @@ class PostmanScript:
 
     Attributes:
         type (str): Script type (e.g., 'text/javascript')
-        exec (list[str]): list of script lines
+        exec (List[str]): List of script lines
     """
 
     type: str = "text/javascript"
@@ -181,9 +181,9 @@ class PostmanAuth:
 
     Attributes:
         type (str): Authentication type (e.g., 'bearer', 'basic', 'apikey')
-        bearer (list[Dict]): Bearer token configuration
-        basic (list[Dict]): Basic auth configuration
-        apikey (list[Dict]): API key configuration
+        bearer (List[Dict]): Bearer token configuration
+        basic (List[Dict]): Basic auth configuration
+        apikey (List[Dict]): API key configuration
     """
 
     type: Optional[str] = None
@@ -225,10 +225,10 @@ class PostmanUrl:
     Attributes:
         raw (str): The complete URL as a string
         protocol (str): The protocol (e.g., 'http', 'https')
-        host (list[str]): The host components (e.g., ['api', 'example', 'com'])
-        path (list[str]): The path components
-        query (Optional[list[PostmanQueryParam]]): list of query parameters, if any
-        variable (Optional[list[PostmanVariable]]): list of URL variables
+        host (List[str]): The host components (e.g., ['api', 'example', 'com'])
+        path (List[str]): The path components
+        query (Optional[List[PostmanQueryParam]]): List of query parameters, if any
+        variable (Optional[List[PostmanVariable]]): List of URL variables
     """
 
     raw: str
@@ -289,8 +289,8 @@ class PostmanRequest_Body:
         mode (str): The mode of the body (e.g., 'raw', 'formdata', 'urlencoded')
         raw (str): The actual content of the body
         options (Dict): Body options (e.g., raw language settings)
-        formdata (list): Form data fields
-        urlencoded (list): URL encoded fields
+        formdata (List): Form data fields
+        urlencoded (List): URL encoded fields
     """
 
     mode: str
@@ -344,8 +344,8 @@ class PostmanResponse:
         originalRequest (Dict): The original request that generated this response
         status (str): HTTP status text (e.g., 'OK')
         code (int): HTTP status code (e.g., 200)
-        header (list[PostmanRequest_Header]): Response headers
-        cookie (list): Response cookies
+        header (List[PostmanRequest_Header]): Response headers
+        cookie (List): Response cookies
         body (str): Response body content
         _postman_previewlanguage (str): Preview language (e.g., 'json', 'html')
     """
@@ -411,14 +411,14 @@ class PostmanRequest:
     Attributes:
         name (str): The name of the request
         method (str): The HTTP method (e.g., 'GET', 'POST', 'PUT')
-        header (list[PostmanRequest_Header]): list of HTTP headers
+        header (List[PostmanRequest_Header]): List of HTTP headers
         url (PostmanUrl): The request URL
         body (Optional[PostmanRequest_Body]): The request body, if any
-        response (list[PostmanResponse]): list of example responses
+        response (List[PostmanResponse]): List of example responses
         auth (Optional[PostmanAuth]): Authentication configuration
-        event (Optional[list[PostmanEvent]]): Request-level events
+        event (Optional[List[PostmanEvent]]): Request-level events
         description (Optional[str]): Request description
-        variable (Optional[list[PostmanVariable]]): Request-level variables
+        variable (Optional[List[PostmanVariable]]): Request-level variables
     """
 
     name: str
@@ -508,11 +508,11 @@ class PostmanFolder:
 
     Attributes:
         name (str): Name of the folder
-        item (list[Union['PostmanFolder', 'PostmanRequest']]): Items in the folder
+        item (List[Union['PostmanFolder', 'PostmanRequest']]): Items in the folder
         description (Optional[str]): Folder description
         auth (Optional[PostmanAuth]): Folder-level authentication
-        event (Optional[list[PostmanEvent]]): Folder-level events
-        variable (Optional[list[PostmanVariable]]): Folder-level variables
+        event (Optional[List[PostmanEvent]]): Folder-level events
+        variable (Optional[List[PostmanVariable]]): Folder-level variables
     """
 
     name: str
@@ -642,11 +642,11 @@ class PostmanCollection:
 
     Attributes:
         info (PostmanCollectionInfo): Collection metadata
-        item (list[Union[PostmanRequest, PostmanFolder]]): Collection items (requests and folders)
+        item (List[Union[PostmanRequest, PostmanFolder]]): Collection items (requests and folders)
         auth (Optional[PostmanAuth]): Collection-level authentication
-        event (Optional[list[PostmanEvent]]): Collection-level events
-        variable (Optional[list[PostmanVariable]]): Collection-level variables
-        requests (list[PostmanRequest]): Flat list of all requests (computed property)
+        event (Optional[List[PostmanEvent]]): Collection-level events
+        variable (Optional[List[PostmanVariable]]): Collection-level variables
+        requests (List[PostmanRequest]): Flat list of all requests (computed property)
     """
 
     info: PostmanCollectionInfo
@@ -750,10 +750,10 @@ class PostmanCollection:
         return cls.from_dict(data)
 
     def list_all_headers(self) -> dict[str, list[str]]:
-        """list all unique headers and their values from this collection.
+        """List all unique headers and their values from this collection.
 
         Returns:
-            Dict[str, list[str]]: Dictionary where keys are header names and values are lists of unique values
+            Dict[str, List[str]]: Dictionary where keys are header names and values are lists of unique values
         """
         headers_dict = {}
 
@@ -767,10 +767,10 @@ class PostmanCollection:
         return {key: list(values) for key, values in headers_dict.items()}
 
     def list_all_params(self) -> dict[str, list[str]]:
-        """list all unique query parameters and their values from this collection.
+        """List all unique query parameters and their values from this collection.
 
         Returns:
-            Dict[str, list[str]]: Dictionary where keys are parameter names and values are lists of unique values
+            Dict[str, List[str]]: Dictionary where keys are parameter names and values are lists of unique values
         """
         params_dict = {}
 

@@ -131,7 +131,7 @@ class _DomoAuth_Optional(ABC):  # noqa: N801
     )
     async def who_am_i(
         self,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
     ) -> ResponseGetData:
@@ -141,7 +141,7 @@ class _DomoAuth_Optional(ABC):  # noqa: N801
         endpoint and updates the user_id and token validity status.
 
         Args:
-            session (Optional[httpx.AsyncClient]): HTTP client session to use for the request
+            session (httpx.AsyncClient | None): HTTP client session to use for the request
             debug_api (bool): Whether to enable API debugging
             debug_num_stacks_to_drop (int): Number of stack frames to drop for debugging
 
@@ -183,7 +183,7 @@ class _DomoAuth_Optional(ABC):  # noqa: N801
         self,
         one_time_password: str,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop: int = 2,
     ):
         """Elevate the authentication to include OTP (One-Time Password) if required.
@@ -194,7 +194,7 @@ class _DomoAuth_Optional(ABC):  # noqa: N801
         Args:
             one_time_password (str): The OTP code for authentication elevation
             debug_api (bool): Whether to enable API debugging
-            session (Optional[httpx.AsyncClient]): HTTP client session to use
+            session (httpx.AsyncClient | None): HTTP client session to use
             debug_num_stacks_to_drop (int): Number of stack frames to drop for debugging
 
         Returns:
@@ -226,7 +226,7 @@ class _DomoAuth_Optional(ABC):  # noqa: N801
     @abstractmethod
     async def get_auth_token(
         self,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         **kwargs,
@@ -237,7 +237,7 @@ class _DomoAuth_Optional(ABC):  # noqa: N801
         the specific authentication flow for each authentication type.
 
         Args:
-            session (Optional[httpx.AsyncClient]): HTTP client session to use
+            session (httpx.AsyncClient | None): HTTP client session to use
             debug_api (bool): Whether to enable API debugging
             debug_num_stacks_to_drop (int): Number of stack frames to drop for debugging
             **kwargs: Additional keyword arguments specific to the authentication type
@@ -254,7 +254,7 @@ class _DomoAuth_Optional(ABC):  # noqa: N801
         self,
         debug_api: bool = False,
         token_name: Optional[str] = None,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ) -> bool:
         """Print token status and return True if token is valid, otherwise False.
 
@@ -264,7 +264,7 @@ class _DomoAuth_Optional(ABC):  # noqa: N801
         Args:
             debug_api (bool): Whether to enable API debugging
             token_name (Optional[str]): Override token name for display purposes
-            session (Optional[httpx.AsyncClient]): HTTP client session to use
+            session (httpx.AsyncClient | None): HTTP client session to use
 
         Returns:
             bool: True if token is valid, False otherwise
@@ -368,7 +368,7 @@ class _DomoFullAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):  # noqa: N
     )
     async def get_auth_token(
         self,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         return_raw: bool = False,
@@ -380,7 +380,7 @@ class _DomoFullAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):  # noqa: N
         a session token that can be used for subsequent API calls.
 
         Args:
-            session (Optional[httpx.AsyncClient]): HTTP client session to use
+            session (httpx.AsyncClient | None): HTTP client session to use
             debug_api (bool): Whether to enable API debugging
             debug_num_stacks_to_drop (int): Number of stack frames to drop for debugging
             return_raw (bool): Whether to return raw ResponseGetData instead of token string
@@ -567,7 +567,7 @@ class _DomoTokenAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):  # noqa: 
     )
     async def get_auth_token(
         self,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         token_name: Optional[str] = None,
@@ -579,7 +579,7 @@ class _DomoTokenAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):  # noqa: 
         if no user_id is set, then returns the access token.
 
         Args:
-            session (Optional[httpx.AsyncClient]): HTTP client session to use
+            session (httpx.AsyncClient | None): HTTP client session to use
             debug_api (bool): Whether to enable API debugging
             debug_num_stacks_to_drop (int): Number of stack frames to drop for debugging
             token_name (Optional[str]): Override token name for display purposes
@@ -723,7 +723,7 @@ class DomoDeveloperAuth(_DomoAuth_Optional, _DomoAuth_Required):
     )
     async def get_auth_token(
         self,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         **kwargs,
@@ -734,7 +734,7 @@ class DomoDeveloperAuth(_DomoAuth_Optional, _DomoAuth_Required):
         from Domo's developer authentication endpoint.
 
         Args:
-            session (Optional[httpx.AsyncClient]): HTTP client session to use
+            session (httpx.AsyncClient | None): HTTP client session to use
             debug_api (bool): Whether to enable API debugging
             debug_num_stacks_to_drop (int): Number of stack frames to drop for debugging
             **kwargs: Additional keyword arguments

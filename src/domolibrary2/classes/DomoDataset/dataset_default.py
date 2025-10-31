@@ -7,7 +7,7 @@ __all__ = [
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import httpx
 
@@ -20,7 +20,6 @@ from ...routes.dataset import (
 from ...utils import convert as dmcv
 from ..subentity import (
     certification as dmdc,
-    schedule as dmsched,
     tags as dmtg,
 )
 from . import (
@@ -29,6 +28,9 @@ from . import (
     stream as dmdst,
 )
 from .dataset_data import DomoDataset_Data
+
+if TYPE_CHECKING:
+    from ..subentity.schedule import DomoSchedule
 
 
 @dataclass
@@ -62,7 +64,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
     PDP: Optional[dmpdp.DatasetPdpPolicies] = None
 
     Certification: dmdc.DomoCertification = field(default=None)
-    Schedule: dmsched.DomoSchedule = field(default=None)
+
     # Lineage: dmdl.DomoLineage = field(default=None, repr=False)
 
     @property
@@ -70,7 +72,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
         return "DATASET"
 
     @staticmethod
-    def _is_federated_dataset_obj(obj: dict) -> bool:
+    def _is_federated(obj: dict) -> bool:
         """Heuristic: decide if a dataset JSON represents a federated (proxy) dataset."""
 
         dpt = obj.get("dataProviderType", "").upper()
@@ -93,7 +95,11 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
     def is_federated(self) -> bool:
         """Heuristic: decide if a dataset JSON represents a federated (proxy) dataset."""
 
-        return self._is_federated_dataset_obj(self.raw)
+        return self._is_federated(self.raw)
+
+    @property
+    def Schedule(self) -> "DomoSchedule":
+        return self.Stream.Schedule if self.Stream and self.Stream.Schedule else None
 
     def __post_init__(self):
         super().__post_init__()
@@ -102,15 +108,12 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
         self.Data = DomoDataset_Data.from_parent(parent=self)
         self.Schema = dmdsc.DomoDataset_Schema.from_parent(parent=self)
         self.Tags = dmtg.DomoTags.from_parent(parent=self)
-        self.Stream = dmdst.DomoStream.from_parent(
+        self.Stream = self.Stream or dmdst.DomoStream.from_parent(
             parent=self, stream_id=self.stream_id
         )
         self.PDP = dmpdp.DatasetPdpPolicies.from_parent(parent=self)
 
         self.Certification = dmdc.DomoCertification.from_parent(parent=self)
-        self.Relations = None
-        # Initialize Schedule from raw data if schedule information is present
-        self.Schedule = self._initialize_schedule_from_raw()
 
         self.Relations = None
 
@@ -168,23 +171,22 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
     async def get_by_id(
         cls,
         auth: DomoAuth,
-        id: str,
+        dataset_id: str,
         debug_api: bool = False,
         return_raw: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop: int = 2,
         is_use_default_dataset_class: bool = False,
         parent_class: Optional[str] = None,
     ):
         """retrieves dataset metadata"""
-
         parent_class = parent_class or cls.__name__
 
         # self.logger.info(message=f"Getting dataset by ID: {dataset_id}")  # TO DO
 
         res = await dataset_routes.get_dataset_by_id(
             auth=auth,
-            dataset_id=id,
+            dataset_id=dataset_id,
             debug_api=debug_api,
             session=session,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
@@ -194,23 +196,30 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
         if return_raw:
             return res
 
-        return cls.from_dict(
-            obj=res.response,
+        obj = res.response
+
+        ds = cls.from_dict(
+            obj=obj,
             auth=auth,
             new_cls=cls,
             is_use_default_dataset_class=is_use_default_dataset_class,
         )
 
+        if ds.Stream:
+            await ds.Stream.refresh_from_api()
+
+        return ds
+
     @classmethod
     async def get_entity_by_id(cls, auth: DomoAuth, entity_id: str, **kwargs):
-        return await cls.get_by_id(id=entity_id, auth=auth, **kwargs)
+        return await cls.get_by_id(dataset_id=entity_id, auth=auth, **kwargs)
 
     async def delete(
         self,
         dataset_id: Optional[str] = None,
         auth: Optional[DomoAuth] = None,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ):
         dataset_id = dataset_id or self.id
         auth = auth or self.auth
@@ -229,7 +238,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
         is_send_email=False,
         debug_api: bool = False,
         debug_prn: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ):
         # Import DomoGroup here to avoid circular imports
         from ...classes.DomoGroup import DomoGroup
@@ -259,7 +268,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
         dataset_type: str = "api",
         schema: Optional[dict] = None,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         return_raw: bool = False,
     ) -> "DomoDataset_Default":
         schema = schema or {

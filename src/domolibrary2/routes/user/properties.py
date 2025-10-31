@@ -22,7 +22,7 @@ Classes:
     UserProperty: Class representing a user property with type and values
 
 Exception Classes:
-    ResetPassword_PasswordUsed: Raised when password was previously used
+    ResetPasswordPasswordUsedErrorError: Raised when password was previously used
     DownloadAvatar_Error: Raised when avatar download fails
 """
 
@@ -59,7 +59,7 @@ from ...utils import images
 from ...utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 from .exceptions import (
     DownloadAvatar_Error,
-    ResetPassword_PasswordUsed,
+    ResetPasswordPasswordUsedError,
     User_CRUD_Error,
 )
 
@@ -145,7 +145,7 @@ async def update_user(
     user_property_ls: list[UserProperty],
     auth: DomoAuth,
     debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
@@ -219,7 +219,7 @@ async def set_user_landing_page(
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
 ):
     """Set a user's landing page.
@@ -280,7 +280,7 @@ async def reset_password(
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Reset a user's password.
@@ -300,7 +300,7 @@ async def reset_password(
 
     Raises:
         User_CRUD_Error: If password reset fails
-        ResetPassword_PasswordUsed: If password was previously used
+        ResetPasswordPasswordUsedError: If password was previously used
     """
     url = f"https://{auth.domo_instance}.domo.com/api/identity/v1/password"
 
@@ -333,7 +333,7 @@ async def reset_password(
         and res.response.get("description", None)
         == "Password has been used previously."
     ):
-        raise ResetPassword_PasswordUsed(
+        raise ResetPasswordPasswordUsedError(
             user_id=user_id,
             res=res,
             message=res.response["description"].replace(".", ""),
@@ -355,7 +355,7 @@ async def request_password_reset(
     email: str,
     locale="en-us",
     debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
     return_raw: bool = False,
@@ -425,7 +425,7 @@ async def download_avatar(
     return_raw: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ):
     """Download a user's avatar image.
 
@@ -520,7 +520,7 @@ async def upload_avatar(
     img_type: str,  #'jpg or png'
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     parent_class: Optional[str] = None,
     return_raw: bool = False,
 ):
@@ -592,7 +592,7 @@ async def user_is_allowed_direct_signon(
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Manage direct sign-on permissions for users.

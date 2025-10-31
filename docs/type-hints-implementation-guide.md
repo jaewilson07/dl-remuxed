@@ -8749,12 +8749,12 @@ async def get_schema(
 **Line 278: `alter_schema`**
 
 Parameter type hints:
-- `session: Optional[httpx.AsyncClient]`
+- `session: httpx.AsyncClient | None`
 
 **Suggested signature:**
 ```python
 async def alter_schema(
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ) -> None:
     pass
 ```
@@ -8762,12 +8762,12 @@ async def alter_schema(
 **Line 309: `alter_schema_descriptions`**
 
 Parameter type hints:
-- `session: Optional[httpx.AsyncClient]`
+- `session: httpx.AsyncClient | None`
 
 **Suggested signature:**
 ```python
 async def alter_schema_descriptions(
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ) -> None:
     pass
 ```

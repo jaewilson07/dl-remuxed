@@ -7,7 +7,6 @@ import argparse
 import ast
 import os
 from pathlib import Path
-from typing import list
 
 
 class TypeHintChecker(ast.NodeVisitor):

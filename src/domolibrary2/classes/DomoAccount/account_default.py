@@ -1,15 +1,16 @@
 __all__ = [
-    "Account_CanIModify",
-    "UpsertAccount_MatchCriteria",
-    "DomoAccounConfig_MissingFields",
+    "Account_CanIModifyError",
+    "UpsertAccount_MatchCriteriaError",
+    "DomoAccounConfig_MissingFieldsError",
     "DomoAccount_Default",
-    "AccountClass_CRUD_Error",
+    "AccountClass_CRUDError",
 ]
 
 
 import asyncio
 import datetime as dt
 from dataclasses import dataclass, field
+from typing import Any
 
 import httpx
 
@@ -22,7 +23,7 @@ from .access import DomoAccess_Account
 from .config import AccountConfig, DomoAccount_Config
 
 
-class Account_CanIModify(ClassError):
+class Account_CanIModifyError(ClassError):
     def __init__(self, account_id, domo_instance):
         super().__init__(
             message="`DomoAccount.is_admin_summary` must be `False` to proceed.  Either set the value explicity, or retrieve the account instance using `DomoAccount.get_by_id()`",
@@ -31,7 +32,7 @@ class Account_CanIModify(ClassError):
         )
 
 
-class UpsertAccount_MatchCriteria(ClassError):
+class UpsertAccount_MatchCriteriaError(ClassError):
     def __init__(self, domo_instance):
         super().__init__(
             message="must pass an account_id or account_name to UPSERT",
@@ -39,7 +40,7 @@ class UpsertAccount_MatchCriteria(ClassError):
         )
 
 
-class DomoAccounConfig_MissingFields(ClassError):
+class DomoAccounConfig_MissingFieldsError(ClassError):
     def __init__(self, domo_instance, missing_keys, account_id):
         super().__init__(
             domo_instance=domo_instance,
@@ -47,7 +48,7 @@ class DomoAccounConfig_MissingFields(ClassError):
         )
 
 
-class AccountClass_CRUD_Error(ClassError):
+class AccountClass_CRUDError(ClassError):
     def __init__(self, cls_instance, message):
         super().__init__(cls_instance=cls_instance, message=message)
 
@@ -286,7 +287,7 @@ class DomoAccount_Default(DomoEntity):
             return res
 
         if not res.is_success and self.is_admin_summary:
-            raise Account_CanIModify(
+            raise Account_CanIModifyError(
                 account_id=self.id, domo_instance=auth.domo_instance
             )
 
@@ -316,7 +317,7 @@ class DomoAccount_Default(DomoEntity):
         )
 
         if not res.is_success and self.is_admin_summary:
-            raise Account_CanIModify(
+            raise Account_CanIModifyError(
                 account_id=self.id, domo_instance=auth.domo_instance
             )
 
@@ -339,7 +340,7 @@ class DomoAccount_Default(DomoEntity):
             self.Config = config
 
         if not self.Config:
-            raise AccountClass_CRUD_Error(
+            raise AccountClass_CRUDError(
                 cls_instance=self,
                 message="unable to update account - no domo_account.Config not provided",
             )
@@ -362,7 +363,7 @@ class DomoAccount_Default(DomoEntity):
             return res
 
         if not res.is_success and self.is_admin_summary:
-            raise Account_CanIModify(
+            raise Account_CanIModifyError(
                 account_id=self.id, domo_instance=auth.domo_instance
             )
 

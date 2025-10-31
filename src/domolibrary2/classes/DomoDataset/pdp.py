@@ -8,7 +8,7 @@ using DomoEnum for operators and the relationship system for user/group associat
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional, list
+from typing import Any, Optional
 
 from domolibrary2.entities.base import DomoEnumMixin
 from domolibrary2.entities.entities import DomoEntity, DomoSubEntity

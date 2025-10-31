@@ -9,7 +9,6 @@ import ast
 import os
 from dataclasses import dataclass, field
 from pprint import pprint
-from typing import list
 
 from ..utils import (
     compare as dmcp,

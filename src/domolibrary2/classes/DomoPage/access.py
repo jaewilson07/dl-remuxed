@@ -2,7 +2,7 @@
 
 __all__ = ["test_page_access", "get_accesslist", "share"]
 
-from typing import Optional, Union, list
+from typing import Optional, Union
 
 import httpx
 
@@ -22,7 +22,7 @@ async def test_page_access(
     suppress_no_access_error: bool = False,
     debug_api: bool = False,
     return_raw: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_num_stacks_to_drop: int = 2,
 ) -> ResponseGetData:
     """Test if the authenticated user has access to the page.
@@ -83,7 +83,7 @@ async def get_accesslist(
     auth: Optional[DomoAuth] = None,
     return_raw: bool = False,
     debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_num_stacks_to_drop: int = 2,
 ) -> Union[ResponseGetData, dict[str, Union[int, list]]]:
     """Retrieve the access list for the page showing users and groups with access.
@@ -117,7 +117,7 @@ async def get_accesslist(
 
     Raises:
         PageSharing_Error: If access list retrieval fails (raised by route function).
-        SearchPage_NotFound: If page with specified ID doesn't exist (raised by route function).
+        SearchPageNotFoundError: If page with specified ID doesn't exist (raised by route function).
     """
     auth = auth or self.auth
 
@@ -248,7 +248,7 @@ async def share(
     domo_groups: Optional[Union[list, object]] = None,
     message: Optional[str] = None,
     debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ) -> ResponseGetData:
     """Share the page with specified users and/or groups.
 

@@ -39,7 +39,7 @@ class AllowlistUnableToUpdate(dmde.RouteError):
 @gd.route_function
 async def get_allowlist(
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
     debug_api: bool = False,
     parent_class=None,
@@ -81,7 +81,7 @@ async def set_allowlist(
     ip_address_ls: list[str],
     debug_api: bool = False,
     return_raw: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     parent_class=None,
     debug_num_stacks_to_drop=1,
 ) -> rgd.ResponseGetData:
@@ -115,7 +115,7 @@ async def set_allowlist(
 @gd.route_function
 async def get_allowlist_is_filter_all_traffic_enabled(
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     return_raw: bool = False,
     parent_class: Optional[str] = None,
@@ -164,7 +164,7 @@ async def get_allowlist_is_filter_all_traffic_enabled(
 async def toggle_allowlist_is_filter_all_traffic_enabled(
     auth: dmda.DomoFullAuth,
     is_enabled: bool,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     return_raw: bool = False,
     parent_class: Optional[str] = None,

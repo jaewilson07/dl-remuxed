@@ -13,10 +13,10 @@ import ast
 import re
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, list
+from typing import Any
 
-from ..client import entities as dmen
-from ..utils import convert as dmcv
+from ...client import entities as dmen
+from ...utils import convert as dmcv
 
 
 def extract_ast_arg_type_annotation(

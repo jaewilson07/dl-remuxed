@@ -249,9 +249,9 @@ async def test_exception_imports():
     assert hasattr(dmdu, "User_GET_Error"), "User_GET_Error should be exported"
     assert hasattr(dmdu, "User_CRUD_Error"), "User_CRUD_Error should be exported"
     assert hasattr(
-        dmdu, "SearchUser_NotFound"
-    ), "SearchUser_NotFound should be exported"
-    assert hasattr(dmdu, "DeleteUser_Error"), "DeleteUser_Error should be exported"
+        dmdu, "SearchUserNotFoundError"
+    ), "SearchUserNotFoundError should be exported"
+    assert hasattr(dmdu, "DeleteUserError"), "DeleteUserError should be exported"
 
     # Verify they're from the route module
     from domolibrary2.routes.user.exceptions import RouteError
@@ -273,8 +273,8 @@ async def test_all_exports():
     assert "User_GET_Error" in dmdu.__all__, "User_GET_Error should be in __all__"
     assert "User_CRUD_Error" in dmdu.__all__, "User_CRUD_Error should be in __all__"
     assert (
-        "SearchUser_NotFound" in dmdu.__all__
-    ), "SearchUser_NotFound should be in __all__"
+        "SearchUserNotFoundError" in dmdu.__all__
+    ), "SearchUserNotFoundError should be in __all__"
 
 
 if __name__ == "__main__":

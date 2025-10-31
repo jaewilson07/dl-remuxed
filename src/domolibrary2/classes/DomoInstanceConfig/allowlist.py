@@ -5,7 +5,7 @@ __all__ = [
 
 import ipaddress
 from dataclasses import dataclass, field
-from typing import Optional, list
+from typing import Optional
 
 import httpx
 
@@ -22,6 +22,7 @@ def validate_ip_or_cidr(ip: str):
         try:
             # Try IPv4 network (CIDR)
             ipaddress.IPv4Network(ip, strict=False)
+            return True
         except ValueError as e:
             raise ValueError(f"Invalid IP/CIDR entry: {ip}") from e
 
@@ -70,7 +71,7 @@ class DomoAllowlist:
         return_raw: bool = False,
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ) -> list[str]:
         """
         retrieves the allowlist for an instance
@@ -99,7 +100,7 @@ class DomoAllowlist:
         debug_api: bool = False,
         debug_prn: bool = False,
         debug_num_stacks_to_drop=2,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ):
         for ip in ip_address_ls:
             try:
@@ -140,7 +141,7 @@ class DomoAllowlist:
         is_suppress_errors: bool = False,
         debug_api: bool = False,
         debug_prn: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ) -> list[str]:
         """
         adds an IP or CIDR to the allowlist
@@ -167,7 +168,7 @@ class DomoAllowlist:
         ip_address_ls: str,
         debug_prn: bool = False,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         is_suppress_errors: bool = False,
     ) -> list[str]:
         """
@@ -194,7 +195,7 @@ class DomoAllowlist:
         self,
         debug_api: bool = False,
         return_raw: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ) -> bool:
         """
         retrieves whether the "filter all traffic" setting is enabled
@@ -221,7 +222,7 @@ class DomoAllowlist:
         debug_api: bool = False,
         debug_prn: bool = False,
         return_raw: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ) -> bool:
         """
         retrieves whether the "filter all traffic" setting is enabled

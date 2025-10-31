@@ -48,7 +48,7 @@ class ApiClient_ScopeEnum(DomoEnumMixin, Enum):
     DASHBOARD = "dashboard"
 
 
-class InvalidAuthType(RouteError):
+class InvalidAuthTypeError(RouteError):
     def __init__(self, res: rgd.ResponseGetData = None, message=None):
         super().__init__(res=res, message=message)
 
@@ -56,7 +56,7 @@ class InvalidAuthType(RouteError):
 @gd.route_function
 async def get_api_clients(
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -110,7 +110,7 @@ async def get_api_clients(
 async def get_client_by_id(
     auth: DomoAuth,
     client_id: int,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -160,7 +160,7 @@ async def create_api_client(
     client_name: str,
     client_description: str = f"generated via DL {str(dt.date.today()).replace('-', '')}",
     scope: Optional[list[ApiClient_ScopeEnum]] = None,  # defaults to [data, audit]
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -191,7 +191,7 @@ async def create_api_client(
         ApiClient_CRUD_Error: If API client creation fails
     """
     if not isinstance(auth, DomoFullAuth):
-        raise InvalidAuthType(
+        raise InvalidAuthTypeError(
             message=f"required auth type {DomoFullAuth.__class__.__name__}"
         )
 
@@ -239,7 +239,7 @@ async def create_api_client(
 async def revoke_api_client(
     auth: DomoAuth,
     client_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,

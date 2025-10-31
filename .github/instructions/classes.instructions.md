@@ -202,7 +202,7 @@ from ...routes.user import UserProperty_Type, UserProperty
 from ...routes.user.exceptions import (
     User_GET_Error,
     User_CRUD_Error,
-    SearchUser_NotFound,
+    SearchUserNotFoundError,
 )
 
 # ✅ Import subentities
@@ -241,7 +241,7 @@ from ...routes.entity.exceptions import (
 # from ...routes.user.exceptions import (
 #     User_GET_Error,
 #     User_CRUD_Error,
-#     SearchUser_NotFound,
+#     SearchUserNotFoundError,
 # )
 # from ...routes.dataset.exceptions import (
 #     Dataset_GET_Error,

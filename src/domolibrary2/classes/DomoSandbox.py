@@ -8,13 +8,14 @@ __all__ = [
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import Optional, list
+from typing import Optional
 
 import dateutil.parser as dtut
 import httpx
 import pandas as pd
 
 from ..client.auth import DomoAuth
+from ..client.entities import DomoEntity_w_Lineage, DomoManager
 from ..routes import sandbox as sandbox_routes
 from ..routes.sandbox import Sandbox_CRUD_Error, Sandbox_GET_Error
 from .subentity import DomoLineage as dmdl
@@ -75,7 +76,7 @@ class DomoRepository(DomoEntity_w_Lineage):
         cls,
         auth: DomoAuth,
         repository_id: str,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         return_raw: bool = False,
@@ -116,7 +117,7 @@ class DomoRepository(DomoEntity_w_Lineage):
         cls,
         auth: DomoAuth,
         entity_id: str,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
     ):

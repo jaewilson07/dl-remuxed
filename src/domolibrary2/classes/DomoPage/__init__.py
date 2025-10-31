@@ -39,6 +39,9 @@ __all__ = [
     "DomoPage",
     "DomoPages",
     "Page_NoAccess",
+    "access",
+    "content",
+    "management",
 ]
 
 # Import and attach functionality modules

@@ -1,0 +1,1443 @@
+[
+  {
+    "file_path": ".github/workflows/pre-commit.yml",
+    "line": 30,
+    "column": 26,
+    "error_code": "YAML",
+    "message": "mapping values are not allowed in this context",
+    "hook": "check-yaml",
+    "context": ""
+  },
+  {
+    "file_path": "src/domolibrary2/__init__.py",
+    "line": 11,
+    "column": 35,
+    "error_code": "F401",
+    "message": "`dc_logger.client.base.Logger` imported but unused",
+    "hook": "ruff",
+    "context": "11 | from dc_logger.client.base import Logger, get_global_logger\n12 |\n13 | # logger: Logger = get_global_logger()"
+  },
+  {
+    "file_path": "src/domolibrary2/__init__.py",
+    "line": 11,
+    "column": 43,
+    "error_code": "F401",
+    "message": "`dc_logger.client.base.get_global_logger` imported but unused",
+    "hook": "ruff",
+    "context": "11 | from dc_logger.client.base import Logger, get_global_logger\n12 |\n13 | # logger: Logger = get_global_logger()"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoAccount/config.py",
+    "line": 34,
+    "column": 5,
+    "error_code": "N813",
+    "message": "Camelcase `DictDot` imported as lowercase `util_dd`",
+    "hook": "ruff",
+    "context": "32 | from ...entities.entities import DomoBase\n33 | from ...utils import (\n34 |     DictDot as util_dd,\n35 |     convert as dmcv,\n36 | )"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoAppDb.py",
+    "line": 1,
+    "column": 1,
+    "error_code": "N999",
+    "message": "Invalid module name: 'DomoAppDb'",
+    "hook": "ruff",
+    "context": ""
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoAppStudio.py",
+    "line": 1,
+    "column": 1,
+    "error_code": "N999",
+    "message": "Invalid module name: 'DomoAppStudio'",
+    "hook": "ruff",
+    "context": ""
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoAppStudio.py",
+    "line": 12,
+    "column": 5,
+    "error_code": "N813",
+    "message": "Camelcase `DictDot` imported as lowercase `util_dd`",
+    "hook": "ruff",
+    "context": "10 | from ..routes import appstudio as appstudio_routes\n11 | from ..utils import (\n12 |     DictDot as util_dd,\n13 |     chunk_execution as dmce,\n14 | )"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoAppStudio.py",
+    "line": 15,
+    "column": 15,
+    "error_code": "N813",
+    "message": "Camelcase `DomoUser` imported as lowercase `dmdu`",
+    "hook": "ruff",
+    "context": "13 |     chunk_execution as dmce,\n14 | )\n15 | from . import DomoUser as dmdu\n16 | from .subentity.lineage import DomoLineage"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoAppStudio.py",
+    "line": 86,
+    "column": 23,
+    "error_code": "N813",
+    "message": "Camelcase `DomoGroup` imported as lowercase `dmg`",
+    "hook": "ruff",
+    "context": "84 |             return []\n85 |\n86 |         from . import DomoGroup as dmg\n87 |\n88 |         domo_groups = []"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoAppStudio.py",
+    "line": 169,
+    "column": 23,
+    "error_code": "N813",
+    "message": "Camelcase `DomoGroup` imported as lowercase `dmg`",
+    "hook": "ruff",
+    "context": "167 |             raise Exception(\"error getting access list\")\n168 |\n169 |         from . import DomoGroup as dmg\n170 |\n171 |         s = {"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoApplication/Application.py",
+    "line": 1,
+    "column": 1,
+    "error_code": "N999",
+    "message": "Invalid module name: 'Application'",
+    "hook": "ruff",
+    "context": ""
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoApplication/Application.py",
+    "line": 1,
+    "column": 12,
+    "error_code": "F822",
+    "message": "Undefined name `DomoJob_Types` in `__all__`",
+    "hook": "ruff",
+    "context": "1 | __all__ = [\"DomoJob_Types\", \"DomoApplication\"]\n2 |\n3 | from dataclasses import dataclass, field"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoApplication/Application.py",
+    "line": 11,
+    "column": 5,
+    "error_code": "N813",
+    "message": "Camelcase `DictDot` imported as lowercase `util_dd`",
+    "hook": "ruff",
+    "context": "9 | from ...routes import application as application_routes\n10 | from ...utils import (\n11 |     DictDot as util_dd,\n12 | )\n13 | from . import Job as dmdj"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoApplication/Application.py",
+    "line": 13,
+    "column": 15,
+    "error_code": "N813",
+    "message": "Camelcase `Job` imported as lowercase `dmdj`",
+    "hook": "ruff",
+    "context": "11 |     DictDot as util_dd,\n12 | )\n13 | from . import Job as dmdj\n14 |\n15 | # @jaewilson07 \u0393\u00c7\u00f6 DomoJob_RemoteDomoStats and DomoJob_Watchdog does not exist."
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoApplication/Application.py",
+    "line": 72,
+    "column": 16,
+    "error_code": "F821",
+    "message": "Undefined name `DomoJob_Types`",
+    "hook": "ruff",
+    "context": "71 |     def _get_job_class(self):\n72 |         return DomoJob_Types.get_from_api_name(self.name)\n73 |\n74 |     @classmethod"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoApplication/Job.py",
+    "line": 1,
+    "column": 1,
+    "error_code": "N999",
+    "message": "Invalid module name: 'Job'",
+    "hook": "ruff",
+    "context": ""
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoApplication/Job_Base.py",
+    "line": 1,
+    "column": 1,
+    "error_code": "N999",
+    "message": "Invalid module name: 'Job_Base'",
+    "hook": "ruff",
+    "context": ""
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoApplication/Job_Base.py",
+    "line": 137,
+    "column": 9,
+    "error_code": "N802",
+    "message": "Function name `_convert_API_res_to_DomoJob_base_obj` should be lowercase",
+    "hook": "ruff",
+    "context": "136 |     @staticmethod\n137 |     def _convert_API_res_to_DomoJob_base_obj(obj) -> dict:\n138 |         \"\"\"base class for converting an API response into a dictionary with parameters that DomoJob_Base expects\"\"\""
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoApplication/Job_RemoteDomoStats.py",
+    "line": 1,
+    "column": 1,
+    "error_code": "N999",
+    "message": "Invalid module name: 'Job_RemoteDomoStats'",
+    "hook": "ruff",
+    "context": ""
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoApplication/Job_Watchdog.py",
+    "line": 1,
+    "column": 1,
+    "error_code": "N999",
+    "message": "Invalid module name: 'Job_Watchdog'",
+    "hook": "ruff",
+    "context": ""
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoApplication/Job_Watchdog.py",
+    "line": 199,
+    "column": 15,
+    "error_code": "F821",
+    "message": "Undefined name `DomoAuth`",
+    "hook": "ruff",
+    "context": "197 |         application_id,\n198 |         job_id,\n199 |         auth: DomoAuth,\n200 |         debug_api: bool = False,\n201 |         session: httpx.AsyncClient | None = None,"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoApplication/Job_Watchdog.py",
+    "line": 234,
+    "column": 15,
+    "error_code": "F821",
+    "message": "Undefined name `DomoAuth`",
+    "hook": "ruff",
+    "context": "232 |     async def create(\n233 |         cls,\n234 |         auth: DomoAuth,\n235 |         name: str,\n236 |         application_id: str,"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoCard.py",
+    "line": 1,
+    "column": 1,
+    "error_code": "N999",
+    "message": "Invalid module name: 'DomoCard'",
+    "hook": "ruff",
+    "context": ""
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoCard.py",
+    "line": 88,
+    "column": 13,
+    "error_code": "N813",
+    "message": "Camelcase `DomoGroup` imported as lowercase `dmgr`",
+    "hook": "ruff",
+    "context": "86 |     ) -> list[Any]:  # DomoUser | DomoGroup]\n87 |         from . import (\n88 |             DomoGroup as dmgr,\n89 |             DomoUser as dmdu,\n90 |         )"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoCard.py",
+    "line": 89,
+    "column": 13,
+    "error_code": "N813",
+    "message": "Camelcase `DomoUser` imported as lowercase `dmdu`",
+    "hook": "ruff",
+    "context": "87 |         from . import (\n88 |             DomoGroup as dmgr,\n89 |             DomoUser as dmdu,\n90 |         )"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoCard.py",
+    "line": 228,
+    "column": 23,
+    "error_code": "N813",
+    "message": "Camelcase `DomoAppDb` imported as lowercase `dmdb`",
+    "hook": "ruff",
+    "context": "226 |         debug_num_stacks_to_drop=2,\n227 |     ):\n228 |         from . import DomoAppDb as dmdb\n229 |\n230 |         domo_collections = await dmdb.AppDbCollections.get_collections("
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoCodeEngine/CodeEngine.py",
+    "line": 1,
+    "column": 1,
+    "error_code": "N999",
+    "message": "Invalid module name: 'CodeEngine'",
+    "hook": "ruff",
+    "context": ""
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoCodeEngine/CodeEngine.py",
+    "line": 45,
+    "column": 16,
+    "error_code": "N813",
+    "message": "Camelcase `DomoUser` imported as lowercase `dmdu`",
+    "hook": "ruff",
+    "context": "43 | from ...utils import files as dmuf\n44 | from ...utils.convert import convert_string_to_datetime\n45 | from .. import DomoUser as dmdu\n46 | from .Manifest import CodeEngineManifest"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoCodeEngine/Manifest.py",
+    "line": 1,
+    "column": 1,
+    "error_code": "N999",
+    "message": "Invalid module name: 'Manifest'",
+    "hook": "ruff",
+    "context": ""
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoCodeEngine/Manifest.py",
+    "line": 137,
+    "column": 13,
+    "error_code": "F821",
+    "message": "Undefined name `os`",
+    "hook": "ruff",
+    "context": "135 |     ):\n136 |         dmfi.upsert_file(\n137 |             os.path.join(export_folder, \"index.py\"),\n138 |             content=self.raw.get(\"code\"),\n139 |             replace_folder=replace_folder,"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoCodeEngine/Manifest_Argument.py",
+    "line": 1,
+    "column": 1,
+    "error_code": "N999",
+    "message": "Invalid module name: 'Manifest_Argument'",
+    "hook": "ruff",
+    "context": ""
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoCodeEngine/Manifest_Function.py",
+    "line": 1,
+    "column": 1,
+    "error_code": "N999",
+    "message": "Invalid module name: 'Manifest_Function'",
+    "hook": "ruff",
+    "context": ""
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoDatacenter.py",
+    "line": 1,
+    "column": 1,
+    "error_code": "N999",
+    "message": "Invalid module name: 'DomoDatacenter'",
+    "hook": "ruff",
+    "context": ""
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoDatacenter.py",
+    "line": 59,
+    "column": 23,
+    "error_code": "N813",
+    "message": "Camelcase `DomoDataset` imported as lowercase `dmds`",
+    "hook": "ruff",
+    "context": "57 |         session: httpx.AsyncClient = None,\n58 |     ) -> list[Any]:\n59 |         from . import DomoDataset as dmds\n60 |\n61 |         json_list = await self.search_datacenter("
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoDatacenter.py",
+    "line": 113,
+    "column": 23,
+    "error_code": "N813",
+    "message": "Camelcase `DomoAccount` imported as lowercase `dmac`",
+    "hook": "ruff",
+    "context": "111 |         \"\"\"\n112 |\n113 |         from . import DomoAccount as dmac\n114 |\n115 |         additional_filters_ls = additional_filters_ls or []"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoDatacenter.py",
+    "line": 163,
+    "column": 23,
+    "error_code": "N813",
+    "message": "Camelcase `DomoCard` imported as lowercase `dmc`",
+    "hook": "ruff",
+    "context": "161 |         is_suppress_errors: bool = False,\n162 |     ) -> list[Any]:\n163 |         from . import DomoCard as dmc\n164 |\n165 |         json_list = await self.search_datacenter("
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoDatacenter.py",
+    "line": 208,
+    "column": 23,
+    "error_code": "N813",
+    "message": "Camelcase `DomoCard` imported as lowercase `dmc`",
+    "hook": "ruff",
+    "context": "207 |         from ..routes import card as card_routes\n208 |         from . import DomoCard as dmc\n209 |\n210 |         search_body = card_routes.generate_body_search_cards_admin_summary("
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoDatacenter.py",
+    "line": 246,
+    "column": 37,
+    "error_code": "N813",
+    "message": "Camelcase `CodeEngine` imported as lowercase `dmceg`",
+    "hook": "ruff",
+    "context": "244 |         session: httpx.AsyncClient = None,\n245 |     ) -> list[Any]:\n246 |         from .DomoCodeEngine import CodeEngine as dmceg\n247 |\n248 |         res = await self.search_datacenter("
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoDataflow/Dataflow.py",
+    "line": 11,
+    "column": 27,
+    "error_code": "N813",
+    "message": "Camelcase `Jupyter` imported as lowercase `dmdj`",
+    "hook": "ruff",
+    "context": "9 | from ...routes import dataflow as dataflow_routes\n10 | from ...utils import chunk_execution as dmce\n11 | from ..DomoJupyter import Jupyter as dmdj\n12 |\n13 | __all__ = [\"DomoDataflow\", \"DomoDataflows\"]"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoDataflow/Dataflow.py",
+    "line": 22,
+    "column": 11,
+    "error_code": "F821",
+    "message": "Undefined name `DomoAuth`",
+    "hook": "ruff",
+    "context": "20 | class DomoDataflow(DomoEntity_w_Lineage):\n21 |     id: str\n22 |     auth: DomoAuth = field(repr=False)\n23 |\n24 |     name: str = None"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoDataflow/Dataflow.py",
+    "line": 82,
+    "column": 15,
+    "error_code": "F821",
+    "message": "Undefined name `DomoAuth`",
+    "hook": "ruff",
+    "context": "80 |         cls: DomoDataflow,\n81 |         dataflow_id: int,\n82 |         auth: DomoAuth,\n83 |         return_raw: bool = False,\n84 |         session: httpx.AsyncClient = None,"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoDataflow/Dataflow.py",
+    "line": 164,
+    "column": 23,
+    "error_code": "N813",
+    "message": "Camelcase `DomoJupyter` imported as lowercase `dmdj`",
+    "hook": "ruff",
+    "context": "162 |         session: httpx.AsyncClient = None,\n163 |     ):\n164 |         from . import DomoJupyter as dmdj\n165 |\n166 |         res = await dataflow_routes.search_dataflows_to_jupyter_workspaces("
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoDataflow/Dataflow.py",
+    "line": 190,
+    "column": 15,
+    "error_code": "F821",
+    "message": "Undefined name `DomoAuth`",
+    "hook": "ruff",
+    "context": "188 |     async def execute(\n189 |         self: DomoDataflow,\n190 |         auth: DomoAuth = None,\n191 |         debug_api: bool = False,\n192 |         debug_num_stacks_to_drop=2,"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoDataflow/Dataflow.py",
+    "line": 205,
+    "column": 15,
+    "error_code": "F821",
+    "message": "Undefined name `DomoAuth`",
+    "hook": "ruff",
+    "context": "203 |     async def get_by_version_id(\n204 |         cls: DomoDataflow,\n205 |         auth: DomoAuth,\n206 |         dataflow_id: int,\n207 |         version_id: int,"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoDataflow/Dataflow.py",
+    "line": 276,
+    "column": 11,
+    "error_code": "F821",
+    "message": "Undefined name `DomoAuth`",
+    "hook": "ruff",
+    "context": "274 | @dataclass\n275 | class DomoDataflows:\n276 |     auth: DomoAuth = field(repr=False)\n277 |     dataflows: list[DomoDataflow] = None"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoDataflow/Dataflow_Action.py",
+    "line": 9,
+    "column": 5,
+    "error_code": "N813",
+    "message": "Camelcase `DictDot` imported as lowercase `util_dd`",
+    "hook": "ruff",
+    "context": "7 | from ...client.entities import DomoEnumMixin\n8 | from ...utils import (\n9 |     DictDot as util_dd,\n10 |     convert as ct,\n11 | )"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoDataset/stream_config.py",
+    "line": 37,
+    "column": 5,
+    "error_code": "F822",
+    "message": "Undefined name `DomoStream` in `__all__`",
+    "hook": "ruff",
+    "context": "35 |     \"StreamConfig_Mappings\",\n36 |     \"StreamConfig\",\n37 |     \"DomoStream\",\n38 |     # Route exceptions\n39 |     \"Stream_GET_Error\","
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoDataset/stream_config.py",
+    "line": 258,
+    "column": 9,
+    "error_code": "E722",
+    "message": "Do not use bare `except`",
+    "hook": "ruff",
+    "context": "256 |                     list(set(self.parent.configuration_tables))\n257 |                 )\n258 |         except:\n259 |             return None"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoGroup.py",
+    "line": 1,
+    "column": 1,
+    "error_code": "N999",
+    "message": "Invalid module name: 'DomoGroup'",
+    "hook": "ruff",
+    "context": ""
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoInstanceConfig/__init__.py",
+    "line": 4,
+    "column": 5,
+    "error_code": "F401",
+    "message": "`.access_token` imported but unused; consider removing, adding to `__all__`, or using a redundant alias",
+    "hook": "ruff",
+    "context": "3 | from . import (\n4 |     access_token,\n5 |     allowlist,\n6 |     api_client,"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoInstanceConfig/__init__.py",
+    "line": 5,
+    "column": 5,
+    "error_code": "F401",
+    "message": "`.allowlist` imported but unused; consider removing, adding to `__all__`, or using a redundant alias",
+    "hook": "ruff",
+    "context": "3 | from . import (\n4 |     access_token,\n5 |     allowlist,\n6 |     api_client,\n7 |     core,"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoInstanceConfig/__init__.py",
+    "line": 6,
+    "column": 5,
+    "error_code": "F401",
+    "message": "`.api_client` imported but unused; consider removing, adding to `__all__`, or using a redundant alias",
+    "hook": "ruff",
+    "context": "4 |     access_token,\n5 |     allowlist,\n6 |     api_client,\n7 |     core,\n8 |     instance_switcher,"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoInstanceConfig/__init__.py",
+    "line": 7,
+    "column": 5,
+    "error_code": "F401",
+    "message": "`.core` imported but unused; consider removing, adding to `__all__`, or using a redundant alias",
+    "hook": "ruff",
+    "context": "5 |     allowlist,\n6 |     api_client,\n7 |     core,\n8 |     instance_switcher,\n9 |     mfa,"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoInstanceConfig/__init__.py",
+    "line": 8,
+    "column": 5,
+    "error_code": "F401",
+    "message": "`.instance_switcher` imported but unused; consider removing, adding to `__all__`, or using a redundant alias",
+    "hook": "ruff",
+    "context": "6 |     api_client,\n7 |     core,\n8 |     instance_switcher,\n9 |     mfa,\n10 |     role,"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoInstanceConfig/__init__.py",
+    "line": 9,
+    "column": 5,
+    "error_code": "F401",
+    "message": "`.mfa` imported but unused; consider removing, adding to `__all__`, or using a redundant alias",
+    "hook": "ruff",
+    "context": "7 |     core,\n8 |     instance_switcher,\n9 |     mfa,\n10 |     role,\n11 |     role_grant,"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoInstanceConfig/__init__.py",
+    "line": 10,
+    "column": 5,
+    "error_code": "F401",
+    "message": "`.role` imported but unused; consider removing, adding to `__all__`, or using a redundant alias",
+    "hook": "ruff",
+    "context": "8 |     instance_switcher,\n9 |     mfa,\n10 |     role,\n11 |     role_grant,\n12 |     scheduler_policies,"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoInstanceConfig/__init__.py",
+    "line": 11,
+    "column": 5,
+    "error_code": "F401",
+    "message": "`.role_grant` imported but unused; consider removing, adding to `__all__`, or using a redundant alias",
+    "hook": "ruff",
+    "context": "9 |     mfa,\n10 |     role,\n11 |     role_grant,\n12 |     scheduler_policies,\n13 |     sso,"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoInstanceConfig/__init__.py",
+    "line": 12,
+    "column": 5,
+    "error_code": "F401",
+    "message": "`.scheduler_policies` imported but unused; consider removing, adding to `__all__`, or using a redundant alias",
+    "hook": "ruff",
+    "context": "10 |     role,\n11 |     role_grant,\n12 |     scheduler_policies,\n13 |     sso,\n14 |     toggle,"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoInstanceConfig/__init__.py",
+    "line": 13,
+    "column": 5,
+    "error_code": "F401",
+    "message": "`.sso` imported but unused; consider removing, adding to `__all__`, or using a redundant alias",
+    "hook": "ruff",
+    "context": "11 |     role_grant,\n12 |     scheduler_policies,\n13 |     sso,\n14 |     toggle,\n15 |     user_attributes,"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoInstanceConfig/__init__.py",
+    "line": 14,
+    "column": 5,
+    "error_code": "F401",
+    "message": "`.toggle` imported but unused; consider removing, adding to `__all__`, or using a redundant alias",
+    "hook": "ruff",
+    "context": "12 |     scheduler_policies,\n13 |     sso,\n14 |     toggle,\n15 |     user_attributes,\n16 | )"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoInstanceConfig/__init__.py",
+    "line": 15,
+    "column": 5,
+    "error_code": "F401",
+    "message": "`.user_attributes` imported but unused; consider removing, adding to `__all__`, or using a redundant alias",
+    "hook": "ruff",
+    "context": "13 |     sso,\n14 |     toggle,\n15 |     user_attributes,\n16 | )"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoInstanceConfig/bootstrap.py",
+    "line": 12,
+    "column": 16,
+    "error_code": "N813",
+    "message": "Camelcase `DomoPage` imported as lowercase `dmpg`",
+    "hook": "ruff",
+    "context": "10 | from ...routes import bootstrap as bootstrap_routes\n11 | from ...utils import chunk_execution as dmce\n12 | from .. import DomoPage as dmpg"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoInstanceConfig/core.py",
+    "line": 30,
+    "column": 18,
+    "error_code": "N811",
+    "message": "Constant `SSO` imported as non-constant `SSO_Class`",
+    "hook": "ruff",
+    "context": "28 | from .role import DomoRoles\n29 | from .role_grant import DomoGrants\n30 | from .sso import SSO as SSO_Class\n31 | from .toggle import DomoToggle\n32 | from .user_attributes import UserAttributes"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoInstanceConfig/instance_switcher.py",
+    "line": 51,
+    "column": 12,
+    "error_code": "E721",
+    "message": "Use `is` and `is not` for type comparisons, or `isinstance()` for isinstance checks",
+    "hook": "ruff",
+    "context": "49 |             bool: True if both have the same user_attribute and target_instance\n50 |         \"\"\"\n51 |         if type(self) != type(other):\n52 |             return False\n53 |         else:"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoInstanceConfig/mfa.py",
+    "line": 112,
+    "column": 9,
+    "error_code": "N803",
+    "message": "Argument name `is_enable_MFA` should be lowercase",
+    "hook": "ruff",
+    "context": "110 |     async def toggle_mfa(\n111 |         self,\n112 |         is_enable_MFA: bool,\n113 |         is_ignore_test: bool = False,\n114 |         session: httpx.AsyncClient | None = None,"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoInstanceConfig/mfa.py",
+    "line": 245,
+    "column": 9,
+    "error_code": "N803",
+    "message": "Argument name `is_enable_MFA` should be lowercase",
+    "hook": "ruff",
+    "context": "243 |     async def update(\n244 |         self,\n245 |         is_enable_MFA: bool = None,\n246 |         max_code_attempts: int = None,\n247 |         num_days_valid: int = None,"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoInstanceConfig/role_grant.py",
+    "line": 10,
+    "column": 28,
+    "error_code": "N813",
+    "message": "Camelcase `DomoAuth` imported as lowercase `dmda`",
+    "hook": "ruff",
+    "context": "8 | from domolibrary2.entities.entities import DomoBase, DomoManager\n9 |\n10 | from ...client.auth import DomoAuth as dmda\n11 | from ...routes import grant as grant_routes\n12 | from ...utils import DictDot as util_dd"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoInstanceConfig/role_grant.py",
+    "line": 12,
+    "column": 22,
+    "error_code": "N813",
+    "message": "Camelcase `DictDot` imported as lowercase `util_dd`",
+    "hook": "ruff",
+    "context": "10 | from ...client.auth import DomoAuth as dmda\n11 | from ...routes import grant as grant_routes\n12 | from ...utils import DictDot as util_dd"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoInstanceConfig/sso.py",
+    "line": 366,
+    "column": 9,
+    "error_code": "N806",
+    "message": "Variable `OIDC` in function should be lowercase",
+    "hook": "ruff",
+    "context": "364 |         self, debug_api: bool = False, debug_prn: bool = False, return_raw: bool = False\n365 |     ):\n366 |         OIDC = await SSO_OIDC_Config.get(\n367 |             auth=self.auth,\n368 |             debug_prn=debug_prn,"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoInstanceConfig/sso.py",
+    "line": 383,
+    "column": 9,
+    "error_code": "N806",
+    "message": "Variable `SAML` in function should be lowercase",
+    "hook": "ruff",
+    "context": "381 |         self, debug_api: bool = False, debug_prn: bool = False, return_raw: bool = False\n382 |     ):\n383 |         SAML = await SSO_SAML_Config.get(\n384 |             auth=self.auth,\n385 |             debug_prn=debug_prn,"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoIntegration.py",
+    "line": 1,
+    "column": 1,
+    "error_code": "N999",
+    "message": "Invalid module name: 'DomoIntegration'",
+    "hook": "ruff",
+    "context": ""
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoJupyter/Account.py",
+    "line": 21,
+    "column": 15,
+    "error_code": "N813",
+    "message": "Camelcase `Account` imported as lowercase `dmac`",
+    "hook": "ruff",
+    "context": "19 | from ...client.auth import DomoAuth\n20 | from ...utils import xkcd_password as dmxkcd\n21 | from . import Account as dmac\n22 |\n23 | DomoError = dmde.DomoError"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoJupyter/Content.py",
+    "line": 14,
+    "column": 22,
+    "error_code": "N813",
+    "message": "Camelcase `DictDot` imported as lowercase `util_dd`",
+    "hook": "ruff",
+    "context": "12 | from ...client import auth as dmda\n13 | from ...routes import jupyter as jupyter_routes\n14 | from ...utils import DictDot as util_dd"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoJupyter/DataSource.py",
+    "line": 9,
+    "column": 27,
+    "error_code": "N813",
+    "message": "Camelcase `DomoDataset` imported as lowercase `dmds`",
+    "hook": "ruff",
+    "context": "7 | from typing import Any\n8 |\n9 | from ..DomoDataset import DomoDataset as dmds"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoJupyter/Jupyter.py",
+    "line": 28,
+    "column": 16,
+    "error_code": "N813",
+    "message": "Camelcase `DomoUser` imported as lowercase `dmdu`",
+    "hook": "ruff",
+    "context": "26 |     files as defi,\n27 | )\n28 | from .. import DomoUser as dmdu\n29 | from ..DomoDataset import DomoDataset as dmds\n30 | from . import ("
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoJupyter/Jupyter.py",
+    "line": 29,
+    "column": 27,
+    "error_code": "N813",
+    "message": "Camelcase `DomoDataset` imported as lowercase `dmds`",
+    "hook": "ruff",
+    "context": "27 | )\n28 | from .. import DomoUser as dmdu\n29 | from ..DomoDataset import DomoDataset as dmds\n30 | from . import (\n31 |     Account as dmac,"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoJupyter/Jupyter.py",
+    "line": 31,
+    "column": 5,
+    "error_code": "N813",
+    "message": "Camelcase `Account` imported as lowercase `dmac`",
+    "hook": "ruff",
+    "context": "29 | from ..DomoDataset import DomoDataset as dmds\n30 | from . import (\n31 |     Account as dmac,\n32 | )\n33 | from .Account import DomoJupyter_Account"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoJupyter/Jupyter.py",
+    "line": 232,
+    "column": 15,
+    "error_code": "F821",
+    "message": "Undefined name `DomoAuth`",
+    "hook": "ruff",
+    "context": "230 |         cls,\n231 |         workspace_id,\n232 |         auth: DomoAuth,  # this API does not require the jupyter_token, but activities inside the workspace will require additional authentication\n233 |         jupyter_token=None,\n234 |         return_raw: bool = False,"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoJupyter/Jupyter.py",
+    "line": 381,
+    "column": 11,
+    "error_code": "F821",
+    "message": "Undefined name `DomoAuth`",
+    "hook": "ruff",
+    "context": "379 | @dataclass\n380 | class DomoJupyterWorkspaces(DomoManager):\n381 |     auth: DomoAuth\n382 |     workspaces: list[DomoJupyterWorkspace] = None"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoJupyter/Jupyter.py",
+    "line": 498,
+    "column": 12,
+    "error_code": "F821",
+    "message": "Undefined name `DomoError`",
+    "hook": "ruff",
+    "context": "496 |         )\n497 |\n498 |     except DomoError as e:\n499 |         print(self._test_config_duplicates(\"account_configuration\"))\n500 |         print(self._test_config_duplicates(\"output_configuration\"))"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoPage.py",
+    "line": 1,
+    "column": 1,
+    "error_code": "N999",
+    "message": "Invalid module name: 'DomoPage'",
+    "hook": "ruff",
+    "context": ""
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoPage.py",
+    "line": 12,
+    "column": 1,
+    "error_code": "F403",
+    "message": "`from .page import *` used; unable to detect undefined names",
+    "hook": "ruff",
+    "context": "11 | # For backward compatibility, import everything from the new page module\n12 | from .page import *\n13 |\n14 | __all__ = [\"DomoPage_GetRecursive\", \"DomoPage\", \"DomoPages\", \"Page_NoAccess\"]"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoPage.py",
+    "line": 14,
+    "column": 12,
+    "error_code": "F405",
+    "message": "`DomoPage_GetRecursive` may be undefined, or defined from star imports",
+    "hook": "ruff",
+    "context": "12 | from .page import *\n13 |\n14 | __all__ = [\"DomoPage_GetRecursive\", \"DomoPage\", \"DomoPages\", \"Page_NoAccess\"]"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoPage.py",
+    "line": 14,
+    "column": 37,
+    "error_code": "F405",
+    "message": "`DomoPage` may be undefined, or defined from star imports",
+    "hook": "ruff",
+    "context": "12 | from .page import *\n13 |\n14 | __all__ = [\"DomoPage_GetRecursive\", \"DomoPage\", \"DomoPages\", \"Page_NoAccess\"]"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoPage.py",
+    "line": 14,
+    "column": 49,
+    "error_code": "F405",
+    "message": "`DomoPages` may be undefined, or defined from star imports",
+    "hook": "ruff",
+    "context": "12 | from .page import *\n13 |\n14 | __all__ = [\"DomoPage_GetRecursive\", \"DomoPage\", \"DomoPages\", \"Page_NoAccess\"]"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoPage.py",
+    "line": 14,
+    "column": 62,
+    "error_code": "F405",
+    "message": "`Page_NoAccess` may be undefined, or defined from star imports",
+    "hook": "ruff",
+    "context": "12 | from .page import *\n13 |\n14 | __all__ = [\"DomoPage_GetRecursive\", \"DomoPage\", \"DomoPages\", \"Page_NoAccess\"]"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoPage/__init__.py",
+    "line": 45,
+    "column": 32,
+    "error_code": "F401",
+    "message": "`.management` imported but unused; consider removing, adding to `__all__`, or using a redundant alias",
+    "hook": "ruff",
+    "context": "44 | # Import and attach functionality modules\n45 | from . import access, content, management\n46 |\n47 | # Import core classes"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoPage/access.py",
+    "line": 16,
+    "column": 16,
+    "error_code": "N813",
+    "message": "Camelcase `DomoUser` imported as lowercase `dmu`",
+    "hook": "ruff",
+    "context": "14 | )\n15 | from ...utils import chunk_execution as dmce\n16 | from .. import DomoUser as dmu\n17 | from .exceptions import Page_NoAccess"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoPage/access.py",
+    "line": 137,
+    "column": 20,
+    "error_code": "N813",
+    "message": "Camelcase `DomoGroup` imported as lowercase `dmg`",
+    "hook": "ruff",
+    "context": "135 |         return res\n136 |\n137 |     from .. import DomoGroup as dmg\n138 |\n139 |     s = {"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoPage/content.py",
+    "line": 23,
+    "column": 20,
+    "error_code": "N813",
+    "message": "Camelcase `DomoCard` imported as lowercase `dc`",
+    "hook": "ruff",
+    "context": "21 |     return_raw: bool = False,\n22 | ):\n23 |     from .. import DomoCard as dc\n24 |\n25 |     res = await page_routes.get_page_definition("
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoPage/core.py",
+    "line": 14,
+    "column": 5,
+    "error_code": "N813",
+    "message": "Camelcase `DictDot` imported as lowercase `util_dd`",
+    "hook": "ruff",
+    "context": "12 | from ...routes import page as page_routes\n13 | from ...utils import (\n14 |     DictDot as util_dd,\n15 |     chunk_execution as dmce,\n16 | )"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoPage/core.py",
+    "line": 18,
+    "column": 5,
+    "error_code": "N813",
+    "message": "Camelcase `DomoUser` imported as lowercase `dmu`",
+    "hook": "ruff",
+    "context": "16 | )\n17 | from .. import (\n18 |     DomoUser as dmu,\n19 | )\n20 | from ..subentity import DomoLineage"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoPage/core.py",
+    "line": 51,
+    "column": 18,
+    "error_code": "F821",
+    "message": "Undefined name `DomoCard`",
+    "hook": "ruff",
+    "context": "49 |     layout: dmpg_c.PageLayout = field(default_factory=dict)\n50 |\n51 |     cards: list[\"DomoCard\"] = None\n52 |     datasets: list[\"DomoDataset\"] = None"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoPage/core.py",
+    "line": 52,
+    "column": 21,
+    "error_code": "F821",
+    "message": "Undefined name `DomoDataset`",
+    "hook": "ruff",
+    "context": "51 |     cards: list[\"DomoCard\"] = None\n52 |     datasets: list[\"DomoDataset\"] = None\n53 |\n54 |     def __post_init__(self):"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoPage/core.py",
+    "line": 55,
+    "column": 24,
+    "error_code": "F821",
+    "message": "Undefined name `dmdl`",
+    "hook": "ruff",
+    "context": "54 |     def __post_init__(self):\n55 |         self.Lineage = dmdl.DomoLineage_Page.from_parent(parent=self)\n56 |\n57 |     def display_url(self):"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoPage/core.py",
+    "line": 71,
+    "column": 24,
+    "error_code": "N813",
+    "message": "Camelcase `DomoGroup` imported as lowercase `dmg`",
+    "hook": "ruff",
+    "context": "69 |             return []\n70 |\n71 |         from .. import DomoGroup as dmg\n72 |\n73 |         domo_groups = []"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoPage/core.py",
+    "line": 219,
+    "column": 24,
+    "error_code": "N813",
+    "message": "Camelcase `DomoCard` imported as lowercase `dmc`",
+    "hook": "ruff",
+    "context": "217 |         debug_api: bool = False,\n218 |     ):\n219 |         from .. import DomoCard as dmc\n220 |\n221 |         dd = page_obj"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoPage/page_content.py",
+    "line": 57,
+    "column": 5,
+    "error_code": "N815",
+    "message": "Variable `is_darkMode` in class scope should not be mixedCase",
+    "hook": "ruff",
+    "context": "55 |     text_color: str\n56 |     type: str\n57 |     is_darkMode: bool\n58 |     alpha: float\n59 |     src: str"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoSandbox.py",
+    "line": 1,
+    "column": 1,
+    "error_code": "N999",
+    "message": "Invalid module name: 'DomoSandbox'",
+    "hook": "ruff",
+    "context": ""
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoSandbox.py",
+    "line": 20,
+    "column": 24,
+    "error_code": "N813",
+    "message": "Camelcase `DomoLineage` imported as lowercase `dmdl`",
+    "hook": "ruff",
+    "context": "18 | from ..routes import sandbox as sandbox_routes\n19 | from ..routes.sandbox import Sandbox_CRUD_Error, Sandbox_GET_Error\n20 | from .subentity import DomoLineage as dmdl"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoSandbox.py",
+    "line": 24,
+    "column": 22,
+    "error_code": "F821",
+    "message": "Undefined name `DomoEntity_w_Lineage`",
+    "hook": "ruff",
+    "context": "23 | @dataclass\n24 | class DomoRepository(DomoEntity_w_Lineage):\n25 |     auth: DomoAuth = field(repr=False)\n26 |     id: str"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/DomoSandbox.py",
+    "line": 166,
+    "column": 19,
+    "error_code": "F821",
+    "message": "Undefined name `DomoManager`",
+    "hook": "ruff",
+    "context": "165 | @dataclass\n166 | class DomoSandbox(DomoManager):\n167 |     auth: DomoAuth = field(repr=False)"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/publish.py",
+    "line": 54,
+    "column": 9,
+    "error_code": "N813",
+    "message": "Camelcase `DomoAppStudio` imported as lowercase `dmas`",
+    "hook": "ruff",
+    "context": "52 | class DomoPublication_Content_Enum(DomoEnumMixin, Enum):\n53 |     from . import (\n54 |         DomoAppStudio as dmas,\n55 |         DomoCard as dmac,\n56 |         DomoDataset as dmds,"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/publish.py",
+    "line": 55,
+    "column": 9,
+    "error_code": "N813",
+    "message": "Camelcase `DomoCard` imported as lowercase `dmac`",
+    "hook": "ruff",
+    "context": "53 |     from . import (\n54 |         DomoAppStudio as dmas,\n55 |         DomoCard as dmac,\n56 |         DomoDataset as dmds,\n57 |         DomoPage as dmpg,"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/publish.py",
+    "line": 56,
+    "column": 9,
+    "error_code": "N813",
+    "message": "Camelcase `DomoDataset` imported as lowercase `dmds`",
+    "hook": "ruff",
+    "context": "54 |         DomoAppStudio as dmas,\n55 |         DomoCard as dmac,\n56 |         DomoDataset as dmds,\n57 |         DomoPage as dmpg,\n58 |     )"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/publish.py",
+    "line": 57,
+    "column": 9,
+    "error_code": "N813",
+    "message": "Camelcase `DomoPage` imported as lowercase `dmpg`",
+    "hook": "ruff",
+    "context": "55 |         DomoCard as dmac,\n56 |         DomoDataset as dmds,\n57 |         DomoPage as dmpg,\n58 |     )"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/subentity/lineage.py",
+    "line": 105,
+    "column": 36,
+    "error_code": "N813",
+    "message": "Camelcase `Dataflow` imported as lowercase `dmdf`",
+    "hook": "ruff",
+    "context": "103 |         entity_id, auth, session: httpx.AsyncClient = None, debug_api: bool = False\n104 |     ):\n105 |         from ..DomoDataflow import Dataflow as dmdf\n106 |\n107 |         return await dmdf.DomoDataflow.get_by_id(dataflow_id=entity_id, auth=auth)"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/subentity/lineage.py",
+    "line": 141,
+    "column": 24,
+    "error_code": "N813",
+    "message": "Camelcase `DomoPublish` imported as lowercase `dmpb`",
+    "hook": "ruff",
+    "context": "139 |         This method should be implemented by subclasses to return the appropriate entity.\n140 |         \"\"\"\n141 |         from .. import DomoPublish as dmpb\n142 |\n143 |         return await dmpb.DomoPublication.get_by_id("
+  },
+  {
+    "file_path": "src/domolibrary2/classes/subentity/lineage.py",
+    "line": 175,
+    "column": 24,
+    "error_code": "N813",
+    "message": "Camelcase `DomoCard` imported as lowercase `dmcd`",
+    "hook": "ruff",
+    "context": "173 |         This method should be implemented by subclasses to return the appropriate entity.\n174 |         \"\"\"\n175 |         from .. import DomoCard as dmcd\n176 |\n177 |         return await dmcd.DomoCard.get_by_id("
+  },
+  {
+    "file_path": "src/domolibrary2/classes/subentity/lineage.py",
+    "line": 491,
+    "column": 28,
+    "error_code": "N813",
+    "message": "Camelcase `DomoPage` imported as lowercase `dmpg`",
+    "hook": "ruff",
+    "context": "489 |     ):\n490 |         if not self.parent:\n491 |             from .. import DomoPage as dmpg\n492 |\n493 |             self.parent = await dmpg.DomoPage.get_by_id("
+  },
+  {
+    "file_path": "src/domolibrary2/classes/subentity/lineage.py",
+    "line": 581,
+    "column": 28,
+    "error_code": "N813",
+    "message": "Camelcase `DomoPublish` imported as lowercase `dmpb`",
+    "hook": "ruff",
+    "context": "580 |         if not self.parent:\n581 |             from .. import DomoPublish as dmpb\n582 |\n583 |             self.parent = await dmpb.DomoPublication.get_entity_by_id("
+  },
+  {
+    "file_path": "src/domolibrary2/classes/subentity/membership.py",
+    "line": 47,
+    "column": 13,
+    "error_code": "N813",
+    "message": "Camelcase `DomoGroup` imported as lowercase `dmdg`",
+    "hook": "ruff",
+    "context": "45 |     def to_dict(self):\n46 |         from .. import (\n47 |             DomoGroup as dmdg,\n48 |             DomoUser as dmdu,\n49 |         )"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/subentity/membership.py",
+    "line": 48,
+    "column": 13,
+    "error_code": "N813",
+    "message": "Camelcase `DomoUser` imported as lowercase `dmdu`",
+    "hook": "ruff",
+    "context": "46 |         from .. import (\n47 |             DomoGroup as dmdg,\n48 |             DomoUser as dmdu,\n49 |         )"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/subentity/membership.py",
+    "line": 128,
+    "column": 24,
+    "error_code": "N813",
+    "message": "Camelcase `DomoGroup` imported as lowercase `dmg`",
+    "hook": "ruff",
+    "context": "126 |     def _remove_member(self, member, is_keep_system_group=True):\n127 |         \"\"\"Remove member - does not remove system groups\"\"\"\n128 |         from .. import DomoGroup as dmg\n129 |\n130 |         # Check if we should keep system groups"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/subentity/membership.py",
+    "line": 145,
+    "column": 24,
+    "error_code": "N813",
+    "message": "Camelcase `DomoGroup` imported as lowercase `dmg`",
+    "hook": "ruff",
+    "context": "143 |     def _remove_owner(self, member, is_keep_system_group=True):\n144 |         \"\"\"Remove owner - does not remove system groups\"\"\"\n145 |         from .. import DomoGroup as dmg\n146 |\n147 |         # Check if we should keep system groups"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/subentity/membership.py",
+    "line": 167,
+    "column": 24,
+    "error_code": "N813",
+    "message": "Camelcase `DomoGroup` imported as lowercase `dmg`",
+    "hook": "ruff",
+    "context": "165 |         self, entity_ls, session: httpx.AsyncClient\n166 |     ):\n167 |         from .. import DomoGroup as dmg\n168 |\n169 |         return await dmce.gather_with_concurrency("
+  },
+  {
+    "file_path": "src/domolibrary2/classes/subentity/membership.py",
+    "line": 185,
+    "column": 24,
+    "error_code": "N813",
+    "message": "Camelcase `DomoUser` imported as lowercase `dmu`",
+    "hook": "ruff",
+    "context": "183 |         self, entity_ls, session: httpx.AsyncClient = None\n184 |     ):\n185 |         from .. import DomoUser as dmu\n186 |\n187 |         return await dmce.gather_with_concurrency("
+  },
+  {
+    "file_path": "src/domolibrary2/classes/subentity/membership.py",
+    "line": 509,
+    "column": 24,
+    "error_code": "N813",
+    "message": "Camelcase `DomoGroup` imported as lowercase `dmdg`",
+    "hook": "ruff",
+    "context": "507 |         session: httpx.AsyncClient = None,\n508 |     ):\n509 |         from .. import DomoGroup as dmdg\n510 |\n511 |         self._reset_obj()"
+  },
+  {
+    "file_path": "src/domolibrary2/classes/subentity/membership.py",
+    "line": 566,
+    "column": 24,
+    "error_code": "N813",
+    "message": "Camelcase `DomoGroup` imported as lowercase `dmg`",
+    "hook": "ruff",
+    "context": "564 |         session: httpx.AsyncClient = None,\n565 |     ):\n566 |         from .. import DomoGroup as dmg\n567 |\n568 |         domo_groups = dmg.DomoGroups(auth=self.auth)"
+  },
+  {
+    "file_path": "src/domolibrary2/integrations/Automation.py",
+    "line": 1,
+    "column": 1,
+    "error_code": "N999",
+    "message": "Invalid module name: 'Automation'",
+    "hook": "ruff",
+    "context": ""
+  },
+  {
+    "file_path": "src/domolibrary2/integrations/Automation.py",
+    "line": 17,
+    "column": 5,
+    "error_code": "N813",
+    "message": "Camelcase `DomoAccount` imported as lowercase `dmacc`",
+    "hook": "ruff",
+    "context": "16 | from ..classes import (\n17 |     DomoAccount as dmacc,\n18 |     DomoDataset as dmds,\n19 |     DomoGroup as dmdg,"
+  },
+  {
+    "file_path": "src/domolibrary2/integrations/Automation.py",
+    "line": 18,
+    "column": 5,
+    "error_code": "N813",
+    "message": "Camelcase `DomoDataset` imported as lowercase `dmds`",
+    "hook": "ruff",
+    "context": "16 | from ..classes import (\n17 |     DomoAccount as dmacc,\n18 |     DomoDataset as dmds,\n19 |     DomoGroup as dmdg,\n20 | )"
+  },
+  {
+    "file_path": "src/domolibrary2/integrations/Automation.py",
+    "line": 19,
+    "column": 5,
+    "error_code": "N813",
+    "message": "Camelcase `DomoGroup` imported as lowercase `dmdg`",
+    "hook": "ruff",
+    "context": "17 |     DomoAccount as dmacc,\n18 |     DomoDataset as dmds,\n19 |     DomoGroup as dmdg,\n20 | )\n21 | from ..client.auth import DomoAuth"
+  },
+  {
+    "file_path": "src/domolibrary2/integrations/RoleHierarchy.py",
+    "line": 1,
+    "column": 1,
+    "error_code": "N999",
+    "message": "Invalid module name: 'RoleHierarchy'",
+    "hook": "ruff",
+    "context": ""
+  },
+  {
+    "file_path": "src/domolibrary2/integrations/shortcut_fn.py",
+    "line": 7,
+    "column": 5,
+    "error_code": "N813",
+    "message": "Camelcase `DomoAccount` imported as lowercase `dmacc`",
+    "hook": "ruff",
+    "context": "6 | from ..classes import (\n7 |     DomoAccount as dmacc,\n8 |     DomoGroup as dmdg,\n9 | )"
+  },
+  {
+    "file_path": "src/domolibrary2/integrations/shortcut_fn.py",
+    "line": 8,
+    "column": 5,
+    "error_code": "N813",
+    "message": "Camelcase `DomoGroup` imported as lowercase `dmdg`",
+    "hook": "ruff",
+    "context": "6 | from ..classes import (\n7 |     DomoAccount as dmacc,\n8 |     DomoGroup as dmdg,\n9 | )\n10 | from ..client.auth import DomoAuth"
+  },
+  {
+    "file_path": "src/domolibrary2/routes/auth.py",
+    "line": 14,
+    "column": 5,
+    "error_code": "F822",
+    "message": "Undefined name `NoAccessTokenReturned` in `__all__`",
+    "hook": "ruff",
+    "context": "12 |     \"InvalidAuthTypeError\",\n13 |     \"InvalidInstanceError\",\n14 |     \"NoAccessTokenReturned\",\n15 |     \"get_full_auth\",\n16 |     \"get_developer_auth\","
+  },
+  {
+    "file_path": "src/domolibrary2/routes/datacenter/__init__.py",
+    "line": 14,
+    "column": 5,
+    "error_code": "F401",
+    "message": "`.exceptions.SearchDatacenterNoResultsFoundError` imported but unused; consider removing, adding to `__all__`, or using a redundant alias",
+    "hook": "ruff",
+    "context": "12 | from .exceptions import (\n13 |     DatacenterGetError,\n14 |     SearchDatacenterNoResultsFoundError,\n15 |     ShareResourceError,\n16 | )"
+  },
+  {
+    "file_path": "src/domolibrary2/routes/datacenter/__init__.py",
+    "line": 15,
+    "column": 5,
+    "error_code": "F401",
+    "message": "`.exceptions.ShareResourceError` imported but unused; consider removing, adding to `__all__`, or using a redundant alias",
+    "hook": "ruff",
+    "context": "13 |     DatacenterGetError,\n14 |     SearchDatacenterNoResultsFoundError,\n15 |     ShareResourceError,\n16 | )"
+  },
+  {
+    "file_path": "src/domolibrary2/routes/datacenter/__init__.py",
+    "line": 25,
+    "column": 1,
+    "error_code": "E402",
+    "message": "Module level import not at top of file",
+    "hook": "ruff",
+    "context": "23 |   # Import TypedDict\n24 |   # Import all enums\n25 | / from .core import (\n26 | |     Datacenter_Enum,\n27 | |     Datacenter_Filter_Field_Certification_Enum,\n28 | |     Datacenter_Filter_Field_Enum,\n29 | |     Dataflow_Type_Filter_Enum,\n30 | |     LineageNode,"
+  },
+  {
+    "file_path": "src/domolibrary2/routes/datacenter/core.py",
+    "line": 174,
+    "column": 5,
+    "error_code": "N803",
+    "message": "Argument name `combineResults` should be lowercase",
+    "hook": "ruff",
+    "context": "172 |     ) = \"DATASET\",  # can accept one entity_type or a list of entity_types\n173 |     additional_filters_ls: list[dict] | None = None,\n174 |     combineResults: bool = True,\n175 |     limit: int = 100,\n176 |     offset: int = 0,"
+  },
+  {
+    "file_path": "src/domolibrary2/routes/instance_config/api_client.py",
+    "line": 194,
+    "column": 15,
+    "error_code": "F821",
+    "message": "Undefined name `InvalidAuthType`",
+    "hook": "ruff",
+    "context": "192 |     \"\"\"\n193 |     if not isinstance(auth, DomoFullAuth):\n194 |         raise InvalidAuthType(\n195 |             message=f\"required auth type {DomoFullAuth.__class__.__name__}\"\n196 |         )"
+  },
+  {
+    "file_path": "src/domolibrary2/routes/instance_config/authorized_domains.py",
+    "line": 2,
+    "column": 5,
+    "error_code": "F822",
+    "message": "Undefined name `GetDomains_NotFound` in `__all__`",
+    "hook": "ruff",
+    "context": "1 | __all__ = [\n2 |     \"GetDomains_NotFound\",\n3 |     \"GetAppDomains_NotFound\",\n4 |     \"get_authorized_domains\","
+  },
+  {
+    "file_path": "src/domolibrary2/routes/instance_config/authorized_domains.py",
+    "line": 3,
+    "column": 5,
+    "error_code": "F822",
+    "message": "Undefined name `GetAppDomains_NotFound` in `__all__`",
+    "hook": "ruff",
+    "context": "1 | __all__ = [\n2 |     \"GetDomains_NotFound\",\n3 |     \"GetAppDomains_NotFound\",\n4 |     \"get_authorized_domains\",\n5 |     \"set_authorized_domains\","
+  },
+  {
+    "file_path": "src/domolibrary2/routes/instance_config/mfa.py",
+    "line": 81,
+    "column": 5,
+    "error_code": "N803",
+    "message": "Argument name `is_enable_MFA` should be lowercase",
+    "hook": "ruff",
+    "context": "79 | async def toggle_enable_mfa(\n80 |     auth: DomoAuth,\n81 |     is_enable_MFA: bool = False,\n82 |     session: httpx.AsyncClient | None = None,\n83 |     debug_api: bool = False,"
+  },
+  {
+    "file_path": "src/domolibrary2/routes/jupyter/exceptions.py",
+    "line": 9,
+    "column": 5,
+    "error_code": "F822",
+    "message": "Undefined name `SearchJupyterNotFoundError
+` in `__all__`","hook": "ruff",
+    "context": "7 | __all__ = [\n8 |     \"Jupyter_GET_Error\",\n9 |     \"SearchJupyterNotFoundError
+\",\n10 |     \"Jupyter_CRUD_Error\",\n11 |     \"JupyterWorkspace_Error\","
+  },
+  {
+    "file_path": "src/domolibrary2/routes/page/exceptions.py",
+    "line": 9,
+    "column": 5,
+    "error_code": "F822",
+    "message": "Undefined name `SearchPageNotFoundError` in `__all__`",
+    "hook": "ruff",
+    "context": "7 | __all__ = [\n8 |     \"Page_GET_Error\",\n9 |     \"SearchPageNotFoundError\",\n10 |     \"Page_CRUD_Error\",\n11 |     \"PageSharing_Error\","
+  },
+  {
+    "file_path": "src/domolibrary2/routes/pdp.py",
+    "line": 37,
+    "column": 5,
+    "error_code": "F822",
+    "message": "Undefined name `PDP_NotRetrieved` in `__all__`",
+    "hook": "ruff",
+    "context": "35 |     \"toggle_pdp\",\n36 |     # Legacy exports for backward compatibility\n37 |     \"PDP_NotRetrieved\",\n38 |     \"SearchPDP_Error\",\n39 |     \"CreatePolicy_Error\","
+  },
+  {
+    "file_path": "src/domolibrary2/routes/role.py",
+    "line": 2,
+    "column": 5,
+    "error_code": "F822",
+    "message": "Undefined name `Role_NotRetrieved` in `__all__`",
+    "hook": "ruff",
+    "context": "1 | __all__ = [\n2 |     \"Role_NotRetrieved\",\n3 |     \"Role_CRUD_Error\",\n4 |     \"get_roles\","
+  },
+  {
+    "file_path": "src/domolibrary2/routes/user/exceptions.py",
+    "line": 22,
+    "column": 5,
+    "error_code": "F822",
+    "message": "Undefined name `UserSharingError` in `__all__`",
+    "hook": "ruff",
+    "context": "20 |     \"User_CRUD_Error\",\n21 |     \"SearchUserNotFoundError\",\n22 |     \"UserSharingError\",\n23 |     \"DeleteUserError\",\n24 |     \"UserAttributes_GET_Error\","
+  },
+  {
+    "file_path": "src/domolibrary2/routes/user/exceptions.py",
+    "line": 26,
+    "column": 5,
+    "error_code": "F822",
+    "message": "Undefined name `ResetPasswordPasswordUsedError` in `__all__`",
+    "hook": "ruff",
+    "context": "24 |     \"UserAttributes_GET_Error\",\n25 |     \"UserAttributes_CRUD_Error\",\n26 |     \"ResetPasswordPasswordUsedError\",\n27 |     \"DownloadAvatar_Error\",\n28 | ]"
+  },
+  {
+    "file_path": "src/domolibrary2/utils/DictDot.py",
+    "line": 1,
+    "column": 1,
+    "error_code": "N999",
+    "message": "Invalid module name: 'DictDot'",
+    "hook": "ruff",
+    "context": ""
+  },
+  {
+    "file_path": "src/domolibrary2/utils/images.py",
+    "line": 58,
+    "column": 5,
+    "error_code": "N802",
+    "message": "Function name `isBase64` should be lowercase",
+    "hook": "ruff",
+    "context": "58 | def isBase64(s: Union[str, bytes]) -> bool:\n59 |     \"\"\"\n60 |     Check if a string or bytes object is valid base64."
+  },
+  {
+    "file_path": "src/domolibrary2/utils/logging/processors.py",
+    "line": 225,
+    "column": 13,
+    "error_code": "E722",
+    "message": "Do not use bare `except`",
+    "hook": "ruff",
+    "context": "223 |             try:\n224 |                 entity_info[\"additional_info\"][\"display_url\"] = entity.display_url\n225 |             except:\n226 |                 pass  # Some entities might not implement display_url"
+  },
+  {
+    "file_path": "src/domolibrary2/utils/read_creds_from_dotenv.py",
+    "line": 36,
+    "column": 15,
+    "error_code": "N813",
+    "message": "Camelcase `DictDot` imported as lowercase `utils_dd`",
+    "hook": "ruff",
+    "context": "34 | from dotenv import load_dotenv\n35 |\n36 | from . import DictDot as utils_dd\n37 | from .exceptions import CredentialsError"
+  },
+  {
+    "file_path": "src/postman/converter/models.py",
+    "line": 354,
+    "column": 5,
+    "error_code": "N815",
+    "message": "Variable `originalRequest` in class scope should not be mixedCase",
+    "hook": "ruff",
+    "context": "353 |     name: Optional[str] = None\n354 |     originalRequest: Optional[dict[str, Any]] = None\n355 |     status: Optional[str] = None\n356 |     code: Optional[int] = None"
+  },
+  {
+    "file_path": "src/postman/converter/test_models.py",
+    "line": 11,
+    "column": 13,
+    "error_code": "F401",
+    "message": "`models.PostmanAuth` imported but unused; consider using `importlib.util.find_spec` to test for availability",
+    "hook": "ruff",
+    "context": "9 |     try:\n10 |         from models import (\n11 |             PostmanAuth,\n12 |             PostmanCollection,\n13 |             PostmanCollectionInfo,"
+  },
+  {
+    "file_path": "src/postman/converter/test_models.py",
+    "line": 12,
+    "column": 13,
+    "error_code": "F401",
+    "message": "`models.PostmanCollection` imported but unused; consider using `importlib.util.find_spec` to test for availability",
+    "hook": "ruff",
+    "context": "10 |         from models import (\n11 |             PostmanAuth,\n12 |             PostmanCollection,\n13 |             PostmanCollectionInfo,\n14 |             PostmanEvent,"
+  },
+  {
+    "file_path": "src/postman/converter/test_models.py",
+    "line": 13,
+    "column": 13,
+    "error_code": "F401",
+    "message": "`models.PostmanCollectionInfo` imported but unused; consider using `importlib.util.find_spec` to test for availability",
+    "hook": "ruff",
+    "context": "11 |             PostmanAuth,\n12 |             PostmanCollection,\n13 |             PostmanCollectionInfo,\n14 |             PostmanEvent,\n15 |             PostmanFolder,"
+  },
+  {
+    "file_path": "src/postman/converter/test_models.py",
+    "line": 14,
+    "column": 13,
+    "error_code": "F401",
+    "message": "`models.PostmanEvent` imported but unused; consider using `importlib.util.find_spec` to test for availability",
+    "hook": "ruff",
+    "context": "12 |             PostmanCollection,\n13 |             PostmanCollectionInfo,\n14 |             PostmanEvent,\n15 |             PostmanFolder,\n16 |             PostmanQueryParam,"
+  },
+  {
+    "file_path": "src/postman/converter/test_models.py",
+    "line": 15,
+    "column": 13,
+    "error_code": "F401",
+    "message": "`models.PostmanFolder` imported but unused; consider using `importlib.util.find_spec` to test for availability",
+    "hook": "ruff",
+    "context": "13 |             PostmanCollectionInfo,\n14 |             PostmanEvent,\n15 |             PostmanFolder,\n16 |             PostmanQueryParam,\n17 |             PostmanRequest,"
+  },
+  {
+    "file_path": "src/postman/converter/test_models.py",
+    "line": 16,
+    "column": 13,
+    "error_code": "F401",
+    "message": "`models.PostmanQueryParam` imported but unused; consider using `importlib.util.find_spec` to test for availability",
+    "hook": "ruff",
+    "context": "14 |             PostmanEvent,\n15 |             PostmanFolder,\n16 |             PostmanQueryParam,\n17 |             PostmanRequest,\n18 |             PostmanRequest_Body,"
+  },
+  {
+    "file_path": "src/postman/converter/test_models.py",
+    "line": 17,
+    "column": 13,
+    "error_code": "F401",
+    "message": "`models.PostmanRequest` imported but unused; consider using `importlib.util.find_spec` to test for availability",
+    "hook": "ruff",
+    "context": "15 |             PostmanFolder,\n16 |             PostmanQueryParam,\n17 |             PostmanRequest,\n18 |             PostmanRequest_Body,\n19 |             PostmanRequest_Header,"
+  },
+  {
+    "file_path": "src/postman/converter/test_models.py",
+    "line": 18,
+    "column": 13,
+    "error_code": "F401",
+    "message": "`models.PostmanRequest_Body` imported but unused; consider using `importlib.util.find_spec` to test for availability",
+    "hook": "ruff",
+    "context": "16 |             PostmanQueryParam,\n17 |             PostmanRequest,\n18 |             PostmanRequest_Body,\n19 |             PostmanRequest_Header,\n20 |             PostmanResponse,"
+  },
+  {
+    "file_path": "src/postman/converter/test_models.py",
+    "line": 19,
+    "column": 13,
+    "error_code": "F401",
+    "message": "`models.PostmanRequest_Header` imported but unused; consider using `importlib.util.find_spec` to test for availability",
+    "hook": "ruff",
+    "context": "17 |             PostmanRequest,\n18 |             PostmanRequest_Body,\n19 |             PostmanRequest_Header,\n20 |             PostmanResponse,\n21 |             PostmanScript,"
+  },
+  {
+    "file_path": "src/postman/converter/test_models.py",
+    "line": 20,
+    "column": 13,
+    "error_code": "F401",
+    "message": "`models.PostmanResponse` imported but unused; consider using `importlib.util.find_spec` to test for availability",
+    "hook": "ruff",
+    "context": "18 |             PostmanRequest_Body,\n19 |             PostmanRequest_Header,\n20 |             PostmanResponse,\n21 |             PostmanScript,\n22 |             PostmanUrl,"
+  },
+  {
+    "file_path": "src/postman/converter/test_models.py",
+    "line": 21,
+    "column": 13,
+    "error_code": "F401",
+    "message": "`models.PostmanScript` imported but unused; consider using `importlib.util.find_spec` to test for availability",
+    "hook": "ruff",
+    "context": "19 |             PostmanRequest_Header,\n20 |             PostmanResponse,\n21 |             PostmanScript,\n22 |             PostmanUrl,\n23 |             PostmanVariable,"
+  },
+  {
+    "file_path": "src/postman/converter/test_models.py",
+    "line": 22,
+    "column": 13,
+    "error_code": "F401",
+    "message": "`models.PostmanUrl` imported but unused; consider using `importlib.util.find_spec` to test for availability",
+    "hook": "ruff",
+    "context": "20 |             PostmanResponse,\n21 |             PostmanScript,\n22 |             PostmanUrl,\n23 |             PostmanVariable,\n24 |         )"
+  },
+  {
+    "file_path": "src/postman/converter/test_models.py",
+    "line": 23,
+    "column": 13,
+    "error_code": "F401",
+    "message": "`models.PostmanVariable` imported but unused; consider using `importlib.util.find_spec` to test for availability",
+    "hook": "ruff",
+    "context": "21 |             PostmanScript,\n22 |             PostmanUrl,\n23 |             PostmanVariable,\n24 |         )"
+  },
+  {
+    "file_path": "src/postman/converter/validate_structure.py",
+    "line": 34,
+    "column": 8,
+    "error_code": "E721",
+    "message": "Use `is` and `is not` for type comparisons, or `isinstance()` for isinstance checks",
+    "hook": "ruff",
+    "context": "32 |     differences = []\n33 |\n34 |     if type(original) != type(reconstructed):\n35 |         differences.append(\n36 |             f\"Type mismatch at {path}: {type(original).__name__} != {type(reconstructed).__name__}\""
+  }
+]

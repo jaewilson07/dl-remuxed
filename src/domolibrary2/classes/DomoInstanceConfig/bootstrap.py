@@ -2,7 +2,6 @@ __all__ = ["DomoBootstrap_Feature", "DomoBootstrap"]
 
 
 from dataclasses import dataclass, field
-from typing import list
 
 import httpx
 
