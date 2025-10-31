@@ -40,7 +40,7 @@ async def main():
         domo_access_token=os.environ["DOMO_CHILD_ACCESS_TOKEN"],
     )
 
-    
+
 
     parent_auth = dmda.DomoTokenAuth(
         domo_instance=os.environ["DOMO_PARENT_INSTANCE"],
@@ -48,10 +48,10 @@ async def main():
     )
 
     child_card = await dmdc.DomoCard.get_by_id(card_id=os.environ["CHILD_CARD_ID"], auth=child_auth)
-    
+
     #pprint(child_card.Lineage.parent)
 
-    
+
     lineage = await child_card.Lineage.get(parent_auth=parent_auth)
 
     pprint(lineage)

@@ -368,7 +368,7 @@ class DomoPublication(DomoEntity_w_Lineage):
         # Lazy import to avoid circular imports
         if subscriber.__class__.__name__ == "FederatedDomoDataset":
             try:
-                from .DomoDataset.core import DomoDataset as PublisherDataset
+                from ..DomoDataset.core import DomoDataset as PublisherDataset
 
                 return await PublisherDataset.get_by_id(
                     dataset_id=publisher_obj_id,
