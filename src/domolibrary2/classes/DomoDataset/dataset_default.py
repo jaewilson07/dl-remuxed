@@ -115,19 +115,6 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
 
         self.Certification = dmdc.DomoCertification.from_parent(parent=self)
 
-        # Initialize Schedule from raw data if schedule information exists
-        # if self.raw and any(
-        #     key in self.raw
-        #     for key in [
-        #         "scheduleStartDate",
-        #         "scheduleExpression",
-        #         "advancedScheduleJson",
-        #     ]
-        # ):
-        #     self.Schedule = dmsched.DomoSchedule_Base.from_dict(
-        #         self.raw, auth=self.auth
-        #     )
-
         self.Relations = None
 
     @property

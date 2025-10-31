@@ -10,7 +10,7 @@ from ...routes import dataflow as dataflow_routes
 from ...utils import chunk_execution as dmce
 from ..DomoJupyter import Jupyter as dmdj
 from ..subentity import lineage as dmdl
-from ..subentity.trigger import DomoTriggerSettings
+from ..subentity.schedule import DomoTriggerSettings
 from .action import DomoDataflow_Action
 from .history import DomoDataflow_History
 
@@ -57,8 +57,8 @@ class DomoDataflow(DomoEntity_w_Lineage):
 
         # Initialize TriggerSettings if present in raw data
         if self.raw.get("triggerSettings"):
-            self.TriggerSettings = DomoTriggerSettings.from_dict(
-                self.raw["triggerSettings"], parent=self
+            self.TriggerSettings = DomoTriggerSettings.from_parent(
+                parent=self, obj=self.raw["triggerSettings"]
             )
 
     @classmethod
@@ -176,8 +176,6 @@ class DomoDataflow(DomoEntity_w_Lineage):
         debug_num_stacks_to_drop: int = 2,
         session: httpx.AsyncClient = None,
     ):
-        from . import DomoJupyter as dmdj
-
         res = await dataflow_routes.search_dataflows_to_jupyter_workspaces(
             auth=self.auth,
             dataflow_id=self.id,
