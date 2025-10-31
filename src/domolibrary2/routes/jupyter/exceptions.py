@@ -6,7 +6,7 @@ This module contains all exception classes for Jupyter workspace operations.
 
 __all__ = [
     "Jupyter_GET_Error",
-    "SearchJupyter_NotFound",
+    "SearchJupyterNotFoundError",
     "Jupyter_CRUD_Error",
     "JupyterWorkspace_Error",
 ]
@@ -34,7 +34,7 @@ class Jupyter_GET_Error(RouteError):
         )
 
 
-class SearchJupyter_NotFound(RouteError):
+class SearchJupyterNotFoundError(RouteError):
     """Raised when Jupyter workspace search operations return no results."""
 
     def __init__(

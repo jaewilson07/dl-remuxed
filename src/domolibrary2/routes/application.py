@@ -21,13 +21,13 @@ Functions:
 
 Exception Classes:
     Application_GET_Error: Raised when application retrieval fails
-    SearchApplication_NotFound: Raised when application search returns no results
+    SearchApplication_NotFound_Error: Raised when application search returns no results
     Application_CRUD_Error: Raised when application create/update/delete operations fail
 """
 
 __all__ = [
     "Application_GET_Error",
-    "SearchApplication_NotFound",
+    "SearchApplication_NotFound_Error",
     "Application_CRUD_Error",
     "get_applications",
     "get_application_by_id",
@@ -80,7 +80,7 @@ class Application_GET_Error(RouteError):
         super().__init__(message=message, entity_id=entity_id, res=res, **kwargs)
 
 
-class SearchApplication_NotFound(RouteError):
+class SearchApplication_NotFound_Error(RouteError):
     """
     Raised when application search operations return no results.
 
@@ -102,7 +102,7 @@ class SearchApplication_NotFound(RouteError):
         )
 
 
-class ApplicationError_NoJobRetrieved(RouteError):
+class ApplicationNoJobRetrievedError(RouteError):
     def __init__(
         self,
         res: rgd.ResponseGetData,
@@ -149,7 +149,7 @@ class Application_CRUD_Error(RouteError):
 @gd.route_function
 async def get_applications(
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -208,7 +208,7 @@ async def get_applications(
 async def get_application_by_id(
     auth: DomoAuth,
     application_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -233,7 +233,7 @@ async def get_application_by_id(
 
     Raises:
         Application_GET_Error: If application retrieval fails
-        SearchApplication_NotFound: If no application with the specified ID exists
+    SearchApplication_NotFound_Error: If no application with the specified ID exists
 
     Example:
         >>> app_response = await get_application_by_id(auth, "app-123")
@@ -260,15 +260,15 @@ async def get_application_by_id(
 
     if not res.is_success:
         if res.status == 404:
-            raise SearchApplication_NotFound(
+            raise SearchApplication_NotFound_Error(
                 search_criteria=f"ID: {application_id}",
                 res=res,
             )
-        else:
-            raise Application_GET_Error(
-                entity_id=application_id,
-                res=res,
-            )
+
+        raise Application_GET_Error(
+            entity_id=application_id,
+            res=res,
+        )
 
     return res
 
@@ -302,7 +302,7 @@ async def get_application_jobs(
     )
 
     if not res.is_success:
-        raise ApplicationError_NoJobRetrieved(
+        raise ApplicationNoJobRetrievedError(
             res=res,
             application_id=application_id,
         )

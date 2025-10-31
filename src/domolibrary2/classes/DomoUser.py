@@ -8,12 +8,12 @@ __all__ = [
     # User Route Exceptions
     "User_GET_Error",
     "User_CRUD_Error",
-    "SearchUser_NotFound",
+    "SearchUserNotFoundError",
     "UserSharing_Error",
-    "DeleteUser_Error",
+    "DeleteUserError",
     "UserAttributes_GET_Error",
     "UserAttributes_CRUD_Error",
-    "ResetPassword_PasswordUsed",
+    "ResetPasswordPasswordUsedError",
     "DownloadAvatar_Error",
 ]
 
@@ -34,10 +34,10 @@ from ..routes import user as user_routes
 from ..routes.instance_config import sso as sso_routes
 from ..routes.user import UserProperty
 from ..routes.user.exceptions import (
-    DeleteUser_Error,
+    DeleteUserError,
     DownloadAvatar_Error,
-    ResetPassword_PasswordUsed,
-    SearchUser_NotFound,
+    ResetPasswordPasswordUsedError,
+    SearchUserNotFoundError,
     User_CRUD_Error,
     User_GET_Error,
     UserAttributes_CRUD_Error,
@@ -200,7 +200,7 @@ class DomoUser(DomoEntity):
         self: "DomoUser",
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ):
         from .DomoInstanceConfig.role import DomoRole
 
@@ -222,7 +222,7 @@ class DomoUser(DomoEntity):
         return_raw: bool = False,
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ):
         """Retrieve a Domo user by ID.
 
@@ -320,7 +320,7 @@ class DomoUser(DomoEntity):
         return_raw: bool = False,
         auth: Optional[DomoAuth] = None,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ):
         auth = auth or self.auth
 
@@ -378,7 +378,7 @@ class DomoUser(DomoEntity):
         send_password_reset_email: bool = False,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ):
         """class method that creates a new Domo user"""
 
@@ -421,7 +421,7 @@ class DomoUser(DomoEntity):
     async def delete(
         self,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop=2,
         parent_class=None,
     ):
@@ -440,7 +440,7 @@ class DomoUser(DomoEntity):
         self: "DomoUser",
         new_password: str,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop: int = 2,
     ):
         """reset your password, will respect password restrictions set up in the Domo UI"""
@@ -466,7 +466,7 @@ class DomoUser(DomoEntity):
         email: str,
         locale: str = "en-us",
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop: int = 2,
     ):
         """request password reset email.  Note: does not require authentication."""
@@ -485,7 +485,7 @@ class DomoUser(DomoEntity):
         self,
         avatar: Image.Image,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         return_raw: bool = False,
     ):
         avatar = ImageUtils.crop_square(avatar)
@@ -511,7 +511,7 @@ class DomoUser(DomoEntity):
         self,
         avatar: Image.Image,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         return_raw: bool = False,
     ):
         avatar = ImageUtils.crop_square(avatar)
@@ -538,7 +538,7 @@ class DomoUser(DomoEntity):
     async def toggle_direct_signon_access(
         self: "DomoUser",
         is_enable_direct_signon: bool = True,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
     ):
@@ -557,7 +557,7 @@ class DomoUser(DomoEntity):
     async def get_api_clients(
         self,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop=2,
         return_raw: bool = False,
     ):
@@ -603,7 +603,7 @@ class DomoUser(DomoEntity):
         self,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         return_raw: bool = False,
     ):
         from .DomoInstanceConfig import access_token as dmat
@@ -682,7 +682,7 @@ class DomoUsers(DomoManager):
         return_raw: bool = False,
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         **kwargs,
     ) -> list[DomoUser]:
         """retrieves all users from Domo"""
@@ -709,7 +709,7 @@ class DomoUsers(DomoManager):
         debug_num_stacks_to_drop=2,
         return_raw: bool = False,
         suppress_no_results_error: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ) -> Union[list[DomoUser], DomoUser, ResponseGetData, bool]:
         emails = [email] if isinstance(email, str) else email
 
@@ -724,7 +724,7 @@ class DomoUsers(DomoManager):
                 session=session,
             )
 
-        except SearchUser_NotFound as e:
+        except SearchUserNotFoundError as e:
             if suppress_no_results_error:
                 return []
 
@@ -757,7 +757,7 @@ class DomoUsers(DomoManager):
         debug_num_stacks_to_drop=2,
         debug_api: bool = False,
         return_raw: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ) -> Union[list[DomoUser], DomoUser, ResponseGetData, bool]:
         res = None
 
@@ -772,7 +772,7 @@ class DomoUsers(DomoManager):
                 session=session,
             )
 
-        except SearchUser_NotFound as e:
+        except SearchUserNotFoundError as e:
             if suppress_no_results_error:
                 print(e)
 
@@ -819,7 +819,7 @@ class DomoUsers(DomoManager):
         role: Optional[Any] = None,  # DomoRole
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ) -> DomoUser:
         """Upsert a Domo user - update if exists, create if not.
 
@@ -879,7 +879,7 @@ class DomoUsers(DomoManager):
                 )
             return domo_user
 
-        except (SearchUser_NotFound, DomoUser_NoSearchError):
+        except (SearchUserNotFoundError, DomoUser_NoSearchError):
             # User doesn't exist, create new one
 
             await logger.info("User not found, creating new user.")

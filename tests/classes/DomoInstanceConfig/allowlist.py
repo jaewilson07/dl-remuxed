@@ -28,15 +28,15 @@ import os
 import pytest
 from dotenv import load_dotenv
 
-import domolibrary2.classes.DomoInstanceConfig.Allowlist as allowlist_module
+import domolibrary2.classes.DomoInstanceConfig.allowlist as allowlist_module
 import domolibrary2.client.auth as dmda
 
-load_dotenv()
+assert load_dotenv()
 
 # Setup authentication for tests
 token_auth = dmda.DomoTokenAuth(
-    domo_instance=os.environ.get("DOMO_INSTANCE", ""),
-    domo_access_token=os.environ.get("DOMO_ACCESS_TOKEN", ""),
+    domo_instance=os.environ["DOMO_INSTANCE"],
+    domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],
 )
 
 
@@ -44,7 +44,9 @@ token_auth = dmda.DomoTokenAuth(
 async def test_cell_0(token_auth=token_auth):
     """Test authentication setup"""
     assert token_auth.domo_instance, "DOMO_INSTANCE environment variable not set"
-    assert token_auth.domo_access_token, "DOMO_ACCESS_TOKEN environment variable not set"
+    assert (
+        token_auth.domo_access_token
+    ), "DOMO_ACCESS_TOKEN environment variable not set"
     return token_auth
 
 

@@ -1,6 +1,6 @@
 import os
 from dataclasses import dataclass, field
-from typing import Optional, list
+from typing import Optional
 from urllib.parse import urljoin, urlparse
 
 from .. import utils
@@ -176,7 +176,7 @@ class PostmanRequestConverter:
         """Build headers dictionary from this PostmanRequest, optionally filtered by required headers.
 
         Args:
-            required_headers (Optional[list[str]]): list of header keys to include. If None, all headers are included.
+            required_headers (Optional[List[str]]): List of header keys to include. If None, all headers are included.
 
         Returns:
             Dict[str, str]: Dictionary of headers
@@ -223,8 +223,8 @@ class PostmanRequestConverter:
         """Build query parameters dictionary from this PostmanRequest.
 
         Args:
-            default_params (Optional[list[str]]): list of parameter keys that must be included. If None, all parameters are included.
-            ignored_params (Optional[list[str]]): list of parameter keys that should be excluded. If None, no parameters are excluded.
+            default_params (Optional[List[str]]): List of parameter keys that must be included. If None, all parameters are included.
+            ignored_params (Optional[List[str]]): List of parameter keys that should be excluded. If None, no parameters are excluded.
 
         Returns:
             Dict[str, str]: Dictionary of query parameters
@@ -257,7 +257,7 @@ class PostmanRequestConverter:
         """Build the request code for a function.
 
         Args:
-            default_params (Optional[list[str]]): list of parameters to expose as function arguments
+            default_params (Optional[List[str]]): List of parameters to expose as function arguments
 
         Returns:
             str: The request code as a string
@@ -375,7 +375,7 @@ class PostmanRequestConverter:
         Args:
             func_name (Optional[str]): Name of the function to test.
                 If None, uses the converter's function_name.
-            default_params (Optional[list[str]]): list of parameters
+            default_params (Optional[List[str]]): List of parameters
                 exposed as function arguments.
 
         Returns:
@@ -468,7 +468,7 @@ class PostmanCollectionConverter:
             postman_path (str): Path to the Postman collection file
             export_folder (str): Folder to export the generated files to
             customize (Optional[Dict[str, Dict]]): Customization options for functions
-            required_headers (Optional[list[str]]): list of header keys to include
+            required_headers (Optional[List[str]]): List of header keys to include
 
         Returns:
             PostmanCollectionConverter: Converter instance for the collection
@@ -510,7 +510,7 @@ class PostmanCollectionConverter:
             include_original_json (bool): Whether to include original Postman JSON in generated functions. Defaults to False.
 
         Returns:
-            list[PostmanRequestConverter]: list of converters used to generate the files
+            List[PostmanRequestConverter]: List of converters used to generate the files
         """
 
         for request in self.collection.requests:

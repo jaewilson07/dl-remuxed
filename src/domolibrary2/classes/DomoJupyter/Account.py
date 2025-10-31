@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 __all__ = [
-    "DJW_PermissionToAccountDenied",
-    "DJW_AccountInvalid_NotAddedToWorkspace",
+    "DJW_PermissionToAccountDeniedError",
+    "DJW_AccountInvalid_NotAddedToWorkspaceError",
     "read_domo_jupyter_account",
     "DomoJupyter_Account",
-    "DJW_InvalidClass",
+    "DJW_InvalidClassError",
 ]
 
 
@@ -16,18 +16,19 @@ from typing import Any, Callable
 import httpx
 
 from ...client import exceptions as dmde
+from ...client.auth import DomoAuth
 from ...utils import xkcd_password as dmxkcd
 from . import Account as dmac
 
 DomoError = dmde.DomoError
 
 
-class DJW_PermissionToAccountDenied(DomoError):
+class DJW_PermissionToAccountDeniedError(DomoError):
     def __init__(self, message, account_name):
         super().__init__(message=message, entity_id=account_name)
 
 
-class DJW_AccountInvalid_NotAddedToWorkspace(DomoError):
+class DJW_AccountInvalid_NotAddedToWorkspaceError(DomoError):
     def __init__(self, message, account_name):
         super().__init__(message=message, entity_id=account_name)
 
@@ -43,14 +44,14 @@ def read_domo_jupyter_account(
 
     except Exception as e:
         if str(e).startswith("Permissions denied for workspace"):
-            raise DJW_PermissionToAccountDenied(
+            raise DJW_PermissionToAccountDeniedError(
                 message=f"share account with user - {e}", account_name=account_name
             ) from e
 
         if str(e).startswith(
             "Failed to obtain workspace account properties for workspace"
         ):
-            raise DJW_AccountInvalid_NotAddedToWorkspace(
+            raise DJW_AccountInvalid_NotAddedToWorkspaceError(
                 message=f"add account to workspace - {e}", account_name=account_name
             ) from e
 
@@ -359,6 +360,6 @@ class DomoJupyter_Account:
         return self.domo_account
 
 
-class DJW_InvalidClass(dmde.ClassError):
+class DJW_InvalidClassError(dmde.ClassError):
     def __init__(self, cls_instance, message):
         super().__init__(cls_instance=cls_instance, message=message)

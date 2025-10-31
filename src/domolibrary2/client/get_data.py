@@ -96,7 +96,7 @@ async def get_data(
     body: dict | list | str | None = None,
     params: dict = None,
     debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
     is_follow_redirects: bool = False,
     timeout: int = 20,
@@ -223,7 +223,7 @@ async def get_data_stream(
     parent_class: Optional[str] = None,  # name of the parent calling class
     num_stacks_to_drop: int = 2,  # number of stacks to drop from the stack trace.  see `domolibrary.client.Logger.TracebackDetails`.  use 2 with class > route structure.  use 1 with route based approach
     debug_traceback: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     is_verify: bool = False,
     is_follow_redirects: bool = True,
 ) -> rgd.ResponseGetData:
@@ -355,7 +355,7 @@ class LooperError(DomoError):
 @log_call(action_name="looper", level_name="client")
 async def looper(
     auth: dmda.DomoAuth,
-    session: Optional[httpx.AsyncClient],
+    session: httpx.AsyncClient | None,
     url,
     offset_params,
     arr_fn: Callable,
@@ -555,7 +555,7 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
         parent_class: Optional[str] = None,
         debug_num_stacks_to_drop: int = 1,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         **kwargs: Any,
     ) -> Any:
         result = await func(

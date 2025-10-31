@@ -13,7 +13,7 @@ Or set environment variable:
 import argparse
 import os
 from datetime import datetime
-from typing import Any, list
+from typing import Any
 
 import requests
 

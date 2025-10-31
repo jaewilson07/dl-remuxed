@@ -6,24 +6,24 @@ This module contains all exception classes used by user route functions.
 Exception Classes:
     User_GET_Error: Raised when user retrieval operations fail
     User_CRUD_Error: Raised when user create/update/delete operations fail
-    SearchUser_NotFound: Raised when user search returns no results
-    UserSharing_Error: Raised when user sharing operations fail
-    DeleteUser_Error: Raised when user deletion operations fail
+    SearchUserNotFoundError: Raised when user search returns no results
+    UserSharingError: Raised when user sharing operations fail
+    DeleteUserError: Raised when user deletion operations fail
     UserAttributes_GET_Error: Raised when user attribute retrieval fails
     UserAttributes_CRUD_Error: Raised when user attribute create/update/delete fails
-    ResetPassword_PasswordUsed: Raised when password was previously used
+    ResetPasswordPasswordUsedError: Raised when password was previously used
     DownloadAvatar_Error: Raised when avatar download fails
 """
 
 __all__ = [
     "User_GET_Error",
     "User_CRUD_Error",
-    "SearchUser_NotFound",
+    "SearchUserNotFoundError",
     "UserSharing_Error",
-    "DeleteUser_Error",
+    "DeleteUserError",
     "UserAttributes_GET_Error",
     "UserAttributes_CRUD_Error",
-    "ResetPassword_PasswordUsed",
+    "ResetPasswordPasswordUsedError",
     "DownloadAvatar_Error",
 ]
 
@@ -63,7 +63,7 @@ class User_CRUD_Error(RouteError):
         super().__init__(res=res, entity_id=user_id, message=message, **kwargs)
 
 
-class SearchUser_NotFound(RouteError):
+class SearchUserNotFoundError(RouteError):
     """Raised when user search operations return no results."""
 
     def __init__(self, search_criteria: str, res=None, message: str = None, **kwargs):
@@ -88,7 +88,7 @@ class UserSharing_Error(RouteError):
         super().__init__(res=res, entity_id=user_id, message=message, **kwargs)
 
 
-class DeleteUser_Error(RouteError):
+class DeleteUserError(RouteError):
     """Raised when user deletion operations fail."""
 
     def __init__(
@@ -133,7 +133,7 @@ class UserAttributes_CRUD_Error(RouteError):
         super().__init__(res=res, entity_id=attribute_id, message=message, **kwargs)
 
 
-class ResetPassword_PasswordUsed(RouteError):
+class ResetPasswordPasswordUsedError(RouteError):
     """Raised when attempting to reset password to a previously used password."""
 
     def __init__(

@@ -115,7 +115,7 @@ async def get_user_attributes(
     issuer_type_ls: Optional[
         list[UserAttributes_IssuerType]
     ] = None,  # use `UserAttributes_IssuerType` enum
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
@@ -180,7 +180,7 @@ async def get_user_attributes(
 async def get_user_attribute_by_id(
     auth: DomoAuth,
     attribute_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
@@ -242,7 +242,7 @@ async def create_user_attribute(
     data_type: Optional[str] = None,
     security_voter: Optional[str] = None,
     issuer_type: Optional[UserAttributes_IssuerType] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
@@ -327,7 +327,7 @@ async def update_user_attribute(
     issuer_type: UserAttributes_IssuerType = UserAttributes_IssuerType.CUSTOM,
     data_type: Optional[str] = None,
     security_voter: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
@@ -418,7 +418,7 @@ async def update_user_attribute(
 async def delete_user_attribute(
     auth: DomoAuth,
     attribute_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,

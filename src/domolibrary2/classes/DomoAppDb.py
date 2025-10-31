@@ -137,7 +137,7 @@ class AppDbDocument(DomoEntity):
         self,
         content: Optional[dict] = None,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop=1,
         return_raw: bool = False,
     ):
@@ -166,7 +166,7 @@ class AppDbDocument(DomoEntity):
         collection_id,
         content: dict,
         identity_columns: list[str],
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api=False,
         debug_num_stacks_to_drop=3,
         return_raw: bool = False,
@@ -579,7 +579,7 @@ class AppDbCollections:
         auth: DomoAuth,
         datastore_id: Optional[str] = None,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop=1,
         return_raw: bool = False,
     ):

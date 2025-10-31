@@ -18,7 +18,7 @@ async def function_name(
     auth: DomoAuth,  # Always first
     entity_id: str,  # Entity parameters next
     # ... operation-specific params
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,

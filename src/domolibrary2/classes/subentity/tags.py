@@ -4,7 +4,6 @@ __all__ = ["DomoTags_SetTagsError", "DomoTags"]
 
 import json
 from dataclasses import dataclass, field
-from typing import Optional, list
 
 import httpx
 
@@ -29,7 +28,7 @@ class DomoTags(DomoSubEntity):
 
     async def get(
         self,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
     ) -> list[str]:  # returns a list of tags
         """gets the existing list of dataset_tags"""
@@ -49,7 +48,7 @@ class DomoTags(DomoSubEntity):
     async def update(
         self,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ) -> list[str]:  # returns a list of tags
         """replaces all tags with a new list of dataset_tags"""
 
@@ -69,7 +68,7 @@ class DomoTags(DomoSubEntity):
         self,
         add_tags: list[str],
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ) -> list[str]:  # returns a list of tags
         """appends tags to the list of existing dataset_tags"""
 
@@ -88,7 +87,7 @@ class DomoTags(DomoSubEntity):
         self,
         remove_tags: list[str],
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ) -> list[str]:  # returns a list of tags
         """removes tags from the existing list of dataset_tags"""
 

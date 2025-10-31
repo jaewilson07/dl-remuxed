@@ -45,8 +45,8 @@ from ...utils import (
 from ...utils.convert import test_valid_email
 from ...utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 from .exceptions import (
-    DeleteUser_Error,
-    SearchUser_NotFound,
+    DeleteUserError,
+    SearchUserNotFoundError,
     User_CRUD_Error,
     User_GET_Error,
 )
@@ -81,7 +81,7 @@ def process_v1_search_users(
 )
 async def get_all_users(
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -152,7 +152,7 @@ async def search_users(
     debug_loop: bool = False,
     debug_num_stacks_to_drop=1,
     parent_class=None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ) -> rgd.ResponseGetData:
     """Search users with flexible criteria using the v1 users search API.
 
@@ -175,7 +175,7 @@ async def search_users(
 
     Raises:
         User_GET_Error: If search request fails
-        SearchUser_NotFound: If no users found and suppress_no_results_error is False
+        SearchUserNotFoundError: If no users found and suppress_no_results_error is False
     """
     url = f"https://{auth.domo_instance}.domo.com/api/identity/v1/users/search"
 
@@ -213,7 +213,7 @@ async def search_users(
         raise User_GET_Error(res=res)
 
     if not suppress_no_results_error and len(res.response) == 0:
-        raise SearchUser_NotFound(search_criteria=str(body), res=res)
+        raise SearchUserNotFoundError(search_criteria=str(body), res=res)
 
     res.response = process_v1_search_users(res.response)
 
@@ -236,7 +236,7 @@ async def search_users_by_id(
     suppress_no_results_error: bool = False,
     debug_num_stacks_to_drop=2,
     parent_class=None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ) -> rgd.ResponseGetData:  # ResponseGetData with user list
     """Search for users by their IDs using the v1 users search API.
 
@@ -255,7 +255,7 @@ async def search_users_by_id(
 
     Raises:
         User_GET_Error: If search request fails
-        SearchUser_NotFound: If no users found and suppress_no_results_error is False
+        SearchUserNotFoundError: If no users found and suppress_no_results_error is False
     """
 
     user_cn = dmce.chunk_list(user_ids, 1000)
@@ -329,7 +329,7 @@ async def search_users_by_email(
     suppress_no_results_error: bool = False,
     debug_num_stacks_to_drop=2,
     parent_class=None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ) -> rgd.ResponseGetData:  # ResponseGetData with user list
     """Search for users by their email addresses using the v1 users search API.
 
@@ -348,7 +348,7 @@ async def search_users_by_email(
 
     Raises:
         User_GET_Error: If search request fails
-        SearchUser_NotFound: If no users found and suppress_no_results_error is False
+        SearchUserNotFoundError: If no users found and suppress_no_results_error is False
 
     Note:
         Search does not appear to be case sensitive
@@ -414,7 +414,7 @@ async def _get_by_id(
     auth: DomoAuth,
     debug_api: bool = False,
     return_raw: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_num_stacks_to_drop=1,
     parent_class=None,
 ):
@@ -469,7 +469,7 @@ async def _get_by_id(
         return res_v2
 
     if res_v2.status == 200 and res_v2.response == "":
-        raise SearchUser_NotFound(
+        raise SearchUserNotFoundError(
             search_criteria=f"user_id {user_id} not found", res=res_v2
         )
 
@@ -477,7 +477,7 @@ async def _get_by_id(
         raise User_GET_Error(res=res_v2)
 
     if res_v3.status == 404 and res_v3.response == "Not Found":
-        raise SearchUser_NotFound(
+        raise SearchUserNotFoundError(
             res=res_v3,
             search_criteria=f"user_id {user_id} not found",
         )
@@ -514,7 +514,7 @@ async def get_by_id(
     auth: DomoAuth,
     debug_api: bool = False,
     return_raw: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_num_stacks_to_drop=1,
     parent_class=None,
     is_v2: bool = True,
@@ -536,7 +536,7 @@ async def get_by_id(
 
     Raises:
         User_GET_Error: If user retrieval fails
-        SearchUser_NotFound: If user with specified ID doesn't exist
+        SearchUserNotFoundError: If user with specified ID doesn't exist
     """
     if not is_v2:
         return await _get_by_id(
@@ -581,7 +581,7 @@ async def search_virtual_user_by_subscriber_instance(
     debug_api: bool = False,  # debug API requests
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:  # list of virtual domo users
     """Retrieve virtual users for subscriber instances tied to one publisher.
@@ -645,7 +645,7 @@ async def create_user(
     email_address: str,
     role_id: int,
     debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
     return_raw: bool = False,
@@ -722,7 +722,7 @@ async def delete_user(
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Delete a user from the Domo instance.
@@ -740,7 +740,7 @@ async def delete_user(
         ResponseGetData object confirming user deletion
 
     Raises:
-        DeleteUser_Error: If user deletion fails
+        DeleteUserError: If user deletion fails
     """
     url = f"https://{auth.domo_instance}.domo.com/api/identity/v1/users/{user_id}"
 
@@ -761,7 +761,7 @@ async def delete_user(
         return res
 
     if not res.is_success:
-        raise DeleteUser_Error(res=res)
+        raise DeleteUserError(res=res)
 
     return res
 
@@ -774,7 +774,7 @@ async def toggle_is_enable_user_direct_signon(
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Manage direct sign-on permissions for users.

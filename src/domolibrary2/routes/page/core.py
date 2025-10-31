@@ -26,7 +26,7 @@ from ...client import (
 )
 from ...client.auth import DomoAuth
 from ...utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
-from .exceptions import Page_GET_Error, SearchPage_NotFound
+from .exceptions import Page_GET_Error, SearchPageNotFoundError
 
 
 @gd.route_function
@@ -44,7 +44,7 @@ async def get_pages_adminsummary(
     body: Optional[dict] = None,
     limit: int = 35,
     debug_loop: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -131,7 +131,7 @@ async def get_page_by_id(
     auth: DomoAuth,
     page_id: str,
     include_layout: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -154,7 +154,7 @@ async def get_page_by_id(
 
     Raises:
         Page_GET_Error: If page retrieval fails
-        SearchPage_NotFound: If page with specified ID doesn't exist
+        SearchPageNotFoundError: If page with specified ID doesn't exist
     """
 
     # 9/21/2023 - the domo UI uses /cards to get page info
@@ -178,7 +178,7 @@ async def get_page_by_id(
 
     if not res.is_success:
         if res.status == 404:
-            raise SearchPage_NotFound(
+            raise SearchPageNotFoundError(
                 search_criteria=f"page_id: {page_id}",
                 res=res,
             )
@@ -205,7 +205,7 @@ async def get_page_by_id(
 async def get_page_definition(
     auth: DomoAuth,
     page_id: int | str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -227,7 +227,7 @@ async def get_page_definition(
 
     Raises:
         Page_GET_Error: If page definition retrieval fails
-        SearchPage_NotFound: If page with specified ID doesn't exist
+        SearchPageNotFoundError: If page with specified ID doesn't exist
     """
     url = f"https://{auth.domo_instance}.domo.com/api/content/v3/stacks/{page_id}/cards"
 
@@ -252,7 +252,7 @@ async def get_page_definition(
 
     if not res.is_success:
         if res.status == 404:
-            raise SearchPage_NotFound(
+            raise SearchPageNotFoundError(
                 search_criteria=f"page_id: {page_id}",
                 res=res,
             )

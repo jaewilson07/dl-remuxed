@@ -65,7 +65,7 @@ async def get_workflow(
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/workflow/v1/models/{model_id}/versions/{version_id}"
     res = await gd.get_data(
@@ -105,7 +105,7 @@ async def trigger_workflow(
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ) -> rgd.ResponseGetData:
     body = generate_trigger_workflow_body(
         starting_tile=starting_tile,
@@ -140,7 +140,7 @@ async def get_workflow_trigger_history(
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/workflow/v2/executions/{model_id}"
 
@@ -168,7 +168,7 @@ async def get_workflow_executions(
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ) -> rgd.ResponseGetData:
     params = {
         "modelId": model_id,

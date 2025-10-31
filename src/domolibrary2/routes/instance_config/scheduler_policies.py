@@ -137,7 +137,7 @@ class SearchSchedulerPolicy_NotFound_Error(Config_GET_Error):  # noqa: N801
 @gd.route_function
 async def get_scheduler_policies(
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -199,7 +199,7 @@ async def get_scheduler_policies(
 async def get_scheduler_policy_by_id(
     auth: DomoAuth,
     policy_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -261,7 +261,7 @@ async def get_scheduler_policy_by_id(
 async def create_scheduler_policy(
     auth: DomoAuth,
     create_body: dict[str, Any],
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -345,7 +345,7 @@ async def update_scheduler_policy(
     auth: DomoAuth,
     policy_id: str,
     update_body: dict[str, Any],
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -401,7 +401,7 @@ async def update_scheduler_policy(
 async def delete_scheduler_policy(
     auth: DomoAuth,
     policy_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,

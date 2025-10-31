@@ -155,6 +155,7 @@ class DomoBase(abc.ABC):
         return {
             convert_snake_to_pascal(field.name): getattr(self, field.name)
             for field in fields(self)
+            if getattr(self, field.name) is not None
         }
 
 
@@ -513,7 +514,7 @@ class Entity_Relation:
     #     user_id: str,
     #     relation_type: str,
     #     auth: dmda.DomoAuth,
-    #     session: Optional[httpx.AsyncClient] = None,
+    #     session: httpx.AsyncClient | None = None,
     #     debug_api: bool = False,
     #     debug_num_stacks_to_drop: int = 2,
     # ):
@@ -523,7 +524,7 @@ class Entity_Relation:
     #         user_id (str): Unique identifier of the user
     #         relation_type (str): Type of relationship (e.g., 'OWNER', 'MEMBER')
     #         auth (DomoAuth): Authentication object for API requests
-    #         session (Optional[httpx.AsyncClient]): HTTP client session
+    #         session (httpx.AsyncClient | None): HTTP client session
     #         debug_api (bool): Enable API debugging
     #         debug_num_stacks_to_drop (int): Stack frames to drop for debugging
 
@@ -555,7 +556,7 @@ class Entity_Relation:
     #     group_id: str,
     #     relation_type: str,
     #     auth: dmda.DomoAuth,
-    #     session: Optional[httpx.AsyncClient] = None,
+    #     session: httpx.AsyncClient | None = None,
     #     debug_api: bool = False,
     #     debug_num_stacks_to_drop: int = 2,
     # ):
@@ -565,7 +566,7 @@ class Entity_Relation:
     #         group_id (str): Unique identifier of the group
     #         relation_type (str): Type of relationship (e.g., 'MEMBER', 'ADMIN')
     #         auth (DomoAuth): Authentication object for API requests
-    #         session (Optional[httpx.AsyncClient]): HTTP client session
+    #         session (httpx.AsyncClient | None): HTTP client session
     #         debug_api (bool): Enable API debugging
     #         debug_num_stacks_to_drop (int): Stack frames to drop for debugging
 

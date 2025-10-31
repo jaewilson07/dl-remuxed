@@ -1,17 +1,13 @@
 """a class based approach for interacting with Domo Datasets"""
 
 __all__ = [
-    "DomoDataset_Default",
-    "FederatedDomoDataset",
-    "DomoPublishDataset",
-    "DomoDataset",
+    "DomoDataset_Data",
 ]
 
 
 import asyncio
 import io
 from dataclasses import dataclass
-from typing import Optional, list
 
 import httpx
 import pandas as pd
@@ -33,7 +29,7 @@ class DomoDataset_Data(DomoSubEntity):
     async def query(
         self,
         sql: str,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         filter_pdp_policy_id_ls: list[int] = None,  # filter by pdp policy
         loop_until_end: bool = False,  # retrieve all available rows
         limit=100,  # maximum rows to return per request.  refers to PAGINATION

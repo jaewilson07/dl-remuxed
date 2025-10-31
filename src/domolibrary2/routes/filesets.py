@@ -65,7 +65,7 @@ async def create_filesets_index(
     embedding_model: str = "domo.domo_ai.domo-embed-text-multilingual-v1:cohere",
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     parent_class: Optional[str] = None,
 ) -> rgd.ResponseGetData:
     """Creates a new vectorDB index."""
@@ -107,7 +107,7 @@ async def embed_image(
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ) -> rgd.ResponseGetData:
     """
     Create an embedding for a base64 encoded image using Domo's AI services.
@@ -156,7 +156,7 @@ async def get_fileset_by_id(
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/files/v1/filesets/{fileset_id}"
     res = await gd.get_data(
@@ -183,7 +183,7 @@ async def search_fileset_files(
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/files/v1/filesets/{domo_fileset_id}/files/search?directoryPath=&immediateChildren=true"
 
@@ -218,7 +218,7 @@ async def get_data_file_by_id(
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ) -> rgd.ResponseGetData:
     """
     Retrieves the content of a data file from Domo.

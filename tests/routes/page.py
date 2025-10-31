@@ -12,7 +12,7 @@ try:
         # Exception classes
         Page_GET_Error,
         PageSharing_Error,
-        SearchPage_NotFound,
+        SearchPageNotFoundError,
         add_page_owner,
         delete_writelock,
         get_page_access_list,
@@ -29,7 +29,7 @@ try:
 
     print("✅ All imports successful!")
     print(
-        f"✅ Imported {len([Page_GET_Error, SearchPage_NotFound, Page_CRUD_Error, PageSharing_Error])} exception classes"
+        f"✅ Imported {len([Page_GET_Error, SearchPageNotFoundError, Page_CRUD_Error, PageSharing_Error])} exception classes"
     )
     print(
         f"✅ Imported {len([get_pages_adminsummary, get_page_by_id, get_page_definition])} core functions"

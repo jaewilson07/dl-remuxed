@@ -10,7 +10,7 @@ __all__ = [
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import Optional, list
+from typing import Optional
 
 import httpx
 
@@ -114,7 +114,7 @@ class DomoJob(DomoEntity):
         job_id: str,
         return_raw: bool = False,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop: int = 2,
     ):
         """Retrieve a job by its ID.
@@ -154,7 +154,7 @@ class DomoJob(DomoEntity):
         body: dict = None,
         return_raw: bool = False,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop: int = 2,
     ):
         """Update this job's configuration.
@@ -202,7 +202,7 @@ class DomoJob(DomoEntity):
         self,
         return_raw: bool = False,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop: int = 2,
     ):
         """Execute this job.
@@ -275,7 +275,7 @@ class DomoJob(DomoEntity):
         triggers: list[dict] = None,
         return_raw: bool = False,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop: int = 2,
     ):
         """Create a new job in the application.

@@ -15,7 +15,6 @@ import argparse
 import ast
 import sys
 from pathlib import Path
-from typing import list
 
 
 def check_syntax(file_path: Path) -> dict:

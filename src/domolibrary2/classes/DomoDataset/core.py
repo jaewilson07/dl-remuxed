@@ -9,7 +9,7 @@ __all__ = [
 
 
 from dataclasses import dataclass
-from typing import Callable, Optional, cast
+from typing import Callable, Optional
 
 import httpx
 
@@ -28,7 +28,7 @@ class FederatedDomoDataset(DomoDataset_Default, DomoFederatedEntity):
         parent_auth: None = None,
         parent_auth_retrieval_fn: Optional[Callable] = None,
     ):
-        from ...classes.publish import DomoEverywhere
+        from ...classes.DomoInstanceConfig.publish import DomoEverywhere
 
         domo_everywhere = DomoEverywhere(
             auth=self.auth,
@@ -77,7 +77,7 @@ class FederatedDomoDataset(DomoDataset_Default, DomoFederatedEntity):
         id: str,
         debug_api: bool = False,
         return_raw: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop: int = 2,
         is_use_default_dataset_class: bool = False,
         parent_class: Optional[str] = None,
@@ -127,7 +127,7 @@ class DomoDataset(DomoDataset_Default):
     ) -> "DomoDataset":
         """converts dataset API response into a dataset class object"""
 
-        is_federated = cls._is_federated_dataset_obj(obj)
+        is_federated = cls._is_federated(obj)
 
         new_cls = DomoDataset
 
@@ -136,13 +136,10 @@ class DomoDataset(DomoDataset_Default):
 
         # TO DO -- how do we know if it's published?
 
-        return cast(
-            "DomoDataset",
-            super().from_dict(
-                auth=auth,
-                obj=obj,
-                is_use_default_dataset_class=is_use_default_dataset_class,
-                new_cls=new_cls,
-                **kwargs,
-            ),
+        return super().from_dict(
+            auth=auth,
+            obj=obj,
+            is_use_default_dataset_class=is_use_default_dataset_class,
+            new_cls=new_cls,
+            **kwargs,
         )

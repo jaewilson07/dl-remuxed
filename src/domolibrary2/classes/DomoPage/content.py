@@ -3,7 +3,6 @@
 __all__ = ["get_cards", "get_datasets", "update_layout", "add_owner"]
 
 import datetime as dt
-from typing import list
 
 import httpx
 

@@ -3,7 +3,7 @@ __all__ = ["DomoAccessToken", "DomoAccessTokens"]
 import asyncio
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import Any, Optional, list
+from typing import Any
 
 import httpx
 
@@ -68,7 +68,7 @@ class DomoAccessToken(DomoEntity):
         cls,
         auth: DomoAuth,
         id: str,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         return_raw: bool = False,
@@ -99,7 +99,7 @@ class DomoAccessToken(DomoEntity):
         auth: DomoAuth,
         owner,  # DomoUser
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop: int = 2,
         return_raw: bool = False,
     ):
@@ -122,7 +122,7 @@ class DomoAccessToken(DomoEntity):
     async def revoke(
         self,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop: int = 2,
     ):
         return await access_token_routes.revoke_access_token(
@@ -136,7 +136,7 @@ class DomoAccessToken(DomoEntity):
 
     async def regenerate(
         self,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         duration_in_days: int = 90,
         debug_api: bool = False,
         return_raw: bool = False,
@@ -175,7 +175,7 @@ class DomoAccessTokens(DomoManager):
         return_raw: bool = False,
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient = None,
     ):
         res = await access_token_routes.get_access_tokens(
             auth=self.auth,
@@ -205,7 +205,7 @@ class DomoAccessTokens(DomoManager):
         token_name: str,
         owner,  # DomoUser
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient = None,
         debug_num_stacks_to_drop: int = 2,
         return_raw: bool = False,
     ):

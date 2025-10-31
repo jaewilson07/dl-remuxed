@@ -7,16 +7,15 @@ This module provides classes for interacting with Domo CodeEngine including:
 - Manifest handling (CodeEngineManifest, CodeEngineManifest_Function)
 """
 
-from .CodeEngine import (
+from .CodeEngine import (  # Re-export route exceptions
+    CodeEngine_CRUD_Error,
+    CodeEngine_GET_Error,
     CodeEngine_PackageAnalyzer,
     DomoCodeEngine_ConfigError,
     DomoCodeEngine_Package,
     DomoCodeEngine_Packages,
     DomoCodeEngine_PackageVersion,
     ExportExtension,
-    # Re-export route exceptions
-    CodeEngine_CRUD_Error,
-    CodeEngine_GET_Error,
     SearchCodeEngine_NotFound,
 )
 from .Manifest import CodeEngineManifest

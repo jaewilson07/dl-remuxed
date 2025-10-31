@@ -40,9 +40,9 @@ from .exceptions import (
     Account_CreateParams_Error,
     Account_CRUD_Error,
     Account_GET_Error,
-    Account_NoMatch,
+    AccountNoMatchError,
     AccountSharing_Error,
-    SearchAccount_NotFound,
+    SearchAccountNotFoundError,
 )
 
 # Import OAuth functions
@@ -63,11 +63,11 @@ from .sharing import (
 __all__ = [
     # Exception classes
     "Account_GET_Error",
-    "SearchAccount_NotFound",
+    "SearchAccountNotFoundError",
     "Account_CRUD_Error",
     "AccountSharing_Error",
     "Account_Config_Error",
-    "Account_NoMatch",
+    "AccountNoMatchError",
     "Account_CreateParams_Error",
     # Core functions
     "get_available_data_providers",

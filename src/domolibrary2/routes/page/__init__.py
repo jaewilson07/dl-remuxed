@@ -23,7 +23,7 @@ Functions:
 
 Exception Classes:
     Page_GET_Error: Raised when page retrieval fails
-    SearchPage_NotFound: Raised when page search returns no results
+    SearchPageNotFoundError: Raised when page search returns no results
     Page_CRUD_Error: Raised when page create/update/delete operations fail
     PageSharing_Error: Raised when page sharing operations fail
 """
@@ -47,7 +47,7 @@ from .exceptions import (
     Page_CRUD_Error,
     Page_GET_Error,
     PageSharing_Error,
-    SearchPage_NotFound,
+    SearchPageNotFoundError,
 )
 
 __all__ = [
@@ -61,7 +61,7 @@ __all__ = [
     "put_writelock",
     "delete_writelock",
     "Page_GET_Error",
-    "SearchPage_NotFound",
+    "SearchPageNotFoundError",
     "Page_CRUD_Error",
     "PageSharing_Error",
 ]

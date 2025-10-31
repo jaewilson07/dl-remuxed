@@ -8,7 +8,7 @@ __version__ = "0.0.1-alpha"
 # from domolibrary2.classes.DomoUser import DomoUser
 
 
-from dc_logger.client.base import Logger, get_global_logger
+# from dc_logger.client.base import Logger, get_global_logger
 
 # logger: Logger = get_global_logger()
 # assert logger, "A global logger must be set before using get_data functions."

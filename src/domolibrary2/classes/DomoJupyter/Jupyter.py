@@ -10,7 +10,7 @@ __all__ = [
 import datetime as dt
 import os
 from dataclasses import dataclass, field
-from typing import Any, list
+from typing import Any
 
 import httpx
 
@@ -229,7 +229,7 @@ class DomoJupyterWorkspace(DomoEntity):
     async def get_by_id(
         cls,
         workspace_id,
-        auth: DomoAuth,  # this API does not require the jupyter_token, but activities inside the workspace will require additional authentication
+        auth: dmda.DomoAuth,  # this API does not require the jupyter_token, but activities inside the workspace will require additional authentication
         jupyter_token=None,
         return_raw: bool = False,
         debug_api: bool = False,
@@ -378,7 +378,7 @@ def add_config_account(self, dja_account: DomoJupyter_Account):
 
 @dataclass
 class DomoJupyterWorkspaces(DomoManager):
-    auth: DomoAuth
+    auth: dmda.DomoAuth
     workspaces: list[DomoJupyterWorkspace] = None
 
     parent: Any = None
@@ -495,7 +495,7 @@ async def update_config(
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         )
 
-    except DomoError as e:
+    except dmde.DomoError as e:
         print(self._test_config_duplicates("account_configuration"))
         print(self._test_config_duplicates("output_configuration"))
         print(self._test_config_duplicates("input_configuration"))

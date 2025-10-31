@@ -6,7 +6,7 @@ __all__ = [
     # Route exceptions
     "Account_GET_Error",
     "Account_CRUD_Error",
-    "Account_NoMatch",
+    "AccountNoMatchError",
     "Account_Config_Error",
 ]
 
@@ -23,7 +23,7 @@ from ...routes.account.exceptions import (
     Account_Config_Error,
     Account_CRUD_Error,
     Account_GET_Error,
-    Account_NoMatch,
+    AccountNoMatchError,
 )
 from .access import DomoAccess_OAuth
 
@@ -176,7 +176,7 @@ class DomoAccount_OAuth(DomoAccount_Default):
             DomoAccount_OAuth: OAuth account instance with configuration
 
         Raises:
-            Account_NoMatch: If OAuth account is not found
+            AccountNoMatchError: If OAuth account is not found
             Account_GET_Error: If OAuth account retrieval fails
             Account_Config_Error: If configuration retrieval fails
         """

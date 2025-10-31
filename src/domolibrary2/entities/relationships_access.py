@@ -1,5 +1,5 @@
 __all__ = [
-    "Access_Config_Error",
+    "AccessConfigError",
     "Access_Relation",
     "DomoAccess",
 ]
@@ -17,7 +17,7 @@ EntityType = DomoEnumMixin
 RelationshipType = DomoEnumMixin
 
 
-class Access_Config_Error(ClassError):
+class AccessConfigError(ClassError):
     def __init__(self, cls_instance=None, account_id=None, message=None):
         super().__init__(
             cls_instance=cls_instance,
@@ -67,7 +67,7 @@ class DomoAccess(DomoRelationshipController, DomoSubEntity):
 
         if self.share_enum and not issubclass(self.share_enum, RelationshipType):
             print(self.share_enum)
-            raise Access_Config_Error(
+            raise AccessConfigError(
                 cls_instance=self,
                 account_id=self.parent_id,
                 message="Share enum must be a subclass of ShareAccount.",

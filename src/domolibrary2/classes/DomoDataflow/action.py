@@ -3,7 +3,6 @@ from __future__ import annotations
 import datetime as dt
 from dataclasses import dataclass
 from enum import Enum
-from typing import list
 
 from ...client.entities import DomoEnumMixin
 from ...utils import (

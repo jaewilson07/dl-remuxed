@@ -6,7 +6,7 @@ This module contains all exception classes for page operations.
 
 __all__ = [
     "Page_GET_Error",
-    "SearchPage_NotFound",
+    "SearchPageNotFoundError",
     "Page_CRUD_Error",
     "PageSharing_Error",
 ]
@@ -35,7 +35,7 @@ class Page_GET_Error(RouteError):
         )
 
 
-class SearchPage_NotFound(RouteError):
+class SearchPageNotFoundError(RouteError):
     """Raised when page search operations return no results."""
 
     def __init__(

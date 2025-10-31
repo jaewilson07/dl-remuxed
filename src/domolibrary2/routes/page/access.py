@@ -30,7 +30,7 @@ from .exceptions import (
     Page_CRUD_Error,
     Page_GET_Error,
     PageSharing_Error,
-    SearchPage_NotFound,
+    SearchPageNotFoundError,
 )
 
 
@@ -45,7 +45,7 @@ from .exceptions import (
 async def get_page_access_test(
     auth: DomoAuth,
     page_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -67,7 +67,7 @@ async def get_page_access_test(
 
     Raises:
         Page_GET_Error: If access test fails
-        SearchPage_NotFound: If page with specified ID doesn't exist
+        SearchPageNotFoundError: If page with specified ID doesn't exist
     """
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/pages/{page_id}/access"
 
@@ -86,7 +86,7 @@ async def get_page_access_test(
 
     if not res.is_success:
         if res.status == 404:
-            raise SearchPage_NotFound(
+            raise SearchPageNotFoundError(
                 search_criteria=f"page_id: {page_id}",
                 res=res,
             )
@@ -107,7 +107,7 @@ async def get_page_access_list(
     auth: DomoAuth,
     page_id: str,
     is_expand_users: bool = True,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -130,7 +130,7 @@ async def get_page_access_list(
 
     Raises:
         PageSharing_Error: If access list retrieval fails
-        SearchPage_NotFound: If page with specified ID doesn't exist
+        SearchPageNotFoundError: If page with specified ID doesn't exist
     """
 
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/share/accesslist/page/{page_id}?expandUsers={is_expand_users}"
@@ -150,7 +150,7 @@ async def get_page_access_list(
 
     if not res.is_success:
         if res.status == 404:
-            raise SearchPage_NotFound(
+            raise SearchPageNotFoundError(
                 search_criteria=f"page_id: {page_id}",
                 res=res,
             )
@@ -197,7 +197,7 @@ async def add_page_owner(
     user_id_ls: Optional[list[int | str]] = None,
     note: str = "",
     send_email: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,

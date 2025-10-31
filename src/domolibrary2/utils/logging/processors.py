@@ -222,7 +222,7 @@ class DomoEntityResultProcessor(ResultProcessor):
         if hasattr(entity, "display_url"):
             try:
                 entity_info["additional_info"]["display_url"] = entity.display_url
-            except:
+            except Exception:
                 pass  # Some entities might not implement display_url
 
         # Add type-specific information

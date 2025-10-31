@@ -3,7 +3,6 @@
 __all__ = ["DomoPages"]
 
 from dataclasses import dataclass, field
-from typing import list
 
 import httpx
 

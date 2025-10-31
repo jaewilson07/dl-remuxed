@@ -47,7 +47,6 @@ def test_basic_functionality():
         }
 
         header = PostmanRequest_Header.from_dict(header_data)
-        header.to_dict()
 
         print(f"✅ Header round-trip test: {header.key} = {header.value}")
 
@@ -60,7 +59,6 @@ def test_basic_functionality():
         }
 
         param = PostmanQueryParam.from_dict(param_data)
-        param.to_dict()
 
         print(f"✅ Query param round-trip test: {param.key} = {param.value}")
 

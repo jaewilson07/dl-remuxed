@@ -10,7 +10,7 @@ __all__ = [
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Literal, Optional, list
+from typing import Any, Callable, Literal, Optional
 
 import httpx
 
@@ -110,7 +110,7 @@ class DomoScheduler_Policies(DomoSubEntity):
     async def get(
         self,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         return_raw: bool = False,
         debug_num_stacks_to_drop: int = 2,
         **kwargs,
@@ -132,7 +132,7 @@ class DomoScheduler_Policies(DomoSubEntity):
         policy: DomoScheduler_Policy,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         return_raw: bool = False,
         **kwargs,
     ):
@@ -172,7 +172,7 @@ class DomoScheduler_Policies(DomoSubEntity):
         policy_id: str,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         **kwargs,
     ):
         res = await instance_config_routes.delete_scheduler_policy(
