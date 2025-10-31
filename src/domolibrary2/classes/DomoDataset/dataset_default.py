@@ -212,7 +212,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
 
     @classmethod
     async def get_entity_by_id(cls, auth: DomoAuth, entity_id: str, **kwargs):
-        return await cls.get_by_id(id=entity_id, auth=auth, **kwargs)
+        return await cls.get_by_id(dataset_id=entity_id, auth=auth, **kwargs)
 
     async def delete(
         self,

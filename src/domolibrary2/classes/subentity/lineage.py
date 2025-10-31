@@ -248,6 +248,7 @@ class DomoLineage_ParentTypeEnum(DomoEnumMixin, Enum):
     FederatedDomoDataset = "DATA_SOURCE"
     DomoPage = "PAGE"
     DomoCard = "CARD"
+    FederatedDomoCard = "CARD"
     DomoRepository = "REPOSITORY"
     DomoAppStudio = "DATA_APP"
 
