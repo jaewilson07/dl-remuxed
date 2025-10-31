@@ -10,7 +10,7 @@ from ...routes import dataflow as dataflow_routes
 from ...utils import chunk_execution as dmce
 from ..DomoJupyter import Jupyter as dmdj
 from ..subentity import lineage as dmdl
-from ..subentity.schedule import DomoTriggerSettings
+from ..subentity.trigger import DomoTriggerSettings
 from .action import DomoDataflow_Action
 from .history import DomoDataflow_History
 
