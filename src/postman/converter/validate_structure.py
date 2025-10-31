@@ -27,11 +27,11 @@ def deep_compare_structures(
         path: Current path in the structure (for error reporting)
 
     Returns:
-        list of difference descriptions
+        List of difference descriptions
     """
     differences = []
 
-    if type(original) is not type(reconstructed):
+    if type(original) != type(reconstructed):
         differences.append(
             f"Type mismatch at {path}: {type(original).__name__} != {type(reconstructed).__name__}"
         )

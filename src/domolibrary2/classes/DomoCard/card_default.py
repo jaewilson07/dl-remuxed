@@ -71,8 +71,36 @@ class DomoCard_Default(DomoEntity_w_Lineage):
 
     @staticmethod
     def _is_federated(obj: dict) -> bool:
-        """Check if card is federated"""
-        return obj.get("isFederated") is True
+        """Heuristic: decide if a card JSON represents a federated card.
+
+        A card is considered federated if it's built on a federated datasource.
+        """
+        # First check explicit flag
+        if obj.get("isFederated") is True:
+            return True
+
+        # Then check datasources for federation indicators
+        datasources = obj.get("datasources", [])
+        if not datasources:
+            return False
+
+        for ds in datasources:
+            display_type = ds.get("displayType", "").upper()
+            data_type = ds.get("dataType", "").upper()
+            provider_type = ds.get("providerType", "").upper()
+
+            has_federate = any(
+                [
+                    "FEDERAT" in display_type,
+                    "FEDERAT" in data_type,
+                    "FEDERAT" in provider_type,
+                ]
+            )
+
+            if has_federate:
+                return True
+
+        return False
 
     @property
     def is_federated(self) -> bool:

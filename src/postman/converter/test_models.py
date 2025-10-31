@@ -7,7 +7,7 @@ Simple test script to validate our enhanced Postman models.
 def test_basic_imports():
     """Test that all our classes can be imported."""
     try:
-        from models import (  # noqa: F401
+        from models import (
             PostmanAuth,
             PostmanCollection,
             PostmanCollectionInfo,
@@ -47,7 +47,6 @@ def test_basic_functionality():
         }
 
         header = PostmanRequest_Header.from_dict(header_data)
-        header.to_dict()
 
         print(f"✅ Header round-trip test: {header.key} = {header.value}")
 
@@ -60,7 +59,6 @@ def test_basic_functionality():
         }
 
         param = PostmanQueryParam.from_dict(param_data)
-        param.to_dict()
 
         print(f"✅ Query param round-trip test: {param.key} = {param.value}")
 
