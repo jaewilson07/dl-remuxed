@@ -6,7 +6,7 @@ This module contains all exception classes for page operations.
 
 __all__ = [
     "Page_GET_Error",
-    "SearchPage_NotFound",
+    "SearchPageNotFoundError",
     "Page_CRUD_Error",
     "PageSharing_Error",
 ]

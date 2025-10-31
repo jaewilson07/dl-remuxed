@@ -14,10 +14,10 @@ from domolibrary2.client.auth import DomoTokenAuth
 
 # Import all user route functions to test they exist and are callable
 from domolibrary2.routes.user import (
-    DeleteUser_Error,
+    DeleteUserError,
     DownloadAvatar_Error,
-    ResetPassword_PasswordUsed,
-    SearchUser_NotFound,
+    ResetPasswordPasswordUsedError,
+    SearchUserNotFoundError,
     User_CRUD_Error,
     # Exception classes
     User_GET_Error,
@@ -136,12 +136,12 @@ class TestUserFunctionExistence:
         # Core exceptions
         assert inspect.isclass(User_GET_Error)
         assert inspect.isclass(User_CRUD_Error)
-        assert inspect.isclass(SearchUser_NotFound)
-        assert inspect.isclass(DeleteUser_Error)
+        assert inspect.isclass(SearchUserNotFoundError)
+        assert inspect.isclass(DeleteUserError)
         assert inspect.isclass(UserSharing_Error)
 
         # Property exceptions
-        assert inspect.isclass(ResetPassword_PasswordUsed)
+        assert inspect.isclass(ResetPasswordPasswordUsedError)
         assert inspect.isclass(DownloadAvatar_Error)
 
         # Attribute exceptions
@@ -151,7 +151,7 @@ class TestUserFunctionExistence:
         # Test they are proper exception classes
         assert issubclass(User_GET_Error, Exception)
         assert issubclass(User_CRUD_Error, Exception)
-        assert issubclass(DeleteUser_Error, Exception)
+        assert issubclass(DeleteUserError, Exception)
         assert issubclass(UserSharing_Error, Exception)
 
     def test_user_property_enumeration_values(self):
@@ -263,12 +263,12 @@ class TestUserFunctionExistence:
         # Core exceptions
         assert issubclass(User_GET_Error, Exception)
         assert issubclass(User_CRUD_Error, Exception)
-        assert issubclass(SearchUser_NotFound, Exception)
-        assert issubclass(DeleteUser_Error, Exception)
+        assert issubclass(SearchUserNotFoundError, Exception)
+        assert issubclass(DeleteUserError, Exception)
         assert issubclass(UserSharing_Error, Exception)
 
         # Property exceptions
-        assert issubclass(ResetPassword_PasswordUsed, Exception)
+        assert issubclass(ResetPasswordPasswordUsedError, Exception)
         assert issubclass(DownloadAvatar_Error, Exception)
 
         # Attribute exceptions
@@ -280,12 +280,12 @@ class TestUserFunctionExistence:
         # Test that exception classes exist and are callable
         assert callable(User_GET_Error)
         assert callable(User_CRUD_Error)
-        assert callable(SearchUser_NotFound)
-        assert callable(DeleteUser_Error)
+        assert callable(SearchUserNotFoundError)
+        assert callable(DeleteUserError)
         assert callable(UserSharing_Error)
 
         # Test other exception classes are callable
-        assert callable(ResetPassword_PasswordUsed)
+        assert callable(ResetPasswordPasswordUsedError)
         assert callable(DownloadAvatar_Error)
         assert callable(UserAttributes_GET_Error)
         assert callable(UserAttributes_CRUD_Error)

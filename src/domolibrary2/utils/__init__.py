@@ -51,10 +51,7 @@ from . import (
 )
 
 # Import legacy exception names from convert module for backwards compatibility
-from .convert import (
-    ConcatDataframe_InvalidElement,  # Legacy alias for ConcatDataframeError
-    InvalidEmail,  # Legacy alias for InvalidEmailError
-)
+
 from .exceptions import (
     ConcatDataframeError,
     CredentialsError,
@@ -76,9 +73,6 @@ __all__ = [
     "FileOperationError",
     "ImageProcessingError",
     "CredentialsError",
-    # Legacy exception names
-    "InvalidEmail",
-    "ConcatDataframe_InvalidElement",
     # Utility modules
     "chunk_execution",
     "compare",

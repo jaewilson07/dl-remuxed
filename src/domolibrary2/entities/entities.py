@@ -15,6 +15,8 @@ import abc
 from dataclasses import dataclass, field, fields
 from typing import Any, Callable, Optional
 
+import httpx
+
 from ..client.auth import DomoAuth
 from ..utils.convert import convert_snake_to_pascal
 from .base import DomoBase
@@ -117,7 +119,14 @@ class DomoEntity(DomoBase):
 
     @classmethod
     @abc.abstractmethod
-    async def get_by_id(cls, auth: DomoAuth, id: str):
+    async def get_by_id(
+        cls,
+        auth: DomoAuth,
+        id: str,
+        debug_num_stacks_to_drop=2,
+        debug_api: bool = False,
+        session: httpx.AsyncClient | None = None,
+    ):
         """Fetch an entity by its unique identifier.
 
         This method should be implemented by subclasses to handle entity-specific
@@ -131,6 +140,27 @@ class DomoEntity(DomoBase):
             NotImplementedError: Must be implemented by subclasses
         """
         raise NotImplementedError("This method should be implemented by subclasses.")
+
+    async def refresh_from_api(
+        self,
+        debug_num_stacks_to_drop=2,
+        debug_api: bool = False,
+        session: httpx.AsyncClient | None = None,
+    ):
+        """Refresh this instance from the API using its id and auth."""
+        result = await type(self).get_by_id(
+            auth=self.auth,
+            stream_id=self.id,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            debug_api=debug_api,
+            session=session,
+        )
+        # Spread attributes from result to self
+        if isinstance(result, type(self)):
+            self.__dict__.update(
+                {k: v for k, v in result.__dict__.items() if v is not None}
+            )
+        return self
 
     @classmethod
     @abc.abstractmethod

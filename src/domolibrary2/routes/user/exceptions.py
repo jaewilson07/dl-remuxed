@@ -11,7 +11,7 @@ Exception Classes:
     DeleteUserError: Raised when user deletion operations fail
     UserAttributes_GET_Error: Raised when user attribute retrieval fails
     UserAttributes_CRUD_Error: Raised when user attribute create/update/delete fails
-    ResetPasswordPasswordUsed: Raised when password was previously used
+    ResetPasswordPasswordUsedError: Raised when password was previously used
     DownloadAvatar_Error: Raised when avatar download fails
 """
 
@@ -23,7 +23,7 @@ __all__ = [
     "DeleteUserError",
     "UserAttributes_GET_Error",
     "UserAttributes_CRUD_Error",
-    "ResetPasswordPasswordUsed",
+    "ResetPasswordPasswordUsedError",
     "DownloadAvatar_Error",
 ]
 

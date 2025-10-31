@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "sr
 from domolibrary2.classes.subentity.schedule import (
     DomoAdvancedSchedule,
     DomoCronSchedule,
-    DomoSchedule,
+    DomoSchedule_Base,
     DomoSimpleSchedule,
 )
 
@@ -37,7 +37,7 @@ def test_schedule_factory():
         "isActive": True,
     }
 
-    schedule1 = DomoSchedule.from_dict(advanced_data)
+    schedule1 = DomoSchedule_Base.from_dict(advanced_data)
     print(f"Type: {type(schedule1).__name__}")
     print(f"Schedule Type: {schedule1.schedule_type.value}")
     print(f"Frequency: {schedule1.frequency.value}")
@@ -52,7 +52,7 @@ def test_schedule_factory():
         "isActive": True,
     }
 
-    schedule2 = DomoSchedule.from_dict(cron_data)
+    schedule2 = DomoSchedule_Base.from_dict(cron_data)
     print(f"Type: {type(schedule2).__name__}")
     print(f"Schedule Type: {schedule2.schedule_type.value}")
     print(f"Frequency: {schedule2.frequency.value}")
@@ -67,7 +67,7 @@ def test_schedule_factory():
         "isActive": True,
     }
 
-    schedule3 = DomoSchedule.from_dict(simple_data)
+    schedule3 = DomoSchedule_Base.from_dict(simple_data)
     print(f"Type: {type(schedule3).__name__}")
     print(f"Schedule Type: {schedule3.schedule_type.value}")
     print(f"Frequency: {schedule3.frequency.value}")
@@ -82,7 +82,7 @@ def test_schedule_factory():
         "isActive": True,
     }
 
-    schedule4 = DomoSchedule.from_dict(once_data)
+    schedule4 = DomoSchedule_Base.from_dict(once_data)
     print(f"Type: {type(schedule4).__name__}")
     print(f"Schedule Type: {schedule4.schedule_type.value}")
     print(f"Frequency: {schedule4.frequency.value}")
@@ -103,7 +103,7 @@ def test_schedule_factory():
         "isActive": True,
     }
 
-    schedule5 = DomoSchedule.from_dict(weekly_data)
+    schedule5 = DomoSchedule_Base.from_dict(weekly_data)
     print(f"Type: {type(schedule5).__name__}")
     print(f"Schedule Type: {schedule5.schedule_type.value}")
     print(f"Frequency: {schedule5.frequency.value}")
@@ -148,7 +148,7 @@ def test_schedule_type_determination():
     ]
 
     for description, data, expected_type in test_cases:
-        determined_type = DomoSchedule.determine_schedule_type(data)
+        determined_type = DomoSchedule_Base.determine_schedule_type(data)
         result = "✓" if determined_type == expected_type else "✗"
         print(f"{result} {description}: {determined_type.__name__}")
 

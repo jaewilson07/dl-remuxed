@@ -59,7 +59,6 @@ class AICRUDError(RouteError):
 def generate_chat_body(
     text_input: str, model="domo.domo_ai.domogpt-chat-medium-v1.1:anthropic"
 ):
-
     return {
         "input": text_input,
         "promptTemplate": {"template": "${input}"},

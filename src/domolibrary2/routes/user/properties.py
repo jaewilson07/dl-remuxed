@@ -22,7 +22,7 @@ Classes:
     UserProperty: Class representing a user property with type and values
 
 Exception Classes:
-    ResetPassword_PasswordUsed: Raised when password was previously used
+    ResetPasswordPasswordUsedErrorError: Raised when password was previously used
     DownloadAvatar_Error: Raised when avatar download fails
 """
 
@@ -59,7 +59,7 @@ from ...utils import images
 from ...utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 from .exceptions import (
     DownloadAvatar_Error,
-    ResetPassword_PasswordUsed,
+    ResetPasswordPasswordUsedError,
     User_CRUD_Error,
 )
 
@@ -300,7 +300,7 @@ async def reset_password(
 
     Raises:
         User_CRUD_Error: If password reset fails
-        ResetPassword_PasswordUsed: If password was previously used
+        ResetPasswordPasswordUsedError: If password was previously used
     """
     url = f"https://{auth.domo_instance}.domo.com/api/identity/v1/password"
 
@@ -333,7 +333,7 @@ async def reset_password(
         and res.response.get("description", None)
         == "Password has been used previously."
     ):
-        raise ResetPassword_PasswordUsed(
+        raise ResetPasswordPasswordUsedError(
             user_id=user_id,
             res=res,
             message=res.response["description"].replace(".", ""),

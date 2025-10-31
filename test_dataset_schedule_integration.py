@@ -9,23 +9,27 @@ import sys
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
+
 def test_imports():
     """Test that all required imports work"""
     try:
         from domolibrary2.classes.subentity.schedule import (
             DomoAdvancedSchedule,
             DomoCronSchedule,
-            DomoSchedule,
+            DomoSchedule_Base,
             DomoSimpleSchedule,
             ScheduleFrequencyEnum,
             ScheduleType,
         )
+
         print("✓ Successfully imported schedule classes")
 
-        from domolibrary2.classes.subentity import DomoSchedule as DomoSched
+        from domolibrary2.classes.subentity import DomoSchedule_Base as DomoSched
+
         print("✓ Successfully imported DomoSchedule from subentity package")
 
         from domolibrary2.classes.DomoDataset.dataset_default import DomoDataset_Default
+
         print("✓ Successfully imported DomoDataset_Default")
 
         return True
@@ -37,7 +41,7 @@ def test_imports():
 def test_schedule_from_dict():
     """Test that Schedule can be created from dict"""
     from domolibrary2.classes.subentity.schedule import (
-        DomoSchedule,
+        DomoSchedule_Base,
         ScheduleFrequencyEnum,
     )
 
@@ -47,7 +51,7 @@ def test_schedule_from_dict():
         "scheduleStartDate": "2024-01-01T09:00:00",
     }
 
-    schedule = DomoSchedule.from_dict(test_data)
+    schedule = DomoSchedule_Base.from_dict(test_data)
 
     assert schedule is not None
     assert schedule.frequency == ScheduleFrequencyEnum.DAILY
@@ -58,7 +62,7 @@ def test_schedule_from_dict():
         "scheduleExpression": "MANUAL",
     }
 
-    manual_schedule = DomoSchedule.from_dict(manual_data)
+    manual_schedule = DomoSchedule_Base.from_dict(manual_data)
     assert manual_schedule.frequency == ScheduleFrequencyEnum.MANUAL
     print(f"✓ Manual schedule created: {manual_schedule.get_human_readable_schedule()}")
 
@@ -73,11 +77,11 @@ def test_dataset_has_schedule_field():
     # Check that Schedule is a field
     fields = [f.name for f in DomoDataset_Default.__dataclass_fields__.values()]
 
-    assert 'Schedule' in fields
+    assert "Schedule" in fields
     print("✓ DomoDataset_Default has 'Schedule' field")
 
     # Get field type
-    schedule_field = DomoDataset_Default.__dataclass_fields__['Schedule']
+    schedule_field = DomoDataset_Default.__dataclass_fields__["Schedule"]
     print(f"✓ Schedule field type: {schedule_field.type}")
 
     return True
@@ -87,16 +91,13 @@ def test_dataset_schedule_initialization():
     """Test that Dataset initializes Schedule from raw data"""
     from domolibrary2.classes.DomoDataset.dataset_default import DomoDataset_Default
     from domolibrary2.classes.subentity.schedule import (
-        DomoSchedule,
+        DomoSchedule_Base,
         ScheduleFrequencyEnum,
     )
     from domolibrary2.client.auth import DomoTokenAuth
 
     # Create mock auth
-    auth = DomoTokenAuth(
-        domo_instance="test-instance",
-        domo_access_token="test-token"
-    )
+    auth = DomoTokenAuth(domo_instance="test-instance", domo_access_token="test-token")
 
     # Test with schedule data
     dataset_data = {
@@ -116,9 +117,9 @@ def test_dataset_schedule_initialization():
     )
 
     assert dataset is not None
-    assert hasattr(dataset, 'Schedule')
+    assert hasattr(dataset, "Schedule")
     assert dataset.Schedule is not None
-    assert isinstance(dataset.Schedule, DomoSchedule)
+    assert isinstance(dataset.Schedule, DomoSchedule_Base)
     assert dataset.Schedule.frequency == ScheduleFrequencyEnum.DAILY
 
     print(f"✓ Dataset with schedule: {dataset.Schedule.get_human_readable_schedule()}")
@@ -139,7 +140,7 @@ def test_dataset_schedule_initialization():
     )
 
     assert dataset2 is not None
-    assert hasattr(dataset2, 'Schedule')
+    assert hasattr(dataset2, "Schedule")
     assert dataset2.Schedule is None
 
     print("✓ Dataset without schedule: Schedule field is None")
@@ -150,7 +151,7 @@ def test_dataset_schedule_initialization():
 def test_advanced_schedule():
     """Test advanced schedule with JSON configuration"""
     from domolibrary2.classes.subentity.schedule import (
-        DomoSchedule,
+        DomoSchedule_Base,
         ScheduleFrequencyEnum,
         ScheduleType,
     )
@@ -166,7 +167,7 @@ def test_advanced_schedule():
         "scheduleStartDate": "2024-01-01T00:00:00",
     }
 
-    schedule = DomoSchedule.from_dict(test_data)
+    schedule = DomoSchedule_Base.from_dict(test_data)
 
     assert schedule is not None
     assert schedule.frequency == ScheduleFrequencyEnum.WEEKLY
@@ -208,6 +209,7 @@ def main():
             failed += 1
             print(f"✗ {test_name} FAILED with error: {e}")
             import traceback
+
             traceback.print_exc()
 
     print("\n" + "=" * 60)

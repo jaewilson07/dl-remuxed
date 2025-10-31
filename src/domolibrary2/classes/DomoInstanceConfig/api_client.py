@@ -1,6 +1,6 @@
 __all__ = [
     "ApiClient",
-    "SearchApiClient_NotFound",
+    "SearchApiClientNotFoundError",
     "ApiClient_GET_Error",
     "ApiClient_CRUD_Error",
 ]
@@ -25,7 +25,7 @@ from ...routes.instance_config.api_client import (
 from ...routes.instance_config.exceptions import (
     ApiClient_CRUD_Error,
     ApiClient_GET_Error,
-    SearchApiClient_NotFound,
+    SearchApiClientNotFoundError,
 )
 from ...utils import chunk_execution as dmce
 from ..DomoUser import DomoUser

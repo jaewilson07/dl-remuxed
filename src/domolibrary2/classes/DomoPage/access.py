@@ -117,7 +117,7 @@ async def get_accesslist(
 
     Raises:
         PageSharing_Error: If access list retrieval fails (raised by route function).
-        SearchPage_NotFound: If page with specified ID doesn't exist (raised by route function).
+        SearchPageNotFoundError: If page with specified ID doesn't exist (raised by route function).
     """
     auth = auth or self.auth
 

@@ -11,6 +11,7 @@ from ...routes import stream as stream_routes
 from ...routes.stream import Stream_CRUD_Error, Stream_GET_Error
 from ...utils import chunk_execution as dmce
 from .stream_config import StreamConfig
+from ..subentity.schedule import DomoSchedule
 
 __all__ = [
     "DomoStream",
@@ -26,6 +27,7 @@ class DomoStream(DomoEntity):
     """A class for interacting with a Domo Stream (dataset connector)"""
 
     id: str
+    parent: Any  # DomoDataset
 
     transport_description: str = None
     transport_version: int = None
@@ -41,17 +43,33 @@ class DomoStream(DomoEntity):
     configuration_tables: list[str] = field(default_factory=list)
     configuration_query: str = None
 
-    parent: Any = None  # DomoDataset
+    Schedule: DomoSchedule = None  # DomoDataset_Schedule
+
+    def __post_init__(self):
+        """Post-initialization to extract schedule if present"""
+        self.extract_schedule_from_raw()
+
+    def extract_schedule_from_raw(self):
+        """Extract schedule from stream configuration if available"""
+
+        if self.raw:
+            self.Schedule = DomoSchedule.from_parent(parent=self, obj=self.raw)
+
+        return self.Schedule
+
+    @classmethod
+    def from_parent(cls, parent, stream_id: str = None):
+        return cls(
+            parent=parent,
+            id=stream_id or parent.raw.get("streamId"),
+            raw=parent.raw,
+            auth=parent.auth,
+            Relations=None,
+        )
 
     @property
     def dataset_id(self) -> str:
         return self.parent.id
-
-    @classmethod
-    def from_parent(cls, parent, stream_id):
-        return cls(
-            parent=parent, auth=parent.auth, id=stream_id, Relations=None, raw=None
-        )
 
     @property
     def entity_type(self):
@@ -63,7 +81,7 @@ class DomoStream(DomoEntity):
         return f"https://{self.auth.domo_instance}.domo.com/datasources/{self.dataset_id}/details/data/table"
 
     @classmethod
-    def from_dict(cls, auth, obj):
+    def from_dict(cls, auth, obj, parent: Any | None = None, **kwargs):  # DomoDataset
         data_provider = obj.get("dataProvider", {})
         transport = obj.get("transport", {})
         obj.get("dataSource", {})
@@ -72,8 +90,8 @@ class DomoStream(DomoEntity):
 
         sd = cls(
             auth=auth,
-            parent=None,  # Will be set by caller if needed
-            id=obj["id"],
+            parent=parent,  # Will be set by caller if needed
+            id=obj.get("id") or kwargs.get("stream_id"),
             transport_description=transport.get("description"),
             transport_version=transport.get("version"),
             update_method=obj.get("updateMethod"),
@@ -81,6 +99,7 @@ class DomoStream(DomoEntity):
             data_provider_key=data_provider.get("key"),
             raw=obj,
             Relations=None,
+            **{k: v for k, v in kwargs.items() if k != "stream_id"},
         )
 
         if account:

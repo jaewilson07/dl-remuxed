@@ -62,7 +62,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
     PDP: Optional[dmpdp.DatasetPdpPolicies] = None
 
     Certification: dmdc.DomoCertification = field(default=None)
-    Schedule: dmsched.DomoSchedule = field(default=None)
+
     # Lineage: dmdl.DomoLineage = field(default=None, repr=False)
 
     @property
@@ -95,6 +95,10 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
 
         return self._is_federated_dataset_obj(self.raw)
 
+    @property
+    def Schedule(self) -> "DomoSchedule":
+        return self.Stream.Schedule if self.Stream and self.Stream.Schedule else None
+
     def __post_init__(self):
         super().__post_init__()
 
@@ -102,7 +106,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
         self.Data = DomoDataset_Data.from_parent(parent=self)
         self.Schema = dmdsc.DomoDataset_Schema.from_parent(parent=self)
         self.Tags = dmtg.DomoTags.from_parent(parent=self)
-        self.Stream = dmdst.DomoStream.from_parent(
+        self.Stream = self.Stream or dmdst.DomoStream.from_parent(
             parent=self, stream_id=self.stream_id
         )
         self.PDP = dmpdp.DatasetPdpPolicies.from_parent(parent=self)
@@ -110,15 +114,17 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
         self.Certification = dmdc.DomoCertification.from_parent(parent=self)
 
         # Initialize Schedule from raw data if schedule information exists
-        if self.raw and any(
-            key in self.raw
-            for key in [
-                "scheduleStartDate",
-                "scheduleExpression",
-                "advancedScheduleJson",
-            ]
-        ):
-            self.Schedule = dmsched.DomoSchedule.from_dict(self.raw, auth=self.auth)
+        # if self.raw and any(
+        #     key in self.raw
+        #     for key in [
+        #         "scheduleStartDate",
+        #         "scheduleExpression",
+        #         "advancedScheduleJson",
+        #     ]
+        # ):
+        #     self.Schedule = dmsched.DomoSchedule_Base.from_dict(
+        #         self.raw, auth=self.auth
+        #     )
 
         self.Relations = None
 
@@ -176,7 +182,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
     async def get_by_id(
         cls,
         auth: DomoAuth,
-        id: str,
+        dataset_id: str,
         debug_api: bool = False,
         return_raw: bool = False,
         session: httpx.AsyncClient | None = None,
@@ -185,14 +191,13 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
         parent_class: Optional[str] = None,
     ):
         """retrieves dataset metadata"""
-
         parent_class = parent_class or cls.__name__
 
         # self.logger.info(message=f"Getting dataset by ID: {dataset_id}")  # TO DO
 
         res = await dataset_routes.get_dataset_by_id(
             auth=auth,
-            dataset_id=id,
+            dataset_id=dataset_id,
             debug_api=debug_api,
             session=session,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
@@ -202,12 +207,19 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
         if return_raw:
             return res
 
-        return cls.from_dict(
-            obj=res.response,
+        obj = res.response
+
+        ds = cls.from_dict(
+            obj=obj,
             auth=auth,
             new_cls=cls,
             is_use_default_dataset_class=is_use_default_dataset_class,
         )
+
+        if ds.Stream:
+            await ds.Stream.refresh_from_api()
+
+        return ds
 
     @classmethod
     async def get_entity_by_id(cls, auth: DomoAuth, entity_id: str, **kwargs):

@@ -136,13 +136,10 @@ class DomoDataset(DomoDataset_Default):
 
         # TO DO -- how do we know if it's published?
 
-        return cast(
-            "DomoDataset",
-            super().from_dict(
-                auth=auth,
-                obj=obj,
-                is_use_default_dataset_class=is_use_default_dataset_class,
-                new_cls=new_cls,
-                **kwargs,
-            ),
+        return super().from_dict(
+            auth=auth,
+            obj=obj,
+            is_use_default_dataset_class=is_use_default_dataset_class,
+            new_cls=new_cls,
+            **kwargs,
         )

@@ -33,10 +33,10 @@ from .core import (  # Core user functions
     search_virtual_user_by_subscriber_instance,
 )
 from .exceptions import (
-    DeleteUser_Error,
+    DeleteUserError,
     DownloadAvatar_Error,
-    ResetPassword_PasswordUsed,
-    SearchUser_NotFound,
+    ResetPasswordPasswordUsedError,
+    SearchUserNotFoundError,
     User_CRUD_Error,
     User_GET_Error,
     UserAttributes_CRUD_Error,
@@ -61,11 +61,11 @@ __all__ = [
     # Exception classes
     "User_GET_Error",
     "User_CRUD_Error",
-    "SearchUser_NotFound",
+    "SearchUserNotFoundError",
     "UserSharing_Error",
-    "ResetPassword_PasswordUsed",
+    "ResetPasswordPasswordUsedError",
     "DownloadAvatar_Error",
-    "DeleteUser_Error",
+    "DeleteUserError",
     # Core user functions
     "get_all_users",
     "search_users",

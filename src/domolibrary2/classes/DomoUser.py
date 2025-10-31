@@ -8,12 +8,12 @@ __all__ = [
     # User Route Exceptions
     "User_GET_Error",
     "User_CRUD_Error",
-    "SearchUser_NotFound",
+    "SearchUserNotFoundError",
     "UserSharing_Error",
-    "DeleteUser_Error",
+    "DeleteUserError",
     "UserAttributes_GET_Error",
     "UserAttributes_CRUD_Error",
-    "ResetPassword_PasswordUsed",
+    "ResetPasswordPasswordUsedError",
     "DownloadAvatar_Error",
 ]
 
@@ -34,10 +34,10 @@ from ..routes import user as user_routes
 from ..routes.instance_config import sso as sso_routes
 from ..routes.user import UserProperty
 from ..routes.user.exceptions import (
-    DeleteUser_Error,
+    DeleteUserError,
     DownloadAvatar_Error,
-    ResetPassword_PasswordUsed,
-    SearchUser_NotFound,
+    ResetPasswordPasswordUsedError,
+    SearchUserNotFoundError,
     User_CRUD_Error,
     User_GET_Error,
     UserAttributes_CRUD_Error,
@@ -724,7 +724,7 @@ class DomoUsers(DomoManager):
                 session=session,
             )
 
-        except SearchUser_NotFound as e:
+        except SearchUserNotFoundError as e:
             if suppress_no_results_error:
                 return []
 
@@ -772,7 +772,7 @@ class DomoUsers(DomoManager):
                 session=session,
             )
 
-        except SearchUser_NotFound as e:
+        except SearchUserNotFoundError as e:
             if suppress_no_results_error:
                 print(e)
 
@@ -879,7 +879,7 @@ class DomoUsers(DomoManager):
                 )
             return domo_user
 
-        except (SearchUser_NotFound, DomoUser_NoSearchError):
+        except (SearchUserNotFoundError, DomoUser_NoSearchError):
             # User doesn't exist, create new one
 
             await logger.info("User not found, creating new user.")

@@ -22,6 +22,7 @@ def validate_ip_or_cidr(ip: str):
         try:
             # Try IPv4 network (CIDR)
             ipaddress.IPv4Network(ip, strict=False)
+            return True
         except ValueError as e:
             raise ValueError(f"Invalid IP/CIDR entry: {ip}") from e
 
