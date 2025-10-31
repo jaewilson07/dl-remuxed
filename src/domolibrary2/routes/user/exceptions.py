@@ -19,7 +19,7 @@ __all__ = [
     "User_GET_Error",
     "User_CRUD_Error",
     "SearchUserNotFoundError",
-    "UserSharingError",
+    "UserSharing_Error",
     "DeleteUserError",
     "UserAttributes_GET_Error",
     "UserAttributes_CRUD_Error",

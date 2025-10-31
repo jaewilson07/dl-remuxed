@@ -58,7 +58,17 @@ dev = [
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP"]
-ignore = ["E501", "N801"]  # Line too long (handled by black); N801: class name should use CapWords convention
+ignore = [
+    "E501",  # Line too long (handled by black)
+    "N801",  # class name should use CapWords convention
+    "N802",  # function name should be lowercase (descriptive names)
+    "N803",  # argument name should be lowercase (API naming)
+    "N806",  # variable in function should be lowercase (acronyms)
+    "N811",  # constant imported as non-constant (intentional aliasing)
+    "N813",  # Camelcase imported as lowercase (intentional pattern)
+    "N815",  # variable in class scope should not be mixedCase (API fields)
+    "N999",  # Invalid module name (legacy module names)
+]
 
 [tool.ruff.lint.isort]
 combine-as-imports = true

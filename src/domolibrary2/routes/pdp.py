@@ -34,7 +34,6 @@ __all__ = [
     "delete_policy",
     "toggle_pdp",
     # Legacy exports for backward compatibility
-    "PDP_NotRetrieved",
     "SearchPDP_Error",
     "CreatePolicy_Error",
 ]

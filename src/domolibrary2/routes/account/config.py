@@ -20,7 +20,7 @@ from ...client import (
 )
 from ...client.auth import DomoAuth
 from .core import get_account_by_id
-from .exceptions import Account_Config_Error, Account_NoMatch
+from .exceptions import Account_Config_Error, AccountNoMatchError
 from .oauth import get_oauth_account_by_id
 
 
@@ -53,7 +53,7 @@ async def get_account_config(
         ResponseGetData object containing account configuration
 
     Raises:
-        Account_NoMatch: If account is not found or not accessible
+        AccountNoMatchError: If account is not found or not accessible
         Account_Config_Error: If account configuration retrieval fails
     """
     if not data_provider_type:
@@ -86,7 +86,7 @@ async def get_account_config(
     if not res.is_success and (
         res.response == "Forbidden" or res.response == "Not Found"
     ):
-        raise Account_NoMatch(account_id=str(account_id), res=res)
+        raise AccountNoMatchError(account_id=str(account_id), res=res)
 
     if not res.is_success:
         raise Account_Config_Error(account_id=str(account_id), res=res)
@@ -130,7 +130,7 @@ async def get_oauth_account_config(
         ResponseGetData object containing OAuth account configuration
 
     Raises:
-        Account_NoMatch: If OAuth account is not found or not accessible
+        AccountNoMatchError: If OAuth account is not found or not accessible
         Account_Config_Error: If OAuth account configuration retrieval fails
     """
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/providers/{data_provider_type}/template/{account_id}?unmask=true"
@@ -152,7 +152,7 @@ async def get_oauth_account_config(
     if not res.is_success and (
         res.response == "Forbidden" or res.response == "Not Found"
     ):
-        raise Account_NoMatch(account_id=str(account_id), res=res)
+        raise AccountNoMatchError(account_id=str(account_id), res=res)
 
     if not res.is_success:
         raise Account_Config_Error(account_id=str(account_id), res=res)

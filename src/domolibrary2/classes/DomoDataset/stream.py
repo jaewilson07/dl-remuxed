@@ -10,8 +10,8 @@ from ...entities import DomoEntity, DomoManager
 from ...routes import stream as stream_routes
 from ...routes.stream import Stream_CRUD_Error, Stream_GET_Error
 from ...utils import chunk_execution as dmce
-from .stream_config import StreamConfig
 from ..subentity.schedule import DomoSchedule
+from .stream_config import StreamConfig
 
 __all__ = [
     "DomoStream",

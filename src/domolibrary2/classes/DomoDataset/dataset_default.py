@@ -7,7 +7,7 @@ __all__ = [
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import httpx
 
@@ -20,7 +20,6 @@ from ...routes.dataset import (
 from ...utils import convert as dmcv
 from ..subentity import (
     certification as dmdc,
-    schedule as dmsched,
     tags as dmtg,
 )
 from . import (
@@ -29,6 +28,9 @@ from . import (
     stream as dmdst,
 )
 from .dataset_data import DomoDataset_Data
+
+if TYPE_CHECKING:
+    from ..subentity.schedule import DomoSchedule
 
 
 @dataclass
@@ -70,7 +72,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
         return "DATASET"
 
     @staticmethod
-    def _is_federated_dataset_obj(obj: dict) -> bool:
+    def _is_federated(obj: dict) -> bool:
         """Heuristic: decide if a dataset JSON represents a federated (proxy) dataset."""
 
         dpt = obj.get("dataProviderType", "").upper()
@@ -93,7 +95,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
     def is_federated(self) -> bool:
         """Heuristic: decide if a dataset JSON represents a federated (proxy) dataset."""
 
-        return self._is_federated_dataset_obj(self.raw)
+        return self._is_federated(self.raw)
 
     @property
     def Schedule(self) -> "DomoSchedule":

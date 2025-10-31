@@ -314,7 +314,8 @@
 
 ### src/domolibrary2/routes/jupyter/exceptions.py (1 errors)
 
-- **[F822]** Line 9, Col 5: Undefined name `SearchJupyter_NotFound` in `__all__`
+- **[F822]** Line 9, Col 5: Undefined name `SearchJupyterNotFoundError
+` in `__all__`
 
 ### src/domolibrary2/routes/page/exceptions.py (1 errors)
 

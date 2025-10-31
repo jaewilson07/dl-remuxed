@@ -17,7 +17,7 @@ from ...client import (
     response as rgd,
 )
 from ...client.auth import DomoAuth
-from .exceptions import Jupyter_CRUD_Error, SearchJupyter_NotFound
+from .exceptions import Jupyter_CRUD_Error, SearchJupyterNotFoundError
 
 
 @gd.route_function
@@ -48,7 +48,7 @@ async def update_jupyter_workspace_config(
 
     Raises:
         Jupyter_CRUD_Error: If workspace configuration update fails
-        SearchJupyter_NotFound: If workspace doesn't exist
+        SearchJupyterNotFoundError: If workspace doesn't exist
     """
     url = f"https://{auth.domo_instance}.domo.com/api/datascience/v1/workspaces/{workspace_id}"
 
@@ -67,7 +67,7 @@ async def update_jupyter_workspace_config(
         return res
 
     if res.status == 404:
-        raise SearchJupyter_NotFound(
+        raise SearchJupyterNotFoundError(
             search_criteria=f"workspace_id: {workspace_id}", res=res
         )
 

@@ -48,7 +48,7 @@ class InstanceSwitcher_Mapping:
         Returns:
             bool: True if both have the same user_attribute and target_instance
         """
-        if type(self) != type(other):
+        if type(self) is not type(other):
             return False
         else:
             return (

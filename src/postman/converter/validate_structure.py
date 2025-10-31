@@ -31,7 +31,7 @@ def deep_compare_structures(
     """
     differences = []
 
-    if type(original) != type(reconstructed):
+    if type(original) is not type(reconstructed):
         differences.append(
             f"Type mismatch at {path}: {type(original).__name__} != {type(reconstructed).__name__}"
         )

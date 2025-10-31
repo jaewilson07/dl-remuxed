@@ -65,13 +65,13 @@ class TestJupyterImports:
             JupyterAPI_Error,
             JupyterAPI_WorkspaceStarted,
             JupyterWorkspace_Error,
-            SearchJupyter_NotFound,
+            SearchJupyterNotFoundError,
         )
 
         # Verify all exceptions are proper exception classes
         exceptions = [
             Jupyter_GET_Error,
-            SearchJupyter_NotFound,
+            SearchJupyterNotFoundError,
             Jupyter_CRUD_Error,
             JupyterWorkspace_Error,
         ]
@@ -148,12 +148,12 @@ class TestJupyterImports:
             Jupyter_CRUD_Error,
             Jupyter_GET_Error,
             JupyterWorkspace_Error,
-            SearchJupyter_NotFound,
+            SearchJupyterNotFoundError,
         )
 
         for exc in [
             Jupyter_GET_Error,
-            SearchJupyter_NotFound,
+            SearchJupyterNotFoundError,
             Jupyter_CRUD_Error,
             JupyterWorkspace_Error,
         ]:

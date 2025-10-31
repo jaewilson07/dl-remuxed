@@ -18,7 +18,7 @@ from ...client import (
     response as rgd,
 )
 from ...client.auth import DomoAuth
-from .exceptions import Account_GET_Error, Account_NoMatch
+from .exceptions import Account_GET_Error, AccountNoMatchError
 
 
 @gd.route_function
@@ -141,7 +141,7 @@ async def get_account_by_id(
         ResponseGetData object containing account metadata
 
     Raises:
-        Account_NoMatch: If account is not found or not accessible
+        AccountNoMatchError: If account is not found or not accessible
         Account_GET_Error: If account retrieval fails
     """
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/accounts/{account_id}"
@@ -164,7 +164,7 @@ async def get_account_by_id(
     if not res.is_success and (
         res.response == "Forbidden" or res.response == "Not Found"
     ):
-        raise Account_NoMatch(account_id=str(account_id), res=res)
+        raise AccountNoMatchError(account_id=str(account_id), res=res)
 
     if not res.is_success:
         raise Account_GET_Error(entity_id=str(account_id), res=res)

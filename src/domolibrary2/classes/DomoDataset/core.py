@@ -9,7 +9,7 @@ __all__ = [
 
 
 from dataclasses import dataclass
-from typing import Callable, Optional, cast
+from typing import Callable, Optional
 
 import httpx
 
@@ -127,7 +127,7 @@ class DomoDataset(DomoDataset_Default):
     ) -> "DomoDataset":
         """converts dataset API response into a dataset class object"""
 
-        is_federated = cls._is_federated_dataset_obj(obj)
+        is_federated = cls._is_federated(obj)
 
         new_cls = DomoDataset
 

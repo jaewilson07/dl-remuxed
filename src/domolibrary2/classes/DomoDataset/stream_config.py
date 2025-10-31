@@ -34,7 +34,6 @@ __all__ = [
     "StreamConfig_Mapping",
     "StreamConfig_Mappings",
     "StreamConfig",
-    "DomoStream",
     # Route exceptions
     "Stream_GET_Error",
     "Stream_CRUD_Error",
@@ -255,7 +254,7 @@ class StreamConfig:
                 self.parent.configuration_tables = sorted(
                     list(set(self.parent.configuration_tables))
                 )
-        except:
+        except Exception:
             return None
 
         return self.parent.configuration_tables

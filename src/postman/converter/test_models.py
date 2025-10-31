@@ -7,7 +7,7 @@ Simple test script to validate our enhanced Postman models.
 def test_basic_imports():
     """Test that all our classes can be imported."""
     try:
-        from models import (
+        from models import (  # noqa: F401
             PostmanAuth,
             PostmanCollection,
             PostmanCollectionInfo,

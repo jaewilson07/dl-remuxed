@@ -32,19 +32,19 @@ try:
     result1 = allowlist_module.validate_ip_or_cidr("192.168.1.1")
     assert result1 is True, "Should return True for valid IPv4"
     print("   ✅ Valid IPv4 (192.168.1.1): PASSED")
-    
+
     # Valid CIDR
     result2 = allowlist_module.validate_ip_or_cidr("10.0.0.0/8")
     assert result2 is True, "Should return True for valid CIDR"
     print("   ✅ Valid CIDR (10.0.0.0/8): PASSED")
-    
+
     # Invalid IP
     try:
         allowlist_module.validate_ip_or_cidr("not.an.ip.address")
         print("   ❌ Invalid IP should raise ValueError: FAILED")
     except ValueError:
         print("   ✅ Invalid IP raises ValueError: PASSED")
-        
+
 except Exception as e:
     print(f"   ❌ FAILED: {e}")
     import traceback

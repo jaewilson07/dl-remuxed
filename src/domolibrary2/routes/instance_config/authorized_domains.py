@@ -1,6 +1,6 @@
 __all__ = [
-    "GetDomains_NotFound",
-    "GetAppDomains_NotFound",
+    "GetDomainsNotFoundError",
+    "GetAppDomainsNotFoundError",
     "get_authorized_domains",
     "set_authorized_domains",
     "get_authorized_custom_app_domains",

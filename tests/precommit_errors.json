@@ -1219,9 +1219,10 @@
     "line": 9,
     "column": 5,
     "error_code": "F822",
-    "message": "Undefined name `SearchJupyter_NotFound` in `__all__`",
-    "hook": "ruff",
-    "context": "7 | __all__ = [\n8 |     \"Jupyter_GET_Error\",\n9 |     \"SearchJupyter_NotFound\",\n10 |     \"Jupyter_CRUD_Error\",\n11 |     \"JupyterWorkspace_Error\","
+    "message": "Undefined name `SearchJupyterNotFoundError
+` in `__all__`","hook": "ruff",
+    "context": "7 | __all__ = [\n8 |     \"Jupyter_GET_Error\",\n9 |     \"SearchJupyterNotFoundError
+\",\n10 |     \"Jupyter_CRUD_Error\",\n11 |     \"JupyterWorkspace_Error\","
   },
   {
     "file_path": "src/domolibrary2/routes/page/exceptions.py",

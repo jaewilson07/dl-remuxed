@@ -155,6 +155,7 @@ class DomoBase(abc.ABC):
         return {
             convert_snake_to_pascal(field.name): getattr(self, field.name)
             for field in fields(self)
+            if getattr(self, field.name) is not None
         }
 
 

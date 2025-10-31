@@ -49,9 +49,6 @@ from . import (
     read_creds_from_dotenv,
     xkcd_password,
 )
-
-# Import legacy exception names from convert module for backwards compatibility
-
 from .exceptions import (
     ConcatDataframeError,
     CredentialsError,
@@ -60,6 +57,9 @@ from .exceptions import (
     InvalidEmailError,
     UtilityError,
 )
+
+# Import legacy exception names from convert module for backwards compatibility
+
 
 # Conditional import for upload_data (may have external dependencies)
 # from . import upload_data

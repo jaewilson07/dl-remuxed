@@ -7,6 +7,8 @@ __all__ = [
     "DomoSimpleSchedule",
     "ScheduleFrequencyEnum",
     "ScheduleType",
+    "DomoTrigger",
+    "DomoTriggerSettings",
 ]
 
 import datetime as dt
@@ -18,7 +20,7 @@ from enum import Enum
 from typing import Any, Callable, Optional
 
 # from ...client.auth import DomoAuth
-from ...client.entities import DomoBase, DomoEnumMixin
+from ...client.entities import DomoBase, DomoEnumMixin, DomoManager
 
 
 class ScheduleFrequencyEnum(DomoEnumMixin, Enum):
@@ -94,14 +96,50 @@ class DomoSchedule_Base(DomoBase, ABC):
             "month": schedule_data.get("months"),
         }
 
-        # Determine frequency
-        frequency = ScheduleFrequencyEnum.CUSTOM_CRON
+        # Extended parsing for 'type' and 'at' fields
+        type_map = {
+            "MINUTE": ScheduleFrequencyEnum.MINUTELY,
+            "HOUR": ScheduleFrequencyEnum.HOURLY,
+            "DAY": ScheduleFrequencyEnum.DAILY,
+            "WEEK": ScheduleFrequencyEnum.WEEKLY,
+            "MONTH": ScheduleFrequencyEnum.MONTHLY,
+            "YEAR": ScheduleFrequencyEnum.YEARLY,
+        }
+        if "type" in schedule_data:
+            type_str = str(schedule_data["type"]).upper()
+            components["frequency"] = type_map.get(
+                type_str, ScheduleFrequencyEnum.CUSTOM_CRON
+            )
+        else:
+            components["frequency"] = ScheduleFrequencyEnum.CUSTOM_CRON
+
+        # Parse 'at' field for hour and minute
+        at_str = schedule_data.get("at")
+        if at_str:
+            # Expect format like '09:02 AM' or '14:30'
+            import re
+
+            match = re.match(
+                r"(\d{1,2}):(\d{2})\s*(AM|PM)?", at_str.strip(), re.IGNORECASE
+            )
+            if match:
+                hour = int(match.group(1))
+                minute = int(match.group(2))
+                ampm = match.group(3)
+                if ampm:
+                    if ampm.upper() == "PM" and hour < 12:
+                        hour += 12
+                    elif ampm.upper() == "AM" and hour == 12:
+                        hour = 0
+                components["hour"] = hour
+                components["minute"] = minute
+
+        # Determine frequency from explicit 'frequency' field if present
         if schedule_data.get("frequency"):
             freq_str = schedule_data["frequency"].upper()
             if freq_str in [f.value for f in ScheduleFrequencyEnum]:
-                frequency = ScheduleFrequencyEnum(freq_str)
+                components["frequency"] = ScheduleFrequencyEnum(freq_str)
 
-        components["frequency"] = frequency
         return components
 
     @staticmethod
@@ -324,23 +362,11 @@ class DomoSchedule_Base(DomoBase, ABC):
         if self.schedule_start_date:
             result["scheduleStartDate"] = self.schedule_start_date.isoformat()
 
-        if self.timezone:
-            result["timezone"] = self.timezone
-
-        if self.minute is not None:
-            result["minute"] = self.minute
-
-        if self.hour is not None:
-            result["hour"] = self.hour
-
         if self.day_of_week is not None:
             result["dayOfWeek"] = self.day_of_week
 
         if self.day_of_month is not None:
             result["dayOfMonth"] = self.day_of_month
-
-        if self.month is not None:
-            result["month"] = self.month
 
         if self.next_run_time:
             result["nextRunTime"] = self.next_run_time.isoformat()
@@ -447,6 +473,48 @@ class DomoSchedule_Base(DomoBase, ABC):
 
     def __repr__(self) -> str:
         return f"DomoSchedule(frequency={self.frequency.value}, type={self.schedule_type.value})"
+
+    def export_as_dict(self, override_fn: Optional[Callable] = None) -> dict[str, Any]:
+        """
+        Export the schedule as a unified dictionary format.
+        Args:
+            override_fn: Optional function to override export logic.
+        Returns:
+            dict: Unified schedule dictionary.
+        """
+        if override_fn:
+            return override_fn(self)
+
+        # Unified schedule dict
+        result = {
+            "humanReadable": self.get_human_readable_schedule(),
+            "frequency": self.frequency.value if self.frequency else None,
+            "scheduleType": (self.schedule_type.value if self.schedule_type else None),
+            "interval": self.interval,
+            "minute": self.minute,
+            "hour": self.hour,
+            "dayOfWeek": self.day_of_week,
+            "dayOfMonth": self.day_of_month,
+            "month": self.month,
+            "scheduleStartDate": (
+                self.schedule_start_date.isoformat()
+                if self.schedule_start_date
+                else None
+            ),
+            "timezone": self.timezone,
+            "isActive": self.is_active,
+            "nextRunTime": (
+                self.next_run_time.isoformat() if self.next_run_time else None
+            ),
+        }
+
+        # Optionally include raw expression or advanced config if present
+        if hasattr(self, "schedule_expression") and self.schedule_expression:
+            result["expression"] = self.schedule_expression
+        if hasattr(self, "advanced_schedule_json") and self.advanced_schedule_json:
+            result["advancedScheduleJson"] = self.advanced_schedule_json
+
+        return result
 
 
 @dataclass
@@ -629,3 +697,143 @@ class DomoSchedule(DomoSchedule_Base):
         # If called on the base class, determine the correct subclass
         schedule_class = cls.determine_schedule_type(obj)
         return schedule_class.from_dict(obj, parent=parent, **kwargs)
+
+
+@dataclass
+class DomoTrigger(DomoBase):
+    """Represents a single trigger event for DomoDataflow executions"""
+
+    trigger_id: int
+    title: str
+    trigger_events: list[dict[str, Any]] = field(default_factory=list)
+    trigger_conditions: list[dict[str, Any]] = field(default_factory=list)
+    parent: Any = None
+    raw: dict[str, Any] = field(default_factory=dict, repr=False)
+
+    # Parsed schedule if trigger contains a SCHEDULE event
+    Schedule: Optional[DomoSchedule_Base] = None
+
+    def __post_init__(self):
+        """Parse trigger events to extract schedule if present"""
+        for event in self.trigger_events:
+            if event.get("type") == "SCHEDULE" and event.get("schedule"):
+                # Convert schedule to DomoSchedule format
+                schedule_dict = event["schedule"]
+                # Create cron expression from schedule fields
+                expression_parts = [
+                    schedule_dict.get("second", "*"),
+                    schedule_dict.get("minute", "*"),
+                    schedule_dict.get("hour", "*"),
+                    schedule_dict.get("dayOfMonth", "*"),
+                    schedule_dict.get("month", "*"),
+                    schedule_dict.get("dayOfWeek", "*"),
+                    schedule_dict.get("year", "*"),
+                ]
+                expression = " ".join(expression_parts)
+
+                # Build schedule object
+                schedule_obj = {
+                    "expression": expression,
+                    "scheduleExpression": expression,
+                }
+                if event.get("id"):
+                    schedule_obj["scheduleId"] = event["id"]
+
+                self.Schedule = DomoSchedule.from_parent(
+                    parent=self.parent, obj=schedule_obj
+                )
+                break
+
+    @property
+    def human_readable(self) -> str:
+        """Get human-readable description of trigger"""
+        if self.Schedule:
+            # Return schedule expression for schedule triggers
+            if hasattr(self.Schedule, "schedule_expression"):
+                return f"Schedule: {self.Schedule.schedule_expression}"
+            return f"Schedule: {self.Schedule.get_human_readable_schedule()}"
+
+        # Handle dataset update triggers
+        if self.trigger_events:
+            event = self.trigger_events[0]
+            event_type = event.get("type")
+
+            if event_type == "DATASET_UPDATED":
+                dataset_id = event.get("datasetId", "unknown")
+                on_change = event.get("triggerOnDataChanged", False)
+                trigger_desc = "on data change" if on_change else "on update"
+                return f"Dataset {dataset_id} {trigger_desc}"
+
+        return f"Trigger: {self.title}"
+
+    @classmethod
+    def from_dict(
+        cls, obj: dict[str, Any], parent: Any = None, **kwargs
+    ) -> "DomoTrigger":
+        """Create DomoTrigger from dictionary/API response"""
+        return cls(
+            trigger_id=obj.get("triggerId"),
+            title=obj.get("title", ""),
+            trigger_events=obj.get("triggerEvents", []),
+            trigger_conditions=obj.get("triggerConditions", []),
+            parent=parent,
+            raw=obj,
+            **kwargs,
+        )
+
+    def export_as_dict(self) -> dict[str, Any]:
+        """Export trigger as dictionary including schedule details"""
+        result = {
+            "triggerId": self.trigger_id,
+            "title": self.title,
+            "humanReadable": self.human_readable,
+            "triggerEvents": self.trigger_events,
+            "triggerConditions": self.trigger_conditions,
+        }
+
+        if self.Schedule:
+            result["schedule"] = self.Schedule.export_as_dict()
+
+        return result
+
+
+@dataclass
+class DomoTriggerSettings(DomoManager):
+    """Manager for DomoDataflow trigger settings containing multiple triggers"""
+
+    triggers: list[DomoTrigger] = field(default_factory=list)
+    zone_id: Optional[str] = None
+    locale: Optional[str] = None
+    parent: Any = None
+    raw: dict[str, Any] = field(default_factory=dict, repr=False)
+
+    @classmethod
+    def from_parent(cls, parent: Any, obj: dict | None = None) -> "DomoTriggerSettings":
+        """Create trigger settings from parent entity (DomoDataflow)"""
+        if not obj:
+            return cls(parent=parent)
+
+        triggers = [
+            DomoTrigger.from_dict(trigger_obj, parent=parent)
+            for trigger_obj in obj.get("triggers", [])
+        ]
+
+        return cls(
+            triggers=triggers,
+            zone_id=obj.get("zoneId"),
+            locale=obj.get("locale"),
+            parent=parent,
+            raw=obj,
+        )
+
+    def export_as_dict(self) -> dict[str, Any]:
+        """Export all triggers as dictionary"""
+        return {
+            "triggers": [trigger.export_as_dict() for trigger in self.triggers],
+            "zoneId": self.zone_id,
+            "locale": self.locale,
+        }
+
+    def get_human_readable_summary(self) -> list[str]:
+        """Get human-readable summary of all triggers"""
+        return [trigger.human_readable for trigger in self.triggers]

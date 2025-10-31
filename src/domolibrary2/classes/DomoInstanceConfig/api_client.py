@@ -271,7 +271,7 @@ class ApiClients(DomoManager):
         )
 
         if not domo_client:
-            raise SearchApiClient_NotFound(
+            raise SearchApiClientNotFoundError(
                 search_criteria=f"client name: {client_name}"
             )
 
@@ -376,7 +376,7 @@ class ApiClients(DomoManager):
                 parent_class=parent_class or self.__class__.__name__,
             )
 
-        except SearchApiClient_NotFound:
+        except SearchApiClientNotFoundError:
             pass
 
         if domo_client:

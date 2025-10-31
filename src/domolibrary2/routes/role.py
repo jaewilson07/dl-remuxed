@@ -1,5 +1,5 @@
 __all__ = [
-    "Role_NotRetrieved",
+    "RoleNotRetrievedError",
     "Role_CRUD_Error",
     "get_roles",
     "get_role_by_id",

@@ -90,12 +90,12 @@ lines = text.split("\n")
 
 for i, line in enumerate(lines):
     line = line.strip()
-    
+
     if "hook id:" in line.lower():
         hook_match = re.search(r"hook id:\s+(.+)", line, re.IGNORECASE)
         if hook_match:
             current_hook = hook_match.group(1).strip()
-    
+
     ruff_match = ruff_pattern.search(line)
     if ruff_match:
         file_path = ruff_match.group(1).replace("\\", "/")
@@ -103,7 +103,7 @@ for i, line in enumerate(lines):
         col_num = int(ruff_match.group(3))
         error_code = ruff_match.group(4)
         message = ruff_match.group(5).strip()
-        
+
         context_lines = []
         for j in range(i + 1, min(i + 10, len(lines))):
             ctx_line = lines[j].strip()
@@ -112,7 +112,7 @@ for i, line in enumerate(lines):
                     context_lines.append(ctx_line)
             else:
                 break
-        
+
         errors.append(
             LintError(
                 file_path=file_path,
@@ -124,7 +124,7 @@ for i, line in enumerate(lines):
                 hook=current_hook or "ruff",
             )
         )
-    
+
     yaml_match = yaml_pattern.search(line)
     if yaml_match:
         file_path = yaml_match.group(1).strip()
@@ -133,7 +133,7 @@ for i, line in enumerate(lines):
         message = ""
         if i > 0:
             message = lines[i - 1].strip()
-        
+
         errors.append(
             LintError(
                 file_path=file_path,
@@ -202,17 +202,17 @@ md_file = output_dir / "precommit_errors.md"
 with open(md_file, "w", encoding="utf-8") as f:
     f.write("# Pre-commit Errors\n\n")
     f.write(f"**Total Errors:** {len(errors)}\n\n")
-    
+
     f.write("## Error Summary\n\n")
     for error_code in sorted(by_type.keys()):
         count = len(by_type[error_code])
         f.write(f"- **{error_code}**: {count} occurrences\n")
-    
+
     f.write("\n## Errors by File\n\n")
     for file_path in sorted(by_file.keys()):
         file_errors = by_file[file_path]
         f.write(f"\n### {file_path} ({len(file_errors)} errors)\n\n")
-        
+
         for error in file_errors:
             loc = f"Line {error.line}"
             if error.column:

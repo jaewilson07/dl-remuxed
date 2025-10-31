@@ -102,7 +102,7 @@ class DomoLineageLink_Dataflow(DomoLineage_Link):
     async def get_entity(
         entity_id, auth, session: httpx.AsyncClient = None, debug_api: bool = False
     ):
-        from ..DomoDataflow import Dataflow as dmdf
+        from ..DomoDataflow import core as dmdf
 
         return await dmdf.DomoDataflow.get_by_id(dataflow_id=entity_id, auth=auth)
 

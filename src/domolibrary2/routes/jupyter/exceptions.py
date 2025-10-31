@@ -6,7 +6,7 @@ This module contains all exception classes for Jupyter workspace operations.
 
 __all__ = [
     "Jupyter_GET_Error",
-    "SearchJupyter_NotFound",
+    "SearchJupyterNotFoundError",
     "Jupyter_CRUD_Error",
     "JupyterWorkspace_Error",
 ]

@@ -66,7 +66,7 @@ src\domolibrary2\__init__.py:11:35: F401 `dc_logger.client.base.Logger` imported
 
    |                                   ^^^^^^ F401
 
-12 | 
+12 |
 
 13 | # logger: Logger = get_global_logger()
 
@@ -84,7 +84,7 @@ src\domolibrary2\__init__.py:11:43: F401 `dc_logger.client.base.get_global_logge
 
    |                                           ^^^^^^^^^^^^^^^^^ F401
 
-12 | 
+12 |
 
 13 | # logger: Logger = get_global_logger()
 
@@ -162,13 +162,13 @@ src\domolibrary2\classes\DomoAppStudio.py:86:23: N813 Camelcase `DomoGroup` impo
 
 84 |             return []
 
-85 | 
+85 |
 
 86 |         from . import DomoGroup as dmg
 
    |                       ^^^^^^^^^^^^^^^^ N813
 
-87 | 
+87 |
 
 88 |         domo_groups = []
 
@@ -182,13 +182,13 @@ src\domolibrary2\classes\DomoAppStudio.py:169:23: N813 Camelcase `DomoGroup` imp
 
 167 |             raise Exception("error getting access list")
 
-168 | 
+168 |
 
 169 |         from . import DomoGroup as dmg
 
     |                       ^^^^^^^^^^^^^^^^ N813
 
-170 | 
+170 |
 
 171 |         s = {
 
@@ -206,7 +206,7 @@ src\domolibrary2\classes\DomoApplication\Application.py:1:12: F822 Undefined nam
 
   |            ^^^^^^^^^^^^^^^ F822
 
-2 | 
+2 |
 
 3 | from dataclasses import dataclass, field
 
@@ -246,7 +246,7 @@ src\domolibrary2\classes\DomoApplication\Application.py:13:15: N813 Camelcase `J
 
    |               ^^^^^^^^^^^ N813
 
-14 | 
+14 |
 
 15 | # @jaewilson07 ΓÇö DomoJob_RemoteDomoStats and DomoJob_Watchdog does not exist.
 
@@ -264,7 +264,7 @@ src\domolibrary2\classes\DomoApplication\Application.py:72:16: F821 Undefined na
 
    |                ^^^^^^^^^^^^^ F821
 
-73 | 
+73 |
 
 74 |     @classmethod
 
@@ -388,7 +388,7 @@ src\domolibrary2\classes\DomoCard.py:228:23: N813 Camelcase `DomoAppDb` imported
 
     |                       ^^^^^^^^^^^^^^^^^ N813
 
-229 | 
+229 |
 
 230 |         domo_collections = await dmdb.AppDbCollections.get_collections(
 
@@ -456,7 +456,7 @@ src\domolibrary2\classes\DomoDatacenter.py:59:23: N813 Camelcase `DomoDataset` i
 
    |                       ^^^^^^^^^^^^^^^^^^^ N813
 
-60 | 
+60 |
 
 61 |         json_list = await self.search_datacenter(
 
@@ -470,13 +470,13 @@ src\domolibrary2\classes\DomoDatacenter.py:113:23: N813 Camelcase `DomoAccount` 
 
 111 |         """
 
-112 | 
+112 |
 
 113 |         from . import DomoAccount as dmac
 
     |                       ^^^^^^^^^^^^^^^^^^^ N813
 
-114 | 
+114 |
 
 115 |         additional_filters_ls = additional_filters_ls or []
 
@@ -496,7 +496,7 @@ src\domolibrary2\classes\DomoDatacenter.py:163:23: N813 Camelcase `DomoCard` imp
 
     |                       ^^^^^^^^^^^^^^^ N813
 
-164 | 
+164 |
 
 165 |         json_list = await self.search_datacenter(
 
@@ -514,7 +514,7 @@ src\domolibrary2\classes\DomoDatacenter.py:208:23: N813 Camelcase `DomoCard` imp
 
     |                       ^^^^^^^^^^^^^^^ N813
 
-209 | 
+209 |
 
 210 |         search_body = card_routes.generate_body_search_cards_admin_summary(
 
@@ -534,7 +534,7 @@ src\domolibrary2\classes\DomoDatacenter.py:246:37: N813 Camelcase `CodeEngine` i
 
     |                                     ^^^^^^^^^^^^^^^^^^^ N813
 
-247 | 
+247 |
 
 248 |         res = await self.search_datacenter(
 
@@ -554,7 +554,7 @@ src\domolibrary2\classes\DomoDataflow\Dataflow.py:11:27: N813 Camelcase `Jupyter
 
    |                           ^^^^^^^^^^^^^^^ N813
 
-12 | 
+12 |
 
 13 | __all__ = ["DomoDataflow", "DomoDataflows"]
 
@@ -574,7 +574,7 @@ src\domolibrary2\classes\DomoDataflow\Dataflow.py:22:11: F821 Undefined name `Do
 
    |           ^^^^^^^^ F821
 
-23 | 
+23 |
 
 24 |     name: str = None
 
@@ -614,7 +614,7 @@ src\domolibrary2\classes\DomoDataflow\Dataflow.py:164:23: N813 Camelcase `DomoJu
 
     |                       ^^^^^^^^^^^^^^^^^^^ N813
 
-165 | 
+165 |
 
 166 |         res = await dataflow_routes.search_dataflows_to_jupyter_workspaces(
 
@@ -1102,7 +1102,7 @@ src\domolibrary2\classes\DomoInstanceConfig\role_grant.py:10:28: N813 Camelcase 
 
  8 | from domolibrary2.entities.entities import DomoBase, DomoManager
 
- 9 | 
+ 9 |
 
 10 | from ...client.auth import DomoAuth as dmda
 
@@ -1186,7 +1186,7 @@ src\domolibrary2\classes\DomoJupyter\Account.py:21:15: N813 Camelcase `Account` 
 
    |               ^^^^^^^^^^^^^^^ N813
 
-22 | 
+22 |
 
 23 | DomoError = dmde.DomoError
 
@@ -1216,7 +1216,7 @@ src\domolibrary2\classes\DomoJupyter\DataSource.py:9:27: N813 Camelcase `DomoDat
 
 7 | from typing import Any
 
-8 | 
+8 |
 
 9 | from ..DomoDataset import DomoDataset as dmds
 
@@ -1330,7 +1330,7 @@ src\domolibrary2\classes\DomoJupyter\Jupyter.py:498:12: F821 Undefined name `Dom
 
 496 |         )
 
-497 | 
+497 |
 
 498 |     except DomoError as e:
 
@@ -1356,7 +1356,7 @@ src\domolibrary2\classes\DomoPage.py:12:1: F403 `from .page import *` used; unab
 
    | ^^^^^^^^^^^^^^^^^^^ F403
 
-13 | 
+13 |
 
 14 | __all__ = ["DomoPage_GetRecursive", "DomoPage", "DomoPages", "Page_NoAccess"]
 
@@ -1370,7 +1370,7 @@ src\domolibrary2\classes\DomoPage.py:14:12: F405 `DomoPage_GetRecursive` may be 
 
 12 | from .page import *
 
-13 | 
+13 |
 
 14 | __all__ = ["DomoPage_GetRecursive", "DomoPage", "DomoPages", "Page_NoAccess"]
 
@@ -1386,7 +1386,7 @@ src\domolibrary2\classes\DomoPage.py:14:37: F405 `DomoPage` may be undefined, or
 
 12 | from .page import *
 
-13 | 
+13 |
 
 14 | __all__ = ["DomoPage_GetRecursive", "DomoPage", "DomoPages", "Page_NoAccess"]
 
@@ -1402,7 +1402,7 @@ src\domolibrary2\classes\DomoPage.py:14:49: F405 `DomoPages` may be undefined, o
 
 12 | from .page import *
 
-13 | 
+13 |
 
 14 | __all__ = ["DomoPage_GetRecursive", "DomoPage", "DomoPages", "Page_NoAccess"]
 
@@ -1418,7 +1418,7 @@ src\domolibrary2\classes\DomoPage.py:14:62: F405 `Page_NoAccess` may be undefine
 
 12 | from .page import *
 
-13 | 
+13 |
 
 14 | __all__ = ["DomoPage_GetRecursive", "DomoPage", "DomoPages", "Page_NoAccess"]
 
@@ -1438,7 +1438,7 @@ src\domolibrary2\classes\DomoPage\__init__.py:45:32: F401 `.management` imported
 
    |                                ^^^^^^^^^^ F401
 
-46 | 
+46 |
 
 47 | # Import core classes
 
@@ -1472,13 +1472,13 @@ src\domolibrary2\classes\DomoPage\access.py:137:20: N813 Camelcase `DomoGroup` i
 
 135 |         return res
 
-136 | 
+136 |
 
 137 |     from .. import DomoGroup as dmg
 
     |                    ^^^^^^^^^^^^^^^^ N813
 
-138 | 
+138 |
 
 139 |     s = {
 
@@ -1498,7 +1498,7 @@ src\domolibrary2\classes\DomoPage\content.py:23:20: N813 Camelcase `DomoCard` im
 
    |                    ^^^^^^^^^^^^^^ N813
 
-24 | 
+24 |
 
 25 |     res = await page_routes.get_page_definition(
 
@@ -1552,7 +1552,7 @@ src\domolibrary2\classes\DomoPage\core.py:51:18: F821 Undefined name `DomoCard`
 
 49 |     layout: dmpg_c.PageLayout = field(default_factory=dict)
 
-50 | 
+50 |
 
 51 |     cards: list["DomoCard"] = None
 
@@ -1574,7 +1574,7 @@ src\domolibrary2\classes\DomoPage\core.py:52:21: F821 Undefined name `DomoDatase
 
    |                     ^^^^^^^^^^^ F821
 
-53 | 
+53 |
 
 54 |     def __post_init__(self):
 
@@ -1592,7 +1592,7 @@ src\domolibrary2\classes\DomoPage\core.py:55:24: F821 Undefined name `dmdl`
 
    |                        ^^^^ F821
 
-56 | 
+56 |
 
 57 |     def display_url(self):
 
@@ -1606,13 +1606,13 @@ src\domolibrary2\classes\DomoPage\core.py:71:24: N813 Camelcase `DomoGroup` impo
 
 69 |             return []
 
-70 | 
+70 |
 
 71 |         from .. import DomoGroup as dmg
 
    |                        ^^^^^^^^^^^^^^^^ N813
 
-72 | 
+72 |
 
 73 |         domo_groups = []
 
@@ -1632,7 +1632,7 @@ src\domolibrary2\classes\DomoPage\core.py:219:24: N813 Camelcase `DomoCard` impo
 
     |                        ^^^^^^^^^^^^^^^ N813
 
-220 | 
+220 |
 
 221 |         dd = page_obj
 
@@ -1802,7 +1802,7 @@ src\domolibrary2\classes\subentity\lineage.py:105:36: N813 Camelcase `Dataflow` 
 
     |                                    ^^^^^^^^^^^^^^^^ N813
 
-106 | 
+106 |
 
 107 |         return await dmdf.DomoDataflow.get_by_id(dataflow_id=entity_id, auth=auth)
 
@@ -1822,7 +1822,7 @@ src\domolibrary2\classes\subentity\lineage.py:141:24: N813 Camelcase `DomoPublis
 
     |                        ^^^^^^^^^^^^^^^^^^^ N813
 
-142 | 
+142 |
 
 143 |         return await dmpb.DomoPublication.get_by_id(
 
@@ -1842,7 +1842,7 @@ src\domolibrary2\classes\subentity\lineage.py:175:24: N813 Camelcase `DomoCard` 
 
     |                        ^^^^^^^^^^^^^^^^ N813
 
-176 | 
+176 |
 
 177 |         return await dmcd.DomoCard.get_by_id(
 
@@ -1862,7 +1862,7 @@ src\domolibrary2\classes\subentity\lineage.py:491:28: N813 Camelcase `DomoPage` 
 
     |                            ^^^^^^^^^^^^^^^^ N813
 
-492 | 
+492 |
 
 493 |             self.parent = await dmpg.DomoPage.get_by_id(
 
@@ -1880,7 +1880,7 @@ src\domolibrary2\classes\subentity\lineage.py:581:28: N813 Camelcase `DomoPublis
 
     |                            ^^^^^^^^^^^^^^^^^^^ N813
 
-582 | 
+582 |
 
 583 |             self.parent = await dmpb.DomoPublication.get_entity_by_id(
 
@@ -1938,7 +1938,7 @@ src\domolibrary2\classes\subentity\membership.py:128:24: N813 Camelcase `DomoGro
 
     |                        ^^^^^^^^^^^^^^^^ N813
 
-129 | 
+129 |
 
 130 |         # Check if we should keep system groups
 
@@ -1958,7 +1958,7 @@ src\domolibrary2\classes\subentity\membership.py:145:24: N813 Camelcase `DomoGro
 
     |                        ^^^^^^^^^^^^^^^^ N813
 
-146 | 
+146 |
 
 147 |         # Check if we should keep system groups
 
@@ -1978,7 +1978,7 @@ src\domolibrary2\classes\subentity\membership.py:167:24: N813 Camelcase `DomoGro
 
     |                        ^^^^^^^^^^^^^^^^ N813
 
-168 | 
+168 |
 
 169 |         return await dmce.gather_with_concurrency(
 
@@ -1998,7 +1998,7 @@ src\domolibrary2\classes\subentity\membership.py:185:24: N813 Camelcase `DomoUse
 
     |                        ^^^^^^^^^^^^^^^ N813
 
-186 | 
+186 |
 
 187 |         return await dmce.gather_with_concurrency(
 
@@ -2018,7 +2018,7 @@ src\domolibrary2\classes\subentity\membership.py:509:24: N813 Camelcase `DomoGro
 
     |                        ^^^^^^^^^^^^^^^^^ N813
 
-510 | 
+510 |
 
 511 |         self._reset_obj()
 
@@ -2038,7 +2038,7 @@ src\domolibrary2\classes\subentity\membership.py:566:24: N813 Camelcase `DomoGro
 
     |                        ^^^^^^^^^^^^^^^^ N813
 
-567 | 
+567 |
 
 568 |         domo_groups = dmg.DomoGroups(auth=self.auth)
 
@@ -2250,7 +2250,7 @@ src\domolibrary2\routes\datacenter\__init__.py:25:1: E402 Module level import no
 
    | |_^ E402
 
-41 |   
+41 |
 
 42 |   __all__ = [
 
@@ -2356,7 +2356,8 @@ src\domolibrary2\routes\instance_config\mfa.py:81:5: N803 Argument name `is_enab
 
 
 
-src\domolibrary2\routes\jupyter\exceptions.py:9:5: F822 Undefined name `SearchJupyter_NotFound` in `__all__`
+src\domolibrary2\routes\jupyter\exceptions.py:9:5: F822 Undefined name `SearchJupyterNotFoundError
+` in `__all__`
 
    |
 
@@ -2364,7 +2365,8 @@ src\domolibrary2\routes\jupyter\exceptions.py:9:5: F822 Undefined name `SearchJu
 
  8 |     "Jupyter_GET_Error",
 
- 9 |     "SearchJupyter_NotFound",
+ 9 |     "SearchJupyterNotFoundError
+",
 
    |     ^^^^^^^^^^^^^^^^^^^^^^^^ F822
 
@@ -2516,7 +2518,7 @@ src\domolibrary2\utils\read_creds_from_dotenv.py:36:15: N813 Camelcase `DictDot`
 
 34 | from dotenv import load_dotenv
 
-35 | 
+35 |
 
 36 | from . import DictDot as utils_dd
 
@@ -2540,7 +2542,7 @@ src\postman\converter\implementation.ipynb:cell 5:9:1: E402 Module level import 
 
    | ^^^^^^^^^^^^^^^^^^^^^^^^^ E402
 
-10 | 
+10 |
 
 11 | # pprint(collection.info.__dict__)
 
@@ -2856,7 +2858,7 @@ src\postman\converter\validate_structure.py:34:8: E721 Use `is` and `is not` for
 
 32 |     differences = []
 
-33 | 
+33 |
 
 34 |     if type(original) != type(reconstructed):
 
@@ -2877,4 +2879,3 @@ Found 161 errors (1 fixed, 160 remaining).
 ruff-format..............................................................Passed
 
 bandit...................................................................Passed
-

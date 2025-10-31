@@ -191,7 +191,7 @@ async def create_api_client(
         ApiClient_CRUD_Error: If API client creation fails
     """
     if not isinstance(auth, DomoFullAuth):
-        raise InvalidAuthType(
+        raise InvalidAuthTypeError(
             message=f"required auth type {DomoFullAuth.__class__.__name__}"
         )
 

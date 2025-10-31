@@ -11,7 +11,7 @@ __all__ = [
     "AccountLockedError",
     "InvalidAuthTypeError",
     "InvalidInstanceError",
-    "NoAccessTokenReturned",
+    "NoAccessTokenReturnedError",
     "get_full_auth",
     "get_developer_auth",
     "who_am_i",

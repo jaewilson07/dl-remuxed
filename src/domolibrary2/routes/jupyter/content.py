@@ -23,7 +23,7 @@ __all__ = [
 import asyncio
 import os
 import urllib
-from enum import Enum
+from enum import Enum, member
 from functools import partial
 from typing import Any, Optional
 
@@ -36,7 +36,11 @@ from ...client import (
 )
 from ...entities.base import DomoEnumMixin
 from ...utils import chunk_execution as dmce
-from .exceptions import Jupyter_CRUD_Error, Jupyter_GET_Error, SearchJupyter_NotFound
+from .exceptions import (
+    Jupyter_CRUD_Error,
+    Jupyter_GET_Error,
+    SearchJupyterNotFoundError,
+)
 
 
 # Utility functions for body generation
@@ -94,10 +98,10 @@ def generate_update_jupyter_body__directory(content_path, body):
 class GenerateUpdateJupyterBodyFactory(DomoEnumMixin, Enum):
     """Factory for generating different types of Jupyter request bodies."""
 
-    IPYNB = partial(generate_update_jupyter_body__ipynb)
-    DIRECTORY = partial(generate_update_jupyter_body__directory)
-    TEXT = partial(generate_update_jupyter_body__text)
-    default = partial(generate_update_jupyter_body__text)
+    IPYNB = member(partial(generate_update_jupyter_body__ipynb))
+    DIRECTORY = member(partial(generate_update_jupyter_body__directory))
+    TEXT = member(partial(generate_update_jupyter_body__text))
+    default = member(partial(generate_update_jupyter_body__text))
 
 
 def generate_update_jupyter_body(
@@ -146,21 +150,22 @@ async def get_jupyter_content(
 ) -> rgd.ResponseGetData:
     """Retrieve content from a Jupyter workspace.
 
-    Args:
-        auth: Jupyter authentication object with workspace credentials
-        content_path: Path to content within the workspace (default: root)
-        session: Optional httpx client session for connection reuse
-        debug_api: Enable detailed API request/response logging
-        debug_num_stacks_to_drop: Number of stack frames to drop in debug output
-        parent_class: Optional parent class name for debugging context
-        return_raw: Return raw API response without processing
+        Args:
+            auth: Jupyter authentication object with workspace credentials
+            content_path: Path to content within the workspace (default: root)
+            session: Optional httpx client session for connection reuse
+            debug_api: Enable detailed API request/response logging
+            debug_num_stacks_to_drop: Number of stack frames to drop in debug output
+            parent_class: Optional parent class name for debugging context
+            return_raw: Return raw API response without processing
 
-    Returns:
-        ResponseGetData object containing workspace content
+        Returns:
+            ResponseGetData object containing workspace content
 
-    Raises:
-        Jupyter_GET_Error: If content retrieval fails
-        SearchJupyter_NotFound: If content path doesn't exist
+        Raises:
+            Jupyter_GET_Error: If content retrieval fails
+            SearchJupyterNotFoundError
+    : If content path doesn't exist
     """
     dmda.test_is_jupyter_auth(auth)
 
@@ -186,7 +191,7 @@ async def get_jupyter_content(
         )
 
     if res.status == 404:
-        raise SearchJupyter_NotFound(
+        raise SearchJupyterNotFoundError(
             search_criteria=f"content_path: {content_path}", res=res
         )
 
@@ -322,21 +327,22 @@ async def delete_jupyter_content(
 ) -> rgd.ResponseGetData:
     """Delete content from a Jupyter workspace.
 
-    Args:
-        auth: Jupyter authentication object with workspace credentials
-        content_path: File name and location within the workspace
-        session: Optional httpx client session for connection reuse
-        debug_api: Enable detailed API request/response logging
-        debug_num_stacks_to_drop: Number of stack frames to drop in debug output
-        parent_class: Optional parent class name for debugging context
-        return_raw: Return raw API response without processing
+        Args:
+            auth: Jupyter authentication object with workspace credentials
+            content_path: File name and location within the workspace
+            session: Optional httpx client session for connection reuse
+            debug_api: Enable detailed API request/response logging
+            debug_num_stacks_to_drop: Number of stack frames to drop in debug output
+            parent_class: Optional parent class name for debugging context
+            return_raw: Return raw API response without processing
 
-    Returns:
-        ResponseGetData object containing deletion result
+        Returns:
+            ResponseGetData object containing deletion result
 
-    Raises:
-        Jupyter_CRUD_Error: If content deletion fails
-        SearchJupyter_NotFound: If content path doesn't exist
+        Raises:
+            Jupyter_CRUD_Error: If content deletion fails
+            SearchJupyterNotFoundError
+    : If content path doesn't exist
     """
     dmda.test_is_jupyter_auth(auth)
 
@@ -367,7 +373,7 @@ async def delete_jupyter_content(
         )
 
     if res.status == 404:
-        raise SearchJupyter_NotFound(
+        raise SearchJupyterNotFoundError(
             search_criteria=f"content_path: {content_path}", res=res
         )
 
@@ -391,23 +397,24 @@ async def update_jupyter_file(
 ) -> rgd.ResponseGetData:
     """Update content in a Jupyter workspace file.
 
-    Args:
-        auth: Jupyter authentication object with workspace credentials
-        new_content: New content to update the file with
-        content_path: File name and location within the workspace
-        body: Optional custom body for the request
-        session: Optional httpx client session for connection reuse
-        debug_api: Enable detailed API request/response logging
-        debug_num_stacks_to_drop: Number of stack frames to drop in debug output
-        parent_class: Optional parent class name for debugging context
-        return_raw: Return raw API response without processing
+        Args:
+            auth: Jupyter authentication object with workspace credentials
+            new_content: New content to update the file with
+            content_path: File name and location within the workspace
+            body: Optional custom body for the request
+            session: Optional httpx client session for connection reuse
+            debug_api: Enable detailed API request/response logging
+            debug_num_stacks_to_drop: Number of stack frames to drop in debug output
+            parent_class: Optional parent class name for debugging context
+            return_raw: Return raw API response without processing
 
-    Returns:
-        ResponseGetData object containing update result
+        Returns:
+            ResponseGetData object containing update result
 
-    Raises:
-        Jupyter_CRUD_Error: If file update fails
-        SearchJupyter_NotFound: If content path doesn't exist
+        Raises:
+            Jupyter_CRUD_Error: If file update fails
+            SearchJupyterNotFoundError
+    : If content path doesn't exist
     """
     dmda.test_is_jupyter_auth(auth)
 
@@ -443,7 +450,7 @@ async def update_jupyter_file(
         )
 
     if res.status == 404:
-        raise SearchJupyter_NotFound(
+        raise SearchJupyterNotFoundError(
             search_criteria=f"content_path: {content_path}", res=res
         )
 
@@ -570,24 +577,25 @@ async def get_content(
 ) -> rgd.ResponseGetData:
     """Get content from a Jupyter workspace recursively.
 
-    Args:
-        auth: Jupyter authentication object with workspace credentials
-        content_path: Path to start retrieving content from
-        is_recursive: Whether to recursively get nested directory content
-        is_skip_recent_executions: Skip files with recent execution timestamps
-        is_skip_default_files: Skip default workspace files
-        session: Optional httpx client session for connection reuse
-        debug_api: Enable detailed API request/response logging
-        debug_num_stacks_to_drop: Number of stack frames to drop in debug output
-        parent_class: Optional parent class name for debugging context
-        return_raw: Return raw API response without processing
+        Args:
+            auth: Jupyter authentication object with workspace credentials
+            content_path: Path to start retrieving content from
+            is_recursive: Whether to recursively get nested directory content
+            is_skip_recent_executions: Skip files with recent execution timestamps
+            is_skip_default_files: Skip default workspace files
+            session: Optional httpx client session for connection reuse
+            debug_api: Enable detailed API request/response logging
+            debug_num_stacks_to_drop: Number of stack frames to drop in debug output
+            parent_class: Optional parent class name for debugging context
+            return_raw: Return raw API response without processing
 
-    Returns:
-        ResponseGetData object containing all workspace content
+        Returns:
+            ResponseGetData object containing all workspace content
 
-    Raises:
-        Jupyter_GET_Error: If content retrieval fails
-        SearchJupyter_NotFound: If content path doesn't exist
+        Raises:
+            Jupyter_GET_Error: If content retrieval fails
+            SearchJupyterNotFoundError
+    : If content path doesn't exist
     """
     dmda.test_is_jupyter_auth(auth)
 

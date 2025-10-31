@@ -13,10 +13,10 @@ from ...routes import (
     datacenter as datacenter_routes,
 )
 from ...utils import chunk_execution as dmce
-from .account_credential import DomoAccount_Credential
+from .account_credential import DomoAccountCredential
 from .account_default import (
     DomoAccount_Default,
-    UpsertAccount_MatchCriteria,
+    UpsertAccount_MatchCriteriaError,
 )
 from .account_oauth import DomoAccount_OAuth
 from .config import AccountConfig
@@ -48,7 +48,7 @@ class DomoAccount(DomoAccount_Default):
         if obj.get("credentialsType") == "oauth":
             new_cls = DomoAccount_OAuth
         else:
-            new_cls = DomoAccount_Credential
+            new_cls = DomoAccountCredential
 
         return super().from_dict(
             auth=auth,
@@ -221,7 +221,7 @@ class DomoAccounts(DomoManager):
         """search for an account and upsert it"""
 
         if not account_name and not account_id:
-            raise UpsertAccount_MatchCriteria(domo_instance=auth.domo_instance)
+            raise UpsertAccount_MatchCriteriaError(domo_instance=auth.domo_instance)
 
         data_provider_type = (
             data_provider_type or account_config and account_config.data_provider_type
@@ -270,7 +270,7 @@ class DomoAccounts(DomoManager):
             return acc
 
         if not isinstance(
-            acc, (DomoAccount_Default, DomoAccount, DomoAccount_Credential)
+            acc, (DomoAccount_Default, DomoAccount, DomoAccountCredential)
         ):
             if debug_prn:
                 print(f"creating {account_name} in {auth.domo_instance}")
