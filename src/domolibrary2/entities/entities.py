@@ -141,16 +141,16 @@ class DomoEntity(DomoBase):
         """
         raise NotImplementedError("This method should be implemented by subclasses.")
 
-    async def refresh_from_api(
+    async def refresh(
         self,
         debug_num_stacks_to_drop=2,
         debug_api: bool = False,
         session: httpx.AsyncClient | None = None,
     ):
         """Refresh this instance from the API using its id and auth."""
-        result = await type(self).get_by_id(
+        result = await type(self).get_entity_by_id(
             auth=self.auth,
-            stream_id=self.id,
+            entity_id=self.id,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
             debug_api=debug_api,
             session=session,
