@@ -84,17 +84,15 @@ class DomoDatacenter:
         #     ],
         # )
 
-        return (
-            [
-                dmds.DomoDataset.from_dict(
-                    obj=obj,
-                    auth=self.auth,
-                    # debug_api=debug_api,
-                    # session=session,
-                )
-                for obj in json_list
-            ],
-        )
+        return [
+            dmds.DomoDataset.from_dict(
+                obj=obj,
+                auth=self.auth,
+                # debug_api=debug_api,
+                # session=session,
+            )
+            for obj in json_list
+        ]
 
     async def get_accounts(
         self,
