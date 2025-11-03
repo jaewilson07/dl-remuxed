@@ -141,7 +141,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
 
         ds = cls(
             auth=auth,
-            id=obj.get("id", ""),
+            id=obj.get("id") or obj.get("databaseId"),
             raw=obj,
             display_type=obj.get("displayType", ""),
             data_provider_type=obj.get("dataProviderType", ""),
@@ -206,7 +206,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
         )
 
         if ds.Stream:
-            await ds.Stream.refresh_from_api()
+            await ds.Stream.refresh()
 
         return ds
 
