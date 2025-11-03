@@ -2,9 +2,8 @@
 
 __all__ = [
     "DomoSchedule_Base",
-    "DomoAdvancedSchedule",
     "DomoCronSchedule",
-    "DomoSimpleSchedule",
+    "DomoManualSchedule",
     "ScheduleFrequencyEnum",
     "ScheduleType",
 ]
@@ -38,8 +37,7 @@ class ScheduleFrequencyEnum(DomoEnumMixin, Enum):
 class ScheduleType(DomoEnumMixin, Enum):
     """Schedule configuration types"""
 
-    SIMPLE = "SIMPLE"
-    ADVANCED = "ADVANCED"
+    MANUAL = "MANUAL"
     CRON = "CRON"
 
 
@@ -52,7 +50,7 @@ class DomoSchedule_Base(DomoBase, ABC):
 
     # Interpreted schedule information
     frequency: ScheduleFrequencyEnum = ScheduleFrequencyEnum.MANUAL
-    schedule_type: ScheduleType = ScheduleType.SIMPLE
+    schedule_type: ScheduleType = ScheduleType.MANUAL
 
     # Detailed frequency information
     interval: int = 1
@@ -152,11 +150,11 @@ class DomoSchedule_Base(DomoBase, ABC):
         """Detect the type and frequency from expression"""
         # Manual execution
         if expr in ["MANUAL", "NONE", ""]:
-            return ScheduleFrequencyEnum.MANUAL, ScheduleType.SIMPLE
+            return ScheduleFrequencyEnum.MANUAL, ScheduleType.MANUAL
 
         # Once execution
         if expr in ["ONCE", "RUN_ONCE"]:
-            return ScheduleFrequencyEnum.ONCE, ScheduleType.SIMPLE
+            return ScheduleFrequencyEnum.ONCE, ScheduleType.CRON
 
         # Default for expressions that need further parsing
         return ScheduleFrequencyEnum.CUSTOM_CRON, ScheduleType.CRON
@@ -277,6 +275,37 @@ class DomoSchedule_Base(DomoBase, ABC):
             "timezone": obj.get("timezone"),
             "is_active": obj.get("isActive", True),
         }
+
+    @staticmethod
+    def _extract_scheduler_fields(obj: dict[str, Any]) -> dict[str, Any]:
+        """Extract all scheduler-relevant fields for raw storage"""
+        scheduler_fields = {}
+        
+        # Common scheduler field names to capture
+        scheduler_field_names = [
+            "scheduleExpression",
+            "scheduleStartDate",
+            "advancedScheduleJson",
+            "scheduleRetryExpression",
+            "scheduleRetryCount",
+            "timezone",
+            "isActive",
+            "nextRunTime",
+            "lastRunTime",
+            "scheduleActive",
+            "expression",
+            "startDate",
+            "advancedSchedule",
+            "retryExpression",
+            "retryCount",
+        ]
+        
+        # Extract any scheduler-related fields that exist in obj
+        for field_name in scheduler_field_names:
+            if field_name in obj:
+                scheduler_fields[field_name] = obj[field_name]
+        
+        return scheduler_fields
 
     @staticmethod
     def _parse_datetime_input(date_input: Any) -> Optional[dt.datetime]:
@@ -514,20 +543,141 @@ class DomoSchedule_Base(DomoBase, ABC):
 
         return result
 
+    async def refresh(
+        self,
+        session: Optional[Any] = None,
+        debug_api: bool = False,
+    ) -> "DomoSchedule_Base":
+        """Refresh schedule data by refreshing the parent entity.
+
+        This method calls the parent entity's refresh() method, which updates
+        the parent's raw data. The schedule then re-initializes itself from
+        the updated parent data.
+
+        Note: If the schedule type changes (e.g., Manual to Cron), this method
+        updates the instance in place. The parent entity should recreate the
+        Schedule subentity if type safety is critical.
+
+        Args:
+            session: Optional httpx.AsyncClient session for API requests
+            debug_api: Enable debug output for API calls
+
+        Returns:
+            Self (with updated schedule data)
+
+        Raises:
+            AttributeError: If parent is None or doesn't support refresh
+        """
+        if not self.parent:
+            raise AttributeError(
+                "Cannot refresh schedule: parent entity is not set"
+            )
+
+        # Refresh the parent entity
+        if hasattr(self.parent, "refresh") and callable(self.parent.refresh):
+            await self.parent.refresh(session=session, debug_api=debug_api)
+        else:
+            raise AttributeError(
+                f"Parent entity {type(self.parent).__name__} does not have a refresh() method"
+            )
+
+        # Extract updated schedule data from parent's raw response
+        parent_raw = getattr(self.parent, "raw", {})
+        
+        # Get scheduler fields from parent
+        scheduler_raw = self._extract_scheduler_fields(parent_raw)
+        self.raw = scheduler_raw
+
+        # Re-extract and parse the updated schedule components
+        field_mappings = self._extract_field_mappings(parent_raw)
+        
+        # Update schedule start date
+        self.schedule_start_date = self._parse_datetime_input(
+            field_mappings["start_date_raw"]
+        )
+        
+        # Update basic fields
+        self.timezone = field_mappings["timezone"]
+        self.is_active = field_mappings["is_active"]
+        
+        # Update schedule expression if present
+        if hasattr(self, "schedule_expression"):
+            self.schedule_expression = field_mappings["schedule_expr"]  # type: ignore
+        
+        # Update advanced JSON if present - this may cause type to change
+        advanced_json_raw = field_mappings["advanced_json"]
+        if hasattr(self, "advanced_schedule_json"):
+            self.advanced_schedule_json = self._parse_json_input(  # type: ignore
+                advanced_json_raw
+            )
+        
+        # Re-interpret the schedule to update frequency, interval, etc.
+        # Note: For DomoManualSchedule, this will still set to MANUAL
+        # For DomoCronSchedule, this will re-parse the cron/advanced config
+        self._interpret_schedule()
+
+        return self
+
 
 @dataclass
-class DomoAdvancedSchedule(DomoSchedule_Base):
-    """Schedule based on advanced JSON configuration"""
+class DomoManualSchedule(DomoSchedule_Base):
+    """Schedule for manual execution only"""
 
+    schedule_expression: Optional[str] = None
+
+    def _interpret_schedule(self):
+        """Interpret manual schedule configuration"""
+        self.schedule_type = ScheduleType.MANUAL
+        self.frequency = ScheduleFrequencyEnum.MANUAL
+
+    @classmethod
+    def from_dict(
+        cls, obj: dict[str, Any], parent: Any = None, **kwargs
+    ) -> "DomoManualSchedule":
+        """Create DomoManualSchedule from dictionary/API response"""
+        field_mappings = cls._extract_field_mappings(obj)
+        start_date = cls._parse_datetime_input(field_mappings["start_date_raw"])
+        
+        # Extract only scheduler-relevant fields for raw storage
+        scheduler_raw = cls._extract_scheduler_fields(obj)
+
+        return cls(
+            parent=parent,
+            schedule_start_date=start_date,
+            schedule_expression=field_mappings["schedule_expr"],
+            timezone=field_mappings["timezone"],
+            is_active=field_mappings["is_active"],
+            raw=scheduler_raw,
+            **kwargs,
+        )
+
+
+@dataclass
+class DomoCronSchedule(DomoSchedule_Base):
+    """Schedule based on cron-like expressions, advanced JSON, or simple expressions"""
+
+    schedule_expression: Optional[str] = None
     advanced_schedule_json: Optional[dict[str, Any]] = None
 
     def _interpret_schedule(self):
-        """Interpret advanced schedule JSON configuration"""
-        if not self.advanced_schedule_json:
+        """Interpret schedule from expression or advanced JSON"""
+        self.schedule_type = ScheduleType.CRON
+
+        # Priority 1: Advanced schedule JSON
+        if self.advanced_schedule_json:
+            self._interpret_advanced_schedule()
             return
 
-        self.schedule_type = ScheduleType.ADVANCED
+        # Priority 2: Schedule expression
+        if self.schedule_expression:
+            self._interpret_expression_schedule()
+            return
 
+        # Default to manual if no configuration
+        self.frequency = ScheduleFrequencyEnum.MANUAL
+
+    def _interpret_advanced_schedule(self):
+        """Interpret advanced schedule JSON configuration"""
         # Extract components using utility function
         components = self._extract_schedule_components(self.advanced_schedule_json)
 
@@ -549,50 +699,16 @@ class DomoAdvancedSchedule(DomoSchedule_Base):
         ):
             self._infer_frequency_from_components()
 
-    @classmethod
-    def from_dict(
-        cls,
-        obj: dict[str, Any],
-        # auth: Optional[DomoAuth] = None,
-        parent: Any | None = None,
-        **kwargs,
-    ) -> "DomoAdvancedSchedule":
-        """Create DomoAdvancedSchedule from dictionary/API response"""
-        field_mappings = cls._extract_field_mappings(obj)
-        start_date = cls._parse_datetime_input(field_mappings["start_date_raw"])
-        advanced_json = cls._parse_json_input(field_mappings["advanced_json"])
-
-        return cls(
-            parent=parent,
-            schedule_start_date=start_date,
-            advanced_schedule_json=advanced_json,
-            timezone=field_mappings["timezone"],
-            is_active=field_mappings["is_active"],
-            raw=obj,
-            **kwargs,
-        )
-
-
-@dataclass
-class DomoCronSchedule(DomoSchedule_Base):
-    """Schedule based on cron-like expressions"""
-
-    schedule_expression: Optional[str] = None
-
-    def _interpret_schedule(self):
-        """Interpret cron-like schedule expression"""
-        if not self.schedule_expression:
-            return
-
+    def _interpret_expression_schedule(self):
+        """Interpret cron-like or simple schedule expression"""
         expr = self._normalize_expression(self.schedule_expression)
 
         # Detect basic expression type
-        frequency, schedule_type = self._detect_expression_type(expr)
+        frequency, _ = self._detect_expression_type(expr)
         self.frequency = frequency
-        self.schedule_type = schedule_type
 
-        # If it's a simple type, we're done
-        if schedule_type == ScheduleType.SIMPLE:
+        # If it's manual, return early
+        if frequency == ScheduleFrequencyEnum.MANUAL:
             return
 
         # Try to parse cron expression (basic patterns)
@@ -606,57 +722,25 @@ class DomoCronSchedule(DomoSchedule_Base):
     def from_dict(
         cls,
         obj: dict[str, Any],
-        # auth: Optional[DomoAuth] = None,
         parent: Any | None = None,
         **kwargs,
     ) -> "DomoCronSchedule":
         """Create DomoCronSchedule from dictionary/API response"""
         field_mappings = cls._extract_field_mappings(obj)
         start_date = cls._parse_datetime_input(field_mappings["start_date_raw"])
+        advanced_json = cls._parse_json_input(field_mappings["advanced_json"])
+        
+        # Extract only scheduler-relevant fields for raw storage
+        scheduler_raw = cls._extract_scheduler_fields(obj)
 
         return cls(
             parent=parent,
             schedule_start_date=start_date,
             schedule_expression=field_mappings["schedule_expr"],
+            advanced_schedule_json=advanced_json,
             timezone=field_mappings["timezone"],
             is_active=field_mappings["is_active"],
-            raw=obj,
-            **kwargs,
-        )
-
-
-@dataclass
-class DomoSimpleSchedule(DomoSchedule_Base):
-    """Simple schedule for manual/once execution"""
-
-    schedule_expression: Optional[str] = None
-
-    def _interpret_schedule(self):
-        """Interpret simple schedule configuration"""
-        self.schedule_type = ScheduleType.SIMPLE
-
-        if self.schedule_expression:
-            expr = self._normalize_expression(self.schedule_expression)
-            frequency, _ = self._detect_expression_type(expr)
-            self.frequency = frequency
-        else:
-            self.frequency = ScheduleFrequencyEnum.MANUAL
-
-    @classmethod
-    def from_dict(
-        cls, obj: dict[str, Any], parent: Any = None, **kwargs
-    ) -> "DomoSimpleSchedule":
-        """Create DomoSimpleSchedule from dictionary/API response"""
-        field_mappings = cls._extract_field_mappings(obj)
-        start_date = cls._parse_datetime_input(field_mappings["start_date_raw"])
-
-        return cls(
-            parent=parent,
-            schedule_start_date=start_date,
-            schedule_expression=field_mappings["schedule_expr"],
-            timezone=field_mappings["timezone"],
-            is_active=field_mappings["is_active"],
-            raw=obj,
+            raw=scheduler_raw,
             **kwargs,
         )
 
@@ -669,22 +753,27 @@ class DomoSchedule(DomoSchedule_Base):
         """Determine the appropriate schedule subclass based on input data"""
         field_mappings = cls._extract_field_mappings(obj)
 
-        # Check for advanced schedule JSON
-        if field_mappings["advanced_json"]:
-            return DomoAdvancedSchedule
+        # Check for advanced schedule JSON and its type field
+        advanced_json = cls._parse_json_input(field_mappings["advanced_json"])
+        if advanced_json:
+            schedule_type = advanced_json.get("type", "").upper()
+            if schedule_type == "MANUAL":
+                return DomoManualSchedule
+            # Any other type in advanced JSON is handled by DomoCronSchedule
+            return DomoCronSchedule
 
         # Check for schedule expression (cron-like)
         if field_mappings["schedule_expr"]:
             expr = cls._normalize_expression(field_mappings["schedule_expr"])
             frequency, schedule_type = cls._detect_expression_type(expr)
 
-            if schedule_type == ScheduleType.SIMPLE:
-                return DomoSimpleSchedule
+            if schedule_type == ScheduleType.MANUAL:
+                return DomoManualSchedule
             else:
                 return DomoCronSchedule
 
-        # Default to simple schedule
-        return DomoSimpleSchedule
+        # Default to manual schedule
+        return DomoManualSchedule
 
     @classmethod
     def from_parent(
