@@ -356,3 +356,104 @@ class DomoAccount_OAuth(DomoAccount_Default):
         self.Config = oauth_config
 
         return self
+
+    async def share(
+        self,
+        user_id: int = None,
+        group_id: int = None,
+        access_level=None,  # ShareAccount_AccessLevel
+        session: httpx.AsyncClient | None = None,
+        debug_api: bool = False,
+        return_raw: bool = False,
+    ):
+        """Share this OAuth account with a user or group.
+
+        Args:
+            user_id: User ID to share with (mutually exclusive with group_id)
+            group_id: Group ID to share with (mutually exclusive with user_id)
+            access_level: Access level (ShareAccount_AccessLevel enum)
+            session: HTTP client session (optional)
+            debug_api: Enable API debugging
+            return_raw: Return raw response without processing
+
+        Returns:
+            ResponseGetData if return_raw=True, else the updated account
+
+        Raises:
+            ValueError: If neither user_id nor group_id is provided
+            Account_Share_Error: If sharing operation fails
+
+        Example:
+            >>> from domolibrary2.routes.account import ShareAccount_AccessLevel
+            >>> account = await DomoAccount_OAuth.get_by_id(auth=auth, account_id=123)
+            >>> await account.share(
+            ...     user_id=456,
+            ...     access_level=ShareAccount_AccessLevel.CAN_EDIT
+            ... )
+        """
+        if not user_id and not group_id:
+            raise ValueError("Must provide either user_id or group_id")
+
+        if not access_level:
+            from ...routes.account import ShareAccount_AccessLevel
+
+            access_level = ShareAccount_AccessLevel.CAN_VIEW
+
+        # Generate share payload
+        share_payload = access_level.generate_payload(
+            user_id=user_id, group_id=group_id
+        )
+
+        res = await account_routes.share_oauth_account(
+            auth=self.auth,
+            account_id=self.id,
+            share_payload=share_payload,
+            session=session,
+            debug_api=debug_api,
+            return_raw=return_raw,
+        )
+
+        if return_raw:
+            return res
+
+        # Refresh access list after sharing
+        if self.Access:
+            await self.get_access(force_refresh=True, session=session)
+
+        return self
+
+    async def get_access(
+        self,
+        session: httpx.AsyncClient | None = None,
+        debug_api: bool = False,
+        force_refresh: bool = False,
+        debug_num_stacks_to_drop: int = 2,
+    ):
+        """Retrieve the access list for this OAuth account.
+
+        This method retrieves all users and groups that have access to this OAuth account
+        along with their access levels.
+
+        Args:
+            session: HTTP client session (optional)
+            debug_api: Enable API debugging
+            force_refresh: If True, refresh even if Access relationships are already loaded
+            debug_num_stacks_to_drop: Stack frames to drop for debugging
+
+        Returns:
+            List of Access_Relation objects representing users/groups with access
+
+        Example:
+            >>> account = await DomoAccount_OAuth.get_by_id(auth=auth, account_id=123)
+            >>> access_list = await account.get_access()
+            >>> for access in access_list:
+            ...     print(f"{access.entity.name}: {access.relationship_type}")
+        """
+        if not force_refresh and self.Access.relationships:
+            return self.Access.relationships
+
+        return await self.Access.get(
+            debug_api=debug_api,
+            session=session,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        )

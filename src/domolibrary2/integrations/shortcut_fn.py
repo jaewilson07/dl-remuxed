@@ -5,8 +5,8 @@ __all__ = ["share_domo_account_with_domo_group"]
 
 from ..classes import (
     DomoAccount as dmacc,
-    DomoGroup as dmdg,
 )
+from ..classes.DomoGroup import core as dmdg
 from ..client.auth import DomoAuth
 
 

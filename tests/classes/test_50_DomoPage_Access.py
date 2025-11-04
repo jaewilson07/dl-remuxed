@@ -233,7 +233,7 @@ async def test_cell_6_share_with_group(token_auth=token_auth):
 
     domo_page = await dmpg.DomoPage.get_by_id(page_id=TEST_PAGE_ID_1, auth=token_auth)
 
-    from domolibrary2.classes.DomoGroup import DomoGroup
+    from domolibrary2.classes.DomoGroup.core import DomoGroup
 
     test_group = await DomoGroup.get_by_id(group_id=test_group_id, auth=token_auth)
 

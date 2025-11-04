@@ -17,7 +17,7 @@ from enum import Enum
 from typing import Any, Callable, Optional
 
 # from ...client.auth import DomoAuth
-from ...client.entities import DomoBase, DomoEnumMixin
+from ...entities.base import DomoBase, DomoEnumMixin
 
 
 class ScheduleFrequencyEnum(DomoEnumMixin, Enum):
@@ -280,7 +280,7 @@ class DomoSchedule_Base(DomoBase, ABC):
     def _extract_scheduler_fields(obj: dict[str, Any]) -> dict[str, Any]:
         """Extract all scheduler-relevant fields for raw storage"""
         scheduler_fields = {}
-        
+
         # Common scheduler field names to capture
         scheduler_field_names = [
             "scheduleExpression",
@@ -299,12 +299,12 @@ class DomoSchedule_Base(DomoBase, ABC):
             "retryExpression",
             "retryCount",
         ]
-        
+
         # Extract any scheduler-related fields that exist in obj
         for field_name in scheduler_field_names:
             if field_name in obj:
                 scheduler_fields[field_name] = obj[field_name]
-        
+
         return scheduler_fields
 
     @staticmethod
@@ -569,9 +569,7 @@ class DomoSchedule_Base(DomoBase, ABC):
             AttributeError: If parent is None or doesn't support refresh
         """
         if not self.parent:
-            raise AttributeError(
-                "Cannot refresh schedule: parent entity is not set"
-            )
+            raise AttributeError("Cannot refresh schedule: parent entity is not set")
 
         # Refresh the parent entity
         if hasattr(self.parent, "refresh") and callable(self.parent.refresh):
@@ -583,34 +581,34 @@ class DomoSchedule_Base(DomoBase, ABC):
 
         # Extract updated schedule data from parent's raw response
         parent_raw = getattr(self.parent, "raw", {})
-        
+
         # Get scheduler fields from parent
         scheduler_raw = self._extract_scheduler_fields(parent_raw)
         self.raw = scheduler_raw
 
         # Re-extract and parse the updated schedule components
         field_mappings = self._extract_field_mappings(parent_raw)
-        
+
         # Update schedule start date
         self.schedule_start_date = self._parse_datetime_input(
             field_mappings["start_date_raw"]
         )
-        
+
         # Update basic fields
         self.timezone = field_mappings["timezone"]
         self.is_active = field_mappings["is_active"]
-        
+
         # Update schedule expression if present
         if hasattr(self, "schedule_expression"):
             self.schedule_expression = field_mappings["schedule_expr"]  # type: ignore
-        
+
         # Update advanced JSON if present - this may cause type to change
         advanced_json_raw = field_mappings["advanced_json"]
         if hasattr(self, "advanced_schedule_json"):
             self.advanced_schedule_json = self._parse_json_input(  # type: ignore
                 advanced_json_raw
             )
-        
+
         # Re-interpret the schedule to update frequency, interval, etc.
         # Note: For DomoManualSchedule, this will still set to MANUAL
         # For DomoCronSchedule, this will re-parse the cron/advanced config
@@ -637,7 +635,7 @@ class DomoManualSchedule(DomoSchedule_Base):
         """Create DomoManualSchedule from dictionary/API response"""
         field_mappings = cls._extract_field_mappings(obj)
         start_date = cls._parse_datetime_input(field_mappings["start_date_raw"])
-        
+
         # Extract only scheduler-relevant fields for raw storage
         scheduler_raw = cls._extract_scheduler_fields(obj)
 
@@ -729,7 +727,7 @@ class DomoCronSchedule(DomoSchedule_Base):
         field_mappings = cls._extract_field_mappings(obj)
         start_date = cls._parse_datetime_input(field_mappings["start_date_raw"])
         advanced_json = cls._parse_json_input(field_mappings["advanced_json"])
-        
+
         # Extract only scheduler-relevant fields for raw storage
         scheduler_raw = cls._extract_scheduler_fields(obj)
 

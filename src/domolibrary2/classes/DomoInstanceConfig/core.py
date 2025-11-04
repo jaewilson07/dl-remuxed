@@ -22,6 +22,7 @@ from ..DomoDataset.connector import DomoConnectors
 from .access_token import DomoAccessTokens
 from .allowlist import DomoAllowlist
 from .api_client import ApiClients
+from .bootstrap import DomoBootstrap
 from .instance_switcher import InstanceSwitcher
 from .mfa import MFA_Config
 from .publish import DomoEverywhere
@@ -42,6 +43,7 @@ class DomoInstanceConfig:
     AccessTokens: DomoAccessTokens = field(default=None)
     Allowlist: DomoAllowlist = field(default=None)
     ApiClients: "ApiClients" = field(default=None)
+    Bootstrap: DomoBootstrap = field(default=None)
 
     Connectors: DomoConnectors = field(default=None)
     InstanceSwitcher: "InstanceSwitcher" = field(default=None)
@@ -66,6 +68,7 @@ class DomoInstanceConfig:
         self.AccessTokens = DomoAccessTokens(auth=self.auth)
         self.ApiClients = ApiClients(auth=self.auth)
         self.Allowlist = DomoAllowlist(auth=self.auth)
+        self.Bootstrap = DomoBootstrap(auth=self.auth)
 
         self.Connectors = DomoConnectors(auth=self.auth)
         self.Grants = DomoGrants(auth=self.auth)

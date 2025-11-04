@@ -67,9 +67,11 @@ class AccountSharing_Error(RouteError):
         operation: str,
         account_id: Optional[str] = None,
         res=None,
+        message: Optional[str] = None,
         **kwargs,
     ):
-        message = f"Account sharing {operation} failed"
+        if not message:
+            message = f"Account sharing {operation} failed"
         super().__init__(message=message, entity_id=account_id, res=res, **kwargs)
 
 

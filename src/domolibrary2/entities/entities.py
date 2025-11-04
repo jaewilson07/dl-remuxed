@@ -12,13 +12,12 @@ Classes:
 """
 
 import abc
-from dataclasses import dataclass, field, fields
+from dataclasses import dataclass, field
 from typing import Any, Callable, Optional
 
 import httpx
 
 from ..client.auth import DomoAuth
-from ..utils.convert import convert_snake_to_pascal
 from .base import DomoBase
 from .relationships import DomoRelationshipController
 
@@ -73,30 +72,35 @@ class DomoEntity(DomoBase):
 
         return False
 
-    def to_dict(self, override_fn: Optional[Callable] = None) -> dict:
-        """Convert all dataclass attributes to a dictionary in pascalCase.
+    def to_dict(
+        self, override_fn: Optional[Callable] = None, return_snake_case: bool = False
+    ) -> dict:
+        """Convert all dataclass attributes to a dictionary in camelCase or snake_case.
 
         This method is useful for serializing entity data for API requests
         or data export operations.
 
+        Only fields with repr=True are included, plus any properties listed in
+        __serialize_properties__.
+
         Args:
             override_fn (Optional[Callable]): Custom conversion function to override default behavior
+            return_snake_case (bool): If True, return keys in snake_case. If False (default), return camelCase.
 
         Returns:
-            dict: Dictionary with pascalCase keys and corresponding attribute values
+            dict: Dictionary with camelCase (default) or snake_case keys and corresponding attribute values
 
         Example:
             >>> entity.to_dict()
-            {'entityId': '123', 'displayName': 'My Entity', ...}
+            {'id': '123', 'displayName': 'My Entity', 'displayUrl': '...', ...}
+            >>> entity.to_dict(return_snake_case=True)
+            {'id': '123', 'display_name': 'My Entity', 'display_url': '...', ...}
         """
 
-        if override_fn:
-            return override_fn(self)
-
-        return {
-            convert_snake_to_pascal(field.name): getattr(self, field.name)
-            for field in fields(self)
-        }
+        # Use parent's implementation which handles repr filtering and __serialize_properties__
+        return super().to_dict(
+            override_fn=override_fn, return_snake_case=return_snake_case
+        )
 
     @property
     @abc.abstractmethod
@@ -288,7 +292,7 @@ class DomoSubEntity(DomoBase):
         auth: Authentication object (inherited from parent, hidden in repr)
     """
 
-    parent: DomoEntity
+    parent: DomoEntity = field(repr=False)
 
     @property
     def parent_id(self):

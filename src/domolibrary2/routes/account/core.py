@@ -12,16 +12,22 @@ Functions:
 from typing import Optional, Union
 
 import httpx
+from dc_logger.decorators import LogDecoratorConfig, log_call
 
 from ...client import (
     get_data as gd,
     response as rgd,
 )
 from ...client.auth import DomoAuth
+from ...utils.logging import ResponseGetDataProcessor
 from .exceptions import Account_GET_Error, AccountNoMatchError
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def get_available_data_providers(
     auth: DomoAuth,
     session: httpx.AsyncClient | None = None,
@@ -68,6 +74,10 @@ async def get_available_data_providers(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def get_accounts(
     auth: DomoAuth,
     session: httpx.AsyncClient | None = None,
@@ -115,6 +125,10 @@ async def get_accounts(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def get_account_by_id(
     auth: DomoAuth,
     account_id: Union[int, str],

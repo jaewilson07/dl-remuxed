@@ -252,8 +252,16 @@ class DomoAccounts(DomoManager):
                 )
 
                 for da in domo_accounts.accounts:
-                    if da.name and da.name.lower() != account_name.lower():
-                        continue
+                    # Check both name and display_name for matching
+                    if (
+                        da.display_name
+                        and da.display_name.lower() == account_name.lower()
+                    ):
+                        pass  # Match found
+                    elif da.name and da.name.lower() == account_name.lower():
+                        pass  # Match found
+                    else:
+                        continue  # No match, skip
 
                     if (
                         data_provider_type
@@ -285,7 +293,9 @@ class DomoAccounts(DomoManager):
 
         if account_name and account_id:
             if debug_prn:
-                print(f"upsert-ing {acc.id} - {acc.name} in {auth.domo_instance}")
+                print(
+                    f"upsert-ing {acc.id} - {acc.display_name or acc.name} in {auth.domo_instance}"
+                )
 
             await acc.update_name(
                 account_name=account_name,

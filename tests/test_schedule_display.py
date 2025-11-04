@@ -47,28 +47,28 @@ test_data = {
 
 def test_schedule_human_readable():
     """Test that schedule humanReadable shows cron expression"""
-    
+
     settings = DomoTriggerSettings.from_dict(test_data)
-    
+
     print("=" * 80)
     print("IMPROVED SCHEDULE DISPLAY")
     print("=" * 80)
-    
+
     for trigger in settings.triggers:
         print(f"\nTrigger: {trigger.title}")
-        
+
         exported = trigger.export_as_dict()
         print(f"  humanReadable: {exported['humanReadable']}")
-        
+
         for event in exported["triggerEvents"]:
             if event["type"] == "SCHEDULE":
                 print(f"  Event humanReadable: {event['humanReadable']}")
                 print(f"  Cron expression: {event['schedule']['expression']}")
-                
+
                 # Verify they match
                 assert event['humanReadable'] == f"Schedule: {event['schedule']['expression']}"
                 print("  ✓ humanReadable matches cron expression")
-    
+
     print("\n" + "=" * 80)
     print("TEST PASSED: humanReadable now shows cron expressions!")
     print("=" * 80)

@@ -16,8 +16,8 @@ import pandas as pd
 from ..classes import (
     DomoAccount as dmacc,
     DomoDataset as dmds,
-    DomoGroup as dmdg,
 )
+from ..classes.DomoGroup import core as dmdg
 from ..client.auth import DomoAuth
 from ..client.exceptions import ClassError, DomoError
 from ..routes.account import ShareAccount_AccessLevel

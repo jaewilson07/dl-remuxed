@@ -39,6 +39,7 @@ class DomoDatacenter:
             entity_type=entity_type,
             additional_filters_ls=additional_filters_ls,
             debug_api=debug_api,
+            return_raw=return_raw,
         )
 
         if return_raw:

@@ -12,16 +12,18 @@ import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
 
 from ...client.auth import DomoAuth
-from ...client.entities import DomoManager
 from ...client.exceptions import DomoError
-from ...entities.entities import DomoEntity_w_Lineage
+from ...entities.entities import DomoEntity_w_Lineage, DomoManager
 from ...routes import card as card_routes
 from ...utils import (
     chunk_execution as dmce,
     files as dmfi,
 )
 from ...utils.logging import DomoEntityObjectProcessor
-from ..DomoGroup import DomoGroup
+from ..DomoGroup.core import (
+    DomoGroup,
+    DomoGroup as dmgr,
+)
 from ..DomoUser import DomoUser
 from ..subentity.lineage import DomoLineage
 
@@ -139,7 +141,6 @@ class DomoCard_Default(DomoEntity_w_Lineage):
         auth: DomoAuth, owners: list[dict], is_suppress_errors: bool = True
     ) -> list[Any]:  # DomoUser | DomoGroup
         from .. import (
-            DomoGroup as dmgr,
             DomoUser as dmdu,
         )
 

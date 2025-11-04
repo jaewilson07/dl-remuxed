@@ -113,7 +113,7 @@ async def test_trigger_settings_demo():
     print("\n" + "=" * 80)
     print("SERIALIZATION TEST")
     print("=" * 80)
-    
+
     # Test round-trip serialization
     serialized = trigger_settings.to_dict()
     print(json.dumps(serialized, indent=2))
