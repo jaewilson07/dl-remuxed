@@ -343,9 +343,11 @@ class DomoEntityResultProcessor(ResultProcessor):
             "id": dataset_id,
             "name": response_data.get("name", f"Dataset {dataset_id}"),
             "additional_info": {
-                "auth_instance": getattr(result.request_metadata, "auth_instance", None)
-                if result.request_metadata
-                else None,
+                "auth_instance": (
+                    getattr(result.request_metadata, "auth_instance", None)
+                    if result.request_metadata
+                    else None
+                ),
                 "description": response_data.get("description"),
                 "data_provider_type": response_data.get("dataProviderType"),
                 "row_count": response_data.get("rowCount"),
@@ -368,9 +370,11 @@ class DomoEntityResultProcessor(ResultProcessor):
             "id": card_id,
             "name": response_data.get("title", f"Card {card_id}"),
             "additional_info": {
-                "auth_instance": getattr(result.request_metadata, "auth_instance", None)
-                if result.request_metadata
-                else None,
+                "auth_instance": (
+                    getattr(result.request_metadata, "auth_instance", None)
+                    if result.request_metadata
+                    else None
+                ),
                 "description": response_data.get("description"),
                 "chart_type": response_data.get("chartType"),
                 "dataset_id": response_data.get("datasetId"),
@@ -392,9 +396,11 @@ class DomoEntityResultProcessor(ResultProcessor):
             "id": user_id,
             "name": response_data.get("displayName", f"User {user_id}"),
             "additional_info": {
-                "auth_instance": getattr(result.request_metadata, "auth_instance", None)
-                if result.request_metadata
-                else None,
+                "auth_instance": (
+                    getattr(result.request_metadata, "auth_instance", None)
+                    if result.request_metadata
+                    else None
+                ),
                 "email": response_data.get("email"),
                 "role": response_data.get("role"),
             },
@@ -415,9 +421,11 @@ class DomoEntityResultProcessor(ResultProcessor):
             "id": page_id,
             "name": response_data.get("title", f"Page {page_id}"),
             "additional_info": {
-                "auth_instance": getattr(result.request_metadata, "auth_instance", None)
-                if result.request_metadata
-                else None,
+                "auth_instance": (
+                    getattr(result.request_metadata, "auth_instance", None)
+                    if result.request_metadata
+                    else None
+                ),
                 "description": response_data.get("description"),
                 "top_page_id": response_data.get("topPageId"),
                 "parent_page_id": response_data.get("parentPageId"),

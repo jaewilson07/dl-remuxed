@@ -111,8 +111,9 @@ from ...routes.instance_config.user_attributes import (
 ## Code Style
 
 ### Formatting:
-- **Black** for code formatting (line length: 88)
+- **Ruff-format** for code formatting (Black-compatible, line length: 88)
 - **isort** for import sorting
+- **Ruff** for linting with auto-fix
 - Run via pre-commit hooks or `scripts/format-code.ps1`
 
 ### Naming:
@@ -194,10 +195,14 @@ Update `.env_sample` with new variables (without actual values).
 ## Pre-commit Hooks
 
 Run before every commit:
-- **black**: Code formatting
+- **ruff**: Linting with auto-fix
+- **ruff-format**: Code formatting (Black-compatible)
 - **isort**: Import sorting
-- **flake8**: Linting
-- **mypy**: Type checking
+- **bandit**: Security scanning
+- **trailing-whitespace**, **end-of-file-fixer**: File cleanup
+- **check-yaml**, **check-toml**: Configuration validation
+
+Note: mypy type checking is available via `scripts/lint.ps1` but not in pre-commit hooks.
 
 Bypass if needed (not recommended):
 ```powershell
@@ -265,9 +270,10 @@ class CustomError(DomoError):
 ## Documentation
 
 ### Project Documentation:
-- [Class Validation System](../../docs/CLASS-VALIDATION-START-HERE.md)
 - [Testing Guide](../../docs/testing-guide.md)
 - [Type Hints Guide](../../docs/type-hints-implementation-guide.md)
+- [Trigger System Guide](../../docs/trigger-system-guide.md)
+- [Card Datasets Manager](../../docs/card-datasets-manager.md)
 
 ### API Documentation:
 Generated from docstrings using Sphinx or similar tool.
