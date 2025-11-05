@@ -1,4 +1,29 @@
-__version__ = "0.0.1-alpha"
+"""
+domolibrary2 - A Python library for interacting with Domo APIs.
+"""
+
+import sys
+from pathlib import Path
+
+# Always read version from pyproject.toml to ensure sync
+try:
+    if sys.version_info >= (3, 11):
+        import tomllib
+    else:
+        import tomli as tomllib
+
+    pyproject_path = Path(__file__).parent.parent.parent / "pyproject.toml"
+    if pyproject_path.exists():
+        with open(pyproject_path, "rb") as f:
+            pyproject_data = tomllib.load(f)
+            __version__ = pyproject_data["project"]["version"]
+    else:
+        # Fallback to installed package metadata
+        import importlib.metadata
+
+        __version__ = importlib.metadata.version("domolibrary2")
+except Exception:
+    __version__ = "unknown"
 
 # Import submodules to make them available
 # Note: classes, client, and routes have circular dependencies
