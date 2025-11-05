@@ -391,6 +391,6 @@ See `src/domolibrary2/classes/DomoUser.py` as the reference implementation that 
 ## Documentation
 
 For detailed guidance, see:
-- [Class Validation Guide](../../docs/class-validation-guide.md)
-- [Quick Reference](../../docs/class-validation-quick-reference.md)
 - [Testing Guide](../../docs/testing-guide.md)
+- [Type Hints Guide](../../docs/type-hints-implementation-guide.md)
+- [Trigger System Guide](../../docs/trigger-system-guide.md)

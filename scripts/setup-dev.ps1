@@ -5,11 +5,11 @@ Write-Host "Setting up development environment..." -ForegroundColor Green
 
 # Sync dependencies including dev dependencies
 Write-Host "Installing dependencies..." -ForegroundColor Yellow
-& C:\Users\jwilson1\.local\bin\uv.exe sync --dev
+uv sync --dev
 
 # Install pre-commit hooks
 Write-Host "Setting up pre-commit hooks..." -ForegroundColor Yellow
-& C:\Users\jwilson1\.local\bin\uv.exe run pre-commit install
+uv run pre-commit install
 
 Write-Host "Development environment setup complete!" -ForegroundColor Cyan
 Write-Host "Available scripts:" -ForegroundColor White
