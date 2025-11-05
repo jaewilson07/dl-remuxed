@@ -1,4 +1,0 @@
-trigger_id,title,description,event_1_type,event_1_description,event_1_frequency,event_1_schedule,total_events,total_conditions,has_schedule,has_dataset,event_1_dataset_id,event_1_on_change
-1,Daily Morning Run,'Daily Morning Run' | Events: Schedule: Custom schedule,SCHEDULE,Schedule: Custom schedule,CUSTOM_CRON,Custom schedule,1,0,True,False,,
-2,Sales Data Updated,'Sales Data Updated' | Events: Dataset sales-123 updated (when data changes),DATASET_UPDATED,Dataset sales-123 updated (when data changes),,,1,0,False,True,sales-123,True
-3,Weekly Report,'Weekly Report' | Events: Schedule: Custom schedule,SCHEDULE,Schedule: Custom schedule,CUSTOM_CRON,Custom schedule,1,0,True,False,,

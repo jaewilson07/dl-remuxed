@@ -22,7 +22,7 @@ from ...client import (
     response as rgd,
 )
 from ...client.auth import DomoAuth
-from ...client.entities import DomoBase, DomoManager
+from ...entities import DomoBase, DomoManager
 from ...routes.instance_config import sso as sso_routes
 from ...utils import convert as dmcv
 

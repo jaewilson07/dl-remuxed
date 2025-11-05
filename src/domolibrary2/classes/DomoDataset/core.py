@@ -74,7 +74,7 @@ class FederatedDomoDataset(DomoDataset_Default, DomoFederatedEntity):
     async def get_by_id(
         cls,
         auth: DomoAuth,
-        id: str,
+        dataset_id: str,
         debug_api: bool = False,
         return_raw: bool = False,
         session: httpx.AsyncClient | None = None,
@@ -85,7 +85,7 @@ class FederatedDomoDataset(DomoDataset_Default, DomoFederatedEntity):
         """retrieves federated dataset metadata"""
         # Use parent implementation to avoid code duplication
         return await super().get_by_id(
-            id=id,
+            dataset_id=dataset_id,
             auth=auth,
             debug_api=debug_api,
             return_raw=return_raw,

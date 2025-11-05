@@ -134,7 +134,7 @@ async def get_accesslist(
     if return_raw:
         return res
 
-    from .. import DomoGroup as dmg
+    from ..DomoGroup import core as dmg
 
     s = {
         "explicit_shared_user_count": res.response.get("explicitSharedUserCount"),

@@ -128,7 +128,7 @@ class LineageNode(TypedDict):
 
 
 def generate_search_datacenter_filter(
-    field: str | Enum,  # use Datacenter_Filter_Field_Enum
+    field: str | Datacenter_Filter_Field_Enum,  # use Datacenter_Filter_Field_Enum
     value: str | Enum,
     is_not: bool = False,  # to handle exclusion
 ):

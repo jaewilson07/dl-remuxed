@@ -58,7 +58,8 @@ class DomoAccount_Default(DomoEntity):
     id: int
     auth: DomoAuth = field(repr=False)
 
-    name: str = None
+    name: str = None  # Internal name field
+    display_name: str = None  # User-friendly display name
     data_provider_type: str = None
 
     created_dt: dt.datetime = None
@@ -75,16 +76,17 @@ class DomoAccount_Default(DomoEntity):
     def entity_type(self):
         return "ACCOUNT"
 
+    @property
+    def display_url(self):
+        """returns the URL to the account in Domo"""
+        return f"{self.auth.domo_instance}/datacenter/accounts"
+
     def __post_init__(self):
         self.id = int(self.id)
 
         self.Access = DomoAccess_Account.from_parent(
             parent=self,
         )
-
-    def display_url(self):
-        """returns the URL to the account in Domo"""
-        return f"{self.auth.domo_instance}/datacenter/accounts"
 
     @classmethod
     def from_dict(
@@ -99,7 +101,8 @@ class DomoAccount_Default(DomoEntity):
 
         return new_cls(
             id=obj.get("id") or obj.get("databaseId"),
-            name=obj.get("displayName"),
+            name=obj.get("name"),
+            display_name=obj.get("displayName"),
             data_provider_type=obj.get("dataProviderId") or obj.get("dataProviderType"),
             created_dt=cd.convert_epoch_millisecond_to_datetime(
                 obj.get("createdAt") or obj.get("createDate")
@@ -278,7 +281,7 @@ class DomoAccount_Default(DomoEntity):
         res = await account_routes.update_account_name(
             auth=auth,
             account_id=self.id,
-            account_name=account_name or self.name,
+            account_name=account_name or self.display_name or self.name,
             debug_api=debug_api,
             session=session,
         )
@@ -294,6 +297,8 @@ class DomoAccount_Default(DomoEntity):
         new_acc = await DomoAccount_Default.get_by_id(auth=auth, account_id=self.id)
 
         self._update_self(new_class=new_acc, skip_props=["Config"])
+
+        return self
 
         return self
 
@@ -383,7 +388,7 @@ class DomoAccount_Default(DomoEntity):
     async def upsert_target_account(
         self,
         target_auth: DomoAuth,  # valid auth for target destination
-        account_name: str = None,  # defaults to self.name
+        account_name: str = None,  # defaults to self.display_name or self.name
         debug_api: bool = False,
     ):
         """
@@ -396,7 +401,109 @@ class DomoAccount_Default(DomoEntity):
 
         return await core.DomoAccounts.upsert_account(
             auth=target_auth,
-            account_name=account_name or self.name,
+            account_name=account_name or self.display_name or self.name,
             account_config=deepcopy(self.Config),
+            data_provider_type=self.data_provider_type,
             debug_api=debug_api,
         )
+
+    async def get_access(
+        self,
+        session: httpx.AsyncClient | None = None,
+        debug_api: bool = False,
+        force_refresh: bool = False,
+        debug_num_stacks_to_drop: int = 2,
+    ):
+        """Retrieve the access list for this account.
+
+        This method retrieves all users and groups that have access to this account
+        along with their access levels.
+
+        Args:
+            session: HTTP client session (optional)
+            debug_api: Enable API debugging
+            force_refresh: If True, refresh even if Access relationships are already loaded
+            debug_num_stacks_to_drop: Stack frames to drop for debugging
+
+        Returns:
+            List of Access_Relation objects representing users/groups with access
+
+        Example:
+            >>> account = await DomoAccount.get_by_id(auth=auth, account_id="123")
+            >>> access_list = await account.get_access()
+            >>> for access in access_list:
+            ...     print(f"{access.entity.name}: {access.relationship_type}")
+        """
+        if not force_refresh and self.Access.relationships:
+            return self.Access.relationships
+
+        return await self.Access.get(
+            debug_api=debug_api,
+            session=session,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        )
+
+    async def share(
+        self,
+        user_id: int = None,
+        group_id: int = None,
+        access_level=None,  # ShareAccount_AccessLevel
+        session: httpx.AsyncClient | None = None,
+        debug_api: bool = False,
+        return_raw: bool = False,
+    ):
+        """Share this account with a user or group.
+
+        Args:
+            user_id: User ID to share with (mutually exclusive with group_id)
+            group_id: Group ID to share with (mutually exclusive with user_id)
+            access_level: Access level (ShareAccount_AccessLevel enum)
+            session: HTTP client session (optional)
+            debug_api: Enable API debugging
+            return_raw: Return raw response without processing
+
+        Returns:
+            ResponseGetData if return_raw=True, else the updated account
+
+        Raises:
+            ValueError: If neither user_id nor group_id is provided
+            Account_Share_Error: If sharing operation fails
+
+        Example:
+            >>> from domolibrary2.routes.account import ShareAccount_AccessLevel
+            >>> account = await DomoAccount.get_by_id(auth=auth, account_id="123")
+            >>> await account.share(
+            ...     user_id=456,
+            ...     access_level=ShareAccount_AccessLevel.CAN_EDIT
+            ... )
+        """
+        if not user_id and not group_id:
+            raise ValueError("Must provide either user_id or group_id")
+
+        if not access_level:
+            from ...routes.account import ShareAccount_AccessLevel
+
+            access_level = ShareAccount_AccessLevel.CAN_VIEW
+
+        # Generate share payload
+        share_payload = access_level.generate_payload(
+            user_id=user_id, group_id=group_id
+        )
+
+        res = await account_routes.share_account(
+            auth=self.auth,
+            account_id=self.id,
+            share_payload=share_payload,
+            session=session,
+            debug_api=debug_api,
+            return_raw=return_raw,
+        )
+
+        if return_raw:
+            return res
+
+        # Refresh access list after sharing
+        if self.Access:
+            await self.get_access(force_refresh=True, session=session)
+
+        return self

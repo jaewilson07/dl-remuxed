@@ -254,6 +254,7 @@ async def search_cards_admin_summary(
     wait_sleep: int = 3,
     parent_class: str = None,
     debug_num_stacks_to_drop: int = 1,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     limit = 100
     offset = 0

@@ -15,7 +15,7 @@ from typing import Any, Callable, Literal, Optional
 import httpx
 
 from ...client.auth import DomoAuth
-from ...client.entities import DomoBase, DomoEnumMixin, DomoSubEntity
+from ...entities import DomoBase, DomoEnumMixin, DomoSubEntity
 from ...routes.instance_config import scheduler_policies as instance_config_routes
 
 

@@ -83,7 +83,7 @@ class DomoAppStudio(DomoEntity_w_Lineage):
         if not owners or len(owners) == 0:
             return []
 
-        from . import DomoGroup as dmg
+        from .DomoGroup import core as dmg
 
         domo_groups = []
         domo_users = []
@@ -166,7 +166,7 @@ class DomoAppStudio(DomoEntity_w_Lineage):
         if not res.is_success:
             raise Exception("error getting access list")
 
-        from . import DomoGroup as dmg
+        from .DomoGroup import core as dmg
 
         s = {
             # "explicit_shared_user_count": res.response.get("explicitSharedUserCount"),

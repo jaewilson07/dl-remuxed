@@ -152,6 +152,7 @@ async def query_dataset_private(
     skip=0,
     maximum=100,  # equivalent to the LIMIT or TOP clause in SQL, the number of rows to return total
     filter_pdp_policy_id_ls: list[int] | None = None,
+    return_raw: bool = False,
     timeout: int = 10,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
@@ -165,9 +166,6 @@ async def query_dataset_private(
         "offset": "offset",
         "limit": "limit",
     }
-
-    # def body_fn(skip, limit):
-    #     return {"sql": f"{sql} limit {limit} offset {skip}"}
 
     def body_fn(skip, limit, body: dict[str, object] | None = None):
         body = body or {"sql": f"{sql} limit {limit} offset {skip}"}
@@ -186,17 +184,29 @@ async def query_dataset_private(
 
         return body
 
-    def arr_fn(res) -> pd.DataFrame:
-        rows_ls = res.response.get("rows")
-        columns_ls = res.response.get("columns")
-        output = []
-        for row in rows_ls:
-            new_row = {}
-            for index, column in enumerate(columns_ls):
-                new_row[column] = row[index]
-            output.append(new_row)
-            # pd.DataFrame(data=res.response.get('rows'), columns=res.response.get('columns'))
-        return pd.DataFrame(data=output, columns=columns_ls)
+    def arr_fn(res: rgd.ResponseGetData) -> list[dict]:
+        rows_ls = res.response.get("rows", [])
+        columns_ls: list[str] = res.response.get("columns", [])
+
+        if not isinstance(columns_ls, list) or any(
+            not isinstance(c, str) for c in columns_ls
+        ):
+            raise QueryRequestError(
+                dataset_id=dataset_id,
+                sql=sql,
+                res=res,
+                message=f"Unexpected 'columns' format: {columns_ls!r}",
+            )
+
+        output: list[dict] = []
+        for row in rows_ls or []:
+            # defensive: limit mapping to min shared length
+            width = min(len(columns_ls), len(row))
+            row_dict = {columns_ls[i]: row[i] for i in range(width)}
+            # Optionally: if len(row) != len(columns_ls) you can log or raise
+            output.append(row_dict)
+
+        return output
 
     res = await gd.looper(
         auth=auth,
@@ -208,6 +218,7 @@ async def query_dataset_private(
         skip=skip,
         maximum=maximum,
         body_fn=body_fn,
+        return_raw=return_raw,
         loop_until_end=loop_until_end,
         timeout=timeout,
         session=session,
@@ -216,6 +227,9 @@ async def query_dataset_private(
         debug_api=debug_api,
         debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
+
+    if return_raw:
+        return res
 
     if res.status == 404 and res.response == "Not Found":
         raise DatasetNotFoundError(
@@ -575,7 +589,6 @@ async def upload_dataset_stage_2_df(
     body = upload_df.to_csv(header=False, index=False)
 
     # if debug:
-    #     print(body)
 
     res = await gd.get_data(
         url=url,

@@ -35,7 +35,7 @@ def test_domouser_equality():
 
 def test_domogroup_equality():
     """Test that DomoGroup properly inherits equality from DomoEntity."""
-    from src.domolibrary2.classes.DomoGroup import DomoGroup
+    from domolibrary2.classes.DomoGroup.core import DomoGroup
 
     auth = DomoFullAuth(
         domo_instance="test", domo_username="test", domo_password="test"
@@ -64,7 +64,7 @@ def test_dataclass_eq_false_verification():
     from src.domolibrary2.classes.DomoApplication.Job_Base import DomoJob_Base
     from src.domolibrary2.classes.DomoDataset.pdp import PDPPolicy
     from src.domolibrary2.classes.DomoDataset.stream import DomoStream
-    from src.domolibrary2.classes.DomoGroup import DomoGroup
+    from domolibrary2.classes.DomoGroup.core import DomoGroup
     from src.domolibrary2.classes.DomoInstanceConfig.access_token import DomoAccessToken
     from src.domolibrary2.classes.DomoInstanceConfig.api_client import ApiClient
     from src.domolibrary2.classes.DomoInstanceConfig.user_attributes import (

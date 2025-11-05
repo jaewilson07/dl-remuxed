@@ -13,18 +13,24 @@ Functions:
 from typing import Optional, Union
 
 import httpx
+from dc_logger.decorators import LogDecoratorConfig, log_call
 
 from ...client import (
     get_data as gd,
     response as rgd,
 )
 from ...client.auth import DomoAuth
+from ...utils.logging import ResponseGetDataProcessor
 from .core import get_account_by_id
 from .exceptions import Account_Config_Error, AccountNoMatchError
 from .oauth import get_oauth_account_by_id
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def get_account_config(
     auth: DomoAuth,
     account_id: Union[int, str],
@@ -104,6 +110,10 @@ async def get_account_config(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def get_oauth_account_config(
     auth: DomoAuth,
     account_id: Union[int, str],
@@ -170,6 +180,10 @@ async def get_oauth_account_config(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def update_account_config(
     auth: DomoAuth,
     account_id: Union[int, str],
@@ -242,6 +256,10 @@ async def update_account_config(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def update_oauth_account_config(
     auth: DomoAuth,
     account_id: Union[int, str],

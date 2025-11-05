@@ -8,12 +8,19 @@ applyTo: '/src/domolibrary2/routes/*'
 ```python
 from typing import Optional
 import httpx
+from dc_logger.decorators import LogDecoratorConfig, log_call
+
 from ..client.auth import DomoAuth
 from ..client.exceptions import RouteError
 from ..client import get_data as gd
 from ..client import response as rgd
+from ..utils.logging import ResponseGetDataProcessor
 
 @gd.route_function  # REQUIRED on ALL route functions
+@log_call(  # REQUIRED on ALL route functions that perform CRUD operations
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def function_name(
     auth: DomoAuth,  # Always first
     entity_id: str,  # Entity parameters next
@@ -50,6 +57,29 @@ async def function_name(
     return res
 ```
 
+## Logging Decorator Requirements
+
+**When to use `@log_call` decorator:**
+- ✅ **REQUIRED** for all CRUD operations (Create, Update, Delete)
+- ✅ **REQUIRED** for all sharing/permissions operations
+- ✅ **RECOMMENDED** for GET operations (especially by ID)
+- ✅ **RECOMMENDED** for search operations
+- ⚠️ **OPTIONAL** for utility/helper functions
+
+**Benefits:**
+- Automatic request/response logging with sanitized headers
+- Execution timing for performance monitoring
+- Full error context for debugging
+- Audit trail for compliance
+
+**What gets logged:**
+- Function name and parameters
+- HTTP method, URL, headers (sanitized)
+- Request body/payload (sanitized)
+- Response status code and body
+- Execution duration
+- Error details with stack traces
+
 ## Standard Exception Classes
 
 ```python
@@ -81,10 +111,11 @@ class SearchModuleName_NotFound(RouteError):
 ## Required Standards Checklist
 
 - [ ] `@gd.route_function` decorator on ALL route functions
+- [ ] `@log_call` decorator on CRUD operations (create, update, delete, share)
 - [ ] `return_raw: bool = False` parameter on ALL route functions
 - [ ] Immediate `if return_raw: return res` check after `gd.get_data()`
 - [ ] Standard parameter order (auth first, control params last)
 - [ ] Complete type hints on all parameters and return types
 - [ ] RouteError-based exception classes with entity_id and res
 - [ ] Comprehensive docstrings with Args/Returns/Raises
-- [ ] Standard imports pattern
+- [ ] Standard imports pattern (including dc_logger imports for logged functions)
