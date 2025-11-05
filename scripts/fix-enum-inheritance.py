@@ -80,15 +80,15 @@ def fix_enum_inheritance(file_path):
     patterns = [
         (
             r"from \.\.client\.entities import DomoEnum\b",
-            "from ..client.entities import DomoEnumMixin",
+            "from ..entities.base import DomoEnumMixin",
         ),
         (
             r"from \.client\.entities import DomoEnum\b",
-            "from .client.entities import DomoEnumMixin",
+            "from .entities.base import DomoEnumMixin",
         ),
-        (r"import \.\.client\.entities as dmee", "import ..client.entities as dmee"),
-        (r"import \.client\.entities as dmee", "import .client.entities as dmee"),
-        (r"import \.\.\.client\.entities as dmen", "import ...client.entities as dmen"),
+        (r"import \.\.client\.entities as dmee", "import ..entities as dmee"),
+        (r"import \.client\.entities as dmee", "import .entities as dmee"),
+        (r"import \.\.\.client\.entities as dmen", "import ...entities as dmen"),
     ]
 
     for pattern, replacement in patterns:

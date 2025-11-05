@@ -9,9 +9,8 @@ from typing import Callable, Optional, list
 
 import httpx
 
-from domolibrary2.client.entities import DomoEntity
-
 from ..client.auth import DomoAuth
+from ..entities.entities import DomoEntity
 from ..routes import appdb as appdb_routes
 from ..utils import (
     chunk_execution as dmce,

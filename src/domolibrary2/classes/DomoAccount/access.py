@@ -9,7 +9,6 @@ from dataclasses import dataclass, field
 import httpx
 
 from ...client.response import ResponseGetData
-from ...entities.relationships_access import Access_Relation, DomoAccess
 from ...routes import account as account_routes
 from ...routes.account import (
     ShareAccount,
@@ -17,10 +16,30 @@ from ...routes.account import (
     ShareAccount_V1_AccessLevel,
 )
 from ...utils import chunk_execution as dmce
+from ..subentity.access import AccessRelationship, DomoAccess
 
 
 @dataclass
-class DomoAccess_Relation(Access_Relation):
+class Account_AccessRelationship(AccessRelationship):
+    def __repr__(self):
+        return f"{super().__repr__()}, relationship_type={self.relationship_type!r}, entity_id={self.entity_id!r}, entity_type={self.entity_type!r}, entity_name={self.entity_name!r}"
+
+    @property
+    def entity_id(self):
+        return self.entity.id
+
+    @property
+    def entity_type(self):
+        return self.entity.entity_type
+
+    @property
+    def entity_name(self):
+        return (
+            getattr(self.entity, "email_address", None)
+            or getattr(self.entity, "name", None)
+            or getattr(self.entity, "display_name", None)
+        )
+
     def to_dict(self):
         return {"id": self.entity.id, "type": self.entity.entity_type}
 
@@ -39,7 +58,7 @@ class DomoAccess_Relation(Access_Relation):
 
     @classmethod
     async def from_group_id(cls, parent_entity, group_id, auth, access_level):
-        from ..DomoGroup import DomoGroup
+        from ..DomoGroup.core import DomoGroup
 
         return cls(
             entity=await DomoGroup.get_by_id(auth=auth, group_id=group_id),
@@ -71,7 +90,7 @@ class DomoAccess_Account(DomoAccess):
 
     version: int = None  # api version - aligns to feature switch
 
-    share_enum: ShareAccount = field(repr=False, default=ShareAccount_AccessLevel)
+    share_enum: ShareAccount = field(default=ShareAccount_AccessLevel)
 
     def __post_init__(self):
         super().__post_init__()
@@ -82,26 +101,6 @@ class DomoAccess_Account(DomoAccess):
             self.version = 1
 
         return True
-
-    async def add_relationship(self):
-        raise NotImplementedError("DomoAccount_Access.add_relation not implemented")
-
-    async def _get_relations_from_response(self, res: ResponseGetData):
-        self.relationships = await dmce.gather_with_concurrency(
-            *[
-                DomoAccess_Relation.from_entity_id(
-                    parent_entity=self.parent,
-                    entity_id=obj["id"],
-                    auth=self.auth,
-                    access_level=obj["accessLevel"],
-                    entity_type=obj["type"],
-                )
-                for obj in res.response
-            ],
-            n=10,
-        )
-
-        return self.relationships
 
     async def get(
         self,
@@ -118,12 +117,184 @@ class DomoAccess_Account(DomoAccess):
             debug_api=debug_api,
             session=session,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            return_raw=return_raw,
         )
 
         if return_raw:
             return res
 
-        return await self._get_relations_from_response(res)
+        self.relationships = await dmce.gather_with_concurrency(
+            *[
+                Account_AccessRelationship.from_entity_id(
+                    parent_entity=self.parent,
+                    entity_id=obj["id"],
+                    auth=self.auth,
+                    access_level=obj["accessLevel"],
+                    entity_type=obj["type"],
+                )
+                for obj in res.response
+            ],
+            n=10,
+        )
+
+        return self.relationships
+
+    async def add_share(
+        self,
+        entity,
+        access_level=None,
+        user_id: int = None,
+        group_id: int = None,
+        use_v1_api: bool = False,
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+        return_raw: bool = False,
+    ) -> ResponseGetData:
+        """Share this account with a user or group.
+
+        Can be called in two ways:
+        1. Pass an entity object (DomoUser or DomoGroup) with access_level
+        2. Pass user_id or group_id with access_level
+
+        Args:
+            entity: DomoUser or DomoGroup object (optional if user_id/group_id provided)
+            access_level: Access level enum or string (defaults to self.share_enum.CAN_VIEW)
+            user_id: User ID to share with (optional)
+            group_id: Group ID to share with (optional)
+            use_v1_api: Force v1 API usage (ignored if group_id provided)
+            debug_api: Enable API debugging
+            session: HTTP client session (optional)
+            return_raw: Return raw response without processing
+
+        Returns:
+            ResponseGetData if return_raw=True, else refreshed relationships
+
+        Raises:
+            ValueError: If neither entity nor user_id/group_id provided
+            Account_Share_Error: If sharing operation fails
+
+        Examples:
+            >>> # Share with DomoUser entity
+            >>> user = await DomoUser.get_by_id(auth=auth, user_id=456)
+            >>> await account.Access.add_share(
+            ...     entity=user,
+            ...     access_level=ShareAccount_AccessLevel.CAN_VIEW
+            ... )
+
+            >>> # Share with group by ID
+            >>> await account.Access.add_share(
+            ...     group_id=789,
+            ...     access_level=ShareAccount_AccessLevel.CAN_EDIT
+            ... )
+        """
+        # Extract IDs from entity if provided
+        if entity:
+            if hasattr(entity, "entity_type"):
+                if entity.entity_type.upper() == "USER":
+                    user_id = entity.id
+                elif entity.entity_type.upper() == "GROUP":
+                    group_id = entity.id
+            else:
+                # Try to infer from class name
+                class_name = entity.__class__.__name__
+                if "USER" in class_name.upper():
+                    user_id = entity.id
+                elif "GROUP" in class_name.upper():
+                    group_id = entity.id
+
+        # Set default access level
+        if not access_level:
+            access_level = self.share_enum.CAN_VIEW
+
+        # Call the route function
+        res = await account_routes.share_account(
+            auth=self.auth,
+            account_id=self.parent.id,
+            access_level=access_level,
+            user_id=user_id,
+            group_id=group_id,
+            use_v1_api=use_v1_api,
+            debug_api=debug_api,
+            session=session,
+            return_raw=return_raw,
+        )
+
+        if return_raw:
+            return res
+
+        # Refresh access list after sharing
+        return await self.get(debug_api=debug_api, session=session)
+
+    async def remove_share(
+        self,
+        entity=None,
+        user_id: int = None,
+        group_id: int = None,
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+        return_raw: bool = False,
+    ) -> ResponseGetData:
+        """Remove account sharing for a user or group.
+
+        Can be called in two ways:
+        1. Pass an entity object (DomoUser or DomoGroup)
+        2. Pass user_id or group_id
+
+        Args:
+            entity: DomoUser or DomoGroup object (optional if user_id/group_id provided)
+            user_id: User ID to remove (optional)
+            group_id: Group ID to remove (optional)
+            debug_api: Enable API debugging
+            session: HTTP client session (optional)
+            return_raw: Return raw response without processing
+
+        Returns:
+            ResponseGetData if return_raw=True, else refreshed relationships
+
+        Raises:
+            ValueError: If neither entity nor user_id/group_id provided
+            Account_Share_Error: If remove operation fails
+
+        Examples:
+            >>> # Remove share for DomoUser entity
+            >>> user = await DomoUser.get_by_id(auth=auth, user_id=456)
+            >>> await account.Access.remove_share(entity=user)
+
+            >>> # Remove share by group ID
+            >>> await account.Access.remove_share(group_id=789)
+        """
+        # Extract IDs from entity if provided
+        if entity:
+            if hasattr(entity, "entity_type"):
+                if entity.entity_type.upper() == "USER":
+                    user_id = entity.id
+                elif entity.entity_type.upper() == "GROUP":
+                    group_id = entity.id
+            else:
+                # Try to infer from class name
+                class_name = entity.__class__.__name__
+                if "USER" in class_name.upper():
+                    user_id = entity.id
+                elif "GROUP" in class_name.upper():
+                    group_id = entity.id
+
+        # Share with NO_ACCESS to remove
+        res = await account_routes.share_account(
+            auth=self.auth,
+            account_id=self.parent_id,
+            access_level=ShareAccount_AccessLevel.NO_ACCESS,
+            user_id=user_id,
+            group_id=group_id,
+            debug_api=debug_api,
+            session=session,
+            return_raw=return_raw,
+        )
+
+        if return_raw:
+            return res
+
+        # Refresh access list after removing
+        return await self.get(debug_api=debug_api, session=session)
 
 
 @dataclass
@@ -152,5 +323,130 @@ class DomoAccess_OAuth(DomoAccess_Account):
 
         return await self._get_relations_from_response(res)
 
+    async def add_share(
+        self,
+        entity,
+        access_level=None,
+        user_id: int = None,
+        group_id: int = None,
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+        return_raw: bool = False,
+    ) -> ResponseGetData:
+        """Share this OAuth account with a user or group.
 
-__all__ = ["DomoAccess_Account", "DomoAccess_OAuth", "DomoAccess_Relation"]
+        Args:
+            entity: DomoUser or DomoGroup object (optional if user_id/group_id provided)
+            access_level: Access level enum or string (defaults to self.share_enum.CAN_VIEW)
+            user_id: User ID to share with (optional)
+            group_id: Group ID to share with (optional)
+            debug_api: Enable API debugging
+            session: HTTP client session (optional)
+            return_raw: Return raw response without processing
+
+        Returns:
+            ResponseGetData if return_raw=True, else refreshed relationships
+
+        Examples:
+            >>> # Share OAuth account with user
+            >>> await oauth_account.Access.add_share(
+            ...     user_id=456,
+            ...     access_level=ShareAccount_AccessLevel.CAN_VIEW
+            ... )
+        """
+        # Extract IDs from entity if provided
+        if entity:
+            if hasattr(entity, "entity_type"):
+                if entity.entity_type == "USER":
+                    user_id = entity.id
+                elif entity.entity_type == "GROUP":
+                    group_id = entity.id
+            else:
+                class_name = entity.__class__.__name__
+                if "User" in class_name:
+                    user_id = entity.id
+                elif "Group" in class_name:
+                    group_id = entity.id
+
+        # Set default access level
+        if not access_level:
+            access_level = self.share_enum.CAN_VIEW
+
+        # Call the OAuth-specific route function
+        res = await account_routes.share_oauth_account(
+            auth=self.auth,
+            account_id=self.parent_id,
+            access_level=access_level,
+            user_id=user_id,
+            group_id=group_id,
+            debug_api=debug_api,
+            session=session,
+            return_raw=return_raw,
+        )
+
+        if return_raw:
+            return res
+
+        # Refresh access list after sharing
+        return await self.get(debug_api=debug_api, session=session)
+
+    async def remove_share(
+        self,
+        entity=None,
+        user_id: int = None,
+        group_id: int = None,
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+        return_raw: bool = False,
+    ) -> ResponseGetData:
+        """Remove OAuth account sharing for a user or group.
+
+        Args:
+            entity: DomoUser or DomoGroup object (optional if user_id/group_id provided)
+            user_id: User ID to remove (optional)
+            group_id: Group ID to remove (optional)
+            debug_api: Enable API debugging
+            session: HTTP client session (optional)
+            return_raw: Return raw response without processing
+
+        Returns:
+            ResponseGetData if return_raw=True, else refreshed relationships
+
+        Examples:
+            >>> # Remove OAuth account share
+            >>> await oauth_account.Access.remove_share(user_id=456)
+        """
+        # Extract IDs from entity if provided
+        if entity:
+            if hasattr(entity, "entity_type"):
+                if entity.entity_type == "USER":
+                    user_id = entity.id
+                elif entity.entity_type == "GROUP":
+                    group_id = entity.id
+            else:
+                class_name = entity.__class__.__name__
+                if "User" in class_name:
+                    user_id = entity.id
+                elif "Group" in class_name:
+                    group_id = entity.id
+
+        # Share with NO_ACCESS to remove
+        res = await account_routes.share_oauth_account(
+            auth=self.auth,
+            account_id=self.parent_id,
+            access_level=ShareAccount_AccessLevel.NO_ACCESS,
+            user_id=user_id,
+            group_id=group_id,
+            debug_api=debug_api,
+            session=session,
+            return_raw=return_raw,
+        )
+
+        if return_raw:
+            return res
+
+        # Refresh access list after removing
+        return await self.get(debug_api=debug_api, session=session)
+
+
+__all__ = ["DomoAccess_Account", "DomoAccess_OAuth", "Account_AccessRelationship"]

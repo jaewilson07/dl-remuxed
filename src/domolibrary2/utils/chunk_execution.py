@@ -26,6 +26,8 @@ Example:
     >>> chunks = chunk_list(large_list, chunk_size=100)
 """
 
+from __future__ import annotations
+
 __all__ = ["run_with_retry", "gather_with_concurrency", "run_sequence", "chunk_list"]
 
 import asyncio

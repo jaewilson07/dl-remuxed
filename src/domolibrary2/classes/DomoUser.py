@@ -78,13 +78,7 @@ class DomoUser_NoSearchError(ClassError):  # noqa: N801
         )
 
 
-# Define default_img_bytes if needed
 default_img_bytes = b""  # Placeholder for actual byte data
-
-# Correct Image method usage
-# Assuming Image has a method to handle byte strings, replace 'from_bytestr' with the correct method
-# If no such method exists, this line needs further clarification
-# domo_default_img = Image.from_bytestr(default_img_bytes)
 
 # Update type annotations to use Optional
 
@@ -287,11 +281,6 @@ class DomoUser(DomoEntity):
         and returns the byte representation of the image
         """
         auth = auth or self.auth
-
-        # if not self.avatar_key:
-        #     raise DownloadAvatar_NoAvatarKey(
-        #         domo_instance=auth.domo_instance, user_id=self.id
-        #     )
 
         res = await user_routes.download_avatar(
             auth=self.auth,

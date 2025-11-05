@@ -17,12 +17,14 @@ Functions:
 from typing import Optional, Union
 
 import httpx
+from dc_logger.decorators import LogDecoratorConfig, log_call
 
 from ...client import (
     get_data as gd,
     response as rgd,
 )
 from ...client.auth import DomoAuth
+from ...utils.logging import ResponseGetDataProcessor
 from .exceptions import Account_CreateParams_Error, Account_CRUD_Error
 
 
@@ -50,6 +52,10 @@ def generate_create_oauth_account_body(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def create_account(
     auth: DomoAuth,
     account_name: Optional[str] = None,
@@ -120,6 +126,10 @@ async def create_account(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def delete_account(
     auth: DomoAuth,
     account_id: str,
@@ -172,6 +182,10 @@ async def delete_account(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def create_oauth_account(
     auth: DomoAuth,
     account_name: Optional[str] = None,
@@ -248,6 +262,10 @@ async def create_oauth_account(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def delete_oauth_account(
     auth: DomoAuth,
     account_id: str,
@@ -297,6 +315,10 @@ async def delete_oauth_account(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def update_account_name(
     auth: DomoAuth,
     account_id: Union[int, str],
@@ -353,6 +375,10 @@ async def update_account_name(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def update_oauth_account_name(
     auth: DomoAuth,
     account_id: Union[int, str],

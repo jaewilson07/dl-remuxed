@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import httpx
 
@@ -12,6 +12,10 @@ from ...routes.stream import Stream_CRUD_Error, Stream_GET_Error
 from ...utils import chunk_execution as dmce
 from ..subentity.schedule import DomoSchedule
 from .stream_config import StreamConfig
+
+# TYPE_CHECKING imports to avoid circular dependencies
+if TYPE_CHECKING:
+    from ..DomoAccount import DomoAccount
 
 __all__ = [
     "DomoStream",
@@ -44,6 +48,7 @@ class DomoStream(DomoEntity):
     configuration_query: str = None
 
     Schedule: DomoSchedule = None  # DomoDataset_Schedule
+    Account: DomoAccount = field(default=None, repr=False)  # Connector account
 
     def __post_init__(self):
         """Post-initialization to extract schedule if present"""
@@ -126,6 +131,17 @@ class DomoStream(DomoEntity):
 
         return res
 
+    async def refresh(
+        self,
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+    ):
+        await self.get_account(force_refresh=True, debug_api=debug_api, session=session)
+
+        await super().refresh(debug_api=debug_api, session=session)
+
+        return self
+
     @classmethod
     async def get_by_id(
         cls,
@@ -135,6 +151,7 @@ class DomoStream(DomoEntity):
         debug_num_stacks_to_drop=2,
         debug_api: bool = False,
         session: httpx.AsyncClient | None = None,
+        is_retrieve_account: bool = True,
     ):
         """Get a stream by its ID.
 
@@ -144,8 +161,8 @@ class DomoStream(DomoEntity):
             return_raw: Return raw response without processing
             debug_num_stacks_to_drop: Stack frames to drop for debugging
             debug_api: Enable API debugging
-            parent: Parent dataset entity
             session: HTTP client session
+            is_retrieve_account: If True and account_id is present, retrieve full Account object
 
         Returns:
             DomoStream instance or ResponseGetData if return_raw=True
@@ -165,7 +182,14 @@ class DomoStream(DomoEntity):
         if return_raw:
             return res
 
-        return cls.from_dict(auth=auth, obj=res.response)
+        stream = cls.from_dict(auth=auth, obj=res.response)
+
+        # Retrieve Account if account_id is present
+        if is_retrieve_account and stream.account_id:
+            await stream.get_account(
+                session=session, debug_api=debug_api, force_refresh=True
+            )
+        return stream
 
     @classmethod
     async def get_entity_by_id(cls, entity_id: str, auth: DomoAuth, **kwargs):
@@ -197,6 +221,46 @@ class DomoStream(DomoEntity):
             debug_api=debug_api,
         )
         return res
+
+    async def get_account(
+        self,
+        session: httpx.AsyncClient | None = None,
+        debug_api: bool = False,
+        force_refresh: bool = False,
+    ) -> DomoAccount | None:
+        """Retrieve the Account associated with this stream.
+
+        Args:
+            session: HTTP client session
+            debug_api: Enable API debugging
+            force_refresh: If True, refresh even if Account is already set
+
+        Returns:
+            DomoAccount instance or None if no account_id
+
+        Example:
+            >>> stream = await DomoStream.get_by_id(auth=auth, stream_id="123")
+            >>> account = await stream.get_account()
+            >>> print(f"Account: {account.name}")
+        """
+
+        print("getting accounts")
+        if not self.account_id:
+            return None
+
+        if self.Account is not None and not force_refresh:
+            return self.Account
+
+        from ..DomoAccount import DomoAccount
+
+        self.Account = await DomoAccount.get_by_id(
+            auth=self.auth,
+            account_id=self.account_id,
+            session=session,
+            debug_api=debug_api,
+            is_use_default_account_class=False,
+        )
+        return self.Account
 
 
 @dataclass

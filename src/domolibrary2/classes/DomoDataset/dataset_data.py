@@ -35,6 +35,7 @@ class DomoDataset_Data(DomoSubEntity):
         limit=100,  # maximum rows to return per request.  refers to PAGINATION
         skip=0,
         maximum=100,  # equivalent to the LIMIT or TOP clause in SQL, the number of rows to return total
+        return_raw: bool = False,
         debug_api: bool = False,
         debug_loop: bool = False,
         debug_num_stacks_to_drop: int = 2,
@@ -62,6 +63,7 @@ class DomoDataset_Data(DomoSubEntity):
                     skip=skip,
                     limit=limit,
                     loop_until_end=loop_until_end,
+                    return_raw=return_raw,
                     session=session,
                     debug_loop=debug_loop,
                     debug_api=debug_api,
@@ -69,6 +71,9 @@ class DomoDataset_Data(DomoSubEntity):
                     debug_num_stacks_to_drop=debug_num_stacks_to_drop,
                     parent_class=self.__class__.__name__,
                 )
+
+                if return_raw:
+                    return res
 
             except DomoError as e:
                 if isinstance(e, (DatasetNotFoundError, QueryRequestError)):

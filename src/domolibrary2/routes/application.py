@@ -281,6 +281,7 @@ async def get_application_jobs(
     debug_api: bool = False,
     debug_num_stacks_to_drop=2,
     session: Union[httpx.AsyncClient, httpx.AsyncClient, None] = None,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     offset_params = {"offset": "offset", "limit": "limit"}
 
@@ -300,6 +301,9 @@ async def get_application_jobs(
         debug_api=debug_api,
         debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
+
+    if return_raw:
+        return res
 
     if not res.is_success:
         raise ApplicationNoJobRetrievedError(

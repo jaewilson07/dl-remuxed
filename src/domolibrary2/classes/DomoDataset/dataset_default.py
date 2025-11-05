@@ -7,11 +7,12 @@ __all__ = [
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Optional
+from typing import ClassVar, Optional
 
 import httpx
 
 from ...client.auth import DomoAuth
+from ...client.exceptions import ClassError
 from ...entities.entities import DomoEntity_w_Lineage
 from ...routes import dataset as dataset_routes
 from ...routes.dataset import (
@@ -22,6 +23,7 @@ from ..subentity import (
     certification as dmdc,
     tags as dmtg,
 )
+from ..subentity.schedule import DomoSchedule
 from . import (
     pdp as dmpdp,
     schema as dmdsc,
@@ -29,8 +31,15 @@ from . import (
 )
 from .dataset_data import DomoDataset_Data
 
-if TYPE_CHECKING:
-    from ..subentity.schedule import DomoSchedule
+
+class DomoDataset_NoTransportType_Error(ClassError):
+    """Raised when unable to determine the transport type of a dataset."""
+
+    def __init__(self, cls_instance=None, message: str = None, **kwargs):
+        if not message:
+            message = "Unable to determine the transport type of the dataset."
+
+        super().__init__(cls_instance=cls_instance, message=message, **kwargs)
 
 
 @dataclass
@@ -57,15 +66,18 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
     owner: dict = field(default_factory=dict)
     formulas: dict = field(default_factory=dict)
 
-    Data: Optional[DomoDataset_Data] = None
-    Schema: Optional[dmdsc.DomoDataset_Schema] = None
-    Stream: Optional[dmdst.DomoStream] = None
-    Tags: Optional[dmtg.DomoTags] = None
-    PDP: Optional[dmpdp.DatasetPdpPolicies] = None
+    Data: Optional[DomoDataset_Data] = field(default=None, repr=False)
+    Schema: Optional[dmdsc.DomoDataset_Schema] = field(default=None, repr=False)
+    Stream: Optional[dmdst.DomoStream] = field(default=None, repr=False)
+    Tags: Optional[dmtg.DomoTags] = field(default=None, repr=False)
+    PDP: Optional[dmpdp.DatasetPdpPolicies] = field(default=None, repr=False)
 
-    Certification: dmdc.DomoCertification = field(default=None)
+    Certification: dmdc.DomoCertification = field(default=None, repr=False)
 
     # Lineage: dmdl.DomoLineage = field(default=None, repr=False)
+
+    # Include selected computed properties in generic to_dict serialization
+    __serialize_properties__: ClassVar[tuple] = ("display_url", "transport_type")
 
     @property
     def entity_type(self):
@@ -90,6 +102,22 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
 
         has_federate = any(["FEDERAT" in dpt, "FEDERAT" in disp])
         return has_hint or has_federate
+
+    @property
+    def transport_type(self) -> Optional[str]:
+        """Get the transport type of the dataset if available.
+
+        Returns None if transport type cannot be determined rather than raising an exception.
+        This allows the property to be safely included in serialization.
+        """
+        if self.raw.get("transportType"):
+            return self.raw.get("transportType").upper()
+
+        if self.Stream and self.Stream.transport_type:
+            return self.Stream.transport_type.upper()
+
+        # Return None instead of raising to allow safe serialization
+        return None
 
     @property
     def is_federated(self) -> bool:
@@ -241,7 +269,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
         session: httpx.AsyncClient | None = None,
     ):
         # Import DomoGroup here to avoid circular imports
-        from ...classes.DomoGroup import DomoGroup
+        from ..DomoGroup.core import DomoGroup
 
         body = dataset_routes.generate_share_dataset_payload(
             entity_type="GROUP" if isinstance(member, DomoGroup) else "USER",

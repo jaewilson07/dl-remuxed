@@ -43,27 +43,38 @@ Usage:
 
 from abc import abstractmethod
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Any
 
-from .base import DomoBase, DomoEnum
+from .base import DomoBase, DomoEnumMixin
 
-RelationshipType = DomoEnum
-"""Types of relationships between Domo entities."""
 
-# Access and Permission Relationships
-# OWNER = "owner"
-# ADMIN = "admin"
-# EDITOR = "editor"
-# PARTICIPANT = "participant"
-# VIEWER = "viewer"
+class ShareAccount(DomoEnumMixin, Enum):
+    """Types of relationships between Domo entities."""
 
-# # Membership Relationships
-# MEMBER = "member"
-# OWNER = "owner"
+    # Access and Permission Relationships
+    OWNER = "owner"
+    ADMIN = "admin"
+    EDITOR = "editor"
+    PARTICIPANT = "participant"
+    VIEWER = "viewer"
 
-# # LIneage
-# PARENT = "parent"
-# CHILD = "child"
+    # Membership Relationships
+    MEMBER = "member"
+
+    # Lineage Relationships
+    PARENT = "parent"
+    CHILD = "child"
+
+    # Default fallback
+    default = "UNKNOWN"
+
+
+__all__ = [
+    "ShareAccount",
+    "DomoRelationship",
+    "DomoRelationshipController",
+]
 
 
 @dataclass
@@ -119,10 +130,10 @@ class DomoRelationship(DomoBase):
         when working with large sets of relationships.
     """
 
-    relationship_type: RelationshipType
+    relationship_type: ShareAccount
 
     # Core relationship identifiers
-    parent_entity: Any = field(repr=False, default=None)  # DomoEntity instance
+    parent_entity: Any = field(repr=False)  # DomoEntity instance
     entity: Any = field(repr=False, default=None)  # DomoEntity instance
 
     def __eq__(self, other):
@@ -164,163 +175,6 @@ class DomoRelationshipController(DomoBase):
     - Async-optimized: Concurrent operations for performance
     - Cache-friendly: Intelligent caching of frequently accessed relationships
     - Extensible: Easy to subclass for specialized relationship types
-
-    Architecture:
-        The controller will typically be implemented as a property of Domo entities:
-        - DomoDataset.relationships -> DatasetRelationshipController
-        - DomoUser.relationships -> UserRelationshipController
-        - DomoGroup.relationships -> GroupRelationshipController
-
-        Each specialized controller provides domain-specific methods:
-        - dataset.relationships.get_owners() -> list[DomoUser]
-        - dataset.relationships.add_viewers([user1, user2])
-        - user.relationships.get_groups() -> list[DomoGroup]
-        - group.relationships.get_members() -> list[DomoUser]
-
-    Attributes:
-        relationships (list[DomoRelationship]): Collection of managed relationships
-
-    Abstract Methods:
-        add_relationship: Create new relationships between entities
-        get: Retrieve relationships matching specified criteria
-
-    Concrete Methods:
-        get_relative_entities: Fetch and cache related entity instances
-
-    Examples:
-        # Basic usage through entity
-        dataset = await DomoDataset.get_by_id(auth, "dataset123")
-        owners = await dataset.relationships.get_owners()
-        await dataset.relationships.add_viewer("user456")
-
-        # Direct controller usage
-        controller = DatasetRelationshipController()
-        relationships = await controller.get()
-        await controller.add_relationship("user789", RelationshipType.EDITOR)
-
-        # Batch operations
-        new_viewers = ["user1", "user2", "user3"]
-        await controller.add_relationships(new_viewers, RelationshipType.VIEWER)
-
-    Performance Considerations:
-        - Uses concurrent operations (gather_with_concurrency) for bulk fetching
-        - Implements lazy loading of related entities
-        - Supports relationship caching to reduce API calls
-        - Batches similar operations when possible
-
-    Note:
-        This is an abstract base class. Concrete implementations should be
-        created for specific entity types and relationship scenarios.
     """
 
     relationships: list[DomoRelationship] = field(default_factory=list)
-
-    @abstractmethod
-    def add_relationship(
-        self,
-        relative_id,
-        relationship_type: RelationshipType,
-    ) -> DomoRelationship:
-        """Create a new relationship between entities.
-
-        Abstract method that must be implemented by concrete controller
-        classes to handle the creation of new relationships. The implementation
-        should handle both the local relationship creation and any necessary
-        API calls to persist the relationship in Domo.
-
-        Args:
-            relative_id (str): ID of the entity to create a relationship with
-            relationship_type (RelationshipType): Type of relationship to create
-                                                 (owner, viewer, member, etc.)
-
-        Returns:
-            DomoRelationship: The newly created relationship instance
-
-        Implementation Requirements:
-            - Validate the relative_id exists and is accessible
-            - Create the DomoRelationship instance
-            - Make necessary API calls to establish the relationship in Domo
-            - Add the relationship to the controller's relationships collection
-            - Handle any errors gracefully with appropriate exceptions
-
-        Example Implementation:
-            async def add_relationship(self, relative_id, relationship_type):
-                # Validate entity exists
-                entity = await self.relative_class.get_by_id(self.auth, relative_id)
-
-                # Create relationship
-                relationship = DomoRelationship(
-                    relative_id=relative_id,
-                    relative_class=self.relative_class,
-                    relationship_type=relationship_type,
-                    parent_entity=self.parent_entity
-                )
-
-                # Persist in Domo via API
-                await self._api_create_relationship(relationship)
-
-                # Add to local collection
-                self.relationships.append(relationship)
-
-                return relationship
-        """
-
-    @abstractmethod
-    async def get(
-        self,
-    ) -> list[DomoRelationship]:
-        """Find and retrieve relationships matching the specified criteria.
-
-        Abstract method that must be implemented by concrete controller classes
-        to handle the retrieval of relationships from Domo. This method serves
-        as the primary interface for querying relationships and should support
-        filtering, sorting, and pagination as needed.
-
-        Returns:
-            list[DomoRelationship]: Collection of relationships that match
-                                   the controller's criteria
-
-        Implementation Requirements:
-            - Query the appropriate Domo API endpoints for relationship data
-            - Convert API responses to DomoRelationship instances
-            - Apply any filtering logic specific to the entity type
-            - Handle pagination for large result sets
-            - Cache results appropriately for performance
-            - Handle API errors gracefully
-
-        Example Implementation:
-            async def get(self) -> list[DomoRelationship]:
-                # Query Domo API for relationships
-                api_response = await self._api_get_relationships()
-
-                # Convert to DomoRelationship instances
-                relationships = []
-                for item in api_response.data:
-                    rel = DomoRelationship(
-                        relative_id=item['user_id'],
-                        relative_class=DomoUser,
-                        relationship_type=RelationshipType(item['access_level']),
-                        parent_entity=self.parent_entity
-                    )
-                    relationships.append(rel)
-
-                # Cache and return
-                self.relationships = relationships
-                return relationships
-
-        Usage Patterns:
-            # Get all relationships
-            all_rels = await controller.get()
-
-            # Implementations may support filtering
-            owners = await controller.get(relationship_type=RelationshipType.OWNER)
-            viewers = await controller.get(relationship_type=RelationshipType.VIEWER)
-        """
-        raise NotImplementedError("Subclasses must implement get method.")
-
-
-__all__ = [
-    "RelationshipType",
-    "DomoRelationship",
-    "DomoRelationshipController",
-]

@@ -2,13 +2,13 @@ from dataclasses import dataclass, field
 
 import httpx
 
-from ..client import exceptions as dmde
-from ..client.auth import DomoAuth
-from ..client.exceptions import RouteError
-from ..entities.entities import DomoEntity
-from ..routes import group as group_routes
-from ..routes.group import Group_CRUD_Error, GroupType_Enum
-from .subentity.membership import DomoMembership_Group
+from ...client import exceptions as dmde
+from ...client.auth import DomoAuth
+from ...client.exceptions import RouteError
+from ...entities.entities import DomoEntity
+from ...routes import group as group_routes
+from ...routes.group import Group_CRUD_Error, GroupType_Enum
+from .membership import DomoMembership_Group
 
 __all__ = ["Group_Class_Error", "DomoGroup", "DomoGroups"]
 
@@ -57,8 +57,6 @@ class DomoGroup(DomoEntity):
 
     @classmethod
     def from_dict(cls, auth: DomoAuth, obj: dict):
-        # from group API
-
         return cls(
             auth=auth,
             id=obj.get("id") or obj.get("groupId"),

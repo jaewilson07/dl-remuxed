@@ -15,7 +15,7 @@ from domolibrary2.entities.entities import DomoEntity, DomoSubEntity
 from domolibrary2.entities.relationships import (
     DomoRelationship,
     DomoRelationshipController,
-    RelationshipType,
+    ShareAccount,
 )
 
 
@@ -178,7 +178,7 @@ class PDPPolicy(DomoEntity):
             source_entity_type="user",
             target_entity_id=self.id or self.filter_group_id,
             target_entity_type="pdp_policy",
-            relationship_type=RelationshipType.MEMBER,
+            relationship_type=ShareAccount.MEMBER,
             permissions=["data_access"],
             metadata={"policy_type": "pdp", "dataset_id": self.dataset_id},
             created_by=created_by,
@@ -188,7 +188,7 @@ class PDPPolicy(DomoEntity):
         """Get all users associated with this policy."""
         return self.relationship_controller.find_relationships(
             target_entity_id=self.id or self.filter_group_id,
-            relationship_type=RelationshipType.MEMBER,
+            relationship_type=ShareAccount.MEMBER,
             active_only=True,
         )
 
@@ -196,7 +196,7 @@ class PDPPolicy(DomoEntity):
         """Get all groups associated with this policy."""
         return self.relationship_controller.find_relationships(
             target_entity_id=self.id or self.filter_group_id,
-            relationship_type=RelationshipType.GROUP_MEMBER,
+            relationship_type=ShareAccount.GROUP_MEMBER,
             active_only=True,
         )
 
@@ -205,7 +205,7 @@ class PDPPolicy(DomoEntity):
         return self.relationship_controller.revoke_relationship(
             source_entity_id=user_id,
             target_entity_id=self.id or self.filter_group_id,
-            relationship_type=RelationshipType.MEMBER,
+            relationship_type=ShareAccount.MEMBER,
         )
 
     def remove_group(self, group_id: str) -> list[DomoRelationship]:
@@ -213,7 +213,7 @@ class PDPPolicy(DomoEntity):
         return self.relationship_controller.revoke_relationship(
             source_entity_id=group_id,
             target_entity_id=self.id or self.filter_group_id,
-            relationship_type=RelationshipType.GROUP_MEMBER,
+            relationship_type=ShareAccount.GROUP_MEMBER,
         )
 
     def add_parameter(self, parameter: PdpParameter) -> None:
@@ -284,7 +284,7 @@ class PDPPolicy(DomoEntity):
             source_entity_type="group",
             target_entity_id=self.id or self.filter_group_id,
             target_entity_type="pdp_policy",
-            relationship_type=RelationshipType.GROUP_MEMBER,
+            relationship_type=ShareAccount.GROUP_MEMBER,
             permissions=["data_access"],
             metadata={"policy_type": "pdp", "dataset_id": self.dataset_id},
             created_by=created_by,
