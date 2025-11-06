@@ -229,7 +229,7 @@ class DomoDataset_Data(DomoSubEntity):
 
         if is_index:
             await asyncio.sleep(3)
-            return await self.index_dataset(
+            return await self.index(
                 auth=auth, dataset_id=dataset_id, debug_api=debug_api, session=session
             )
 
