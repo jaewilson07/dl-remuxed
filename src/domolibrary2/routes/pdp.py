@@ -42,12 +42,12 @@ from typing import Optional
 
 import httpx
 
+from ..auth import DomoAuth
+from ..base.exceptions import RouteError
 from ..client import (
     get_data as gd,
     response as rgd,
 )
-from ..client.auth import DomoAuth
-from ..client.exceptions import RouteError
 
 
 class PDP_GET_Error(RouteError):

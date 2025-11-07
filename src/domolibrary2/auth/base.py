@@ -7,9 +7,8 @@ from typing import Optional, Union
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
 
-from ...utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
-from ..exceptions import AuthError
-from ..response import ResponseGetData
+from ..client.response import ResponseGetData
+from ..utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 
 
 class _DomoAuth_Required(ABC):  # noqa: N801
@@ -32,6 +31,8 @@ class _DomoAuth_Required(ABC):  # noqa: N801
             InvalidInstanceError: If domo_instance is empty or None
         """
         if not domo_instance:
+            from ..base.exceptions import AuthError
+
             raise AuthError(message="Domo instance is required. Example: 'mycompany'")
 
         self.domo_instance = domo_instance
@@ -89,6 +90,8 @@ class _DomoAuth_Optional(ABC):  # noqa: N801
         self._set_token_name()
 
         if not self.domo_instance:
+            from ..base.exceptions import AuthError
+
             raise AuthError(
                 message="Domo instance is required. Example: 'mycompany.domo.com' or 'mycompany'"
             )
@@ -140,7 +143,7 @@ class _DomoAuth_Optional(ABC):  # noqa: N801
         Raises:
             TypeError: If the response is not of expected ResponseGetData type
         """
-        from ...routes import auth as auth_routes
+        from ..routes import auth as auth_routes
 
         res = await auth_routes.who_am_i(
             auth=self,
@@ -188,7 +191,7 @@ class _DomoAuth_Optional(ABC):  # noqa: N801
         """
         if session is None:
             async with httpx.AsyncClient() as client_session:
-                from ...routes import auth as auth_routes
+                from ..routes import auth as auth_routes
 
                 return await auth_routes.elevate_user_otp(
                     auth=self,
@@ -198,7 +201,7 @@ class _DomoAuth_Optional(ABC):  # noqa: N801
                     debug_num_stacks_to_drop=debug_num_stacks_to_drop,
                 )
         else:
-            from ...routes import auth as auth_routes
+            from ..routes import auth as auth_routes
 
             return await auth_routes.elevate_user_otp(
                 auth=self,

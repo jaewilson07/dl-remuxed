@@ -17,7 +17,7 @@ from typing import Any, Callable, Optional
 
 import httpx
 
-from ..client.auth import DomoAuth
+from ..auth.base import DomoAuth
 from .base import DomoBase
 from .relationships import DomoRelationshipController
 
@@ -71,6 +71,17 @@ class DomoEntity(DomoBase):
             return self.id == other.id
 
         return False
+
+    def __hash__(self) -> int:
+        """Return hash based on entity ID.
+
+        This allows entities to be used in sets and as dictionary keys.
+        Two entities with the same ID will have the same hash.
+
+        Returns:
+            int: Hash of the entity ID
+        """
+        return hash(self.id)
 
     def to_dict(
         self, override_fn: Optional[Callable] = None, return_snake_case: bool = False
@@ -150,6 +161,7 @@ class DomoEntity(DomoBase):
         debug_num_stacks_to_drop=2,
         debug_api: bool = False,
         session: httpx.AsyncClient | None = None,
+        **kwargs,
     ):
         """Refresh this instance from the API using its id and auth."""
         result = await type(self).get_entity_by_id(
@@ -158,6 +170,7 @@ class DomoEntity(DomoBase):
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
             debug_api=debug_api,
             session=session,
+            **kwargs,
         )
         # Spread attributes from result to self
         if isinstance(result, type(self)):

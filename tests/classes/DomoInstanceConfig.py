@@ -399,7 +399,7 @@ async def test_get_user_attributes(domo_config: DomoInstanceConfig):
 @pytest.mark.asyncio
 async def test_get_weekly_digest_enabled(full_auth: DomoFullAuth):
     """Test checking weekly digest setting."""
-    from domolibrary2.client.exceptions import DomoError
+    from domolibrary2.base.exceptions import DomoError
 
     domo_config = DomoInstanceConfig(auth=full_auth)  # type: ignore
 
@@ -414,7 +414,7 @@ async def test_get_weekly_digest_enabled(full_auth: DomoFullAuth):
 @pytest.mark.asyncio
 async def test_toggle_weekly_digest(full_auth: DomoFullAuth):
     """Test toggling weekly digest."""
-    from domolibrary2.client.exceptions import DomoError
+    from domolibrary2.base.exceptions import DomoError
 
     domo_config = DomoInstanceConfig(auth=full_auth)  # type: ignore
 

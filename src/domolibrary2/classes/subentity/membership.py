@@ -3,9 +3,9 @@ from __future__ import annotations
 from abc import abstractmethod
 from dataclasses import dataclass
 
-from ...client import exceptions as dmde
-from ...entities.entities import DomoSubEntity
-from ...entities.relationships import (
+from ...base import exceptions as dmde
+from ...base.entities import DomoSubEntity
+from ...base.relationships import (
     DomoRelationship,
     DomoRelationshipController,
     ShareAccount,

@@ -5,22 +5,24 @@ __all__ = [
     "DomoAccount_Default",
     "AccountClass_CRUDError",
 ]
-
-
 import asyncio
 import datetime as dt
 from dataclasses import dataclass, field
 from typing import Any
 
 import httpx
+from dc_logger.decorators import LogDecoratorConfig, log_call
 
-from ...client.auth import DomoAuth
-from ...client.exceptions import ClassError, DomoError
-from ...entities.entities import DomoEntity
+from ...auth import DomoAuth
+from ...base.entities import DomoEntity
+from ...base.exceptions import ClassError, DomoError
 from ...routes import account as account_routes
 from ...utils import convert as cd
+from ...utils.logging import ResponseGetDataProcessor, get_colored_logger
 from .access import DomoAccess_Account
 from .config import AccountConfig, DomoAccount_Config
+
+logger = get_colored_logger()
 
 
 class Account_CanIModifyError(ClassError):
@@ -53,7 +55,7 @@ class AccountClass_CRUDError(ClassError):
         super().__init__(cls_instance=cls_instance, message=message)
 
 
-@dataclass(eq=False)
+@dataclass
 class DomoAccount_Default(DomoEntity):
     id: int
     auth: DomoAuth = field(repr=False)
@@ -69,8 +71,16 @@ class DomoAccount_Default(DomoEntity):
 
     is_admin_summary: bool = True
 
-    Config: DomoAccount_Config = field(repr=False, default=None)
-    Access: DomoAccess_Account = field(repr=False, default=None)
+    Config: DomoAccount_Config = field(repr=False, default=None, compare=False)
+    Access: DomoAccess_Account = field(repr=False, default=None, compare=False)
+
+    def __eq__(self, other):
+        if not isinstance(other, DomoAccount_Default):
+            return False
+
+        return (
+            self.id == other.id and self.auth.domo_instance == other.auth.domo_instance
+        )
 
     @property
     def entity_type(self):
@@ -130,6 +140,33 @@ class DomoAccount_Default(DomoEntity):
     def _test_missing_keys(self, res_obj, config_obj):
         return [r_key for r_key in res_obj.keys() if r_key not in config_obj.keys()]
 
+    async def refresh(
+        self,
+        is_suppress_no_config: bool = False,
+        debug_api: bool = False,
+        session: httpx.Client = None,
+    ):
+        """synchronous wrapper for _get_config"""
+
+        await super().refresh(
+            is_suppress_no_config=is_suppress_no_config,
+            debug_api=debug_api,
+            session=session,
+        )
+
+        await self._get_config(
+            is_suppress_no_config=is_suppress_no_config,
+            debug_api=debug_api,
+            session=session,
+        )
+
+        return self
+
+    @log_call(
+        level_name="class",
+        config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+        logger=logger,
+    )
     async def _get_config(
         self,
         session=None,
@@ -166,17 +203,18 @@ class DomoAccount_Default(DomoEntity):
         if return_raw:
             return res
 
-        config_fn = AccountConfig(self.data_provider_type).value
-
         try:
+            config_fn = AccountConfig(self.data_provider_type).value
             self.Config = config_fn.from_dict(
                 obj=res.response, data_provider_type=self.data_provider_type
             )
 
-        except DomoError as e:
+        except (DomoError, ValueError, TypeError) as e:
+            await logger.warning(
+                f"unable to parse account config for account id {self.id} - {e}"
+            )
             if not is_suppress_no_config:
                 raise e from e
-            print(e)
 
         if self.Config and self.Config.to_dict() != {}:
             self._test_missing_keys(

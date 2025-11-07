@@ -34,7 +34,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Callable, Optional
 
-from ...entities.base import DomoBase, DomoEnumMixin
+from ...base.base import DomoBase, DomoEnumMixin
 from .schedule import DomoSchedule, DomoSchedule_Base
 
 

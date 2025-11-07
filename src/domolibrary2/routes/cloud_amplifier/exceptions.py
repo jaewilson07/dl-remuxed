@@ -13,8 +13,8 @@ __all__ = [
 
 from typing import Optional
 
+from ...base.exceptions import RouteError
 from ...client import response as rgd
-from ...client.exceptions import RouteError
 
 
 class CloudAmplifier_GET_Error(RouteError):

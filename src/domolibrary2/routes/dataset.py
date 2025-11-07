@@ -41,14 +41,14 @@ import httpx
 import pandas as pd
 from dc_logger.decorators import LogDecoratorConfig, log_call
 
+from .. import auth as dmda
+from ..auth import DomoAuth
+from ..base import exceptions as de
+from ..base.base import DomoEnumMixin
 from ..client import (
-    auth as dmda,
-    exceptions as de,
     get_data as gd,
     response as rgd,
 )
-from ..client.auth import DomoAuth
-from ..entities.base import DomoEnumMixin
 from ..utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 
 

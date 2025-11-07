@@ -9,7 +9,7 @@ Exception Classes:
     ShareResource_Error: Raised when resource sharing operations fail
 """
 
-from ...client.exceptions import RouteError
+from ...base.exceptions import RouteError
 
 
 class SearchDatacenterNoResultsFoundError(RouteError):

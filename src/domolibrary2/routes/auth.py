@@ -23,8 +23,8 @@ from typing import Any, Optional
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
 
+from ..base.exceptions import AuthError, RouteError
 from ..client import response as rgd
-from ..client.exceptions import AuthError, RouteError
 from ..utils.logging import ResponseGetDataProcessor
 
 

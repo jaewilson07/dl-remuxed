@@ -7,9 +7,9 @@ from typing import Any, ClassVar, Optional
 
 import httpx
 
-from ...client import exceptions as dmde
-from ...client.auth import DomoAuth
-from ...entities.entities import DomoEntity_w_Lineage
+from ...auth import DomoAuth
+from ...base import exceptions as dmde
+from ...base.entities import DomoEntity_w_Lineage
 from ...routes import page as page_routes
 from ...utils import (
     DictDot as util_dd,

@@ -19,10 +19,10 @@ from typing import Any, Callable
 
 import httpx
 
-from ...client.auth import DomoAuth
-from ...client.exceptions import DomoError
-from ...entities.base import DomoEnumMixin
-from ...entities.entities import DomoEntity
+from ...auth import DomoAuth
+from ...base.base import DomoEnumMixin
+from ...base.entities import DomoEntity
+from ...base.exceptions import DomoError
 from ...routes import datacenter as datacenter_routes
 from ...utils import chunk_execution as dmce
 

@@ -5,9 +5,9 @@ from typing import Optional
 
 import httpx
 
-from domolibrary2.entities.entities import DomoBase, DomoManager
+from domolibrary2.base.entities import DomoBase, DomoManager
 
-from ...client.auth import DomoAuth as dmda
+from ...auth import DomoAuth as dmda
 from ...routes import grant as grant_routes
 from ...utils import DictDot as util_dd
 

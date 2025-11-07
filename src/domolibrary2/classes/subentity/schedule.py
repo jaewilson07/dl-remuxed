@@ -16,8 +16,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Callable, Optional
 
-# from ...client.auth import DomoAuth
-from ...entities.base import DomoBase, DomoEnumMixin
+# from ...auth import DomoAuth
+from ...base.base import DomoBase, DomoEnumMixin
 
 
 class ScheduleFrequencyEnum(DomoEnumMixin, Enum):
@@ -501,11 +501,14 @@ class DomoSchedule_Base(DomoBase, ABC):
     def __repr__(self) -> str:
         return f"DomoSchedule(frequency={self.frequency.value}, type={self.schedule_type.value})"
 
-    def export_as_dict(self, override_fn: Optional[Callable] = None) -> dict[str, Any]:
+    def export_as_dict(
+        self, override_fn: Optional[Callable] = None, return_snake_case: bool = False
+    ) -> dict[str, Any]:
         """
         Export the schedule as a unified dictionary format.
         Args:
             override_fn: Optional function to override export logic.
+            return_snake_case: If True, return keys in snake_case format.
         Returns:
             dict: Unified schedule dictionary.
         """
@@ -541,12 +544,23 @@ class DomoSchedule_Base(DomoBase, ABC):
         if hasattr(self, "advanced_schedule_json") and self.advanced_schedule_json:
             result["advancedScheduleJson"] = self.advanced_schedule_json
 
+        # Convert to snake_case if requested
+        if return_snake_case:
+            from ...utils.convert import convert_str_to_snake_case
+
+            result = {
+                convert_str_to_snake_case(k, is_pascal=True): v
+                for k, v in result.items()
+            }
+
         return result
 
     async def refresh(
         self,
         session: Optional[Any] = None,
         debug_api: bool = False,
+        is_suppress_no_config: bool = False,
+        **kwargs,
     ) -> "DomoSchedule_Base":
         """Refresh schedule data by refreshing the parent entity.
 
@@ -561,6 +575,7 @@ class DomoSchedule_Base(DomoBase, ABC):
         Args:
             session: Optional httpx.AsyncClient session for API requests
             debug_api: Enable debug output for API calls
+            is_suppress_no_config: Suppress errors for missing configs
 
         Returns:
             Self (with updated schedule data)
@@ -573,7 +588,12 @@ class DomoSchedule_Base(DomoBase, ABC):
 
         # Refresh the parent entity
         if hasattr(self.parent, "refresh") and callable(self.parent.refresh):
-            await self.parent.refresh(session=session, debug_api=debug_api)
+            await self.parent.refresh(
+                session=session,
+                debug_api=debug_api,
+                is_suppress_no_config=is_suppress_no_config,
+                **kwargs,
+            )
         else:
             raise AttributeError(
                 f"Parent entity {type(self.parent).__name__} does not have a refresh() method"

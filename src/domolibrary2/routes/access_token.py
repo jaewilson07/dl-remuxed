@@ -36,12 +36,12 @@ from typing import Optional, Union
 import httpx
 from dc_logger.client.base import Logger
 
+from ..auth import DomoAuth
+from ..base.exceptions import RouteError
 from ..client import (
     get_data as gd,
     response as rgd,
 )
-from ..client.auth import DomoAuth
-from ..client.exceptions import RouteError
 
 
 class AccessToken_GET_Error(RouteError):

@@ -15,11 +15,11 @@ from typing import Optional, Union
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
 
+from ...auth import DomoAuth
 from ...client import (
     get_data as gd,
     response as rgd,
 )
-from ...client.auth import DomoAuth
 from ...utils.logging import ResponseGetDataProcessor
 from .core import get_account_by_id
 from .exceptions import Account_Config_Error, AccountNoMatchError

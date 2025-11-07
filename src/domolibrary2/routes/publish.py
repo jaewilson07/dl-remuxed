@@ -21,12 +21,12 @@ __all__ = [
 
 import httpx
 
+from ..auth import DomoAuth
+from ..base import exceptions as de
 from ..client import (
-    exceptions as de,
     get_data as gd,
     response as rgd,
 )
-from ..client.auth import DomoAuth
 
 
 class GET_Publish_Error(de.RouteError):

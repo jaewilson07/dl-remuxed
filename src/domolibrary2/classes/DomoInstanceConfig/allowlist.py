@@ -9,7 +9,7 @@ from typing import Optional
 
 import httpx
 
-from ...client.auth import DomoAuth
+from ...auth import DomoAuth
 from ...routes.instance_config import allowlist as allowlist_routes
 
 

@@ -20,11 +20,11 @@ from typing import Optional
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
 
+from ...auth import DomoAuth
 from ...client import (
     get_data as gd,
     response as rgd,
 )
-from ...client.auth import DomoAuth
 from ...utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 from .exceptions import (
     Page_CRUD_Error,
