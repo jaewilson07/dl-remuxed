@@ -4,8 +4,8 @@ from dataclasses import dataclass, field
 
 import httpx
 
-from ...client.auth import DomoAuth
-from ...entities import DomoEntity_w_Lineage
+from ...auth import DomoAuth
+from ...base import DomoEntity_w_Lineage
 from ...routes import dataflow as dataflow_routes
 from ...utils import chunk_execution as dmce
 from ..DomoJupyter import Jupyter as dmdj

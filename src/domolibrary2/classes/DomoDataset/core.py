@@ -13,8 +13,8 @@ from typing import Callable, Optional
 
 import httpx
 
-from ...client.auth import DomoAuth
-from ...entities.entities_federated import DomoFederatedEntity, DomoPublishedEntity
+from ...auth import DomoAuth
+from ...base.entities_federated import DomoFederatedEntity, DomoPublishedEntity
 from ...utils import chunk_execution as dmce
 from .dataset_default import DomoDataset_Default
 
@@ -81,6 +81,7 @@ class FederatedDomoDataset(DomoDataset_Default, DomoFederatedEntity):
         debug_num_stacks_to_drop: int = 2,
         is_use_default_dataset_class: bool = False,
         parent_class: Optional[str] = None,
+        is_suppress_no_config: bool = False,
     ):
         """retrieves federated dataset metadata"""
         # Use parent implementation to avoid code duplication
@@ -93,6 +94,7 @@ class FederatedDomoDataset(DomoDataset_Default, DomoFederatedEntity):
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
             is_use_default_dataset_class=is_use_default_dataset_class,
             parent_class=parent_class or cls.__name__,
+            is_suppress_no_config=is_suppress_no_config,
         )
 
 

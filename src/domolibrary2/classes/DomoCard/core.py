@@ -11,8 +11,8 @@ from typing import Any, Callable, Optional
 
 import httpx
 
-from ...client.auth import DomoAuth
-from ...entities.entities_federated import DomoFederatedEntity, DomoPublishedEntity
+from ...auth import DomoAuth
+from ...base.entities_federated import DomoFederatedEntity, DomoPublishedEntity
 from ...utils import chunk_execution as dmce
 from .card_default import DomoCard_Default
 

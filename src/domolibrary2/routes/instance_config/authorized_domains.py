@@ -10,11 +10,11 @@ __all__ = [
 
 import httpx
 
+from ...auth import DomoAuth
 from ...client import (
     get_data as gd,
     response as rgd,
 )
-from ...client.auth import DomoAuth
 from .. import user as user_routes
 from .exceptions import Config_CRUD_Error, Config_GET_Error
 

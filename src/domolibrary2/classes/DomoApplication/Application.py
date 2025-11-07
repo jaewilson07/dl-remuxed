@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 import httpx
 import pandas as pd
 
-from ...client.auth import DomoAuth
+from ...auth import DomoAuth
 from ...routes import application as application_routes
 from ...utils import (
     DictDot as util_dd,

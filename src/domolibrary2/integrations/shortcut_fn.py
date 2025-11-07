@@ -3,11 +3,11 @@
 __all__ = ["share_domo_account_with_domo_group"]
 
 
+from ..auth import DomoAuth
 from ..classes import (
     DomoAccount as dmacc,
 )
 from ..classes.DomoGroup import core as dmdg
-from ..client.auth import DomoAuth
 
 
 async def share_domo_account_with_domo_group(

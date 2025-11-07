@@ -19,12 +19,12 @@ __all__ = [
 
 import httpx
 
+from ..auth import DomoAuth
 from ..client import (
     exceptions as dmde,
     get_data as gd,
     response as rgd,
 )
-from ..client.auth import DomoAuth
 
 
 class GET_Dataflow_Error(dmde.RouteError):

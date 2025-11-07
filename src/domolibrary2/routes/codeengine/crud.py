@@ -28,11 +28,11 @@ from typing import Optional
 
 import httpx
 
+from ...auth import DomoAuth
 from ...client import (
     get_data as gd,
     response as rgd,
 )
-from ...client.auth import DomoAuth
 from . import core as codeengine_routes
 from .exceptions import (
     CodeEngine_CRUD_Error,

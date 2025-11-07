@@ -23,13 +23,12 @@ from dataclasses import dataclass, field
 from typing import Any, Optional, Union
 
 import httpx
-from dc_logger.client.base import get_global_logger
 from dc_logger.decorators import log_call
 
-from ..client.auth import DomoAuth
-from ..client.exceptions import ClassError, DomoError
+from ..auth import DomoAuth
+from ..base.entities import DomoEntity, DomoManager
+from ..base.exceptions import ClassError, DomoError
 from ..client.response import ResponseGetData
-from ..entities.entities import DomoEntity, DomoManager
 from ..routes import user as user_routes
 from ..routes.instance_config import sso as sso_routes
 from ..routes.user import UserProperty
@@ -46,10 +45,11 @@ from ..routes.user.exceptions import (
 )
 from ..utils.convert import convert_epoch_millisecond_to_datetime, test_valid_email
 from ..utils.images import Image, ImageUtils, are_same_image
+from ..utils.logging import get_colored_logger
 
 # User route exceptions are now imported from ..routes.user.exceptions
 
-logger = get_global_logger()
+logger = get_colored_logger()
 
 
 class CreateUser_MissingRoleError(ClassError):  # noqa: N801

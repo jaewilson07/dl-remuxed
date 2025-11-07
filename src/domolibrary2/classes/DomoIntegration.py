@@ -11,8 +11,8 @@ from typing import Any
 
 import httpx
 
-from ..client.auth import DomoAuth
-from ..entities.entities import DomoEntity
+from ..auth import DomoAuth
+from ..base.entities import DomoEntity
 from ..routes import cloud_amplifier as cloud_amplifier_routes
 
 

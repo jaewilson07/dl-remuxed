@@ -35,7 +35,7 @@ Migration Path:
 
 # New unified relationship system (recommended)
 # Import relationship types from entities module
-from ...entities.relationships import (
+from ...base.relationships import (
     DomoRelationship as Relationship,
     DomoRelationshipController,
     ShareAccount,

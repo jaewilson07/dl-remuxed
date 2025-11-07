@@ -2,10 +2,10 @@ from dataclasses import dataclass, field
 
 import httpx
 
-from ...client import exceptions as dmde
-from ...client.auth import DomoAuth
-from ...client.exceptions import RouteError
-from ...entities.entities import DomoEntity
+from ...auth import DomoAuth
+from ...base import exceptions as dmde
+from ...base.entities import DomoEntity
+from ...base.exceptions import RouteError
 from ...routes import group as group_routes
 from ...routes.group import Group_CRUD_Error, GroupType_Enum
 from .membership import DomoMembership_Group

@@ -12,11 +12,11 @@ from typing import Optional
 
 import httpx
 
+from ...auth import DomoAuth
 from ...client import (
     get_data as gd,
     response as rgd,
 )
-from ...client.auth import DomoAuth
 from .exceptions import Jupyter_CRUD_Error, SearchJupyterNotFoundError
 
 

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "domolibrary2"
-version = "2.0.3-beta"
+version = "2.1.0"
 description = "A Python library for interacting with Domo APIs"
 authors = [
     { name = "Jae Wilson", email = "jaewilson07@gmail.com" }
@@ -57,6 +57,8 @@ dev = [
     "pytest-cov",
     "pre-commit",
 ]
+
+postman = ["requests", "pydantic-ai"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP"]

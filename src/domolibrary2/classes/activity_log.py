@@ -7,7 +7,7 @@ from enum import Enum
 
 import httpx
 
-from ..client.auth import DomoAuth
+from ..auth import DomoAuth
 from ..routes import activity_log as activity_log_routes
 from ..utils import convert
 

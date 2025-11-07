@@ -47,33 +47,73 @@ class Account_AccessRelationship(AccessRelationship):
         raise NotImplementedError("DomoAccount_Access.update not implemented")
 
     @classmethod
-    async def from_user_id(cls, parent_entity, user_id, auth, access_level):
+    async def from_user_id(
+        cls,
+        parent_entity,
+        user_id,
+        auth,
+        access_level,
+        suppress_no_results_error: bool = True,
+    ):
+        from ...routes.user.exceptions import SearchUserNotFoundError
         from ..DomoUser import DomoUser
 
-        return cls(
-            entity=await DomoUser.get_by_id(auth=auth, user_id=user_id),
-            relationship_type=access_level,
-            parent_entity=parent_entity,
-        )
+        try:
+            user = await DomoUser.get_by_id(auth=auth, user_id=user_id)
+            return cls(
+                entity=user,
+                relationship_type=access_level,
+                parent_entity=parent_entity,
+            )
+        except SearchUserNotFoundError:
+            if suppress_no_results_error:
+                # User no longer exists, return None
+                return None
+            raise
 
     @classmethod
-    async def from_group_id(cls, parent_entity, group_id, auth, access_level):
+    async def from_group_id(
+        cls,
+        parent_entity,
+        group_id,
+        auth,
+        access_level,
+        suppress_no_results_error: bool = True,
+    ):
+        from ...routes.group.exceptions import SearchGroupNotFoundError
         from ..DomoGroup.core import DomoGroup
 
-        return cls(
-            entity=await DomoGroup.get_by_id(auth=auth, group_id=group_id),
-            relationship_type=access_level,
-            parent_entity=parent_entity,
-        )
+        try:
+            group = await DomoGroup.get_by_id(auth=auth, group_id=group_id)
+            return cls(
+                entity=group,
+                relationship_type=access_level,
+                parent_entity=parent_entity,
+            )
+        except SearchGroupNotFoundError:
+            if suppress_no_results_error:
+                # Group no longer exists, return None
+                return None
+            raise
 
     @classmethod
     async def from_entity_id(
-        cls, parent_entity, entity_id, auth, access_level, entity_type
+        cls,
+        parent_entity,
+        entity_id,
+        auth,
+        access_level,
+        entity_type,
+        suppress_no_results_error: bool = True,
     ):
         if entity_type == "USER":
-            return await cls.from_user_id(parent_entity, entity_id, auth, access_level)
+            return await cls.from_user_id(
+                parent_entity, entity_id, auth, access_level, suppress_no_results_error
+            )
         elif entity_type == "GROUP":
-            return await cls.from_group_id(parent_entity, entity_id, auth, access_level)
+            return await cls.from_group_id(
+                parent_entity, entity_id, auth, access_level, suppress_no_results_error
+            )
         else:
             raise ValueError(f"Unknown entity_type: {entity_type}")
 
@@ -108,8 +148,20 @@ class DomoAccess_Account(DomoAccess):
         return_raw: bool = False,
         session: httpx.AsyncClient = None,
         debug_num_stacks_to_drop=2,
+        suppress_no_results_error: bool = True,
     ):
-        """assumes v2 access api"""
+        """Get account access list.
+
+        Args:
+            debug_api: Enable API debugging
+            return_raw: Return raw API response without processing
+            session: HTTP client session
+            debug_num_stacks_to_drop: Stack frames to drop for debugging
+            suppress_no_results_error: If True, skip users/groups that don't exist; if False, raise error
+
+        Returns:
+            List of Account_AccessRelationship objects
+        """
 
         res = await account_routes.get_account_accesslist(
             auth=self.auth,
@@ -123,19 +175,24 @@ class DomoAccess_Account(DomoAccess):
         if return_raw:
             return res
 
-        self.relationships = await dmce.gather_with_concurrency(
-            *[
-                Account_AccessRelationship.from_entity_id(
-                    parent_entity=self.parent,
-                    entity_id=obj["id"],
-                    auth=self.auth,
-                    access_level=obj["accessLevel"],
-                    entity_type=obj["type"],
-                )
-                for obj in res.response
-            ],
-            n=10,
-        )
+        self.relationships = [
+            rel
+            for rel in await dmce.gather_with_concurrency(
+                *[
+                    Account_AccessRelationship.from_entity_id(
+                        parent_entity=self.parent,
+                        entity_id=obj["id"],
+                        auth=self.auth,
+                        access_level=obj["accessLevel"],
+                        entity_type=obj["type"],
+                        suppress_no_results_error=suppress_no_results_error,
+                    )
+                    for obj in res.response
+                ],
+                n=10,
+            )
+            if rel is not None  # Filter out users/groups that no longer exist
+        ]
 
         return self.relationships
 
@@ -149,7 +206,7 @@ class DomoAccess_Account(DomoAccess):
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
         return_raw: bool = False,
-    ) -> ResponseGetData:
+    ) -> Account_AccessRelationship:
         """Share this account with a user or group.
 
         Can be called in two ways:
@@ -167,7 +224,8 @@ class DomoAccess_Account(DomoAccess):
             return_raw: Return raw response without processing
 
         Returns:
-            ResponseGetData if return_raw=True, else refreshed relationships
+            Account_AccessRelationship instance representing the new share relationship
+            (or ResponseGetData if return_raw=True)
 
         Raises:
             ValueError: If neither entity nor user_id/group_id provided
@@ -176,16 +234,18 @@ class DomoAccess_Account(DomoAccess):
         Examples:
             >>> # Share with DomoUser entity
             >>> user = await DomoUser.get_by_id(auth=auth, user_id=456)
-            >>> await account.Access.add_share(
+            >>> relationship = await account.Access.add_share(
             ...     entity=user,
             ...     access_level=ShareAccount_AccessLevel.CAN_VIEW
             ... )
+            >>> print(relationship.entity_id)  # 456
 
             >>> # Share with group by ID
-            >>> await account.Access.add_share(
+            >>> relationship = await account.Access.add_share(
             ...     group_id=789,
             ...     access_level=ShareAccount_AccessLevel.CAN_EDIT
             ... )
+            >>> print(relationship.entity_type)  # GROUP
         """
         # Extract IDs from entity if provided
         if entity:
@@ -201,6 +261,16 @@ class DomoAccess_Account(DomoAccess):
                     user_id = entity.id
                 elif "GROUP" in class_name.upper():
                     group_id = entity.id
+
+        # Determine entity type and ID
+        if user_id:
+            entity_type = "USER"
+            entity_id = user_id
+        elif group_id:
+            entity_type = "GROUP"
+            entity_id = group_id
+        else:
+            raise ValueError("Must provide either entity, user_id, or group_id")
 
         # Set default access level
         if not access_level:
@@ -222,8 +292,19 @@ class DomoAccess_Account(DomoAccess):
         if return_raw:
             return res
 
-        # Refresh access list after sharing
-        return await self.get(debug_api=debug_api, session=session)
+        # Create and return the relationship instance for the shared entity
+        relationship = await Account_AccessRelationship.from_entity_id(
+            parent_entity=self.parent,
+            entity_id=entity_id,
+            auth=self.auth,
+            access_level=access_level,
+            entity_type=entity_type,
+        )
+
+        # Optionally refresh the full access list to keep it in sync
+        await self.get(debug_api=debug_api, session=session)
+
+        return relationship
 
     async def remove_share(
         self,
@@ -307,8 +388,20 @@ class DomoAccess_OAuth(DomoAccess_Account):
         return_raw: bool = False,
         session: httpx.AsyncClient = None,
         debug_num_stacks_to_drop=2,
+        suppress_no_results_error: bool = True,
     ):
-        """assumes v2 access api"""
+        """Get OAuth account access list.
+
+        Args:
+            debug_api: Enable API debugging
+            return_raw: Return raw API response without processing
+            session: HTTP client session
+            debug_num_stacks_to_drop: Stack frames to drop for debugging
+            suppress_no_results_error: If True, skip users/groups that don't exist; if False, raise error
+
+        Returns:
+            List of Account_AccessRelationship objects
+        """
 
         res = await account_routes.get_oauth_account_accesslist(
             auth=self.auth,
@@ -321,7 +414,27 @@ class DomoAccess_OAuth(DomoAccess_Account):
         if return_raw:
             return res
 
-        return await self._get_relations_from_response(res)
+        # Process response and filter out deleted users/groups
+        self.relationships = [
+            rel
+            for rel in await dmce.gather_with_concurrency(
+                *[
+                    Account_AccessRelationship.from_entity_id(
+                        parent_entity=self.parent,
+                        entity_id=obj["id"],
+                        auth=self.auth,
+                        access_level=obj["accessLevel"],
+                        entity_type=obj["type"],
+                        suppress_no_results_error=suppress_no_results_error,
+                    )
+                    for obj in res.response
+                ],
+                n=10,
+            )
+            if rel is not None  # Filter out users/groups that no longer exist
+        ]
+
+        return self.relationships
 
     async def add_share(
         self,
@@ -332,7 +445,7 @@ class DomoAccess_OAuth(DomoAccess_Account):
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
         return_raw: bool = False,
-    ) -> ResponseGetData:
+    ) -> Account_AccessRelationship:
         """Share this OAuth account with a user or group.
 
         Args:
@@ -345,14 +458,16 @@ class DomoAccess_OAuth(DomoAccess_Account):
             return_raw: Return raw response without processing
 
         Returns:
-            ResponseGetData if return_raw=True, else refreshed relationships
+            Account_AccessRelationship instance representing the new share relationship
+            (or ResponseGetData if return_raw=True)
 
         Examples:
             >>> # Share OAuth account with user
-            >>> await oauth_account.Access.add_share(
+            >>> relationship = await oauth_account.Access.add_share(
             ...     user_id=456,
             ...     access_level=ShareAccount_AccessLevel.CAN_VIEW
             ... )
+            >>> print(relationship.entity_id)  # 456
         """
         # Extract IDs from entity if provided
         if entity:
@@ -367,6 +482,16 @@ class DomoAccess_OAuth(DomoAccess_Account):
                     user_id = entity.id
                 elif "Group" in class_name:
                     group_id = entity.id
+
+        # Determine entity type and ID
+        if user_id:
+            entity_type = "USER"
+            entity_id = user_id
+        elif group_id:
+            entity_type = "GROUP"
+            entity_id = group_id
+        else:
+            raise ValueError("Must provide either entity, user_id, or group_id")
 
         # Set default access level
         if not access_level:
@@ -387,8 +512,19 @@ class DomoAccess_OAuth(DomoAccess_Account):
         if return_raw:
             return res
 
-        # Refresh access list after sharing
-        return await self.get(debug_api=debug_api, session=session)
+        # Create and return the relationship instance for the shared entity
+        relationship = await Account_AccessRelationship.from_entity_id(
+            parent_entity=self.parent,
+            entity_id=entity_id,
+            auth=self.auth,
+            access_level=access_level,
+            entity_type=entity_type,
+        )
+
+        # Optionally refresh the full access list to keep it in sync
+        await self.get(debug_api=debug_api, session=session)
+
+        return relationship
 
     async def remove_share(
         self,

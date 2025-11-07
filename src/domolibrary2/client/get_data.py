@@ -16,13 +16,13 @@ from typing import Any, Callable, Optional
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
 
+from ..auth import (
+    base as dmda,
+)
+from ..base.exceptions import DomoError
 from ..utils import chunk_execution as dmce
 from ..utils.logging import ResponseGetDataProcessor
-from . import (
-    auth as dmda,
-    response as rgd,
-)
-from .exceptions import DomoError
+from . import response as rgd
 
 # Constants
 DEFAULT_TIMEOUT = 20
@@ -84,6 +84,7 @@ def create_httpx_session(
     action_name="get_data",
     level_name="client",
     config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+    color="light_blue",
 )
 async def get_data(
     url: str,

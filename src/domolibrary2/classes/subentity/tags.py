@@ -7,8 +7,8 @@ from dataclasses import dataclass, field
 
 import httpx
 
-from ...client import exceptions as dmde
-from ...entities.entities import DomoSubEntity
+from ... import exceptions as dmde
+from ...base.entities import DomoSubEntity
 from ...routes import dataset as dataset_routes
 
 

@@ -14,7 +14,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from domolibrary2.client.auth import DomoAuth
-from domolibrary2.client.exceptions import AuthError, RouteError
+from domolibrary2.base.exceptions import AuthError, RouteError
 from domolibrary2.client.response import RequestMetadata, ResponseGetData
 
 

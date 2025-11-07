@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 
 import httpx
 
-from ...client.auth import DomoAuth
+from ...auth import DomoAuth
 from ...routes import dataflow as dataflow_routes
 from ...utils import (
     chunk_execution as ce,

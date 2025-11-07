@@ -5,9 +5,9 @@ from dataclasses import dataclass
 
 import httpx
 
-from ...client import exceptions as dmde
-from ...client.auth import DomoAuth
-from ...entities.entities import DomoManager
+from ...auth import DomoAuth
+from ...base import exceptions as dmde
+from ...base.entities import DomoManager
 from ...routes import (
     account as account_routes,
     datacenter as datacenter_routes,

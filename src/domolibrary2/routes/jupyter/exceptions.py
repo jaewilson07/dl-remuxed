@@ -13,7 +13,7 @@ __all__ = [
 
 from typing import Optional
 
-from ...client.exceptions import RouteError
+from ...base.exceptions import RouteError
 
 
 class Jupyter_GET_Error(RouteError):

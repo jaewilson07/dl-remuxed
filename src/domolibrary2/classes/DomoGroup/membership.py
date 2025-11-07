@@ -5,7 +5,7 @@ from typing import Any
 
 import httpx
 
-from ...entities.relationships import ShareAccount
+from ...base.relationships import ShareAccount
 from ...routes import group as group_routes
 from ...utils import chunk_execution as dmce
 from ..subentity.membership import DomoMembership, MembershipRelationship

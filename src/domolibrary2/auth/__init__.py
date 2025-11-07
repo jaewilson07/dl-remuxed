@@ -10,7 +10,7 @@ This module provides authentication classes for different Domo authentication me
 - DomoJupyterTokenAuth: Jupyter with access token
 
 Example:
-    >>> from domolibrary2.client.auth import DomoTokenAuth
+    >>> from domolibrary2.auth import DomoTokenAuth
     >>> auth = DomoTokenAuth(
     ...     domo_instance="mycompany",
     ...     domo_access_token="your-token"

@@ -12,13 +12,13 @@ from typing import Optional
 
 import httpx
 
+from ... import auth as dmda
+from ...auth import DomoAuth
+from ...base import exceptions as dmde
 from ...client import (
-    auth as dmda,
-    exceptions as dmde,
     get_data as gd,
     response as rgd,
 )
-from ...client.auth import DomoAuth
 from ...utils.convert import convert_string_to_bool
 from .exceptions import Config_GET_Error
 

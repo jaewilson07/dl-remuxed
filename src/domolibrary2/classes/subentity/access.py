@@ -6,12 +6,12 @@ __all__ = [
 
 from dataclasses import dataclass, field
 
-from domolibrary2.entities.relationships import DomoRelationshipController
+from domolibrary2.base.relationships import DomoRelationshipController
 from domolibrary2.routes.account.sharing import ShareAccount
 
-from ...client.exceptions import ClassError
-from ...entities.entities import DomoEntity, DomoSubEntity
-from ...entities.relationships import DomoRelationship
+from ...base.entities import DomoEntity, DomoSubEntity
+from ...base.exceptions import ClassError
+from ...base.relationships import DomoRelationship
 
 # from .. import DomoUser as dmdu
 

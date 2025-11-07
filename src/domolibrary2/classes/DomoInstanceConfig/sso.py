@@ -17,12 +17,15 @@ from typing import Any, Callable
 
 import httpx
 
-from ...client import (
+from ...auth import DomoAuth
+from ...base import (
+    DomoBase,
+    DomoManager,
     exceptions as dmde,
+)
+from ...client import (
     response as rgd,
 )
-from ...client.auth import DomoAuth
-from ...entities import DomoBase, DomoManager
 from ...routes.instance_config import sso as sso_routes
 from ...utils import convert as dmcv
 

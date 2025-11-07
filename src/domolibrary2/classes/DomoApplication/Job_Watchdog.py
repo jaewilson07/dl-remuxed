@@ -18,7 +18,7 @@ from enum import Enum
 
 import httpx
 
-from ...client.auth import DomoAuth
+from ...auth import DomoAuth
 from ..classes.DomoApplication_Job_Base import DomoJob_Base, DomoTrigger_Schedule
 from ..routes import application as application_routes
 
