@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING, Any
 
 import httpx
 
-from ...client.auth import DomoAuth
-from ...entities import DomoEntity, DomoManager
+from ...auth import DomoAuth
+from ...base import DomoEntity, DomoManager
 from ...routes import stream as stream_routes
 from ...routes.stream import Stream_CRUD_Error, Stream_GET_Error
 from ...utils import chunk_execution as dmce
@@ -31,7 +31,7 @@ class DomoStream(DomoEntity):
     """A class for interacting with a Domo Stream (dataset connector)"""
 
     id: str
-    parent: Any  # DomoDataset
+    parent: Any = field(repr=False)  # DomoDataset
 
     transport_description: str = None
     transport_version: int = None
@@ -135,10 +135,24 @@ class DomoStream(DomoEntity):
         self,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
+        is_suppress_no_config: bool = False,
     ):
-        await self.get_account(force_refresh=True, debug_api=debug_api, session=session)
+        # Only refresh if stream has an ID (some datasets don't have streams)
+        if not self.id:
+            return self
 
-        await super().refresh(debug_api=debug_api, session=session)
+        await self.get_account(
+            force_refresh=True,
+            debug_api=debug_api,
+            session=session,
+            is_suppress_no_config=is_suppress_no_config,
+        )
+
+        await super().refresh(
+            debug_api=debug_api,
+            session=session,
+            is_suppress_no_config=is_suppress_no_config,
+        )
 
         return self
 
@@ -152,6 +166,7 @@ class DomoStream(DomoEntity):
         debug_api: bool = False,
         session: httpx.AsyncClient | None = None,
         is_retrieve_account: bool = True,
+        is_suppress_no_config: bool = False,
     ):
         """Get a stream by its ID.
 
@@ -163,6 +178,7 @@ class DomoStream(DomoEntity):
             debug_api: Enable API debugging
             session: HTTP client session
             is_retrieve_account: If True and account_id is present, retrieve full Account object
+            is_suppress_no_config: If True, suppress errors when account config is not found
 
         Returns:
             DomoStream instance or ResponseGetData if return_raw=True
@@ -187,7 +203,10 @@ class DomoStream(DomoEntity):
         # Retrieve Account if account_id is present
         if is_retrieve_account and stream.account_id:
             await stream.get_account(
-                session=session, debug_api=debug_api, force_refresh=True
+                session=session,
+                debug_api=debug_api,
+                force_refresh=True,
+                is_suppress_no_config=is_suppress_no_config,
             )
         return stream
 
@@ -227,6 +246,7 @@ class DomoStream(DomoEntity):
         session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         force_refresh: bool = False,
+        is_suppress_no_config: bool = False,
     ) -> DomoAccount | None:
         """Retrieve the Account associated with this stream.
 
@@ -234,6 +254,7 @@ class DomoStream(DomoEntity):
             session: HTTP client session
             debug_api: Enable API debugging
             force_refresh: If True, refresh even if Account is already set
+            is_suppress_no_config: If True, suppress errors when account config is not found
 
         Returns:
             DomoAccount instance or None if no account_id
@@ -244,7 +265,6 @@ class DomoStream(DomoEntity):
             >>> print(f"Account: {account.name}")
         """
 
-        print("getting accounts")
         if not self.account_id:
             return None
 
@@ -259,6 +279,7 @@ class DomoStream(DomoEntity):
             session=session,
             debug_api=debug_api,
             is_use_default_account_class=False,
+            is_suppress_no_config=is_suppress_no_config,
         )
         return self.Account
 

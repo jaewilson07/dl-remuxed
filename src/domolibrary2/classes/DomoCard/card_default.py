@@ -11,9 +11,9 @@ from typing import Any, Optional
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
 
-from ...client.auth import DomoAuth
-from ...client.exceptions import DomoError
-from ...entities.entities import DomoEntity_w_Lineage, DomoManager
+from ...auth import DomoAuth
+from ...base.entities import DomoEntity_w_Lineage, DomoManager
+from ...base.exceptions import DomoError
 from ...routes import card as card_routes
 from ...utils import (
     chunk_execution as dmce,

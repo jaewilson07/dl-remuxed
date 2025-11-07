@@ -5,8 +5,8 @@ from dataclasses import dataclass, field
 
 import httpx
 
-from ...client.auth import DomoAuth
-from ...entities.entities import DomoBase, DomoManager
+from ...auth import DomoAuth
+from ...base.entities import DomoBase, DomoManager
 from ...utils import convert as cd
 
 

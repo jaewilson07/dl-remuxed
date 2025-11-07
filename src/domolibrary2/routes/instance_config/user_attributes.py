@@ -39,12 +39,12 @@ from typing import Optional
 
 import httpx
 
+from ...auth import DomoAuth
+from ...base.base import DomoEnumMixin
 from ...client import (
     get_data as gd,
     response as rgd,
 )
-from ...client.auth import DomoAuth
-from ...entities.base import DomoEnumMixin
 from ..user.exceptions import UserAttributes_CRUD_Error, UserAttributes_GET_Error
 
 

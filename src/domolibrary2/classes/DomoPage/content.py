@@ -6,7 +6,7 @@ import datetime as dt
 
 import httpx
 
-from ...client.auth import DomoAuth
+from ...auth import DomoAuth
 from ...routes import page as page_routes
 from ...utils import (
     chunk_execution as dmce,

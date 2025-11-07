@@ -14,8 +14,8 @@ from dataclasses import dataclass, field
 
 import httpx
 
-from ...client.auth import AuthError, DomoAuth, DomoFullAuth, DomoTokenAuth
-from ...client.exceptions import ClassError, DomoError
+from ...auth import DomoAuth, DomoFullAuth, DomoTokenAuth
+from ...base.exceptions import AuthError, ClassError, DomoError
 from ...utils import convert as dmcv
 from ..DomoInstanceConfig.access_token import DomoAccessToken
 from ..DomoUser import DomoUser, DomoUsers
@@ -96,16 +96,16 @@ class DomoAccountCredential(DomoAccount_Default):
         target_access_token: Access token for the account
     """
 
-    target_auth: DomoAuth = field(default=None)
-    target_user: DomoUser = field(default=None)
-    target_access_token: DomoAccessToken = field(default=None)
+    target_auth: DomoAuth = field(default=None, compare=False)
+    target_user: DomoUser = field(default=None, compare=False)
+    target_access_token: DomoAccessToken = field(default=None, compare=False)
     target_instance: str = field(default=None)
 
     is_valid_full_auth: bool = None
     is_valid_token_auth: bool = None
 
-    _token_auth: DomoAuth = field(repr=False, default=None)
-    _full_auth: DomoAuth = field(repr=False, default=None)
+    _token_auth: DomoAuth = field(repr=False, default=None, compare=False)
+    _full_auth: DomoAuth = field(repr=False, default=None, compare=False)
 
     # Note: __post_init__ is inherited from DomoAccount_Default
     # which initializes the Access subentity

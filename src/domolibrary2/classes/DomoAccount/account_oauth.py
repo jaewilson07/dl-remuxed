@@ -16,8 +16,8 @@ from typing import Any
 
 import httpx
 
-from ...client.auth import DomoAuth
-from ...entities.base import DomoEnumMixin
+from ...auth import DomoAuth
+from ...base.base import DomoEnumMixin
 from ...routes import account as account_routes
 from ...routes.account.exceptions import (
     Account_Config_Error,

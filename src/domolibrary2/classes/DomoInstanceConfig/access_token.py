@@ -7,8 +7,8 @@ from typing import Any
 
 import httpx
 
-from ...client.auth import DomoAuth
-from ...entities.entities import DomoEntity, DomoManager
+from ...auth import DomoAuth
+from ...base.entities import DomoEntity, DomoManager
 from ...routes import access_token as access_token_routes
 from ...utils import (
     chunk_execution as dmce,

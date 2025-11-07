@@ -12,8 +12,8 @@ from dataclasses import dataclass
 import httpx
 import pandas as pd
 
-from ...client.exceptions import DomoError
-from ...entities.entities import DomoSubEntity
+from ...base.entities import DomoSubEntity
+from ...base.exceptions import DomoError
 from ...routes import dataset as dataset_routes
 from ...routes.dataset import (
     DatasetNotFoundError,

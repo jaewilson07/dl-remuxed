@@ -6,9 +6,9 @@ from typing import Optional
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
 
-from ...utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
-from ..exceptions import AuthError
-from ..response import ResponseGetData
+from ..base.exceptions import AuthError
+from ..client.response import ResponseGetData
+from ..utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 from .base import _DomoAuth_Optional, _DomoAuth_Required
 
 

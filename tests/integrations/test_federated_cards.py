@@ -13,8 +13,7 @@ async def test_card_factory():
 
     # Create mock auth
     mock_auth = dmda.DomoTokenAuth(
-        domo_instance="test-instance",
-        domo_access_token="test-token"
+        domo_instance="test-instance", domo_access_token="test-token"
     )
 
     # Test 1: Regular card
@@ -26,8 +25,12 @@ async def test_card_factory():
     }
 
     card = await dmdc.DomoCard.from_dict(auth=mock_auth, obj=regular_card_data)
-    assert isinstance(card, dmdc.DomoCard_Default), "Regular card should be DomoCard_Default"
-    assert not isinstance(card, dmdc.FederatedDomoCard), "Regular card should not be FederatedDomoCard"
+    assert isinstance(
+        card, dmdc.DomoCard_Default
+    ), "Regular card should be DomoCard_Default"
+    assert not isinstance(
+        card, dmdc.FederatedDomoCard
+    ), "Regular card should not be FederatedDomoCard"
     assert card.id == "card-123"
     assert card.title == "Regular Card"
     print(f"✓ Regular card: {type(card).__name__}")
@@ -41,8 +44,12 @@ async def test_card_factory():
     }
 
     fed_card = await dmdc.DomoCard.from_dict(auth=mock_auth, obj=federated_card_data)
-    assert isinstance(fed_card, dmdc.FederatedDomoCard), "Federated card should be FederatedDomoCard"
-    assert isinstance(fed_card, dmdc.DomoCard_Default), "FederatedDomoCard should inherit from DomoCard_Default"
+    assert isinstance(
+        fed_card, dmdc.FederatedDomoCard
+    ), "Federated card should be FederatedDomoCard"
+    assert isinstance(
+        fed_card, dmdc.DomoCard_Default
+    ), "FederatedDomoCard should inherit from DomoCard_Default"
     assert fed_card.id == "card-456"
     assert fed_card.title == "Federated Card"
     assert fed_card.is_federated == True
@@ -65,25 +72,40 @@ def test_card_inheritance():
     print("TEST: Card Inheritance Hierarchy")
     print("=" * 80)
 
-    from domolibrary2.entities.entities import DomoEntity_w_Lineage
-    from domolibrary2.entities.entities_federated import DomoFederatedEntity, DomoPublishedEntity
+    from domolibrary2.base.entities import DomoEntity_w_Lineage
+    from domolibrary2.base.entities_federated import (
+        DomoFederatedEntity,
+        DomoPublishedEntity,
+    )
 
     # Check DomoCard_Default
-    assert issubclass(dmdc.DomoCard_Default, DomoEntity_w_Lineage), "DomoCard_Default should inherit from DomoEntity_w_Lineage"
+    assert issubclass(
+        dmdc.DomoCard_Default, DomoEntity_w_Lineage
+    ), "DomoCard_Default should inherit from DomoEntity_w_Lineage"
     print("✓ DomoCard_Default inherits from DomoEntity_w_Lineage")
 
     # Check FederatedDomoCard
-    assert issubclass(dmdc.FederatedDomoCard, dmdc.DomoCard_Default), "FederatedDomoCard should inherit from DomoCard_Default"
-    assert issubclass(dmdc.FederatedDomoCard, DomoFederatedEntity), "FederatedDomoCard should inherit from DomoFederatedEntity"
+    assert issubclass(
+        dmdc.FederatedDomoCard, dmdc.DomoCard_Default
+    ), "FederatedDomoCard should inherit from DomoCard_Default"
+    assert issubclass(
+        dmdc.FederatedDomoCard, DomoFederatedEntity
+    ), "FederatedDomoCard should inherit from DomoFederatedEntity"
     print("✓ FederatedDomoCard inherits from DomoCard_Default and DomoFederatedEntity")
 
     # Check DomoPublishCard
-    assert issubclass(dmdc.DomoPublishCard, dmdc.FederatedDomoCard), "DomoPublishCard should inherit from FederatedDomoCard"
-    assert issubclass(dmdc.DomoPublishCard, DomoPublishedEntity), "DomoPublishCard should inherit from DomoPublishedEntity"
+    assert issubclass(
+        dmdc.DomoPublishCard, dmdc.FederatedDomoCard
+    ), "DomoPublishCard should inherit from FederatedDomoCard"
+    assert issubclass(
+        dmdc.DomoPublishCard, DomoPublishedEntity
+    ), "DomoPublishCard should inherit from DomoPublishedEntity"
     print("✓ DomoPublishCard inherits from FederatedDomoCard and DomoPublishedEntity")
 
     # Check DomoCard factory
-    assert issubclass(dmdc.DomoCard, dmdc.DomoCard_Default), "DomoCard should inherit from DomoCard_Default"
+    assert issubclass(
+        dmdc.DomoCard, dmdc.DomoCard_Default
+    ), "DomoCard should inherit from DomoCard_Default"
     print("✓ DomoCard inherits from DomoCard_Default")
 
     print("\n" + "=" * 80)

@@ -10,9 +10,9 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Optional
 
-from domolibrary2.entities.base import DomoEnumMixin
-from domolibrary2.entities.entities import DomoEntity, DomoSubEntity
-from domolibrary2.entities.relationships import (
+from domolibrary2.base.base import DomoEnumMixin
+from domolibrary2.base.entities import DomoEntity, DomoSubEntity
+from domolibrary2.base.relationships import (
     DomoRelationship,
     DomoRelationshipController,
     ShareAccount,

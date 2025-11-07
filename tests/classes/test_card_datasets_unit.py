@@ -14,22 +14,20 @@ def test_card_datasets_initialization():
 
     # Create mock auth
     mock_auth = dmda.DomoTokenAuth(
-        domo_instance="test-instance",
-        domo_access_token="test-token"
+        domo_instance="test-instance", domo_access_token="test-token"
     )
 
     # Create a card manually
     card = dmdc.DomoCard(
-        id="card-123",
-        auth=mock_auth,
-        title="Test Card",
-        raw={"datasources": []}
+        id="card-123", auth=mock_auth, title="Test Card", raw={"datasources": []}
     )
 
     # Verify Datasets property exists
     assert hasattr(card, "Datasets"), "Card should have Datasets property"
     assert card.Datasets is not None, "Datasets should be initialized"
-    assert isinstance(card.Datasets, dmdc.CardDatasets), "Should be CardDatasets instance"
+    assert isinstance(
+        card.Datasets, dmdc.CardDatasets
+    ), "Should be CardDatasets instance"
 
     print("✓ Card has Datasets property")
     print(f"✓ Datasets type: {type(card.Datasets).__name__}")
@@ -64,7 +62,8 @@ def test_card_datasets_structure():
     assert "auth" in fields, "Should have auth field"
 
     # Verify it inherits from DomoManager
-    from domolibrary2.entities.entities import DomoManager
+    from domolibrary2.base.entities import DomoManager
+
     assert issubclass(dmdc.CardDatasets, DomoManager), "Should inherit from DomoManager"
 
     print("✓ CardDatasets has get() method")
@@ -89,6 +88,7 @@ def test_card_datasets_export():
 
     # Verify it can be imported
     from domolibrary2.classes.DomoCard import CardDatasets
+
     assert CardDatasets is dmdc.CardDatasets
 
     print("✓ CardDatasets in __all__")

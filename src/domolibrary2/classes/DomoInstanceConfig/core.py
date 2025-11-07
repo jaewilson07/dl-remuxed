@@ -7,8 +7,8 @@ from typing import Any
 import httpx
 import pandas as pd
 
-from ...client.auth import DomoAuth
-from ...client.exceptions import ClassError
+from ...auth import DomoAuth
+from ...base.exceptions import ClassError
 from ...routes import (
     application as application_routes,
     sandbox as sandbox_routes,

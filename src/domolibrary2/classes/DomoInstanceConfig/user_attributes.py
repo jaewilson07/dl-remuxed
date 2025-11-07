@@ -6,8 +6,8 @@ from typing import Any, Optional
 
 import httpx
 
-from ...client.auth import DomoAuth
-from ...entities import DomoEntity, DomoManager
+from ...auth import DomoAuth
+from ...base import DomoEntity, DomoManager
 from ...routes.instance_config import user_attributes as user_attribute_routes
 from ...routes.instance_config.user_attributes import (
     UserAttributes_CRUD_Error,

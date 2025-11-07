@@ -4,7 +4,7 @@ import datetime as dt
 from dataclasses import dataclass
 from enum import Enum
 
-from ...client.entities import DomoEnumMixin
+from ...base import DomoEnumMixin
 from ...utils import (
     DictDot as util_dd,
     convert as ct,

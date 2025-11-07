@@ -14,8 +14,8 @@ from typing import Any
 import httpx
 import pandas as pd
 
-from ...client.exceptions import ClassError
-from ...entities.entities import DomoSubEntity
+from ...base.entities import DomoSubEntity
+from ...base.exceptions import ClassError
 from ...routes import dataset as dataset_routes
 
 

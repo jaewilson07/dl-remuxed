@@ -13,13 +13,13 @@ import datetime as dt
 
 import pandas as pd
 
+from ..auth import DomoAuth
+from ..base.exceptions import ClassError, DomoError
 from ..classes import (
     DomoAccount as dmacc,
     DomoDataset as dmds,
 )
 from ..classes.DomoGroup import core as dmdg
-from ..client.auth import DomoAuth
-from ..client.exceptions import ClassError, DomoError
 from ..routes.account import ShareAccount_AccessLevel
 
 

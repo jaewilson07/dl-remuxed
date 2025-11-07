@@ -4,12 +4,13 @@ from typing import Optional
 
 import httpx
 import pandas as pd
-from dc_logger.client.base import Logger, get_global_logger
+from dc_logger.client.base import Logger
 
+from ..auth import DomoAuth
 from ..classes import DomoDataset
-from ..client.auth import DomoAuth
+from ..utils.logging import get_colored_logger
 
-logger = get_global_logger()
+logger = get_colored_logger()
 
 
 async def loop_upload(

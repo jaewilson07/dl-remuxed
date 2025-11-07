@@ -79,7 +79,7 @@ from dc_logger.logs.services.file import File_ServiceConfig, FileHandler
 from dotenv import load_dotenv
 
 import domolibrary2.client.get_data as gd
-from domolibrary2.client.exceptions import RouteError
+from domolibrary2.base.exceptions import RouteError
 from tests.tools.test_harness import (
     IntegrationTestHarness,
     PytestRouteTestCase,

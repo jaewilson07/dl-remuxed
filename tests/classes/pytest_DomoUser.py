@@ -24,14 +24,14 @@ token_auth = dmda.DomoTokenAuth(
 async def test_domouser_structure():
     """Test that DomoUser class has proper structure and inheritance."""
     # Verify DomoUser inherits from DomoEntity
-    from domolibrary2.entities.entities import DomoEntity
+    from domolibrary2.base.entities import DomoEntity
 
     assert issubclass(
         dmdu.DomoUser, DomoEntity
     ), "DomoUser should inherit from DomoEntity"
 
     # Verify DomoUsers inherits from DomoManager
-    from domolibrary2.entities.entities import DomoManager
+    from domolibrary2.base.entities import DomoManager
 
     assert issubclass(
         dmdu.DomoUsers, DomoManager

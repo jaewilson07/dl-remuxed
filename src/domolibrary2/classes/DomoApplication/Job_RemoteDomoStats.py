@@ -9,9 +9,9 @@ from dataclasses import dataclass, field
 
 import httpx
 
-from domolibrary2.entities.base import DomoBase
+from domolibrary2.base.base import DomoBase
 
-from ...client.auth import DomoAuth
+from ...auth import DomoAuth
 from ...routes import application as application_routes
 from .Job_Base import (
     DomoJob_Base,

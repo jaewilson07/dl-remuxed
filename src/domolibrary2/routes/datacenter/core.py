@@ -31,12 +31,12 @@ from typing import TypedDict
 
 import httpx
 
+from ...auth import DomoAuth
+from ...base.base import DomoEnumMixin
 from ...client import (
     get_data as gd,
     response as rgd,
 )
-from ...client.auth import DomoAuth
-from ...entities.base import DomoEnumMixin
 from .exceptions import (
     DatacenterGetError,
     SearchDatacenterNoResultsFoundError,

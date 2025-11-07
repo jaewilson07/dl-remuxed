@@ -14,8 +14,8 @@ from typing import Optional
 
 import httpx
 
-from ...client.auth import DomoAuth
-from ...client.entities import DomoEntity
+from ...auth import DomoAuth
+from ...base import DomoEntity
 from ...routes import application as application_routes
 from ...routes.application import (
     Application_CRUD_Error,

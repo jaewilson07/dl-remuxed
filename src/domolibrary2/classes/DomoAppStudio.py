@@ -5,8 +5,8 @@ from dataclasses import dataclass, field
 
 import httpx
 
-from ..client.auth import DomoAuth
-from ..entities.entities import DomoEntity_w_Lineage
+from ..auth import DomoAuth
+from ..base.entities import DomoEntity_w_Lineage
 from ..routes import appstudio as appstudio_routes
 from ..utils import (
     DictDot as util_dd,
