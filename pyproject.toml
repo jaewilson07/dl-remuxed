@@ -58,6 +58,8 @@ dev = [
     "pre-commit",
 ]
 
+postman = ["requests", "pydantic-ai"]
+
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP"]
 ignore = [

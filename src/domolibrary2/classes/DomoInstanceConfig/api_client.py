@@ -11,10 +11,10 @@ from typing import Any, Optional, Union
 
 import httpx
 
+from ...auth import DomoAuth
+from ...base.entities import DomoEntity, DomoManager
+from ...base.exceptions import DomoError
 from ...client import response as rgd
-from ...client.auth import DomoAuth
-from ...client.exceptions import DomoError
-from ...entities.entities import DomoEntity, DomoManager
 from ...routes.instance_config.api_client import (
     ApiClient_ScopeEnum,
     create_api_client,

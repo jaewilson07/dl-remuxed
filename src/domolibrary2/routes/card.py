@@ -15,13 +15,13 @@ from enum import Enum
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
 
+from ..auth import DomoAuth
+from ..base import exceptions as de
+from ..base.base import DomoEnumMixin
 from ..client import (
-    exceptions as de,
     get_data as gd,
     response as rgd,
 )
-from ..client.auth import DomoAuth
-from ..entities.base import DomoEnumMixin
 from ..utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 
 

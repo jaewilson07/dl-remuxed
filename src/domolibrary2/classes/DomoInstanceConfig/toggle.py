@@ -13,8 +13,8 @@ from typing import Optional
 
 import httpx
 
-from ...client.auth import DomoAuth
-from ...client.exceptions import ClassError, RouteError
+from ...auth import DomoAuth
+from ...base.exceptions import ClassError, RouteError
 from ...routes.auth import InvalidAuthTypeError
 from ...routes.instance_config import toggle as toggle_routes
 

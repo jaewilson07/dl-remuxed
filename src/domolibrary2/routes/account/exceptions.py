@@ -15,7 +15,7 @@ Exception Classes:
 
 from typing import Optional
 
-from ...client.exceptions import RouteError
+from ...base.exceptions import RouteError
 
 
 class Account_GET_Error(RouteError):

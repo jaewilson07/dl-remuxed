@@ -6,9 +6,9 @@ from typing import Any
 
 from sqlglot import exp, parse_one
 
-from domolibrary2.entities.base import DomoBase
+from domolibrary2.base.base import DomoBase
 
-from ...entities.base import DomoEnumMixin
+from ...base.base import DomoEnumMixin
 from ...routes.stream import Stream_CRUD_Error, Stream_GET_Error
 
 __all__ = [

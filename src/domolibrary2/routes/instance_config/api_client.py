@@ -20,14 +20,14 @@ from typing import Optional
 
 import httpx
 
-from domolibrary2.client.exceptions import RouteError
+from domolibrary2.base.exceptions import RouteError
 
+from ...auth import DomoAuth, DomoFullAuth
+from ...base.base import DomoEnumMixin
 from ...client import (
     get_data as gd,
     response as rgd,
 )
-from ...client.auth import DomoAuth, DomoFullAuth
-from ...entities.base import DomoEnumMixin
 from .exceptions import ApiClient_CRUD_Error, ApiClient_GET_Error, ApiClient_RevokeError
 
 

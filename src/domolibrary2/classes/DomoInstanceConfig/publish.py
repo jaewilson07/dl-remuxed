@@ -8,12 +8,12 @@ from typing import Any, Callable
 
 import httpx
 
-from ...client import exceptions as dmde
-from ...client.auth import DomoAuth
-from ...entities import (
+from ...auth import DomoAuth
+from ...base import (
     DomoEntity_w_Lineage,
     DomoEnumMixin,
     entities as dmen,
+    exceptions as dmde,
 )
 from ...routes import publish as publish_routes
 from ...utils import chunk_execution as dmce

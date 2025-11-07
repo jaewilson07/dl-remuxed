@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from ...base import exceptions as dmde
+
 __all__ = [
     "DJW_Search_Error",
     "DJW_InvalidClass",
@@ -16,7 +18,6 @@ import httpx
 
 from ...client import (
     auth as dmda,
-    exceptions as dmde,
 )
 from ...client.entities import DomoEntity, DomoManager
 from ...routes import jupyter as jupyter_routes

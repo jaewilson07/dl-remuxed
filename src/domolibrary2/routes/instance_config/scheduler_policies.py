@@ -33,11 +33,11 @@ from typing import Any, Optional
 
 import httpx
 
+from ...auth import DomoAuth
 from ...client import (
     get_data as gd,
     response as rgd,
 )
-from ...client.auth import DomoAuth
 from .exceptions import Config_CRUD_Error, Config_GET_Error
 
 

@@ -3,9 +3,9 @@ from dataclasses import dataclass, field
 from typing import Optional
 from urllib.parse import urljoin, urlparse
 
-from .. import utils
-from ..utils import to_snake_case
+from . import utils
 from .models import PostmanCollection, PostmanRequest
+from .utils import to_snake_case
 
 
 @dataclass
@@ -22,6 +22,9 @@ class PostmanRequestConverter:
     function_name: str = None
     params: dict[str, str] = field(default_factory=dict)
     headers: dict[str, str] = field(default_factory=dict)
+
+    # Collection-level auth (optional)
+    collection_auth: Optional[any] = None
 
     # Instance variables to store filter configurations
     required_headers: list[str] = field(default_factory=list)
@@ -279,7 +282,7 @@ class PostmanRequestConverter:
 
         # Add auth parameter after any default parameters
         signature += (
-            ", ".join(param_args) + "debug_api: bool = False ) -> requests.Response:"
+            ", ".join(param_args) + "debug_api: bool = False ) -> httpx.Response:"
         )
 
         code = [
@@ -327,7 +330,7 @@ class PostmanRequestConverter:
             [
                 "    ",
                 "    Returns:",
-                "        requests.Response: The response from the API",
+                "        httpx.Response: The response from the API",
                 '    """',
                 '    base_url = auth.get("base_url") if auth else ""',
                 f'    url = f"{{base_url}}{path}"',
@@ -392,17 +395,67 @@ class PostmanRequestConverter:
             # Add default values for all parameters in test function
             param_args = [f"{param}= {self.parms or 'None'}" for param in params_to_use]
 
-        return "\n".join(
-            [
-                "",
-                f"def test_{func_name}({', '.join(param_args + ['auth: Dict[str, str] = None, debug_api: bool = False'])}):",
-                f'    """Test the {func_name} function."""',
-                "    auth = {'base_url': '', 'headers': {}} if auth is None else auth",
-                f"    response = {func_name}(auth = auth, debug_api = debug_api, {', '.join(param_args)})",
-                '    assert response.status_code == 200, f"Expected status code 200, got {{response.status_code}}"',
-                "    return response",
-            ]
-        )
+        # Determine auth header configuration from collection auth
+        auth_header_key = "Authorization"
+        auth_header_value_template = 'f"Bearer {domo_token}"'
+
+        if self.collection_auth and self.collection_auth.type == "apikey":
+            # Extract API key configuration
+            apikey_config = self.collection_auth.apikey or []
+            key_field = next(
+                (item for item in apikey_config if item.get("key") == "key"), None
+            )
+
+            if key_field:
+                auth_header_key = key_field.get("value", "X-DOMO-Developer-Token")
+                auth_header_value_template = (
+                    'f"{domo_token}"'  # No Bearer prefix for API key
+                )
+
+        code_lines = [
+            "",
+            f"def test_{func_name}({', '.join(param_args + ['auth: Dict[str, str] = None, debug_api: bool = False'])}):",
+            f'    """Test the {func_name} function."""',
+            "    auth = {'base_url': '', 'headers': {}} if auth is None else auth",
+            f"    response = {func_name}(auth = auth, debug_api = debug_api, {', '.join(param_args)})",
+            '    assert response.status_code == 200, f"Expected status code 200, got {response.status_code}"',
+            "    return response",
+            "",
+            "",
+            'if __name__ == "__main__":',
+            "    import os",
+            "    from dotenv import load_dotenv",
+            "    ",
+            "    load_dotenv()",
+            "    ",
+            "    # Setup auth from environment variables",
+            '    domo_instance = os.getenv("DOMO_INSTANCE")',
+            '    domo_token = os.getenv("DOMO_ACCESS_TOKEN")',
+            "    ",
+            "    if not domo_instance or not domo_token:",
+            '        print("Error: DOMO_INSTANCE and DOMO_ACCESS_TOKEN must be set in .env file")',
+            "        exit(1)",
+            "    ",
+            "    auth = {",
+            '        "base_url": f"https://{domo_instance}.domo.com/",',
+            '        "headers": {',
+            f'            "{auth_header_key}": {auth_header_value_template},',
+            '            "Content-Type": "application/json"',
+            "        }",
+            "    }",
+            "    ",
+            f"    print(f'Testing {func_name}...')",
+            "    try:",
+            f"        response = test_{func_name}(auth=auth, debug_api=True)",
+            '        print(f"Success! Status code: {response.status_code}")',
+            "        print(f'Response: {response.text[:200]}...' if len(response.text) > 200 else f'Response: {response.text}')",
+            "    except AssertionError as e:",
+            '        print(f"Test failed: {e}")',
+            "    except Exception as e:",
+            '        print(f"Error occurred: {e}")',
+        ]
+
+        return "\n".join(code_lines)
 
     @classmethod
     def from_postman_request(

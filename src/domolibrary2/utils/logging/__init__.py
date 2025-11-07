@@ -5,6 +5,7 @@ This module provides custom logging processors and utilities specifically design
 for domolibrary2 components, keeping the codebase clean and organized.
 """
 
+from .colored_logger import ColoredLogger, get_colored_logger
 from .processors import (
     DomoEntityExtractor,
     DomoEntityObjectProcessor,
@@ -21,4 +22,6 @@ __all__ = [
     "DomoEntityExtractor",
     "DomoEntityResultProcessor",
     "NoOpEntityExtractor",
+    "ColoredLogger",
+    "get_colored_logger",
 ]

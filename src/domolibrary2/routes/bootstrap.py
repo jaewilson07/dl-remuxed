@@ -11,12 +11,12 @@ from typing import Optional
 
 import httpx
 
+from ..auth import DomoAuth, DomoFullAuth
+from ..base.exceptions import RouteError
 from ..client import (
     get_data as gd,
     response as rgd,
 )
-from ..client.auth import DomoAuth, DomoFullAuth
-from ..client.exceptions import RouteError
 
 
 class Bootstrap_GET_Error(RouteError):

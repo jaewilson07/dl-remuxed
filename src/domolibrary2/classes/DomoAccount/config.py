@@ -27,9 +27,9 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
-from ...client.exceptions import ClassError
-from ...entities.base import DomoEnumMixin
-from ...entities.entities import DomoBase
+from ...base.base import DomoEnumMixin
+from ...base.entities import DomoBase
+from ...base.exceptions import ClassError
 from ...utils import (
     DictDot as util_dd,
     convert as dmcv,

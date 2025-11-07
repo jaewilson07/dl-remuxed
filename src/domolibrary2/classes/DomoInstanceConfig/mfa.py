@@ -4,8 +4,8 @@ from dataclasses import dataclass, field
 
 import httpx
 
-from ...client import exceptions as dmde
-from ...client.auth import DomoAuth
+from ...auth import DomoAuth
+from ...base import exceptions as dmde
 from ...routes.instance_config import mfa as mfa_routes
 
 

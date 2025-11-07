@@ -13,10 +13,10 @@ from typing import Any, Optional
 
 import httpx
 
-from ...client.auth import DomoAuth
-from ...client.exceptions import ClassError
-from ...entities.entities import DomoEntity, DomoManager
-from ...entities.relationships import (
+from ...auth import DomoAuth
+from ...base.entities import DomoEntity, DomoManager
+from ...base.exceptions import ClassError
+from ...base.relationships import (
     DomoRelationshipController,
 )
 from ...routes import role as role_routes

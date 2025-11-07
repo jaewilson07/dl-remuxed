@@ -25,13 +25,13 @@ from typing import Union
 
 import httpx
 
+from ..auth import DomoAuth
+from ..base import exceptions as dmde
+from ..base.base import DomoEnumMixin
 from ..client import (
-    exceptions as dmde,
     get_data as gd,
     response as rgd,
 )
-from ..client.auth import DomoAuth
-from ..entities.base import DomoEnumMixin
 from ..utils import convert as dmcv
 
 

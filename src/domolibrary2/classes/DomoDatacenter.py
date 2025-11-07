@@ -5,8 +5,8 @@ from typing import Any, Union
 
 import httpx
 
-from ..client.auth import DomoAuth
-from ..client.exceptions import DomoError
+from ..auth import DomoAuth
+from ..base.exceptions import DomoError
 from ..routes import datacenter as datacenter_routes
 from ..routes.datacenter import generate_search_datacenter_filter
 from ..utils import chunk_execution as dmce

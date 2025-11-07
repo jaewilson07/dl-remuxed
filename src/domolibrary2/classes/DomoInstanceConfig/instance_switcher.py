@@ -13,7 +13,7 @@ from typing import Optional
 
 import httpx
 
-from ...client.auth import DomoAuth
+from ...auth import DomoAuth
 from ...routes.instance_config import instance_switcher as instance_switcher_routes
 from ...routes.instance_config.instance_switcher import (
     InstanceSwitcher_CRUD_Error,

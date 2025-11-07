@@ -11,9 +11,9 @@ from typing import ClassVar, Optional
 
 import httpx
 
-from ...client.auth import DomoAuth
-from ...client.exceptions import ClassError
-from ...entities.entities import DomoEntity_w_Lineage
+from ...auth import DomoAuth
+from ...base.entities import DomoEntity_w_Lineage
+from ...base.exceptions import ClassError
 from ...routes import dataset as dataset_routes
 from ...routes.dataset import (
     ShareDataset_AccessLevelEnum,
@@ -83,6 +83,12 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
     def entity_type(self):
         return "DATASET"
 
+    @property
+    def Account(self):
+        if self.Stream and self.Stream.Account:
+            return self.Stream.Account
+        return None
+
     @staticmethod
     def _is_federated(obj: dict) -> bool:
         """Heuristic: decide if a dataset JSON represents a federated (proxy) dataset."""
@@ -136,9 +142,13 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
         self.Data = DomoDataset_Data.from_parent(parent=self)
         self.Schema = dmdsc.DomoDataset_Schema.from_parent(parent=self)
         self.Tags = dmtg.DomoTags.from_parent(parent=self)
-        self.Stream = self.Stream or dmdst.DomoStream.from_parent(
-            parent=self, stream_id=self.stream_id
-        )
+
+        # Only instantiate Stream if dataset has a stream_id
+        if self.stream_id:
+            self.Stream = self.Stream or dmdst.DomoStream.from_parent(
+                parent=self, stream_id=self.stream_id
+            )
+
         self.PDP = dmpdp.DatasetPdpPolicies.from_parent(parent=self)
 
         self.Certification = dmdc.DomoCertification.from_parent(parent=self)
@@ -206,6 +216,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
         debug_num_stacks_to_drop: int = 2,
         is_use_default_dataset_class: bool = False,
         parent_class: Optional[str] = None,
+        is_suppress_no_config: bool = False,
     ):
         """retrieves dataset metadata"""
         parent_class = parent_class or cls.__name__
@@ -234,7 +245,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
         )
 
         if ds.Stream:
-            await ds.Stream.refresh()
+            await ds.Stream.refresh(is_suppress_no_config=is_suppress_no_config)
 
         return ds
 

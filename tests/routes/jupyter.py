@@ -143,7 +143,7 @@ class TestJupyterImports:
     def test_modular_exception_imports(self):
         """Test that exceptions can be imported from exceptions module."""
         # Verify exception hierarchy
-        from domolibrary2.client.exceptions import RouteError
+        from domolibrary2.base.exceptions import RouteError
         from domolibrary2.routes.jupyter.exceptions import (
             Jupyter_CRUD_Error,
             Jupyter_GET_Error,

@@ -6,7 +6,7 @@ from typing import Optional, Union
 
 import httpx
 
-from ...client.auth import DomoAuth
+from ...auth import DomoAuth
 from ...client.response import ResponseGetData
 from ...routes import (
     datacenter as datacenter_routes,
