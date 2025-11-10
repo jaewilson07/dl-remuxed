@@ -229,9 +229,7 @@ class DomoDataset_Data(DomoSubEntity):
 
         if is_index:
             await asyncio.sleep(3)
-            return await self.index(
-                auth=auth, dataset_id=dataset_id, debug_api=debug_api, session=session
-            )
+            return await self.index(debug_api=debug_api, session=session)
 
         return res
 
@@ -261,7 +259,7 @@ class DomoDataset_Data(DomoSubEntity):
         dataset_id = self.parent.id
 
         if empty_df is None:
-            empty_df = await self.query_dataset_private(
+            empty_df = await self.query(
                 sql="SELECT * from table limit 1",
                 debug_api=debug_api,
             )
@@ -314,15 +312,12 @@ class DomoDataset_Data(DomoSubEntity):
 
         return res.response
 
-    async def truncate_data(
+    async def truncate(
         self,
         is_index: bool = True,
         empty_df: pd.DataFrame = None,
         debug_api: bool = False,
     ):
-        auth = self.parent.auth
-        dataset_id = self.parent.id
-
         execute_reset = input(
             "This function will delete all rows.  Type BLOW_ME_AWAY to execute:"
         )
@@ -333,9 +328,7 @@ class DomoDataset_Data(DomoSubEntity):
 
         # create empty dataset to retain schema
         empty_df = empty_df or (
-            await self.query_dataset_private(
-                auth=auth,
-                dataset_id=dataset_id,
+            await self.query(
                 sql="SELECT * from table limit 1",
                 debug_api=debug_api,
             )
@@ -362,7 +355,7 @@ class DomoDataset_Data(DomoSubEntity):
                 ]
             )
             if is_index:
-                await self.index_dataset()
+                await self.index()
 
         res = await self.upload_data(
             upload_df=empty_df,
