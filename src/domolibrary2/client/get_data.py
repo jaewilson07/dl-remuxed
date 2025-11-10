@@ -21,8 +21,11 @@ from ..auth import (
 )
 from ..base.exceptions import DomoError
 from ..utils import chunk_execution as dmce
-from ..utils.logging import ResponseGetDataProcessor
+from ..utils.logging import ResponseGetDataProcessor, get_colored_logger
 from . import response as rgd
+
+# Initialize colored logger
+logger = get_colored_logger()
 
 # Constants
 DEFAULT_TIMEOUT = 20
@@ -107,6 +110,7 @@ async def get_data(
 
     if debug_api:
         print(f"🐛 Debugging get_data: {method} {url}")
+        await logger.debug(f"🐛 Debugging get_data: {method} {url}")
 
     headers = create_headers(
         auth=auth, content_type=content_type, headers=headers or {}
@@ -155,6 +159,7 @@ async def get_data(
 
         if debug_api:
             print(f"Response Status: {response.status_code}")
+            await logger.debug(f"Response Status: {response.status_code}")
 
         # Check for VPN block in response text
         if "<title>Domo - Blocked</title>" in response.text:
@@ -239,6 +244,7 @@ async def get_data_stream(
 
     if debug_api:
         print(f"🐛 Debugging get_data_stream: {method} {url}")
+        await logger.debug(f"🐛 Debugging get_data_stream: {method} {url}")
 
     if auth and not auth.token:
         await auth.get_auth_token()
@@ -415,6 +421,9 @@ async def looper(
 
         if debug_loop:
             print(f"\n🚀 Retrieving records {skip} through {skip + limit} via {url}")
+            await logger.debug(
+                f"\n🚀 Retrieving records {skip} through {skip + limit} via {url}"
+            )
             # pprint(params)
 
             message = {
@@ -469,6 +478,7 @@ async def looper(
 
         if debug_loop:
             print(message)
+            await logger.debug(message)
 
         if maximum and skip + limit > maximum and not loop_until_end:
             limit = maximum - len(all_rows)
@@ -478,6 +488,8 @@ async def looper(
 
     if debug_loop:
         message = f"\n🎉 Success - {len(all_rows)} records retrieved from {url} in query looper\n"
+        print(message)
+        await logger.info(message)
 
     if is_close_session:
         await session.aclose()
