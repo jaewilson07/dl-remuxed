@@ -16,16 +16,33 @@ Domolibrary2 is a Python library for interacting with Domo APIs. The project use
 
 ```
 src/domolibrary2/
-├── classes/          # Domo entity classes (DomoUser, DomoDataset, etc.)
-├── routes/           # API route handlers grouped by domain
-├── client/           # Core client classes (DomoAuth, entities, exceptions)
-├── utils/            # Utility functions and helpers
-└── integrations/     # Higher-level integration patterns
+├── auth/              # Authentication classes (DomoAuth, DomoFullAuth, etc.)
+│   ├── __init__.py    # Re-exports all auth classes
+│   ├── base.py        # DomoAuth base class
+│   ├── full.py        # Username/password auth
+│   ├── token.py       # Access token auth
+│   ├── developer.py   # OAuth2 client credentials
+│   ├── jupyter.py     # Jupyter-specific auth
+│   └── utils.py       # Auth utilities
+├── base/              # Base classes and exceptions
+│   ├── base.py        # DomoEnumMixin and base utilities
+│   ├── entities.py    # DomoEntity, DomoManager base classes
+│   ├── exceptions.py  # DomoError, RouteError, ClassError, AuthError
+│   └── relationships.py # Relationship utilities
+├── classes/           # Domo entity classes (DomoUser, DomoDataset, etc.)
+├── routes/            # API route handlers grouped by domain
+│   ├── Single-file modules (simple routes)
+│   └── Folder modules (complex routes with submodules)
+├── client/            # HTTP client utilities
+│   ├── get_data.py    # Core HTTP request handler
+│   └── response.py    # Response classes
+├── utils/             # Utility functions and helpers
+└── integrations/      # Higher-level integration patterns
 
 tests/
-├── classes/          # Class tests (test_50_*.py)
-├── routes/           # Route tests
-└── client/           # Client tests
+├── classes/           # Class tests (test_50_*.py)
+├── routes/            # Route tests
+└── client/            # Client tests
 ```
 
 ## Key Design Principles
@@ -51,16 +68,28 @@ tests/
 
 5. **Error Design**:
    - Route-specific exceptions (User_GET_Error, Dataset_CRUD_Error)
-   - Exceptions in `routes/[domain]/exceptions.py`
-   - Inherit from DomoError base class
+   - Exceptions in `routes/[domain]/exceptions.py` (folder modules) or at top of file (single-file modules)
+   - All exceptions inherit from base classes in `base/exceptions.py`:
+     - **DomoError**: Base for all Domo-related errors
+     - **RouteError**: API route/endpoint errors
+     - **ClassError**: Class instance errors
+     - **AuthError**: Authentication-specific errors
+
+6. **Authentication Architecture**:
+   - All auth classes in `auth/` module
+   - **DomoAuth**: Base authentication class (abstract)
+   - **DomoFullAuth**: Username/password authentication
+   - **DomoTokenAuth**: Access token authentication
+   - **DomoDeveloperAuth**: OAuth2 client credentials
+   - **DomoJupyterAuth**: Jupyter-specific authentication variants
 
 ## Import Conventions
 
 ### Standard Aliases:
 ```python
-import domolibrary2.client.auth as dmda
-import domolibrary2.client.entities as dmde
-import domolibrary2.client.exceptions as dmex
+import domolibrary2.auth as dmda
+import domolibrary2.base.entities as dmde
+import domolibrary2.base.exceptions as dmex
 import domolibrary2.utils.DictDot as util_dd
 ```
 
@@ -71,12 +100,21 @@ import domolibrary2.utils.DictDot as util_dd
 
 ### Relative Import Pattern:
 ```python
+# From routes to auth
+from ..auth import DomoAuth  # Single-file module
+from ...auth import DomoAuth  # Folder module
+
 # From routes to client
-from ..client.auth import DomoAuth
 from ..client import get_data as gd
+from ..client import response as rgd
+
+# From routes to base exceptions
+from ..base.exceptions import RouteError  # Single-file module
+from ...base.exceptions import RouteError  # Folder module
 
 # From classes to routes
 from ...routes import user as user_routes
+from ...routes.dataset import get_dataset_by_id  # Folder module
 from ...routes.user.exceptions import User_GET_Error
 
 # From classes to subentities
