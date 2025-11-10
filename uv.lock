@@ -1145,7 +1145,7 @@ wheels = [
 
 [[package]]
 name = "domolibrary2"
-version = "2.0.3b0"
+version = "2.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "aenum" },

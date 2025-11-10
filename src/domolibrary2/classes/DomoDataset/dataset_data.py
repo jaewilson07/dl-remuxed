@@ -229,9 +229,7 @@ class DomoDataset_Data(DomoSubEntity):
 
         if is_index:
             await asyncio.sleep(3)
-            return await self.index(
-                auth=auth, dataset_id=dataset_id, debug_api=debug_api, session=session
-            )
+            return await self.index(debug_api=debug_api, session=session)
 
         return res
 
@@ -261,7 +259,7 @@ class DomoDataset_Data(DomoSubEntity):
         dataset_id = self.parent.id
 
         if empty_df is None:
-            empty_df = await self.query_dataset_private(
+            empty_df = await self.query(
                 sql="SELECT * from table limit 1",
                 debug_api=debug_api,
             )
@@ -314,15 +312,12 @@ class DomoDataset_Data(DomoSubEntity):
 
         return res.response
 
-    async def truncate_data(
+    async def truncate(
         self,
         is_index: bool = True,
         empty_df: pd.DataFrame = None,
         debug_api: bool = False,
     ):
-        auth = self.parent.auth
-        dataset_id = self.parent.id
-
         execute_reset = input(
             "This function will delete all rows.  Type BLOW_ME_AWAY to execute:"
         )
@@ -333,9 +328,7 @@ class DomoDataset_Data(DomoSubEntity):
 
         # create empty dataset to retain schema
         empty_df = empty_df or (
-            await self.query_dataset_private(
-                auth=auth,
-                dataset_id=dataset_id,
+            await self.query(
                 sql="SELECT * from table limit 1",
                 debug_api=debug_api,
             )
@@ -343,10 +336,19 @@ class DomoDataset_Data(DomoSubEntity):
 
         empty_df = pd.DataFrame(columns=empty_df.columns)
 
+        res = await self.upload_data(
+            upload_df=empty_df,
+            upload_method="REPLACE",
+            is_index=is_index,
+            debug_api=debug_api,
+        )
+
         # get partition list
         partition_list = await self.list_partitions()
-        if len(partition_list) > 0:
-            partition_list = dmce.chunk_list(partition_list, 100)
+        if len(partition_list) == 0:
+            return res
+
+        partition_list = dmce.chunk_list(partition_list, 100)
 
         for index, pl in enumerate(partition_list):
             print(f"🥫 starting chunk {index + 1} of {len(partition_list)}")
@@ -362,13 +364,6 @@ class DomoDataset_Data(DomoSubEntity):
                 ]
             )
             if is_index:
-                await self.index_dataset()
-
-        res = await self.upload_data(
-            upload_df=empty_df,
-            upload_method="REPLACE",
-            is_index=is_index,
-            debug_api=debug_api,
-        )
+                await self.index()
 
         return res
