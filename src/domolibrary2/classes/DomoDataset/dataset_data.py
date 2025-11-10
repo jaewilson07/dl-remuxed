@@ -336,10 +336,19 @@ class DomoDataset_Data(DomoSubEntity):
 
         empty_df = pd.DataFrame(columns=empty_df.columns)
 
+        res = await self.upload_data(
+            upload_df=empty_df,
+            upload_method="REPLACE",
+            is_index=is_index,
+            debug_api=debug_api,
+        )
+
         # get partition list
         partition_list = await self.list_partitions()
-        if len(partition_list) > 0:
-            partition_list = dmce.chunk_list(partition_list, 100)
+        if len(partition_list) == 0:
+            return res
+
+        partition_list = dmce.chunk_list(partition_list, 100)
 
         for index, pl in enumerate(partition_list):
             print(f"🥫 starting chunk {index + 1} of {len(partition_list)}")
@@ -356,12 +365,5 @@ class DomoDataset_Data(DomoSubEntity):
             )
             if is_index:
                 await self.index()
-
-        res = await self.upload_data(
-            upload_df=empty_df,
-            upload_method="REPLACE",
-            is_index=is_index,
-            debug_api=debug_api,
-        )
 
         return res

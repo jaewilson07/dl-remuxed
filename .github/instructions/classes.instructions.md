@@ -34,8 +34,8 @@ DomoSubEntity (for composition - entities that belong to parents)
 
 ```python
 from dataclasses import dataclass, field
-from ..client.auth import DomoAuth
-from ..client.entities import DomoEntity
+from ...auth import DomoAuth
+from ...base.entities import DomoEntity
 
 @dataclass
 class DomoExample(DomoEntity):
@@ -196,6 +196,12 @@ Note on legacy deviations: a few older implementations (for example, some classe
 ### Correct Imports:
 
 ```python
+# ✅ Import auth
+from ...auth import DomoAuth
+
+# ✅ Import base entities
+from ...base.entities import DomoEntity, DomoManager
+
 # ✅ Import route functions from routes module
 from ...routes import user as user_routes
 from ...routes.user import UserProperty_Type, UserProperty
@@ -205,20 +211,34 @@ from ...routes.user.exceptions import (
     SearchUserNotFoundError,
 )
 
+# ✅ Import dataset route functions (folder module)
+from ...routes.dataset import (
+    get_dataset_by_id,
+    query_dataset_private,
+    upload_dataset_stage_1,
+)
+from ...routes.dataset.exceptions import (
+    Dataset_GET_Error,
+    Dataset_CRUD_Error,
+)
+
 # ✅ Import subentities
 from ..subentity import DomoTags as dmtg, DomoLineage as dmdl
-
-# ✅ Import client entities
-from ...client.entities import DomoEntity, DomoManager
-from ...client.auth import DomoAuth
 ```
 
 ### Incorrect Imports:
 
 ```python
-# ❌ DO NOT import exceptions from client
-from ...client.auth import InvalidAuthTypeError  # Wrong!
-# Should be: from ...routes.auth import InvalidAuthTypeError
+# ❌ DO NOT use old import paths
+from ...client.entities import DomoEntity  # Old path
+from ...client.auth import DomoAuth  # Old path
+# Should be:
+from ...base.entities import DomoEntity  # ✓ Correct
+from ...auth import DomoAuth  # ✓ Correct
+
+# ❌ DO NOT import auth exceptions from routes.auth
+from ...routes.auth import InvalidAuthTypeError  # Wrong!
+# Should be: from ...base.exceptions import AuthError
 
 # ❌ DO NOT implement API logic in class
 import httpx  # Only if absolutely necessary

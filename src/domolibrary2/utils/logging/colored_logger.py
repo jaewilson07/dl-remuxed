@@ -203,6 +203,7 @@ class ColoredLogger(Logger):
 
 # Global colored logger instance
 _colored_logger = None
+_user_has_set_global_logger = False
 
 
 def get_colored_logger(
@@ -212,9 +213,14 @@ def get_colored_logger(
     error_color: str = "bold_red",
     critical_color: str = "bold_red",
     set_as_global: bool = True,
+    force: bool = False,
 ) -> ColoredLogger:
     """
-    Get or create a global colored logger instance.
+    Get or create a colored logger instance.
+
+    IMPORTANT: By default, this does NOT override the global logger to respect
+    user configuration. If you want to set it as global, explicitly pass
+    set_as_global=True or use set_domolibrary_logger().
 
     Args:
         debug_color: Color for debug messages (default: cyan)
@@ -222,20 +228,34 @@ def get_colored_logger(
         warning_color: Color for warning messages (default: yellow)
         error_color: Color for error messages (default: bold_red)
         critical_color: Color for critical messages (default: bold_red)
-        set_as_global: Set this as dc_logger's global logger (default: True)
+        set_as_global: Set this as dc_logger's global logger (default: False)
+        force: Force setting as global even if user has configured logger (default: False)
 
     Returns:
         ColoredLogger instance with automatic color application
 
     Example:
+        >>> # Get colored logger without affecting global logger
         >>> logger = get_colored_logger()
         >>> await logger.info("Success!")  # Will be green
-        >>> await logger.warning("Watch out!")  # Will be yellow
-        >>> await logger.error("Something failed!")  # Will be bold red
+        >>>
+        >>> # Set as global logger for domolibrary
+        >>> logger = get_colored_logger(set_as_global=True)
+        >>> # Now all @log_call decorators will use colored output
     """
-    global _colored_logger
+    global _colored_logger, _user_has_set_global_logger
+
+    # Check if user has already configured a custom global logger
+    current_global = get_global_logger()
+
+    # If this is the first call and a non-default logger exists, mark it as user-configured
+    if _colored_logger is None and not isinstance(current_global, ColoredLogger):
+        # Check if the global logger has been customized (not the default dc_logger instance)
+        # by checking if it has custom attributes or configurations
+        _user_has_set_global_logger = True
+
     if _colored_logger is None:
-        base_logger = get_global_logger()
+        base_logger = current_global
         _colored_logger = ColoredLogger(
             base_logger=base_logger,
             debug_color=debug_color,
@@ -245,8 +265,56 @@ def get_colored_logger(
             critical_color=critical_color,
         )
 
-        # Set as the global logger so @log_call decorators also use colored output
-        if set_as_global:
+        # Only set as global if explicitly requested and (not user-configured OR forced)
+        if set_as_global and (not _user_has_set_global_logger or force):
             set_global_logger(_colored_logger)
 
     return _colored_logger
+
+
+def set_domolibrary_logger(
+    logger: ColoredLogger | None = None,
+    set_as_global: bool = True,
+    **kwargs,
+) -> ColoredLogger:
+    """
+    Explicitly set the domolibrary logger, optionally making it the global logger.
+
+    This is the recommended way to configure logging for domolibrary if you want
+    colored output throughout the library.
+
+    Args:
+        logger: Existing ColoredLogger instance, or None to create a new one
+        set_as_global: Set this as dc_logger's global logger (default: True)
+        **kwargs: Arguments to pass to get_colored_logger if creating a new instance
+
+    Returns:
+        The ColoredLogger instance
+
+    Example:
+        >>> # Option 1: Use default colored logger
+        >>> from domolibrary2.utils.logging import set_domolibrary_logger
+        >>> logger = set_domolibrary_logger()
+        >>>
+        >>> # Option 2: Create with custom colors
+        >>> logger = set_domolibrary_logger(
+        ...     info_color="blue",
+        ...     error_color="magenta"
+        ... )
+        >>>
+        >>> # Option 3: Use your own ColoredLogger
+        >>> my_logger = ColoredLogger(base_logger=my_base_logger)
+        >>> set_domolibrary_logger(logger=my_logger)
+    """
+    global _colored_logger, _user_has_set_global_logger
+
+    if logger is None:
+        logger = get_colored_logger(set_as_global=True, **kwargs)
+
+    _colored_logger = logger
+    _user_has_set_global_logger = True
+
+    if set_as_global:
+        set_global_logger(logger)
+
+    return logger
