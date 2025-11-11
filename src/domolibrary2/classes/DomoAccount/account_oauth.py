@@ -18,6 +18,7 @@ import httpx
 
 from ...auth import DomoAuth
 from ...base.base import DomoEnumMixin
+from ...base.exceptions import DomoError
 from ...routes import account as account_routes
 from ...routes.account.exceptions import (
     Account_Config_Error,
@@ -25,11 +26,14 @@ from ...routes.account.exceptions import (
     Account_GET_Error,
     AccountNoMatchError,
 )
+from ...utils.logging import get_colored_logger
 from .access import DomoAccess_OAuth
 
 # Import base account module directly to avoid package-level circular imports
 from .account_default import DomoAccount_Default
 from .config import DomoAccount_Config
+
+logger = get_colored_logger()
 
 
 @dataclass
@@ -118,29 +122,49 @@ class DomoAccount_OAuth(DomoAccount_Default):
             Account_Config_Error: If configuration retrieval or parsing fails
         """
         if not self.data_provider_type:
-            res = await account_routes.get_account_by_id(
+            try:
+                res = await account_routes.get_account_by_id(
+                    auth=self.auth,
+                    account_id=self.id,
+                    session=session,
+                    debug_api=debug_api,
+                    parent_class=self.__class__.__name__,
+                    debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+                )
+
+                self.data_provider_type = res.response["dataProviderType"]
+
+            except DomoError as e:
+                await logger.warning(
+                    f"Suppressed error while getting account by id: {e}"
+                )
+
+                if not is_suppress_no_config:
+                    raise e from e
+
+        try:
+            res = await account_routes.get_oauth_account_config(
                 auth=self.auth,
                 account_id=self.id,
                 session=session,
                 debug_api=debug_api,
+                data_provider_type=self.data_provider_type,
                 parent_class=self.__class__.__name__,
                 debug_num_stacks_to_drop=debug_num_stacks_to_drop,
             )
 
-            self.data_provider_type = res.response["dataProviderType"]
+            if return_raw:
+                return res
 
-        res = await account_routes.get_oauth_account_config(
-            auth=self.auth,
-            account_id=self.id,
-            session=session,
-            debug_api=debug_api,
-            data_provider_type=self.data_provider_type,
-            parent_class=self.__class__.__name__,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        )
+        except DomoError as e:
+            await logger.warning(
+                f"Suppressed error while getting oauth account config: {e}"
+            )
 
-        if return_raw:
-            return res
+            if not is_suppress_no_config:
+                raise e from e
+
+            return None
 
         config: DomoAccount_Config = OAuthConfig(self.data_provider_type).value
 

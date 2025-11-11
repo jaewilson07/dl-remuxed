@@ -33,14 +33,12 @@ __all__ = ["run_with_retry", "gather_with_concurrency", "run_sequence", "chunk_l
 import asyncio
 import functools
 
-# Import httpx with fallback for optional dependency
-try:
-    import httpx
+import httpx
 
-    _HTTPX_AVAILABLE = True
-except ImportError:
-    httpx = None
-    _HTTPX_AVAILABLE = False
+from ..utils.logging import get_colored_logger
+
+# Initialize colored logger
+logger = get_colored_logger()
 
 
 def run_with_retry(
@@ -74,36 +72,45 @@ def run_with_retry(
         - All retry attempts are logged to stdout
     """
     errors_to_retry_tp = errors_to_retry_tp or ()
+    allowed_errors_tp = (httpx.ConnectTimeout,)
 
     def actual_decorator(run_fn):
         @functools.wraps(run_fn)
         async def wrapper(*args, **kwargs):
-            retry = 0
+            retry = 1
             while retry <= max_retry:
                 try:
                     return await run_fn(*args, **kwargs)
+
                 except Exception as e:
-                    # Handle httpx.ConnectTimeout if httpx is available
-                    if (
-                        _HTTPX_AVAILABLE
-                        and httpx
-                        and isinstance(e, httpx.ConnectTimeout)
-                    ):
-                        print(f"connect timeout - retry attempt {retry} - {e}")
-                        retry += 1
-                        await asyncio.sleep(2)
-                        if retry > max_retry:
-                            raise
-                        continue
+                    from domolibrary2.base.exceptions import AuthError
+                    from domolibrary2.client.get_data import GetDataError
+
+                    if isinstance(e, (GetDataError, AuthError)):
+                        raise e from e
 
                     # Only retry if error is in errors_to_retry_tp (if specified)
-                    if errors_to_retry_tp and not isinstance(e, errors_to_retry_tp):
-                        raise
+                    if errors_to_retry_tp and not isinstance(
+                        e, errors_to_retry_tp + allowed_errors_tp
+                    ):
+                        raise e from e
 
-                    print(f"retry decorator attempt - {retry} - {e}")
+                    # Handle httpx.ConnectTimeout if httpx is available
+                    if isinstance(e, httpx.ConnectTimeout):
+                        await logger.info(
+                            f"connect timeout - retry attempt {retry}/{max_retry} - {e}",
+                            color="yellow",
+                        )
+                        await asyncio.sleep(2)
+
+                    await logger.warning(
+                        f"retry decorator attempt - {retry}/{max_retry} - {e}",
+                        color="yellow",
+                    )
+
                     retry += 1
-                    if retry > max_retry:
-                        raise
+                    if retry >= max_retry:
+                        raise e from e
 
         return wrapper
 
