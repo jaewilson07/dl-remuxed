@@ -273,14 +273,22 @@ class DomoStream(DomoEntity):
 
         from ..DomoAccount import DomoAccount
 
-        self.Account = await DomoAccount.get_by_id(
-            auth=self.auth,
-            account_id=self.account_id,
-            session=session,
-            debug_api=debug_api,
-            is_use_default_account_class=False,
-            is_suppress_no_config=is_suppress_no_config,
-        )
+        try:
+            self.Account = await DomoAccount.get_by_id(
+                auth=self.auth,
+                account_id=self.account_id,
+                session=session,
+                debug_api=debug_api,
+                is_use_default_account_class=False,
+                is_suppress_no_config=is_suppress_no_config,
+            )
+        except Exception as e:
+            if is_suppress_no_config:
+                print(f"Warning: Could not retrieve account {self.account_id}: {e}")
+                self.Account = None
+            else:
+                raise
+
         return self.Account
 
 
