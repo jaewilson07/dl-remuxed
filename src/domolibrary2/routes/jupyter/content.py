@@ -29,9 +29,9 @@ from typing import Any, Optional
 
 import httpx
 
+from ... import auth as dmda
 from ...base.base import DomoEnumMixin
 from ...client import (
-    auth as dmda,
     get_data as gd,
     response as rgd,
 )
@@ -146,6 +146,7 @@ async def get_jupyter_content(
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
+    is_run_test_jupyter_auth: bool = True,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Retrieve content from a Jupyter workspace.
@@ -167,7 +168,8 @@ async def get_jupyter_content(
             SearchJupyterNotFoundError
     : If content path doesn't exist
     """
-    dmda.test_is_jupyter_auth(auth)
+    if is_run_test_jupyter_auth:
+        dmda.test_is_jupyter_auth(auth)
 
     url = f"https://{auth.domo_instance}.{auth.service_location}{auth.service_prefix}api/contents/{content_path}"
 
@@ -462,26 +464,48 @@ async def update_jupyter_file(
 
 async def get_content_recursive(
     auth: dmda.DomoJupyterAuth,
-    all_rows,
-    content_path,
-    logs,
+    all_rows: list,
+    content_path: str,
     res: rgd.ResponseGetData,
+    seen_paths: set,
     obj: dict = None,
+    ignore_folders: list[str] = None,
+    included_filetypes: list[str] = None,
     is_recursive: bool = True,
-    is_skip_recent_executions: bool = True,
-    is_skip_default_files: bool = True,
+    is_run_test_jupyter_auth: bool = True,
     return_raw: bool = False,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=0,
-    parent_class=None,
+    debug_num_stacks_to_drop: int = 0,
+    parent_class: Optional[str] = None,
     session: httpx.AsyncClient = None,
 ):
-    """Recursively retrieve content from a Jupyter workspace."""
-    # set path (on initial execution there is no object)
-    if not obj:
-        s = {"type": "begin", "content_path": content_path}
-        logs.append(s)
+    """Recursively retrieve content from a Jupyter workspace.
 
+    Args:
+        auth: Jupyter authentication object
+        all_rows: Accumulator list for all content items
+        content_path: Current path being processed
+        res: Response object to update
+        seen_paths: Set of paths already processed (for deduplication)
+        obj: Current content object (None on initial call)
+        ignore_folders: Folder names to exclude (matches path segments)
+        included_filetypes: File extensions to include (e.g., ['.ipynb', '.py'])
+        is_recursive: Whether to recursively traverse directories
+        is_run_test_jupyter_auth: Test auth on first call
+        return_raw: Return raw response
+        debug_api: Enable API debugging
+        debug_num_stacks_to_drop: Stack frames to drop in debug output
+        parent_class: Parent class name for debugging
+        session: Optional httpx client session
+
+    Returns:
+        ResponseGetData with all content in response attribute (deduplicated)
+    """
+    ignore_folders = ignore_folders or []
+    included_filetypes = included_filetypes or []
+
+    # Fetch content object on initial call
+    if not obj:
         obj_res = await get_jupyter_content(
             auth=auth,
             content_path=content_path,
@@ -489,72 +513,99 @@ async def get_content_recursive(
             debug_api=debug_api,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
             parent_class=parent_class,
+            is_run_test_jupyter_auth=is_run_test_jupyter_auth,
             session=session,
         )
-
         obj = obj_res.response
-
         if not res:
             res = obj_res
 
-        s.update({"content_path": content_path})
-        logs.append(s)
+    # Deduplication: skip if we've already processed this path
+    obj_path = obj.get("path", "")
+    if obj_path in seen_paths:
+        return res
 
+    # Mark path as seen and add to results
+    seen_paths.add(obj_path)
+    all_rows.append(obj)
+
+    # Early return if not a directory
+    if obj.get("type") != "directory":
+        res.response = all_rows
+        return res
+
+    # Early return if not recursive
+    if not is_recursive:
+        res.response = all_rows
+        return res
+
+    # Get directory contents
     obj_content = obj.get("content", [])
 
-    # extract relevant logs
-    skip_ls = []
-    if is_skip_default_files:
-        skip_ls = [".ipynb_checkpoints"]
+    # Single-pass filtering: combine all filter logic
+    filtered_content = []
+    for item in obj_content:
+        if not isinstance(item, dict):
+            continue
 
-    if is_skip_recent_executions:
-        skip_ls = skip_ls + [f for f in obj_content if "last_modified" in f.keys()]
+        item_name = item.get("name", "")
+        item_path = item.get("path", "")
+        item_type = item.get("type", "")
 
-    obj_content = [f for f in obj_content if f["name"] not in skip_ls]
+        # Skip if already seen
+        if item_path in seen_paths:
+            continue
 
-    s = {
-        "type": "check in",
-        "path": obj["path"],
-        "content": len(obj_content),
-        "all_rows": len(all_rows),
-    }
+        # Skip .ipynb_checkpoints
+        if item_name == ".ipynb_checkpoints":
+            continue
 
-    all_rows.append(obj)
-    s.update({"is_append": True})
-    logs.append(s)
+        # Skip ignored folders (check path segments)
+        if ignore_folders and any(
+            ign in item_path.split("/") for ign in ignore_folders
+        ):
+            continue
 
+        # Skip recent_executions folder
+        if "recent_executions" in item_path:
+            continue
+
+        # For directories, always include (needed for recursion)
+        if item_type == "directory":
+            filtered_content.append(item)
+            continue
+
+        # For files, apply filetype filter if specified
+        if included_filetypes:
+            if any(item_name.endswith(ext) for ext in included_filetypes):
+                filtered_content.append(item)
+        else:
+            # No filter specified, include all files
+            filtered_content.append(item)
+
+    # Update response
     res.response = all_rows
-    res.logs = logs
 
-    if obj["type"] != "directory":
-        return res
-
-    s.update({"content": len(obj_content), "all_rows": len(all_rows)})
-    logs.append(s)
-
-    res.response = all_rows
-    res.logs = logs
-
-    if not is_recursive:
-        return res
-
-    if len(obj_content) > 0:
+    # Recursively process subdirectories
+    if filtered_content:
         await dmce.gather_with_concurrency(
             *[
                 get_content_recursive(
                     auth=auth,
-                    content_path=content["path"],
+                    content_path=item["path"],
                     all_rows=all_rows,
-                    logs=logs,
                     res=res,
-                    is_skip_recent_executions=is_skip_recent_executions,
-                    is_skip_default_files=is_skip_default_files,
+                    seen_paths=seen_paths,
+                    ignore_folders=ignore_folders,
+                    included_filetypes=included_filetypes,
+                    is_recursive=is_recursive,
+                    is_run_test_jupyter_auth=False,
                     debug_api=debug_api,
                     debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
                     parent_class=parent_class,
                     session=session,
                 )
-                for content in obj_content
+                for item in filtered_content
             ],
             n=5,
         )
@@ -566,9 +617,9 @@ async def get_content_recursive(
 async def get_content(
     auth: dmda.DomoJupyterAuth,
     content_path: str = "",
+    ignore_folders: list[str] = None,
+    included_filetypes: list[str] = None,
     is_recursive: bool = True,
-    is_skip_recent_executions: bool = True,
-    is_skip_default_files: bool = True,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 2,
@@ -577,41 +628,41 @@ async def get_content(
 ) -> rgd.ResponseGetData:
     """Get content from a Jupyter workspace recursively.
 
-        Args:
-            auth: Jupyter authentication object with workspace credentials
-            content_path: Path to start retrieving content from
-            is_recursive: Whether to recursively get nested directory content
-            is_skip_recent_executions: Skip files with recent execution timestamps
-            is_skip_default_files: Skip default workspace files
-            session: Optional httpx client session for connection reuse
-            debug_api: Enable detailed API request/response logging
-            debug_num_stacks_to_drop: Number of stack frames to drop in debug output
-            parent_class: Optional parent class name for debugging context
-            return_raw: Return raw API response without processing
+    Args:
+        auth: Jupyter authentication object with workspace credentials
+        content_path: Path to start retrieving content from
+        ignore_folders: Folder names to exclude (matches path segments)
+        included_filetypes: File extensions to include (e.g., ['.ipynb', '.py', '.md'])
+        is_recursive: Whether to recursively get nested directory content
+        session: Optional httpx client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to drop in debug output
+        parent_class: Optional parent class name for debugging context
+        return_raw: Return raw API response without processing
 
-        Returns:
-            ResponseGetData object containing all workspace content
+    Returns:
+        ResponseGetData object containing all workspace content (deduplicated)
 
-        Raises:
-            Jupyter_GET_Error: If content retrieval fails
-            SearchJupyterNotFoundError
-    : If content path doesn't exist
+    Raises:
+        Jupyter_GET_Error: If content retrieval fails
+        SearchJupyterNotFoundError: If content path doesn't exist
     """
     dmda.test_is_jupyter_auth(auth)
 
     all_rows = []
-    logs = []
+    seen_paths = set()
     res = None
 
     return await get_content_recursive(
         auth=auth,
         content_path=content_path,
         all_rows=all_rows,
-        logs=logs,
         res=res,
+        seen_paths=seen_paths,
+        ignore_folders=ignore_folders,
+        included_filetypes=included_filetypes,
         is_recursive=is_recursive,
-        is_skip_recent_executions=is_skip_recent_executions,
-        is_skip_default_files=is_skip_default_files,
+        is_run_test_jupyter_auth=False,
         return_raw=return_raw,
         debug_api=debug_api,
         debug_num_stacks_to_drop=debug_num_stacks_to_drop,

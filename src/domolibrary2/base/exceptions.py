@@ -51,7 +51,7 @@ class DomoError(Exception):
 
     @property
     def prefix_txt(self) -> str:
-        return "⚠️" if self.is_warning else "🛑"
+        return "⚠️ " if self.is_warning else "🛑 "
 
     @property
     def status_txt(self) -> Union[str, None]:
@@ -115,7 +115,7 @@ class DomoError(Exception):
             if ele
         ]
 
-        return "|".join(parts) if parts else "An error occurred"
+        return " || ".join(parts) if parts else "An error occurred"
 
 
 class RouteError(DomoError):

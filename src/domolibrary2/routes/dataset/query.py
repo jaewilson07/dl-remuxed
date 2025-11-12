@@ -1,5 +1,6 @@
 """Dataset query operations."""
 
+import re
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
 
@@ -87,7 +88,11 @@ async def query_dataset_private(
     }
 
     def body_fn(skip, limit, body: dict[str, object] | None = None):
-        body = body or {"sql": f"{sql} limit {limit} offset {skip}"}
+        # Strip any existing LIMIT/OFFSET clauses from the SQL to avoid duplication
+        cleaned_sql = re.sub(r"\s+limit\s+\d+", "", sql, flags=re.IGNORECASE)
+        cleaned_sql = re.sub(r"\s+offset\s+\d+", "", cleaned_sql, flags=re.IGNORECASE)
+
+        body.update({"sql": f"{cleaned_sql} limit {limit} offset {skip}"})
 
         if filter_pdp_policy_id_ls:
             body.update(  # type: ignore
@@ -131,6 +136,7 @@ async def query_dataset_private(
         auth=auth,
         method="POST",
         url=url,
+        body={"sql": sql},
         arr_fn=arr_fn,
         offset_params=offset_params,
         limit=limit,
