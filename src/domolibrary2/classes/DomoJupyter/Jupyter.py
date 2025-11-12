@@ -105,6 +105,19 @@ class DomoJupyterWorkspace(DomoEntity):
         self.output_configuration.sort()
         self.input_configuration.sort()
 
+    def __eq__(self, other) -> bool:
+        """Check equality based on workspace ID.
+        
+        Args:
+            other: Object to compare with
+            
+        Returns:
+            bool: True if both are DomoJupyterWorkspace instances with the same ID
+        """
+        if self.__class__.__name__ != other.__class__.__name__:
+            return False
+        return self.id == other.id
+
     def _update_auth_params(self):
         """extracts service location and prefix from "instance" object"""
 
