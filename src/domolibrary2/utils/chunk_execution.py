@@ -103,14 +103,14 @@ def run_with_retry(
                         )
                         await asyncio.sleep(2)
 
+                    retry += 1
+                    if retry > max_retry:
+                        raise e from e
+
                     await logger.warning(
                         f"retry decorator attempt - {retry}/{max_retry} - {e}",
                         color="yellow",
                     )
-
-                    retry += 1
-                    if retry >= max_retry:
-                        raise e from e
 
         return wrapper
 
