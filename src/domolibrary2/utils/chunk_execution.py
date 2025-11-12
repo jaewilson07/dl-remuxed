@@ -101,7 +101,13 @@ def run_with_retry(
                             color="yellow",
                         )
                         await asyncio.sleep(2)
-                    else:
+
+                    retry += 1
+                    if retry > max_retry:
+                        raise e from e
+
+                    # Only log warning for non-ConnectTimeout errors when we're actually retrying
+                    if not isinstance(e, httpx.ConnectTimeout):
                         await logger.warning(
                             f"retry decorator attempt - {retry}/{max_retry} - {e}",
                             color="yellow",
