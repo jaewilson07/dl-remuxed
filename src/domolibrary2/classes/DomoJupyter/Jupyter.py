@@ -570,12 +570,14 @@ class DomoJupyterWorkspace(DomoEntity):
             return self.input_configuration
 
         retry = 0
+        last_error = None
 
         while retry <= 1:
             try:
                 return await self.update_config(debug_api=debug_api, session=session)
 
             except JupyterAPI_Error as e:
+                last_error = e
                 domo_user = domo_user or await dmdu.DomoUser.get_by_id(
                     auth=self.auth,
                     user_id=(await self.auth.who_am_i()).response["id"],
@@ -594,6 +596,11 @@ class DomoJupyterWorkspace(DomoEntity):
                     raise e from e
 
                 retry += 1
+
+        # This should never be reached due to the logic above, but ensures no implicit None return
+        raise last_error if last_error else JupyterAPI_Error(
+            message="Unexpected error in add_input_dataset retry loop"
+        )
 
     async def add_output_dataset(
         self,
@@ -619,12 +626,14 @@ class DomoJupyterWorkspace(DomoEntity):
             return self.output_configuration
 
         retry = 0
+        last_error = None
 
         while retry <= 1:
             try:
                 return await self.update_config(debug_api=debug_api, session=session)
 
             except JupyterAPI_Error as e:
+                last_error = e
                 domo_user = domo_user or await dmdu.DomoUser.get_by_id(
                     auth=self.auth,
                     user_id=(await self.auth.who_am_i()).response["id"],
@@ -643,6 +652,11 @@ class DomoJupyterWorkspace(DomoEntity):
                     raise e from e
 
                 retry += 1
+
+        # This should never be reached due to the logic above, but ensures no implicit None return
+        raise last_error if last_error else JupyterAPI_Error(
+            message="Unexpected error in add_output_dataset retry loop"
+        )
 
 
 @dataclass
