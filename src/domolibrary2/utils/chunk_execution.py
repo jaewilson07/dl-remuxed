@@ -32,7 +32,6 @@ __all__ = ["run_with_retry", "gather_with_concurrency", "run_sequence", "chunk_l
 
 import asyncio
 import functools
-
 import httpx
 
 from ..utils.logging import get_colored_logger
@@ -102,15 +101,11 @@ def run_with_retry(
                             color="yellow",
                         )
                         await asyncio.sleep(2)
-
-                    retry += 1
-                    if retry > max_retry:
-                        raise e from e
-
-                    await logger.warning(
-                        f"retry decorator attempt - {retry}/{max_retry} - {e}",
-                        color="yellow",
-                    )
+                    else:
+                        await logger.warning(
+                            f"retry decorator attempt - {retry}/{max_retry} - {e}",
+                            color="yellow",
+                        )
 
         return wrapper
 

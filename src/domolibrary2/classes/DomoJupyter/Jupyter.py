@@ -326,6 +326,8 @@ class DomoJupyterWorkspace(DomoEntity):
                         obj=ic,
                         dj_workspace=self,
                         is_suppress_errors=is_suppress_errors,
+                        session=session,
+                        debug_api=debug_api,
                     )
                     for ic in self.raw["inputConfiguration"]
                 ],
@@ -347,6 +349,8 @@ class DomoJupyterWorkspace(DomoEntity):
                         obj=oc,
                         dj_workspace=self,
                         is_suppress_errors=is_suppress_errors,
+                        session=session,
+                        debug_api=debug_api,
                     )
                     for oc in self.raw["outputConfiguration"]
                 ],
@@ -371,7 +375,7 @@ class DomoJupyterWorkspace(DomoEntity):
     def add_config_input_datasource(self, dja_datasource: DomoJupyter_DataSource):
         if not isinstance(dja_datasource, DomoJupyter_DataSource):
             raise DJW_InvalidClass(
-                message="must passs instance of DomoJupyter_DataSource",
+                message="must pass instance of DomoJupyter_DataSource",
                 cls_instance=self,
             )
 
@@ -380,7 +384,7 @@ class DomoJupyterWorkspace(DomoEntity):
     def add_config_output_datasource(self, dja_datasource: DomoJupyter_DataSource):
         if not isinstance(dja_datasource, DomoJupyter_DataSource):
             raise DJW_InvalidClass(
-                message="must passs instance of DomoJupyter_DataSource",
+                message="must pass instance of DomoJupyter_DataSource",
                 cls_instance=self,
             )
         return self._add_config(dja_datasource, attribute="output_configuration")
@@ -388,7 +392,7 @@ class DomoJupyterWorkspace(DomoEntity):
     def add_config_account(self, dja_account: DomoJupyter_Account):
         if not isinstance(dja_account, DomoJupyter_Account):
             raise DJW_InvalidClass(
-                message="must passs instance of DomoJupyter_Account", cls_instance=self
+                message="must pass instance of DomoJupyter_Account", cls_instance=self
             )
         return self._add_config(dja_account, attribute="account_configuration")
 
