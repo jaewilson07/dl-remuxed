@@ -326,6 +326,8 @@ class DomoJupyterWorkspace(DomoEntity):
                         obj=ic,
                         dj_workspace=self,
                         is_suppress_errors=is_suppress_errors,
+                        session=session,
+                        debug_api=debug_api,
                     )
                     for ic in self.raw["inputConfiguration"]
                 ],
@@ -347,6 +349,8 @@ class DomoJupyterWorkspace(DomoEntity):
                         obj=oc,
                         dj_workspace=self,
                         is_suppress_errors=is_suppress_errors,
+                        session=session,
+                        debug_api=debug_api,
                     )
                     for oc in self.raw["outputConfiguration"]
                 ],
