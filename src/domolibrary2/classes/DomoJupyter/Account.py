@@ -262,7 +262,7 @@ class DomoJupyter_Account:
         is_force_reset: bool = False,
     ) -> dmac.DomoAccount:
         """
-        tests credentials for target_user -- will reset passsword or access token
+        tests credentials for target_user -- will reset password or access token
         """
 
         creds = self.read_creds(domojupyter_fn=domojupyter_fn)
@@ -325,7 +325,7 @@ class DomoJupyter_Account:
         is_force_reset: bool = False,
     ) -> dict:
         """
-        tests credentials for target_user -- will reset passsword or access token
+        tests credentials for target_user -- will reset password or access token
         """
 
         creds = self.read_creds(domojupyter_fn=domojupyter_fn)
