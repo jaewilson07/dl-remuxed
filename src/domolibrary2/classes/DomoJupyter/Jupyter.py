@@ -508,6 +508,8 @@ class DomoJupyterWorkspace(DomoEntity):
             return self.account_configuration
 
         retry = 0
+        last_error = None
+
         while retry <= 1:
             try:
                 res = await self.update_config(debug_api=debug_api, session=session)
@@ -529,6 +531,7 @@ class DomoJupyterWorkspace(DomoEntity):
                 )
 
             except JupyterAPI_Error as e:
+                last_error = e
                 share_user_id = (domo_user and domo_user.id) or (
                     await self.auth.who_am_i()
                 ).response["id"]
@@ -543,6 +546,11 @@ class DomoJupyterWorkspace(DomoEntity):
                     raise e from e
 
                 retry += 1
+
+        # This should never be reached due to the logic above, but ensures no implicit None return
+        raise last_error if last_error else JupyterAPI_Error(
+            message="Unexpected error in add_account retry loop"
+        )
 
     async def add_input_dataset(
         self,
