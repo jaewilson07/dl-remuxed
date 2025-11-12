@@ -102,11 +102,11 @@ def run_with_retry(
                             color="yellow",
                         )
                         await asyncio.sleep(2)
-
-                    await logger.warning(
-                        f"retry decorator attempt - {retry}/{max_retry} - {e}",
-                        color="yellow",
-                    )
+                    else:
+                        await logger.warning(
+                            f"retry decorator attempt - {retry}/{max_retry} - {e}",
+                            color="yellow",
+                        )
 
                     retry += 1
                     if retry >= max_retry:
