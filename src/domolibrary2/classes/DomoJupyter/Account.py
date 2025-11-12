@@ -17,10 +17,13 @@ import httpx
 
 from ...auth import DomoAuth
 from ...base import exceptions as dmde
+from ...base.exceptions import DomoError
+from ...routes.account.exceptions import AccountNoMatchError
 from ...utils import xkcd_password as dmxkcd
-from . import Account as dmac
+from ...utils.logging import get_colored_logger
+from .. import DomoAccount as dmac
 
-DomoError = dmde.DomoError
+logger = get_colored_logger()
 
 
 class DJW_PermissionToAccountDeniedError(DomoError):
@@ -110,6 +113,7 @@ class DomoJupyter_Account:
                 auth=self.dj_workspace.auth,
                 account_id=self.account_id,
                 is_use_default_account_class=is_use_default_account_class,
+                is_suppress_no_config=is_suppress_errors,
                 session=session,
                 debug_api=debug_api,
             )
@@ -117,9 +121,11 @@ class DomoJupyter_Account:
 
             return self.domo_account
 
-        except (dmac.Account_NoMatch, DomoError) as e:
+        except (AccountNoMatchError, DomoError) as e:
             self.is_exists = False
-            print(f"{e} - account does not exist.  is it shared with you?")
+            await logger.warning(
+                f"account id {self.account_id} not found - {e} - is it shared with you?"
+            )
 
             if not is_suppress_errors:
                 raise e from e
@@ -256,7 +262,7 @@ class DomoJupyter_Account:
         is_force_reset: bool = False,
     ) -> dmac.DomoAccount:
         """
-        tests credentials for target_user -- will reset passsword or access token
+        tests credentials for target_user -- will reset password or access token
         """
 
         creds = self.read_creds(domojupyter_fn=domojupyter_fn)
@@ -319,7 +325,7 @@ class DomoJupyter_Account:
         is_force_reset: bool = False,
     ) -> dict:
         """
-        tests credentials for target_user -- will reset passsword or access token
+        tests credentials for target_user -- will reset password or access token
         """
 
         creds = self.read_creds(domojupyter_fn=domojupyter_fn)

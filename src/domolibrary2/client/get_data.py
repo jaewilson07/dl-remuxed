@@ -161,20 +161,30 @@ async def get_data(
             print(f"Response Status: {response.status_code}")
             await logger.debug(f"Response Status: {response.status_code}")
 
+        res = None
         # Check for VPN block in response text
         if "<title>Domo - Blocked</title>" in response.text:
             ip_address = rgd.find_ip(response.text)
-            vpn_response = rgd.ResponseGetData(
-                status=403,
+            res = rgd.ResponseGetData(
+                status=response.status_code,
                 response=f"Blocked by VPN: {ip_address}",
                 is_success=False,
                 request_metadata=request_metadata,
                 additional_information=additional_information,
             )
-            return vpn_response
+
+        elif response.status_code == 303 and "whitelist/blocked" in response.text:
+            ip_address = rgd.find_ip(response.text)
+            res = rgd.ResponseGetData(
+                status=response.status_code,
+                response="Blocked by Allowlist",
+                is_success=False,
+                request_metadata=request_metadata,
+                additional_information=additional_information,
+            )
 
         # Return raw response if requested
-        if return_raw:
+        elif return_raw:
             res = rgd.ResponseGetData(
                 status=response.status_code,
                 response=response,  # type: ignore
@@ -182,16 +192,18 @@ async def get_data(
                 request_metadata=request_metadata,
                 additional_information=additional_information,
             )
+
+        if res:
+            if not res.is_success:
+                raise GetDataError(url=url, message=res.response)
             return res
 
         # Process response into ResponseGetData using from_httpx_response
-        res = rgd.ResponseGetData.from_httpx_response(
+        return rgd.ResponseGetData.from_httpx_response(
             res=response,
             request_metadata=request_metadata,
             additional_information=additional_information,
         )
-
-        return res
 
     finally:
         if is_close_session:
