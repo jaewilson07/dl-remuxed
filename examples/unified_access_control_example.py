@@ -11,7 +11,6 @@ from domolibrary2.classes.subentity import (
     DomoObjectAccessManager,
     AccessLevel,
     AccessType,
-    EntityType,
 )
 
 
