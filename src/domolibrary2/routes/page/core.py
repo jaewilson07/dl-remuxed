@@ -15,19 +15,28 @@ __all__ = [
     "get_page_definition",
 ]
 
-from typing import Optional, Union
+from typing import Optional
 
 import httpx
+from dc_logger.decorators import LogDecoratorConfig, log_call
 
+from ...auth import DomoAuth
 from ...client import (
     get_data as gd,
     response as rgd,
 )
-from ...client.auth import DomoAuth
-from .exceptions import Page_GET_Error, SearchPage_NotFound
+from ...utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
+from .exceptions import Page_GET_Error, SearchPageNotFoundError
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def get_pages_adminsummary(
     auth: DomoAuth,
     search_title: Optional[str] = None,
@@ -35,7 +44,7 @@ async def get_pages_adminsummary(
     body: Optional[dict] = None,
     limit: int = 35,
     debug_loop: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -111,11 +120,18 @@ async def get_pages_adminsummary(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def get_page_by_id(
     auth: DomoAuth,
     page_id: str,
     include_layout: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -138,7 +154,7 @@ async def get_page_by_id(
 
     Raises:
         Page_GET_Error: If page retrieval fails
-        SearchPage_NotFound: If page with specified ID doesn't exist
+        SearchPageNotFoundError: If page with specified ID doesn't exist
     """
 
     # 9/21/2023 - the domo UI uses /cards to get page info
@@ -153,7 +169,7 @@ async def get_page_by_id(
         method="GET",
         debug_api=debug_api,
         session=session,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -162,7 +178,7 @@ async def get_page_by_id(
 
     if not res.is_success:
         if res.status == 404:
-            raise SearchPage_NotFound(
+            raise SearchPageNotFoundError(
                 search_criteria=f"page_id: {page_id}",
                 res=res,
             )
@@ -179,10 +195,17 @@ async def get_page_by_id(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def get_page_definition(
     auth: DomoAuth,
-    page_id: Union[int, str],
-    session: Optional[httpx.AsyncClient] = None,
+    page_id: int | str,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -204,7 +227,7 @@ async def get_page_definition(
 
     Raises:
         Page_GET_Error: If page definition retrieval fails
-        SearchPage_NotFound: If page with specified ID doesn't exist
+        SearchPageNotFoundError: If page with specified ID doesn't exist
     """
     url = f"https://{auth.domo_instance}.domo.com/api/content/v3/stacks/{page_id}/cards"
 
@@ -220,7 +243,7 @@ async def get_page_definition(
         session=session,
         params=params,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -229,7 +252,7 @@ async def get_page_definition(
 
     if not res.is_success:
         if res.status == 404:
-            raise SearchPage_NotFound(
+            raise SearchPageNotFoundError(
                 search_criteria=f"page_id: {page_id}",
                 res=res,
             )

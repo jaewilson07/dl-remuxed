@@ -1,10 +1,11 @@
-"""
+r"""
 Test file generated from 50_DomoGroup.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
@@ -22,9 +23,9 @@ async def test_cell_1(token_auth=token_auth):
     )
 
     groups = (await group_routes.get_all_groups(auth=auth)).response
-    group = next((group for group in groups if "test" in group["name"].lower()))
+    group = next(group for group in groups if "test" in group["name"].lower())
 
-    group_id = group["groupId"]
+    group["groupId"]
 
 
 async def test_cell_2(token_auth=token_auth):

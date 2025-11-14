@@ -1,10 +1,11 @@
-"""
+r"""
 Test file generated from build.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
@@ -16,13 +17,10 @@ token_auth = dmda.DomoTokenAuth(
 
 async def test_cell_1(token_auth=token_auth):
     """Test case from cell 1"""
-    import domolibrary.client.DomoAuth as dmda
-    import os
 
 
 async def test_cell_2(token_auth=token_auth):
     """Test case from cell 2"""
-    CARD_ID = 1952029522
 
 
     token_auth = dmda.DomoTokenAuth(
@@ -31,7 +29,6 @@ async def test_cell_2(token_auth=token_auth):
     )
 
 
-    CARD_ID = 1241065508
     token_auth = dmda.DomoTokenAuth(
         domo_instance="datacrew-space",
         domo_access_token=os.environ["DOMO_DATACREW_ACCESS_TOKEN"],

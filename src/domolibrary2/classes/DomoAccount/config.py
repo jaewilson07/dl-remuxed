@@ -1,8 +1,8 @@
 __all__ = [
     "DomoAccount_Config",
-    "AccountConfig_UsesOauth",
-    "DomoAccount_NoConfig_OAuth",
-    "AccountConfig_ProviderTypeNotDefined",
+    "AccountConfig_UsesOauthError",
+    "DomoAccount_NoConfig_OAuthError",
+    "AccountConfig_ProviderTypeNotDefinedError",
     "DomoAccount_NoConfig",
     "DomoAccount_Config_AbstractCredential",
     "DomoAccount_Config_DatasetCopy",
@@ -25,18 +25,18 @@ __all__ = [
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, List
+from typing import Any
 
-from ...client.exceptions import ClassError
-from ...entities.base import DomoEnumMixin
-from ...entities.entities import DomoBase
+from ...base.base import DomoEnumMixin
+from ...base.entities import DomoBase
+from ...base.exceptions import ClassError
 from ...utils import (
     DictDot as util_dd,
     convert as dmcv,
 )
 
 
-class AccountConfig_UsesOauth(ClassError):
+class AccountConfig_UsesOauthError(ClassError):
     def __init__(self, cls_instance, data_provider_type):
         super().__init__(
             cls_instance=cls_instance,
@@ -44,7 +44,7 @@ class AccountConfig_UsesOauth(ClassError):
         )
 
 
-class AccountConfig_ProviderTypeNotDefined(ClassError):
+class AccountConfig_ProviderTypeNotDefinedError(ClassError):
     def __init__(self, cls_instance, data_provider_type):
         super().__init__(
             cls_instance=cls_instance,
@@ -92,7 +92,7 @@ class DomoAccount_Config(DomoBase):
     def to_dict(
         self,
         obj=None,
-        column_filter: List[str] = None,  # enumerate columns to include
+        column_filter: list[str] = None,  # enumerate columns to include
         **kwargs,
     ) -> dict:
         s = {"allowExternalUse": self.allow_external_use, **(obj or {}), **kwargs}
@@ -104,11 +104,11 @@ class DomoAccount_Config(DomoBase):
 
 
 @dataclass
-class DomoAccount_NoConfig_OAuth(DomoAccount_Config):
+class DomoAccount_NoConfig_OAuthError(DomoAccount_Config):
     is_oauth: bool = True
 
     def __super_init__(self):
-        raise AccountConfig_UsesOauth(
+        raise AccountConfig_UsesOauthError(
             cls_instance=self, data_provider_type=self.data_provider_type
         )
 
@@ -118,7 +118,7 @@ class DomoAccount_NoConfig(DomoAccount_Config):
     is_oauth: bool = False
 
     def __super_init__(self):
-        raise AccountConfig_ProviderTypeNotDefined(
+        raise AccountConfig_ProviderTypeNotDefinedError(
             cls_instance=self, data_provider_type=self.data_provider_type
         )
 
@@ -699,48 +699,38 @@ class AccountConfig(DomoEnumMixin, Enum):
     snowflake_writeback = DomoAccount_Config_SnowflakeWriteback
     snowflake_federated = DomoAccount_Config_SnowflakeFederated
 
-    _uses_oauth = ["google_spreadsheets"]
-
-    _config_oauth = DomoAccount_NoConfig_OAuth
-    _config_notdefined = DomoAccount_NoConfig
-
     @staticmethod
     def generate_alt_search_str(raw_value):
         return raw_value.lower().replace("-", "_")
 
     @classmethod
     def _missing_(cls, value):
-        try:
-            alt_search_str = cls.generate_alt_search_str(value)
+        _uses_oauth = ["google_spreadsheets"]
 
-            config_match = next(
-                (member for member in cls if member.name in [value, alt_search_str]),
-                None,
-            )
+        alt_search_str = cls.generate_alt_search_str(value)
 
-            ## best case scenario alt_search yields a result
-            if config_match:
-                return config_match
+        config_match = next(
+            (member for member in cls if member.name in [value, alt_search_str]),
+            None,
+        )
 
-            ## second best case, display_type is an oauth and therefore has mo matching config
-            oauth_match = next(
-                (
-                    oauth_str
-                    for oauth_str in cls._uses_oauth.value
-                    if oauth_str in [value, alt_search_str]
-                ),
-                None,
-            )
-            if oauth_match:
-                raise AccountConfig_UsesOauth(value)
+        # best case scenario alt_search yields a result
+        if config_match:
+            return config_match
 
-            ## worst case, unencountered display_type
-            raise AccountConfig_ProviderTypeNotDefined(value)
+        # second best case, display_type is an oauth and therefore has no matching config
+        oauth_match = next(
+            (
+                oauth_str
+                for oauth_str in _uses_oauth
+                if oauth_str in [value, alt_search_str]
+            ),
+            None,
+        )
+        if oauth_match:
+            print(AccountConfig_UsesOauthError(cls, value))
+            return None
 
-        except AccountConfig_UsesOauth as e:
-            print(e)
-            return cls._config_oauth
-
-        except AccountConfig_ProviderTypeNotDefined as e:
-            print(e)
-            return cls._config_notdefined
+        # worst case, unencountered display_type
+        print(AccountConfig_ProviderTypeNotDefinedError(cls, value))
+        return None

@@ -2,13 +2,11 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 from enum import Enum
-from typing import Any, Union
+from typing import Any
 
 from sqlglot import exp, parse_one
 
-from domolibrary2.entities.base import DomoBase
-
-from ...entities.base import DomoEnumMixin
+from ...base.base import DomoEnumMixin,DomoBase
 from ...routes.stream import Stream_CRUD_Error, Stream_GET_Error
 
 __all__ = [
@@ -34,7 +32,6 @@ __all__ = [
     "StreamConfig_Mapping",
     "StreamConfig_Mappings",
     "StreamConfig",
-    "DomoStream",
     # Route exceptions
     "Stream_GET_Error",
     "Stream_CRUD_Error",
@@ -61,7 +58,7 @@ class StreamConfig_Mapping(DomoBase):
     def search_keys_by_value(
         self,
         value_to_search: str,
-    ) -> Union[StreamConfig_Mapping, None]:
+    ) -> StreamConfig_Mapping | None:
         if self.is_default:
             if value_to_search in ["enteredCustomQuery", "query", "customQuery"]:
                 return "sql"
@@ -215,9 +212,7 @@ class StreamConfig_Mappings(DomoEnumMixin, Enum):
         )
 
     @classmethod
-    def search(
-        cls, value, debug_api: bool = False
-    ) -> Union[StreamConfig_Mappings, None]:
+    def search(cls, value, debug_api: bool = False) -> StreamConfig_Mappings | None:
         alt_search = value.lower().replace("-", "_")
 
         try:
@@ -257,7 +252,7 @@ class StreamConfig:
                 self.parent.configuration_tables = sorted(
                     list(set(self.parent.configuration_tables))
                 )
-        except:
+        except Exception:
             return None
 
         return self.parent.configuration_tables

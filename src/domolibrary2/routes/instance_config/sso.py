@@ -19,9 +19,9 @@ from typing import Optional
 
 import httpx
 
+from ... import auth as dmda
+from ...base import exceptions as dmde
 from ...client import (
-    auth as dmda,
-    exceptions as dmde,
     get_data as gd,
     response as rgd,
 )
@@ -59,7 +59,7 @@ async def toggle_user_direct_signon_access(
     auth: dmda.DomoAuth,
     user_id_ls: list[str],
     is_enable_direct_signon: bool = True,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class=None,
     debug_num_stacks_to_drop=1,
@@ -77,7 +77,7 @@ async def toggle_user_direct_signon_access(
         session=session,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if not res.is_success:
@@ -91,7 +91,7 @@ async def toggle_user_direct_signon_access(
 @gd.route_function
 async def get_sso_oidc_config(
     auth: dmda.DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
@@ -106,7 +106,7 @@ async def get_sso_oidc_config(
         method="GET",
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -167,7 +167,7 @@ def generate_sso_oidc_body(
 async def _update_sso_oidc_temp_config(
     auth: dmda.DomoAuth,
     body_sso: dict,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
@@ -183,7 +183,7 @@ async def _update_sso_oidc_temp_config(
         method="PUT",
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -196,7 +196,7 @@ async def _update_sso_oidc_temp_config(
 async def _update_sso_oidc_standard_config(
     auth: dmda.DomoAuth,
     body_sso: dict,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
@@ -212,7 +212,7 @@ async def _update_sso_oidc_standard_config(
         method="PUT",
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -232,7 +232,7 @@ async def _update_sso_oidc_standard_config(
 async def update_sso_oidc_config(
     auth: dmda.DomoAuth,
     body_sso: dict,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
@@ -264,7 +264,7 @@ async def update_sso_oidc_config(
 @gd.route_function
 async def get_sso_saml_config(
     auth: dmda.DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
@@ -279,7 +279,7 @@ async def get_sso_saml_config(
         method="GET",
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -292,7 +292,7 @@ async def get_sso_saml_config(
 @gd.route_function
 async def get_sso_saml_certificate(
     auth: dmda.DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
@@ -373,7 +373,7 @@ def generate_sso_saml_body(
 async def _update_sso_saml_temp_config(
     auth: dmda.DomoAuth,
     body_sso: dict,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
@@ -387,7 +387,7 @@ async def _update_sso_saml_temp_config(
         body=body_sso,
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -402,7 +402,7 @@ async def _update_sso_saml_temp_config(
 async def _update_sso_saml_standard_config(
     auth: dmda.DomoAuth,
     body_sso: dict,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
@@ -416,7 +416,7 @@ async def _update_sso_saml_standard_config(
         body=body_sso,
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -436,7 +436,7 @@ async def _update_sso_saml_standard_config(
 async def update_sso_saml_config(
     auth: dmda.DomoAuth,
     body_sso: dict,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
@@ -469,7 +469,7 @@ async def update_sso_saml_config(
 async def toggle_sso_skip_to_idp(
     auth: dmda.DomoAuth,
     is_skip_to_idp: bool,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
@@ -483,7 +483,7 @@ async def toggle_sso_skip_to_idp(
         body={"value": str(is_skip_to_idp).lower()},
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -498,7 +498,7 @@ async def toggle_sso_skip_to_idp(
 async def toggle_sso_custom_attributes(
     auth: dmda.DomoAuth,
     is_custom_attributes: bool,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
@@ -514,7 +514,7 @@ async def toggle_sso_custom_attributes(
         body={"value": is_custom_attributes},
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -530,7 +530,7 @@ async def toggle_sso_custom_attributes(
 async def set_sso_certificate(
     auth: dmda.DomoAuth,
     idp_certificate: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
@@ -545,7 +545,7 @@ async def set_sso_certificate(
         body={"idpCertificate": idp_certificate},
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 

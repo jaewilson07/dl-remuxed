@@ -4,10 +4,10 @@ __all__ = ["ActivityLog_ObjectType", "DomoActivityLog"]
 
 import datetime as dt
 from enum import Enum
-from typing import Optional
 
 import httpx
 
+from ..auth import DomoAuth
 from ..routes import activity_log as activity_log_routes
 from ..utils import convert
 
@@ -100,9 +100,9 @@ class DomoActivityLog:
         auth: DomoAuth,
         start_time: dt.datetime,
         end_time: dt.datetime,
-        object_type: Optional[ActivityLog_ObjectType] = None,
+        object_type: ActivityLog_ObjectType | None = None,
         maximum: int = 1000,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_loop: bool = False,
     ):

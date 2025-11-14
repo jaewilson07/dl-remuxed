@@ -4,7 +4,6 @@ Tests the access control and sharing methods of the DomoPage class.
 """
 
 import os
-from typing import Dict, List
 
 from dotenv import load_dotenv
 
@@ -44,10 +43,7 @@ async def test_cell_1_test_page_access(token_auth=token_auth):
         return None
 
     # Get page instance
-    domo_page = await dmpg.DomoPage.get_by_id(
-        page_id=TEST_PAGE_ID_1,
-        auth=token_auth
-    )
+    domo_page = await dmpg.DomoPage.get_by_id(page_id=TEST_PAGE_ID_1, auth=token_auth)
 
     # Test with return_raw=False (default)
     res = await domo_page.test_page_access(
@@ -58,8 +54,8 @@ async def test_cell_1_test_page_access(token_auth=token_auth):
 
     # Verify response structure
     assert res is not None
-    assert hasattr(res, 'response')
-    assert 'owners' in res.response or 'pageAccess' in res.response
+    assert hasattr(res, "response")
+    assert "owners" in res.response or "pageAccess" in res.response
 
     print(f"✓ test_page_access successful for page {TEST_PAGE_ID_1}")
     return res
@@ -76,10 +72,7 @@ async def test_cell_2_test_page_access_raw(token_auth=token_auth):
         print("Skipping test - TEST_PAGE_ID_1 not configured")
         return None
 
-    domo_page = await dmpg.DomoPage.get_by_id(
-        page_id=TEST_PAGE_ID_1,
-        auth=token_auth
-    )
+    domo_page = await dmpg.DomoPage.get_by_id(page_id=TEST_PAGE_ID_1, auth=token_auth)
 
     # Test with return_raw=True
     res = await domo_page.test_page_access(
@@ -89,10 +82,10 @@ async def test_cell_2_test_page_access_raw(token_auth=token_auth):
 
     # Verify raw response
     assert res is not None
-    assert hasattr(res, 'response')
-    assert hasattr(res, 'status')
+    assert hasattr(res, "response")
+    assert hasattr(res, "status")
 
-    print(f"✓ test_page_access with return_raw=True successful")
+    print("✓ test_page_access with return_raw=True successful")
     return res
 
 
@@ -108,10 +101,7 @@ async def test_cell_3_get_accesslist(token_auth=token_auth):
         print("Skipping test - TEST_PAGE_ID_1 not configured")
         return None
 
-    domo_page = await dmpg.DomoPage.get_by_id(
-        page_id=TEST_PAGE_ID_1,
-        auth=token_auth
-    )
+    domo_page = await dmpg.DomoPage.get_by_id(page_id=TEST_PAGE_ID_1, auth=token_auth)
 
     # Get access list
     access_list = await domo_page.get_accesslist(
@@ -140,7 +130,7 @@ async def test_cell_3_get_accesslist(token_auth=token_auth):
             assert hasattr(group, "custom_attributes")
             assert "is_owner" in group.custom_attributes
 
-    print(f"✓ get_accesslist successful")
+    print("✓ get_accesslist successful")
     print(f"  - Explicit shares: {access_list['explicit_shared_user_count']}")
     print(f"  - Total users: {access_list['total_user_count']}")
     print(f"  - Users: {len(access_list['domo_users'])}")
@@ -160,10 +150,7 @@ async def test_cell_4_get_accesslist_raw(token_auth=token_auth):
         print("Skipping test - TEST_PAGE_ID_1 not configured")
         return None
 
-    domo_page = await dmpg.DomoPage.get_by_id(
-        page_id=TEST_PAGE_ID_1,
-        auth=token_auth
-    )
+    domo_page = await dmpg.DomoPage.get_by_id(page_id=TEST_PAGE_ID_1, auth=token_auth)
 
     # Get raw access list
     res = await domo_page.get_accesslist(
@@ -173,11 +160,11 @@ async def test_cell_4_get_accesslist_raw(token_auth=token_auth):
 
     # Verify raw response
     assert res is not None
-    assert hasattr(res, 'response')
-    assert hasattr(res, 'status')
+    assert hasattr(res, "response")
+    assert hasattr(res, "status")
     assert isinstance(res.response, dict)
 
-    print(f"✓ get_accesslist with return_raw=True successful")
+    print("✓ get_accesslist with return_raw=True successful")
     return res
 
 
@@ -198,18 +185,12 @@ async def test_cell_5_share_with_user(token_auth=token_auth):
     # Ensure we have user_id
     await test_cell_0(token_auth)
 
-    domo_page = await dmpg.DomoPage.get_by_id(
-        page_id=TEST_PAGE_ID_1,
-        auth=token_auth
-    )
+    domo_page = await dmpg.DomoPage.get_by_id(page_id=TEST_PAGE_ID_1, auth=token_auth)
 
     # Get current user
     from domolibrary2.classes.DomoUser import DomoUser
 
-    current_user = await DomoUser.get_by_id(
-        user_id=token_auth.user_id,
-        auth=token_auth
-    )
+    current_user = await DomoUser.get_by_id(user_id=token_auth.user_id, auth=token_auth)
 
     # Share page with current user (safe operation)
     try:
@@ -220,9 +201,9 @@ async def test_cell_5_share_with_user(token_auth=token_auth):
         )
 
         assert res is not None
-        assert hasattr(res, 'response')
+        assert hasattr(res, "response")
 
-        print(f"✓ share with user successful")
+        print("✓ share with user successful")
         return res
 
     except Exception as e:
@@ -250,17 +231,11 @@ async def test_cell_6_share_with_group(token_auth=token_auth):
         print("Skipping test - TEST_GROUP_ID not configured")
         return None
 
-    domo_page = await dmpg.DomoPage.get_by_id(
-        page_id=TEST_PAGE_ID_1,
-        auth=token_auth
-    )
+    domo_page = await dmpg.DomoPage.get_by_id(page_id=TEST_PAGE_ID_1, auth=token_auth)
 
-    from domolibrary2.classes.DomoGroup import DomoGroup
+    from domolibrary2.classes.DomoGroup.core import DomoGroup
 
-    test_group = await DomoGroup.get_by_id(
-        group_id=test_group_id,
-        auth=token_auth
-    )
+    test_group = await DomoGroup.get_by_id(group_id=test_group_id, auth=token_auth)
 
     try:
         res = await domo_page.share(
@@ -270,7 +245,7 @@ async def test_cell_6_share_with_group(token_auth=token_auth):
         )
 
         assert res is not None
-        print(f"✓ share with group successful")
+        print("✓ share with group successful")
         return res
 
     except Exception as e:
@@ -286,29 +261,28 @@ async def test_cell_7_exception_handling(token_auth=token_auth):
     - Suppression of errors works correctly
     """
     if not TEST_PAGE_ID_2:
-        print("Skipping test - TEST_PAGE_ID_2 not configured (need a page without access)")
+        print(
+            "Skipping test - TEST_PAGE_ID_2 not configured (need a page without access)"
+        )
         return None
 
-    domo_page = await dmpg.DomoPage.get_by_id(
-        page_id=TEST_PAGE_ID_2,
-        auth=token_auth
-    )
+    domo_page = await dmpg.DomoPage.get_by_id(page_id=TEST_PAGE_ID_2, auth=token_auth)
 
     # Test with suppress_no_access_error=True (should not raise)
-    res = await domo_page.test_page_access(
+    await domo_page.test_page_access(
         suppress_no_access_error=True,
         debug_api=False,
     )
 
-    print(f"✓ Exception handling with suppress=True works")
+    print("✓ Exception handling with suppress=True works")
 
     # Test with suppress_no_access_error=False (should raise if no access)
     try:
-        res = await domo_page.test_page_access(
+        await domo_page.test_page_access(
             suppress_no_access_error=False,
             debug_api=False,
         )
-        print(f"✓ User has access to page or exception was not raised")
+        print("✓ User has access to page or exception was not raised")
 
     except Exception as e:
         # Page_NoAccess exception expected if user doesn't have access
@@ -341,6 +315,7 @@ async def main(token_auth=token_auth):
         except Exception as e:
             print(f"✗ Test failed with error: {e}")
             import traceback
+
             traceback.print_exc()
 
     print("\n" + "=" * 60)

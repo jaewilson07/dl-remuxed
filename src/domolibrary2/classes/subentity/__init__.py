@@ -35,45 +35,58 @@ Migration Path:
 
 # New unified relationship system (recommended)
 # Import relationship types from entities module
-try:
-    from ...entities.relationships import (
-        DomoRelationship as Relationship,
-        DomoRelationshipController,
-        RelationshipType,
-    )
-except ImportError:
-    # Fallback if relationships module not available
-    DomoRelationshipController = None
-    Relationship = None
-    RelationshipType = None
-
-# Transitional access control system
-# AccessControl module not yet implemented
-# from .AccessControl import (...)
+from ...base.relationships import (
+    DomoRelationship as Relationship,
+    DomoRelationshipController,
+    ShareAccount,
+)
 
 # Other subentity classes
 from .certification import DomoCertification
 from .lineage import DomoLineage
 from .membership import (
     DomoMembership,
-    DomoMembership_Group,
-    Membership_Entity,
+    MembershipRelationship,
     UpdateMembership,
 )
+from .schedule import DomoSchedule_Base
 from .tags import DomoTags
+from .trigger import (
+    DomoTrigger,
+    DomoTriggerCondition,
+    DomoTriggerEvent_Base,
+    DomoTriggerEvent_DatasetUpdated,
+    DomoTriggerEvent_Schedule,
+    DomoTriggerSettings,
+    TriggerEventType,
+)
+
+# Transitional access control system
+# AccessControl module not yet implemented
+# from .AccessControl import (...)
+
 
 __all__ = [
     # New unified relationship system (recommended)
-    "RelationshipType",
+    "ShareAccount",
     "Relationship",
     "DomoRelationshipController",
     # Legacy membership classes (deprecated)
-    "DomoMembership",
     "DomoMembership_Group",
-    "Membership_Entity",
+    "DomoMembership",
+    "MembershipRelationship",
     "UpdateMembership",
     # Other subentities
     "DomoCertification",
     "DomoLineage",
+    "DomoSchedule_Base",
     "DomoTags",
+    # Trigger system
+    "DomoTrigger",
+    "DomoTriggerCondition",
+    "DomoTriggerEvent_Base",
+    "DomoTriggerEvent_DatasetUpdated",
+    "DomoTriggerEvent_Schedule",
+    "DomoTriggerSettings",
+    "TriggerEventType",
 ]

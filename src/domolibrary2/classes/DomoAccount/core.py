@@ -2,22 +2,21 @@ __all__ = ["DomoAccount", "DomoAccounts_NoAccount", "DomoAccounts"]
 
 
 from dataclasses import dataclass
-from typing import List
 
 import httpx
 
-from ...client import exceptions as dmde
-from ...client.auth import DomoAuth
-from ...entities.entities import DomoManager
+from ...auth import DomoAuth
+from ...base import exceptions as dmde
+from ...base.entities import DomoManager
 from ...routes import (
     account as account_routes,
     datacenter as datacenter_routes,
 )
 from ...utils import chunk_execution as dmce
-from .account_credential import DomoAccount_Credential
+from .account_credential import DomoAccountCredential
 from .account_default import (
     DomoAccount_Default,
-    UpsertAccount_MatchCriteria,
+    UpsertAccount_MatchCriteriaError,
 )
 from .account_oauth import DomoAccount_OAuth
 from .config import AccountConfig
@@ -49,7 +48,7 @@ class DomoAccount(DomoAccount_Default):
         if obj.get("credentialsType") == "oauth":
             new_cls = DomoAccount_OAuth
         else:
-            new_cls = DomoAccount_Credential
+            new_cls = DomoAccountCredential
 
         return super().from_dict(
             auth=auth,
@@ -61,8 +60,8 @@ class DomoAccount(DomoAccount_Default):
 
 @dataclass
 class DomoAccounts(DomoManager):
-    accounts: List[DomoAccount] = None
-    oauths: List[DomoAccount_OAuth] = None
+    accounts: list[DomoAccount] = None
+    oauths: list[DomoAccount_OAuth] = None
 
     async def get_accounts_accountsapi(
         self,
@@ -203,6 +202,67 @@ class DomoAccounts(DomoManager):
 
         return self.oauths
 
+    async def search_by_name(
+        self,
+        account_name: str,
+        data_provider_type: str = None,
+        is_use_default_account_class: bool = True,
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+        is_suppress_not_found_exception: bool = False,
+        **kwargs,
+    ) -> DomoAccount | None:
+        """Search for an account by name (matches display_name or name).
+
+        Args:
+            account_name: Account name to search for (case-insensitive)
+            data_provider_type: Optional filter by data provider type
+            is_use_default_account_class: Use default account class
+            debug_api: Enable debug output
+            session: Optional httpx session
+
+        Returns:
+            Matching DomoAccount or None if not found
+
+        Raises:
+            DomoError: If account retrieval fails
+        """
+        await self.get(
+            debug_api=debug_api,
+            session=session,
+            is_use_default_account_class=is_use_default_account_class,
+            **kwargs,
+        )
+
+        for account in self.accounts:
+            # Check both name and display_name for matching
+            name_match = False
+            if (
+                account.display_name
+                and account.display_name.lower() == account_name.lower()
+            ):
+                name_match = True
+            elif account.name and account.name.lower() == account_name.lower():
+                name_match = True
+
+            if not name_match:
+                continue
+
+            # If data_provider_type specified, must match
+            if data_provider_type and data_provider_type != account.data_provider_type:
+                continue
+
+            return account
+
+        if is_suppress_not_found_exception:
+            return None
+
+        raise DomoAccounts_NoAccount(
+            cls=self.__class__,
+            message=f"No account found with name '{account_name}'",
+            domo_instance=self.auth.domo_instance,
+        )
+
     @classmethod
     async def upsert_account(
         cls,
@@ -222,7 +282,7 @@ class DomoAccounts(DomoManager):
         """search for an account and upsert it"""
 
         if not account_name and not account_id:
-            raise UpsertAccount_MatchCriteria(domo_instance=auth.domo_instance)
+            raise UpsertAccount_MatchCriteriaError(domo_instance=auth.domo_instance)
 
         data_provider_type = (
             data_provider_type or account_config and account_config.data_provider_type
@@ -245,25 +305,14 @@ class DomoAccounts(DomoManager):
         if account_name and not acc:
             try:
                 domo_accounts = DomoAccounts(auth=auth)
-                await domo_accounts.get(
+                acc = await domo_accounts.search_by_name(
+                    account_name=account_name,
+                    data_provider_type=data_provider_type,
+                    is_use_default_account_class=is_use_default_account_class,
                     debug_api=debug_api,
                     session=session,
-                    is_use_default_account_class=is_use_default_account_class,
                     **kwargs,
                 )
-
-                for da in domo_accounts.accounts:
-                    if da.name and da.name.lower() != account_name.lower():
-                        continue
-
-                    if (
-                        data_provider_type
-                        and data_provider_type != da.data_provider_type
-                    ):
-                        continue
-
-                    acc = da
-
             except dmde.DomoError:
                 pass
 
@@ -271,7 +320,7 @@ class DomoAccounts(DomoManager):
             return acc
 
         if not isinstance(
-            acc, (DomoAccount_Default, DomoAccount, DomoAccount_Credential)
+            acc, (DomoAccount_Default, DomoAccount, DomoAccountCredential)
         ):
             if debug_prn:
                 print(f"creating {account_name} in {auth.domo_instance}")
@@ -286,7 +335,9 @@ class DomoAccounts(DomoManager):
 
         if account_name and account_id:
             if debug_prn:
-                print(f"upsert-ing {acc.id} - {acc.name} in {auth.domo_instance}")
+                print(
+                    f"upsert-ing {acc.id} - {acc.display_name or acc.name} in {auth.domo_instance}"
+                )
 
             await acc.update_name(
                 account_name=account_name,

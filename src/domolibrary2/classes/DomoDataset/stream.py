@@ -1,16 +1,27 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, List, Optional
+from typing import TYPE_CHECKING, Any
 
 import httpx
 
-from ...client.auth import DomoAuth
-from ...entities import DomoEntity, DomoManager
+from ...utils.logging import get_colored_logger
+from ...utils import chunk_execution as dmce
+
+from ...base import exceptions as dmde
+
+from ...auth import DomoAuth
+from ...base import DomoEntity, DomoManager
 from ...routes import stream as stream_routes
 from ...routes.stream import Stream_CRUD_Error, Stream_GET_Error
-from ...utils import chunk_execution as dmce
+
+from ..subentity.schedule import DomoSchedule
 from .stream_config import StreamConfig
+
+
+# TYPE_CHECKING imports to avoid circular dependencies
+if TYPE_CHECKING:
+    from ..DomoAccount import DomoAccount
 
 __all__ = [
     "DomoStream",
@@ -20,12 +31,14 @@ __all__ = [
     "Stream_CRUD_Error",
 ]
 
+logger = get_colored_logger()
 
-@dataclass
+@dataclass(eq=False)
 class DomoStream(DomoEntity):
     """A class for interacting with a Domo Stream (dataset connector)"""
 
     id: str
+    parent: Any = field(repr=False)  # DomoDataset
 
     transport_description: str = None
     transport_version: int = None
@@ -37,21 +50,38 @@ class DomoStream(DomoEntity):
     account_userid: str = None
 
     has_mapping: bool = False
-    configuration: List[StreamConfig] = field(default_factory=list)
-    configuration_tables: List[str] = field(default_factory=list)
+    configuration: list[StreamConfig] = field(default_factory=list)
+    configuration_tables: list[str] = field(default_factory=list)
     configuration_query: str = None
 
-    parent: Any = None  # DomoDataset
+    Schedule: DomoSchedule = None  # DomoDataset_Schedule
+    Account: DomoAccount = field(default=None, repr=False)  # Connector account
+
+    def __post_init__(self):
+        """Post-initialization to extract schedule if present"""
+        self.extract_schedule_from_raw()
+
+    def extract_schedule_from_raw(self):
+        """Extract schedule from stream configuration if available"""
+
+        if self.raw:
+            self.Schedule = DomoSchedule.from_parent(parent=self, obj=self.raw)
+
+        return self.Schedule
+
+    @classmethod
+    def from_parent(cls, parent, stream_id: str = None):
+        return cls(
+            parent=parent,
+            id=stream_id or parent.raw.get("streamId"),
+            raw=parent.raw,
+            auth=parent.auth,
+            Relations=None,
+        )
 
     @property
     def dataset_id(self) -> str:
         return self.parent.id
-
-    @classmethod
-    def from_parent(cls, parent, stream_id):
-        return cls(
-            parent=parent, auth=parent.auth, id=stream_id, Relations=None, raw=None
-        )
 
     @property
     def entity_type(self):
@@ -63,17 +93,17 @@ class DomoStream(DomoEntity):
         return f"https://{self.auth.domo_instance}.domo.com/datasources/{self.dataset_id}/details/data/table"
 
     @classmethod
-    def from_dict(cls, auth, obj):
+    def from_dict(cls, auth, obj, parent: Any | None = None, **kwargs):  # DomoDataset
         data_provider = obj.get("dataProvider", {})
         transport = obj.get("transport", {})
-        datasource = obj.get("dataSource", {})
+        obj.get("dataSource", {})
 
         account = obj.get("account", {})
 
         sd = cls(
             auth=auth,
-            parent=None,  # Will be set by caller if needed
-            id=obj["id"],
+            parent=parent,  # Will be set by caller if needed
+            id=obj.get("id") or kwargs.get("stream_id"),
             transport_description=transport.get("description"),
             transport_version=transport.get("version"),
             update_method=obj.get("updateMethod"),
@@ -81,6 +111,7 @@ class DomoStream(DomoEntity):
             data_provider_key=data_provider.get("key"),
             raw=obj,
             Relations=None,
+            **{k: v for k, v in kwargs.items() if k != "stream_id"},
         )
 
         if account:
@@ -107,6 +138,33 @@ class DomoStream(DomoEntity):
 
         return res
 
+    async def refresh(
+        self,
+        debug_api: bool = False,
+        session: httpx.AsyncClient = None,
+        is_get_account: bool = True,
+        is_suppress_no_account_config: bool = True,
+    ):
+        # Only refresh if stream has an ID (some datasets don't have streams)
+        if not self.id:
+            return self
+
+        if is_get_account:
+            await self.get_account(
+                force_refresh=True,
+                debug_api=debug_api,
+                session=session,
+                is_suppress_no_account_config=is_suppress_no_account_config,
+            )
+
+        await super().refresh(
+            debug_api=debug_api,
+            session=session,
+            is_suppress_no_account_config=is_suppress_no_account_config,
+        )
+
+        return self
+
     @classmethod
     async def get_by_id(
         cls,
@@ -115,7 +173,9 @@ class DomoStream(DomoEntity):
         return_raw: bool = False,
         debug_num_stacks_to_drop=2,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
+        is_get_account: bool = True,
+        is_suppress_no_account_config: bool = True,
     ):
         """Get a stream by its ID.
 
@@ -125,8 +185,9 @@ class DomoStream(DomoEntity):
             return_raw: Return raw response without processing
             debug_num_stacks_to_drop: Stack frames to drop for debugging
             debug_api: Enable API debugging
-            parent: Parent dataset entity
             session: HTTP client session
+            is_get_account: If True and account_id is present, retrieve full Account object
+            is_suppress_no_account_config: If True, suppress errors when account config is not found
 
         Returns:
             DomoStream instance or ResponseGetData if return_raw=True
@@ -146,7 +207,17 @@ class DomoStream(DomoEntity):
         if return_raw:
             return res
 
-        return cls.from_dict(auth=auth, obj=res.response)
+        stream = cls.from_dict(auth=auth, obj=res.response)
+
+        # Retrieve Account if account_id is present
+        if is_get_account and stream.account_id:
+            await stream.get_account(
+                session=session,
+                debug_api=debug_api,
+                force_refresh=True,
+                is_suppress_no_account_config=is_suppress_no_account_config,
+            )
+        return stream
 
     @classmethod
     async def get_entity_by_id(cls, entity_id: str, auth: DomoAuth, **kwargs):
@@ -157,7 +228,7 @@ class DomoStream(DomoEntity):
         cls,
         cnfg_body,
         auth: DomoAuth = None,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
     ):
         return await stream_routes.create_stream(
@@ -167,7 +238,7 @@ class DomoStream(DomoEntity):
     async def update(
         self,
         cnfg_body,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
     ):
         res = await stream_routes.update_stream(
@@ -179,16 +250,66 @@ class DomoStream(DomoEntity):
         )
         return res
 
+    async def get_account(
+        self,
+        session: httpx.AsyncClient | None = None,
+        debug_api: bool = False,
+        force_refresh: bool = False,
+        is_suppress_no_account_config: bool = True,
+    ) -> DomoAccount | None:
+        """Retrieve the Account associated with this stream.
+
+        Args:
+            session: HTTP client session
+            debug_api: Enable API debugging
+            force_refresh: If True, refresh even if Account is already set
+            is_suppress_no_account_config: If True, suppress errors when account config is not found
+
+        Returns:
+            DomoAccount instance or None if no account_id
+
+        Example:
+            >>> stream = await DomoStream.get_by_id(auth=auth, stream_id="123")
+            >>> account = await stream.get_account()
+            >>> print(f"Account: {account.name}")
+        """
+
+        if not self.account_id:
+            return None
+
+        if self.Account is not None and not force_refresh:
+            return self.Account
+
+        from ..DomoAccount import DomoAccount
+
+        try:
+            self.Account = await DomoAccount.get_by_id(
+                auth=self.auth,
+                account_id=self.account_id,
+                session=session,
+                debug_api=debug_api,
+                is_use_default_account_class=False,
+                is_suppress_no_config=is_suppress_no_config,
+            )
+        except dmde.DomoError as e:
+            if is_suppress_no_config:
+                await logger.warning(f"Warning: Could not retrieve account {self.account_id}: {e}")
+                self.Account = None
+            else:
+                raise e from e
+
+        return self.Account
+
 
 @dataclass
 class DomoStreams(DomoManager):
-    streams: List[DomoStream] = field(default=None)
+    streams: list[DomoStream] = field(default=None)
 
     async def get(
         self,
         search_dataset_name: str = None,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ):
         from ...routes import datacenter as datacenter_routes
 
@@ -216,7 +337,7 @@ class DomoStreams(DomoManager):
         cnfg_body,
         match_name=None,
         auth: DomoAuth = None,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
     ):
         from ...routes import datacenter as datacenter_routes

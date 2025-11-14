@@ -5,10 +5,10 @@ This module provides CRUD functions for managing Domo CodeEngine packages includ
 creation, deployment, and update operations.
 
 Functions:
-    deploy_code_engine_package: Deploy a specific package version
-    create_code_engine_package: Create a new codeengine package
+    deploy_codeengine_package: Deploy a specific package version
+    create_codeengine_package: Create a new codeengine package
     increment_version: Increment package version number
-    upsert_code_engine_package_version: Create or update a package version
+    upsert_codeengine_package_version: Create or update a package version
     upsert_package: Create or update a package
 
 Classes:
@@ -17,10 +17,10 @@ Classes:
 
 __all__ = [
     "CodeEnginePackageBuilder",
-    "deploy_code_engine_package",
-    "create_code_engine_package",
+    "deploy_codeengine_package",
+    "create_codeengine_package",
     "increment_version",
-    "upsert_code_engine_package_version",
+    "upsert_codeengine_package_version",
     "upsert_package",
 ]
 
@@ -28,16 +28,16 @@ from typing import Optional
 
 import httpx
 
+from ...auth import DomoAuth
 from ...client import (
     get_data as gd,
     response as rgd,
 )
-from ...client.auth import DomoAuth
 from . import core as codeengine_routes
 from .exceptions import (
     CodeEngine_CRUD_Error,
     CodeEngine_GET_Error,
-    CodeEngine_InvalidPackage,
+    CodeEngine_InvalidPackageError,
 )
 
 
@@ -49,11 +49,11 @@ class CodeEnginePackageBuilder:
 
 
 @gd.route_function
-async def deploy_code_engine_package(
+async def deploy_codeengine_package(
     auth: DomoAuth,
     package_id: str,
     version: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -87,7 +87,7 @@ async def deploy_code_engine_package(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -102,10 +102,10 @@ async def deploy_code_engine_package(
 
 
 @gd.route_function
-async def create_code_engine_package(
+async def create_codeengine_package(
     auth: DomoAuth,
     payload: dict,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -138,7 +138,7 @@ async def create_code_engine_package(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         body=payload,
     )
 
@@ -170,12 +170,12 @@ def increment_version(version: str) -> str:
 
 
 @gd.route_function
-async def upsert_code_engine_package_version(
+async def upsert_codeengine_package_version(
     auth: DomoAuth,
     payload: dict,
     version: Optional[str] = None,
     auto_increment_version: bool = True,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -204,7 +204,7 @@ async def upsert_code_engine_package_version(
         ResponseGetData object containing package data
 
     Raises:
-        CodeEngine_InvalidPackage: If package is already deployed and auto_increment is False
+        CodeEngine_InvalidPackageError: If package is already deployed and auto_increment is False
         CodeEngine_CRUD_Error: If package creation/update fails
     """
     package_id = payload.get("id")
@@ -228,7 +228,7 @@ async def upsert_code_engine_package_version(
             auth=auth,
         ):
             if not auto_increment_version:
-                raise CodeEngine_InvalidPackage(
+                raise CodeEngine_InvalidPackageError(
                     message=f"Package {package_id} v{version} already deployed",
                     auth=auth,
                 )
@@ -249,7 +249,7 @@ async def upsert_code_engine_package_version(
     except CodeEngine_GET_Error:
         pass  # Not found, continue to create
 
-    return await create_code_engine_package(
+    return await create_codeengine_package(
         auth=auth,
         payload=payload,
         debug_api=debug_api,
@@ -266,7 +266,7 @@ async def upsert_package(
     payload: dict,
     check_different: bool = True,
     create_new_version: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -302,7 +302,7 @@ async def upsert_package(
         if debug_prn:
             print("No Package ID found, creating new package...")
 
-        return await create_code_engine_package(
+        return await create_codeengine_package(
             auth=auth,
             payload=payload,
             debug_api=debug_api,
@@ -322,7 +322,7 @@ async def upsert_package(
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         )
     except CodeEngine_GET_Error:
-        return await create_code_engine_package(
+        return await create_codeengine_package(
             auth=auth,
             payload=payload,
             debug_api=debug_api,
@@ -332,7 +332,7 @@ async def upsert_package(
             return_raw=return_raw,
         )
 
-    return await upsert_code_engine_package_version(
+    return await upsert_codeengine_package_version(
         payload=payload,
         auth=auth,
         auto_increment_version=True,

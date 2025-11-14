@@ -18,16 +18,15 @@ __all__ = [
     "refresh_publish_jobs",
 ]
 
-from typing import List
 
 import httpx
 
+from ..auth import DomoAuth
+from ..base import exceptions as de
 from ..client import (
-    exceptions as de,
     get_data as gd,
     response as rgd,
 )
-from ..client.auth import DomoAuth
 
 
 class GET_Publish_Error(de.RouteError):
@@ -111,7 +110,7 @@ async def get_publication_by_id(
         session=session,
         timeout=timeout,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -144,7 +143,7 @@ async def get_subscription_by_id(
         url=url,
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -162,8 +161,8 @@ async def get_subscription_by_id(
 
 def generate_publish_body(
     url: str,
-    sub_domain_ls: List[str],
-    content_ls: List[str],
+    sub_domain_ls: list[str],
+    content_ls: list[str],
     name: str,
     description: str,
     unique_id: str,
@@ -209,7 +208,7 @@ async def create_publish_job(
         session=session,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -243,7 +242,7 @@ async def update_publish_job(
         session=session,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -274,7 +273,7 @@ async def get_publish_subscriptions(
         url=url,
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -306,7 +305,7 @@ async def get_subscription_summaries(
         url=url,
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -339,7 +338,7 @@ async def get_subscriber_content_details(
         url=url,
         auth=auth,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         session=session,
         parent_class=parent_class,
     )
@@ -372,7 +371,7 @@ async def get_subscription_invitations(
         url=url,
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -403,7 +402,7 @@ async def get_subscriber_domains(
         url=url,
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -436,7 +435,7 @@ async def add_subscriber_domain(
         body=body,
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -465,7 +464,7 @@ async def accept_invite_by_id(
         session=session,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if not res.is_success:
@@ -504,7 +503,7 @@ async def accept_invite_by_id_v2(
         session=session,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if not res.is_success:
@@ -536,7 +535,7 @@ async def refresh_publish_jobs(
         session=session,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if not res.is_success:

@@ -17,11 +17,11 @@ from typing import Optional
 
 import httpx
 
+from ...auth import DomoAuth
 from ...client import (
     get_data as gd,
     response as rgd,
 )
-from ...client.auth import DomoAuth
 from .exceptions import CloudAmplifier_GET_Error, SearchCloudAmplifier_NotFound
 
 
@@ -29,7 +29,7 @@ from .exceptions import CloudAmplifier_GET_Error, SearchCloudAmplifier_NotFound
 async def check_for_colliding_datasources(
     auth: DomoAuth,
     dataset_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -65,7 +65,7 @@ async def check_for_colliding_datasources(
         url=url,
         method="GET",
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
     )
@@ -91,7 +91,7 @@ async def check_for_colliding_datasources(
 async def get_federated_source_metadata(
     auth: DomoAuth,
     dataset_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -128,7 +128,7 @@ async def get_federated_source_metadata(
         url=url,
         method="GET",
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
     )
@@ -155,7 +155,7 @@ async def get_databases(
     integration_id: str,
     page: int = 0,
     rows: int = 5000,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -196,7 +196,7 @@ async def get_databases(
         url=url,
         method="GET",
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
         params=params,
@@ -218,7 +218,7 @@ async def get_schemas(
     database: str,
     page: int = 0,
     rows: int = 5000,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -260,7 +260,7 @@ async def get_schemas(
         url=url,
         method="GET",
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
         params=params,
@@ -283,7 +283,7 @@ async def get_tables(
     schema: str,
     page: int = 0,
     rows: int = 5000,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -326,7 +326,7 @@ async def get_tables(
         url=url,
         method="GET",
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         params=params,
         session=session,
