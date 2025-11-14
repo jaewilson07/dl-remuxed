@@ -78,7 +78,7 @@ def run_with_retry(
     def actual_decorator(run_fn):
         @functools.wraps(run_fn)
         async def wrapper(*args, **kwargs):
-            retry = 1
+            retry = 0
             while retry <= max_retry:
                 try:
                     return await run_fn(*args, **kwargs)
@@ -96,17 +96,19 @@ def run_with_retry(
                     ):
                         raise e from e
 
+                    # Check if we've exhausted retries
+                    if retry >= max_retry:
+                        raise e from e
+
                     # Handle httpx.ConnectTimeout if httpx is available
                     if isinstance(e, httpx.ConnectTimeout):
                         await logger.info(
-                            f"connect timeout - retry attempt {retry}/{max_retry} - {e}",
+                            f"connect timeout - retry attempt {retry + 1}/{max_retry} - {e}",
                             color="yellow",
                         )
                         await asyncio.sleep(2)
 
                     retry += 1
-                    if retry > max_retry:
-                        raise e from e
 
                     # Only log warning for non-ConnectTimeout errors when we're actually retrying
                     if not isinstance(e, httpx.ConnectTimeout):
