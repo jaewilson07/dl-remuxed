@@ -1,10 +1,11 @@
-"""
+r"""
 Test file generated from instance_config_sso.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
@@ -23,7 +24,7 @@ async def test_cell_1(token_auth=token_auth):
 
     await auth.print_is_token()
 
-    full_auth = dmda.DomoFullAuth(
+    dmda.DomoFullAuth(
         domo_instance=os.environ["DOMO_INSTANCE"],
         domo_username=os.environ["DOMO_USERNAME"],
         domo_password=os.environ["DOMO_PASSWORD"],
@@ -38,7 +39,7 @@ async def test_cell_2(token_auth=token_auth):
     )
 
     await toggle_user_direct_signon_access(
-        auth = auth, 
+        auth = auth,
         user_id_ls = [domo_user.id],
         debug_api = False,
     )

@@ -26,18 +26,21 @@ Example:
 __all__ = [
     "DomoAccount",
     "DomoAccount_Default",
-    "DomoAccount_Credential",
+    "DomoAccountCredential",
     "DomoAccount_OAuth",
     "AccountConfig",
     "DomoAccount_Config",
     "DomoAccounts",
     "DomoAccounts_NoAccount",
-    "UpsertAccount_MatchCriteria",
+    "ShareAccount_AccessLevel",
 ]
 
+# Import route enums used by account classes
+from ...routes.account import ShareAccount_AccessLevel
+from .account_credential import DomoAccountCredential
+from .account_default import DomoAccount_Default
+from .account_oauth import DomoAccount_OAuth
+from .config import AccountConfig, DomoAccount_Config
+
 # Import main classes
-from .Account import DomoAccount, DomoAccounts, DomoAccounts_NoAccount
-from .Account_Default import DomoAccount_Default, UpsertAccount_MatchCriteria
-from .Account_Credential import DomoAccount_Credential
-from .Account_OAuth import DomoAccount_OAuth
-from .Config import AccountConfig, DomoAccount_Config
+from .core import DomoAccount, DomoAccounts, DomoAccounts_NoAccount

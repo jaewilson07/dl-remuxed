@@ -36,12 +36,13 @@ __all__ = [
     "download_zip",
 ]
 
+
 import io
 import os
 import pathlib
 import shutil
 import zipfile
-from typing import Any, Callable, List, Optional, Union
+from typing import Callable
 
 from .exceptions import FileOperationError
 
@@ -97,8 +98,8 @@ def upsert_folder(
 
 def upsert_file(
     file_path: str,
-    content: Optional[Any] = None,
-    write_fn: Optional[Callable] = None,
+    content: object = None,
+    write_fn: Callable = None,
     file_update_method: str = "w",
     encoding: str = "utf-8",
     debug_prn: bool = False,
@@ -216,10 +217,10 @@ def export_zip_binary_contents(output_folder: str, zip_bytes_content: bytes) -> 
 
 def download_zip(
     output_folder: str,
-    zip_bytes_content: Optional[bytes] = None,
-    existing_zip_file_path: Optional[str] = None,
+    zip_bytes_content: bytes | None = None,
+    existing_zip_file_path: str | None = None,
     is_unpack_archive: bool = True,
-) -> Union[str, List[str]]:
+) -> str | list[str]:
     """
     Save bytes content to a zip file and optionally extract contents.
 
@@ -230,7 +231,7 @@ def download_zip(
         is_unpack_archive (bool): Whether to extract the archive contents
 
     Returns:
-        Union[str, List[str]]: Success message or list of extracted files
+        Union[str, list[str]]: Success message or list of extracted files
 
     Raises:
         FileOperationError: If zip operations fail

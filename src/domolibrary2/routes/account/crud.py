@@ -17,9 +17,14 @@ Functions:
 from typing import Optional, Union
 
 import httpx
+from dc_logger.decorators import LogDecoratorConfig, log_call
 
-from ...client import get_data as gd, response as rgd
-from ...client.auth import DomoAuth
+from ...auth import DomoAuth
+from ...client import (
+    get_data as gd,
+    response as rgd,
+)
+from ...utils.logging import ResponseGetDataProcessor
 from .exceptions import Account_CreateParams_Error, Account_CRUD_Error
 
 
@@ -47,13 +52,17 @@ def generate_create_oauth_account_body(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def create_account(
     auth: DomoAuth,
     account_name: Optional[str] = None,
     data_provider_type: Optional[str] = None,
     config_body: Optional[dict] = None,
     payload: Optional[dict] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -117,10 +126,14 @@ async def create_account(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def delete_account(
     auth: DomoAuth,
     account_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -169,6 +182,10 @@ async def delete_account(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def create_oauth_account(
     auth: DomoAuth,
     account_name: Optional[str] = None,
@@ -176,7 +193,7 @@ async def create_oauth_account(
     origin: str = "OAUTH_CONFIGURATION",
     config: Optional[dict] = None,
     create_body: Optional[dict] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -245,10 +262,14 @@ async def create_oauth_account(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def delete_oauth_account(
     auth: DomoAuth,
     account_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -294,11 +315,15 @@ async def delete_oauth_account(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def update_account_name(
     auth: DomoAuth,
     account_id: Union[int, str],
     account_name: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -350,11 +375,15 @@ async def update_account_name(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def update_oauth_account_name(
     auth: DomoAuth,
     account_id: Union[int, str],
     account_name: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,

@@ -34,81 +34,59 @@ Migration Path:
 """
 
 # New unified relationship system (recommended)
-from .Relationships import (
-    DomoAccessRelationshipController,
-    DomoMembershipRelationshipController,
+# Import relationship types from entities module
+from ...base.relationships import (
+    DomoRelationship as Relationship,
     DomoRelationshipController,
-    DomoRelationshipManager,
-    EntityType as RelationshipEntityType,
-    Relationship,
-    RelationshipSummary,
-    RelationshipType,
-)
-
-# Transitional access control system
-from .AccessControl import (
-    AccessGrant,
-    AccessLevel,
-    AccessSummary,
-    DomoAccessController,
-    DomoAccountAccessController,
-    DomoGroupAccessController,
-    DomoObjectAccessManager,
-    EntityType,
-)
-
-# Legacy access and membership classes
-from .DomoAccess import (
-    Access_Config_Error,
-    Access_Entity,
-    DomoAccess,
-    DomoAccess_Account,
-    DomoAccess_OAuth,
-)
-from .DomoMembership import (
-    GroupMembership,
-    Membership,
-    Membership_Entity,
-    UpdateMembership,
+    ShareAccount,
 )
 
 # Other subentity classes
-from .DomoCertification import DomoCertification
-from .DomoLineage import DomoLineage
-from .DomoTag import DomoTag
+from .certification import DomoCertification
+from .lineage import DomoLineage
+from .membership import (
+    DomoMembership,
+    MembershipRelationship,
+    UpdateMembership,
+)
+from .schedule import DomoSchedule_Base
+from .tags import DomoTags
+from .trigger import (
+    DomoTrigger,
+    DomoTriggerCondition,
+    DomoTriggerEvent_Base,
+    DomoTriggerEvent_DatasetUpdated,
+    DomoTriggerEvent_Schedule,
+    DomoTriggerSettings,
+    TriggerEventType,
+)
+
+# Transitional access control system
+# AccessControl module not yet implemented
+# from .AccessControl import (...)
+
 
 __all__ = [
     # New unified relationship system (recommended)
-    "RelationshipType",
-    "RelationshipEntityType",
+    "ShareAccount",
     "Relationship",
-    "RelationshipSummary",
     "DomoRelationshipController",
-    "DomoRelationshipManager",
-    "DomoAccessRelationshipController",
-    "DomoMembershipRelationshipController",
-    # Transitional access control system
-    "AccessLevel",
-    "EntityType",
-    "AccessGrant",
-    "AccessSummary",
-    "DomoAccessController",
-    "DomoObjectAccessManager",
-    "DomoAccountAccessController",
-    "DomoGroupAccessController",
-    # Legacy access classes (deprecated)
-    "DomoAccess",
-    "DomoAccess_Account",
-    "DomoAccess_OAuth",
-    "Access_Entity",
-    "Access_Config_Error",
     # Legacy membership classes (deprecated)
-    "Membership",
-    "GroupMembership",
-    "Membership_Entity",
+    "DomoMembership_Group",
+    "DomoMembership",
+    "MembershipRelationship",
     "UpdateMembership",
     # Other subentities
     "DomoCertification",
     "DomoLineage",
-    "DomoTag",
+    "DomoSchedule_Base",
+    "DomoTags",
+    # Trigger system
+    "DomoTrigger",
+    "DomoTriggerCondition",
+    "DomoTriggerEvent_Base",
+    "DomoTriggerEvent_DatasetUpdated",
+    "DomoTriggerEvent_Schedule",
+    "DomoTriggerSettings",
+    "TriggerEventType",
 ]

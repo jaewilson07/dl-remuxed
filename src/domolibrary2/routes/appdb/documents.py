@@ -18,12 +18,15 @@ __all__ = [
     "update_document",
 ]
 
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 import httpx
 
-from ...client import get_data as gd, response as rgd
-from ...client.auth import DomoAuth
+from ...auth import DomoAuth
+from ...client import (
+    get_data as gd,
+    response as rgd,
+)
 from .exceptions import AppDb_CRUD_Error, AppDb_GET_Error, SearchAppDb_NotFound
 
 
@@ -31,8 +34,8 @@ from .exceptions import AppDb_CRUD_Error, AppDb_GET_Error, SearchAppDb_NotFound
 async def get_documents_from_collection(
     auth: DomoAuth,
     collection_id: str,
-    query: Optional[Dict[str, Any]] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    query: Optional[dict[str, Any]] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -89,8 +92,8 @@ async def get_collection_document_by_id(
     auth: DomoAuth,
     collection_id: str,
     document_id: str,
-    query: Optional[Dict[str, Any]] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    query: Optional[dict[str, Any]] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -147,8 +150,8 @@ async def get_collection_document_by_id(
 async def create_document(
     auth: DomoAuth,
     collection_id: str,
-    content: Dict[str, Any],
-    session: Optional[httpx.AsyncClient] = None,
+    content: dict[str, Any],
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -199,8 +202,8 @@ async def update_document(
     auth: DomoAuth,
     collection_id: str,
     document_id: str,
-    content: Dict[str, Any],
-    session: Optional[httpx.AsyncClient] = None,
+    content: dict[str, Any],
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,

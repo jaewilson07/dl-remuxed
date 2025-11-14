@@ -1,10 +1,11 @@
-"""
+r"""
 Test file generated from CodeEngineManifest.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
@@ -16,7 +17,7 @@ token_auth = dmda.DomoTokenAuth(
 
 async def test_cell_1(token_auth=token_auth):
     """Test case from cell 1"""
-    token_auth = dmda.DomoTokenAuth(
+    dmda.DomoTokenAuth(
         domo_instance=os.environ['DOMO_INSTANCE'],
         domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],
     )
@@ -28,7 +29,6 @@ async def test_cell_2(token_auth=token_auth):
     VERSION_ID = '1.0.0'
 
     FUNCTION_INDEX = 3
-    ARGUMENT_INDEX = 1
 
     res = await code_engine_routes.get_codeengine_package_by_id_and_version(
         auth=token_auth,
@@ -42,7 +42,7 @@ async def test_cell_2(token_auth=token_auth):
 
     ast_functions = dmcv.extract_ast_functions(ast_module)
 
-    test_fn = next((fn for fn in ast_functions if fn.name == compare_obj['name']))
+    test_fn = next(fn for fn in ast_functions if fn.name == compare_obj['name'])
 
     assert test_fn.name == compare_obj['name']
 

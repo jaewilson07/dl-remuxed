@@ -1,10 +1,11 @@
-"""
+r"""
 Test file generated from read_creds_from_dotenv.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests

@@ -1,10 +1,11 @@
-"""
+r"""
 Test file generated from CodeEngine.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
@@ -38,7 +39,7 @@ async def test_cell_2(token_auth=token_auth):
 
     # package.Manifest
     await package.download_source_code(
-        download_folder="../../test/CodeEnginePackage_JS/", 
+        download_folder="../../test/CodeEnginePackage_JS/",
         debug_api=True
     )
 

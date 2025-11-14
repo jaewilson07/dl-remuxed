@@ -1,10 +1,11 @@
-"""
+r"""
 Test file generated from 50_DomoJupyter_DataSource.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
@@ -28,6 +29,6 @@ async def test_cell_1(token_auth=token_auth):
         workspace_id=WORKSPACE_ID, auth=auth
     )
 
-    dj_auth = dmda.DomoJupyterTokenAuth.convert_auth(
+    dmda.DomoJupyterTokenAuth.convert_auth(
         auth=auth, jupyter_token=JUPYTER_TOKEN, **workspace_params
     )

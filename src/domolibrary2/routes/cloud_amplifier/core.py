@@ -20,8 +20,11 @@ from typing import Any, Optional
 
 import httpx
 
-from ...client import get_data as gd, response as rgd
-from ...client.auth import DomoAuth
+from ...auth import DomoAuth
+from ...client import (
+    get_data as gd,
+    response as rgd,
+)
 from .exceptions import (
     CloudAmplifier_CRUD_Error,
     CloudAmplifier_GET_Error,
@@ -34,7 +37,7 @@ from .utils import ENGINES, create_integration_body
 async def get_integrations(
     auth: DomoAuth,
     integration_engine: Optional[ENGINES] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -100,7 +103,7 @@ async def get_integrations(
 async def get_integration_by_id(
     auth: DomoAuth,
     integration_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -162,7 +165,7 @@ async def get_integration_permissions(
     auth: DomoAuth,
     user_id: Optional[str] = None,
     integration_ids: Optional[list[str]] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -228,14 +231,14 @@ async def get_integration_permissions(
 async def get_integration_warehouses(
     auth: DomoAuth,
     integration_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
-    List available compute warehouses for a Cloud Amplifier integration.
+    list available compute warehouses for a Cloud Amplifier integration.
 
     User must have permission to view the integration.
 
@@ -297,7 +300,7 @@ async def create_integration(
     auth_method: str,
     description: str = "",
     admin_auth_method: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -379,7 +382,7 @@ async def update_integration(
     auth: DomoAuth,
     integration_id: str,
     update_body: dict[str, Any],
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -441,7 +444,7 @@ async def update_integration_warehouses(
     auth: DomoAuth,
     integration_id: str,
     warehouses: list[dict[str, Any]],
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -455,7 +458,7 @@ async def update_integration_warehouses(
     Args:
         auth: Authentication object containing instance and credentials
         integration_id: Integration ID to update warehouses for
-        warehouses: List of warehouse configuration dictionaries
+        warehouses: list of warehouse configuration dictionaries
         session: Optional HTTP client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to omit in debug output
@@ -506,7 +509,7 @@ async def update_integration_warehouses(
 async def delete_integration(
     auth: DomoAuth,
     integration_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -565,7 +568,7 @@ async def convert_federated_to_cloud_amplifier(
     auth: DomoAuth,
     federated_dataset_id: str,
     cloud_amplifier_integration_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,

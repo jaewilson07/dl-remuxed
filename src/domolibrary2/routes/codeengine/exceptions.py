@@ -13,9 +13,9 @@ Exception Classes:
 
 from typing import Optional
 
+from ...auth import DomoAuth
+from ...base.exceptions import RouteError
 from ...client import response as rgd
-from ...client.auth import DomoAuth
-from ...client.exceptions import RouteError
 
 
 class CodeEngine_GET_Error(RouteError):
@@ -37,7 +37,7 @@ class CodeEngine_GET_Error(RouteError):
         super().__init__(message=message, entity_id=entity_id, res=res, **kwargs)
 
 
-class SearchCodeEngine_NotFound(RouteError):
+class SearchCodeEngineNotFoundError(RouteError):
     """Raised when codeengine search operations return no results."""
 
     def __init__(
@@ -71,7 +71,7 @@ class CodeEngine_CRUD_Error(RouteError):
         super().__init__(message=message, entity_id=entity_id, res=res, **kwargs)
 
 
-class CodeEngine_InvalidPackage(RouteError):
+class CodeEngineInvalidPackageError(RouteError):
     """Raised when package validation fails."""
 
     def __init__(

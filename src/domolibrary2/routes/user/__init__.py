@@ -11,8 +11,7 @@ organized into three main categories:
 All user-related functionality is accessible through this unified interface.
 """
 
-from .exceptions import *  # All exception classes
-from .attributes import (  # Attribute functions
+from ..instance_config.user_attributes import (  # Attribute functions
     UserAttributes_IssuerType,
     clean_attribute_id,
     create_user_attribute,
@@ -33,6 +32,17 @@ from .core import (  # Core user functions
     search_users_by_id,
     search_virtual_user_by_subscriber_instance,
 )
+from .exceptions import (
+    DeleteUserError,
+    DownloadAvatar_Error,
+    ResetPasswordPasswordUsedError,
+    SearchUserNotFoundError,
+    User_CRUD_Error,
+    User_GET_Error,
+    UserAttributes_CRUD_Error,
+    UserAttributes_GET_Error,
+    UserSharing_Error,
+)
 from .properties import (  # Property-related classes and functions; Property functions
     UserProperty,
     UserProperty_Type,
@@ -51,11 +61,11 @@ __all__ = [
     # Exception classes
     "User_GET_Error",
     "User_CRUD_Error",
-    "SearchUser_NotFound",
+    "SearchUserNotFoundError",
     "UserSharing_Error",
-    "ResetPassword_PasswordUsed",
+    "ResetPasswordPasswordUsedError",
     "DownloadAvatar_Error",
-    "DeleteUser_Error",
+    "DeleteUserError",
     # Core user functions
     "get_all_users",
     "search_users",
