@@ -36,7 +36,7 @@ from .exceptions import (
     CodeEngine_CRUD_Error,
     CodeEngine_FunctionCallError,
     CodeEngine_GET_Error,
-    CodeEngineInvalidPackageError,
+    CodeEngine_InvalidPackageError,
     SearchCodeEngineNotFoundError,
 )
 
@@ -48,7 +48,7 @@ __all__ = [
     "CodeEngine_GET_Error",
     "SearchCodeEngineNotFoundError",
     "CodeEngine_CRUD_Error",
-    "CodeEngineInvalidPackageError",
+    "CodeEngine_InvalidPackageError",
     "CodeEngine_FunctionCallError",
     "CodeEngine_API_Error",  # Backward compatibility alias
     # Core functions
