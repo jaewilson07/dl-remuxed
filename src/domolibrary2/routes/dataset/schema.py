@@ -38,7 +38,7 @@ async def get_schema(
         method="GET",
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         session=session,
     )
 
@@ -76,7 +76,7 @@ async def alter_schema(
         body=schema_obj,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         session=session,
     )
 
@@ -114,7 +114,7 @@ async def alter_schema_descriptions(
         body=schema_obj,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         session=session,
     )
 
@@ -155,7 +155,7 @@ async def set_dataset_tags(
         session=session,
         return_raw=return_raw,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:

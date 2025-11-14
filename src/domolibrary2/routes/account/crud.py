@@ -109,7 +109,7 @@ async def create_account(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -165,7 +165,7 @@ async def delete_account(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -245,7 +245,7 @@ async def create_oauth_account(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -301,7 +301,7 @@ async def delete_oauth_account(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -359,7 +359,7 @@ async def update_account_name(
         content_type="text/plain",
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         session=session,
     )
 
@@ -417,7 +417,7 @@ async def update_oauth_account_name(
         content_type="text/plain",
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         session=session,
     )
 

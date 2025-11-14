@@ -1,6 +1,7 @@
 """Dataset query operations."""
 
 import re
+
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
 
@@ -45,7 +46,7 @@ async def query_dataset_public(
         body=body,
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 

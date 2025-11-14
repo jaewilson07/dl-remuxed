@@ -48,7 +48,7 @@ async def get_activity_log_object_types(
         parent_class=parent_class,
         debug_api=debug_api,
         session=session,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if not res.is_success:
