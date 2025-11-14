@@ -21,8 +21,11 @@ from ..auth import (
 )
 from ..base.exceptions import DomoError
 from ..utils import chunk_execution as dmce
-from ..utils.logging import ResponseGetDataProcessor
+from ..utils.logging import ResponseGetDataProcessor, get_colored_logger
 from . import response as rgd
+
+# Initialize colored logger
+logger = get_colored_logger()
 
 # Constants
 DEFAULT_TIMEOUT = 20
@@ -107,6 +110,7 @@ async def get_data(
 
     if debug_api:
         print(f"🐛 Debugging get_data: {method} {url}")
+        await logger.debug(f"🐛 Debugging get_data: {method} {url}")
 
     headers = create_headers(
         auth=auth, content_type=content_type, headers=headers or {}
@@ -155,21 +159,32 @@ async def get_data(
 
         if debug_api:
             print(f"Response Status: {response.status_code}")
+            await logger.debug(f"Response Status: {response.status_code}")
 
+        res = None
         # Check for VPN block in response text
         if "<title>Domo - Blocked</title>" in response.text:
             ip_address = rgd.find_ip(response.text)
-            vpn_response = rgd.ResponseGetData(
-                status=403,
+            res = rgd.ResponseGetData(
+                status=response.status_code,
                 response=f"Blocked by VPN: {ip_address}",
                 is_success=False,
                 request_metadata=request_metadata,
                 additional_information=additional_information,
             )
-            return vpn_response
+
+        elif response.status_code == 303 and "whitelist/blocked" in response.text:
+            ip_address = rgd.find_ip(response.text)
+            res = rgd.ResponseGetData(
+                status=response.status_code,
+                response="Blocked by Allowlist",
+                is_success=False,
+                request_metadata=request_metadata,
+                additional_information=additional_information,
+            )
 
         # Return raw response if requested
-        if return_raw:
+        elif return_raw:
             res = rgd.ResponseGetData(
                 status=response.status_code,
                 response=response,  # type: ignore
@@ -177,16 +192,18 @@ async def get_data(
                 request_metadata=request_metadata,
                 additional_information=additional_information,
             )
+
+        if res:
+            if not res.is_success:
+                raise GetDataError(url=url, message=res.response)
             return res
 
         # Process response into ResponseGetData using from_httpx_response
-        res = rgd.ResponseGetData.from_httpx_response(
+        return rgd.ResponseGetData.from_httpx_response(
             res=response,
             request_metadata=request_metadata,
             additional_information=additional_information,
         )
-
-        return res
 
     finally:
         if is_close_session:
@@ -239,6 +256,7 @@ async def get_data_stream(
 
     if debug_api:
         print(f"🐛 Debugging get_data_stream: {method} {url}")
+        await logger.debug(f"🐛 Debugging get_data_stream: {method} {url}")
 
     if auth and not auth.token:
         await auth.get_auth_token()
@@ -415,6 +433,9 @@ async def looper(
 
         if debug_loop:
             print(f"\n🚀 Retrieving records {skip} through {skip + limit} via {url}")
+            await logger.debug(
+                f"\n🚀 Retrieving records {skip} through {skip + limit} via {url}"
+            )
             # pprint(params)
 
             message = {
@@ -469,6 +490,7 @@ async def looper(
 
         if debug_loop:
             print(message)
+            await logger.debug(message)
 
         if maximum and skip + limit > maximum and not loop_until_end:
             limit = maximum - len(all_rows)
@@ -478,6 +500,8 @@ async def looper(
 
     if debug_loop:
         message = f"\n🎉 Success - {len(all_rows)} records retrieved from {url} in query looper\n"
+        print(message)
+        await logger.info(message)
 
     if is_close_session:
         await session.aclose()
