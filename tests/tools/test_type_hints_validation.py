@@ -33,7 +33,7 @@ def validate_function_type_hints(func, function_name: str = None):
 
     # Check parameter type hints
     try:
-        type_hints = get_type_hints(func)
+        get_type_hints(func)
     except (NameError, AttributeError) as e:
         issues.append(f"Error getting type hints: {e}")
         return False, issues
@@ -55,7 +55,7 @@ def validate_module_type_hints(module, exclude_functions=None, include_private=F
 
     Args:
         module: The module to validate
-        exclude_functions: List of function names to exclude from validation
+        exclude_functions: list of function names to exclude from validation
         include_private: Whether to include private functions (starting with _)
 
     Returns:
@@ -90,13 +90,13 @@ class TestTypeHintsValidation:
 
     def test_user_attributes_type_hints(self):
         """Test that all functions in user.attributes module have proper type hints."""
-        from domolibrary2.routes.user import attributes
+        from domolibrary2.routes.instance_config import user_attributes
 
         # Functions that might be excluded (if any)
         exclude_functions = []
 
         results = validate_module_type_hints(
-            attributes, exclude_functions=exclude_functions, include_private=False
+            user_attributes, exclude_functions=exclude_functions, include_private=False
         )
 
         # Collect all issues
@@ -124,7 +124,7 @@ class TestTypeHintsValidation:
 
     def test_specific_function_type_hints(self):
         """Test specific functions have proper type hints."""
-        from domolibrary2.routes.user.attributes import (
+        from domolibrary2.routes.instance_config.user_attributes import (
             clean_attribute_id,
             create_user_attribute,
             delete_user_attribute,
@@ -157,12 +157,12 @@ class TestTypeHintsValidation:
 
     def test_return_type_annotations_exist(self):
         """Test that all functions have return type annotations."""
-        from domolibrary2.routes.user import attributes
+        from domolibrary2.routes.instance_config import user_attributes
 
         functions = [
-            getattr(attributes, name)
-            for name in dir(attributes)
-            if callable(getattr(attributes, name)) and not name.startswith("_")
+            getattr(user_attributes, name)
+            for name in dir(user_attributes)
+            if callable(getattr(user_attributes, name)) and not name.startswith("_")
         ]
 
         functions_without_return_type = []
@@ -182,12 +182,12 @@ class TestTypeHintsValidation:
 
     def test_parameter_type_annotations_exist(self):
         """Test that all function parameters have type annotations."""
-        from domolibrary2.routes.user import attributes
+        from domolibrary2.routes.instance_config import user_attributes
 
         functions = [
-            getattr(attributes, name)
-            for name in dir(attributes)
-            if callable(getattr(attributes, name)) and not name.startswith("_")
+            getattr(user_attributes, name)
+            for name in dir(user_attributes)
+            if callable(getattr(user_attributes, name)) and not name.startswith("_")
         ]
 
         functions_with_missing_param_types = {}
@@ -219,11 +219,11 @@ class TestTypeHintsValidation:
 
 def main():
     """Run validation manually (for development/debugging)."""
-    from domolibrary2.routes.user import attributes
+    from domolibrary2.routes.instance_config import user_attributes
 
     print("🔍 Validating type hints in user.attributes module...\n")
 
-    results = validate_module_type_hints(attributes)
+    results = validate_module_type_hints(user_attributes)
 
     print(f"Found {len(results)} functions to validate:\n")
 

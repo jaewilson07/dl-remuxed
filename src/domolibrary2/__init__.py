@@ -1,51 +1,45 @@
-__version__ = "0.0.1-alpha"
+"""
+domolibrary2 - A Python library for interacting with Domo APIs.
+"""
 
-# Import submodules to make them available
-# Note: classes, client, and routes have circular dependencies
-# If you encounter import errors, import individual modules directly like:
-# from domolibrary2.client.auth import DomoAuth
-# from domolibrary2.routes.user import get_user
-# from domolibrary2.classes.DomoUser import DomoUser
+import sys
+from pathlib import Path
 
-from . import client, routes, utils
+from .utils.logging import get_colored_logger
 
-
-# Use lazy imports for modules with potential circular dependencies
-def _lazy_import_classes():
-    from . import classes
-
-    return classes
+get_colored_logger(set_as_global=True)  # Sets as dc_logger global logger
 
 
-def _lazy_import_integrations():
-    from . import integrations
+# Always read version from pyproject.toml to ensure sync
+try:
+    if sys.version_info >= (3, 11):
+        import tomllib
+    else:
+        import tomli as tomllib
 
-    return integrations
+    pyproject_path = Path(__file__).parent.parent.parent / "pyproject.toml"
+    if pyproject_path.exists():
+        with open(pyproject_path, "rb") as f:
+            pyproject_data = tomllib.load(f)
+            __version__ = pyproject_data["project"]["version"]
+    else:
+        # Fallback to installed package metadata
+        import importlib.metadata
 
+        __version__ = importlib.metadata.version("domolibrary2")
+except Exception:
+    __version__ = "unknown"
+
+from .base import entities, exceptions  # noqa: E402
 
 # Define what gets imported with "from domolibrary2 import *"
 __all__ = [
     "__version__",
-    "classes",
-    "client",
-    "routes",
-    "utils",
-    "integrations",
+    "exceptions",
+    "entities",
+    # "classes",
+    # "integrations",
+    # "client",
+    # "routes",
+    # "utils",
 ]
-
-# Lazy loading for potentially circular imports
-import sys
-
-current_module = sys.modules[__name__]
-
-
-def __getattr__(name):
-    if name == "classes":
-        classes = _lazy_import_classes()
-        setattr(current_module, "classes", classes)
-        return classes
-    elif name == "integrations":
-        integrations = _lazy_import_integrations()
-        setattr(current_module, "integrations", integrations)
-        return integrations
-    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")

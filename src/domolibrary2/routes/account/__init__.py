@@ -40,9 +40,9 @@ from .exceptions import (
     Account_CreateParams_Error,
     Account_CRUD_Error,
     Account_GET_Error,
-    Account_NoMatch,
+    AccountNoMatchError,
     AccountSharing_Error,
-    SearchAccount_NotFound,
+    SearchAccountNotFoundError,
 )
 
 # Import OAuth functions
@@ -53,6 +53,9 @@ from .sharing import (
     ShareAccount,
     ShareAccount_AccessLevel,
     ShareAccount_V1_AccessLevel,
+    generate_share_account_payload,
+    generate_share_account_v1_payload,
+    generate_share_account_v2_payload,
     get_account_accesslist,
     get_oauth_account_accesslist,
     share_account,
@@ -63,11 +66,11 @@ from .sharing import (
 __all__ = [
     # Exception classes
     "Account_GET_Error",
-    "SearchAccount_NotFound",
+    "SearchAccountNotFoundError",
     "Account_CRUD_Error",
     "AccountSharing_Error",
     "Account_Config_Error",
-    "Account_NoMatch",
+    "AccountNoMatchError",
     "Account_CreateParams_Error",
     # Core functions
     "get_available_data_providers",
@@ -94,6 +97,9 @@ __all__ = [
     "ShareAccount",
     "ShareAccount_V1_AccessLevel",
     "ShareAccount_AccessLevel",
+    "generate_share_account_payload",
+    "generate_share_account_v1_payload",
+    "generate_share_account_v2_payload",
     "get_account_accesslist",
     "get_oauth_account_accesslist",
     "share_account",

@@ -5,13 +5,57 @@ Simple test suite that validates all user route functions can be called.
 No mocking - just verifies function signatures, imports, and basic functionality.
 """
 
-import os
-import pytest
 import inspect
+import os
+
+import pytest
+
 from domolibrary2.client.auth import DomoTokenAuth
 
 # Import all user route functions to test they exist and are callable
-from domolibrary2.routes.user import *
+from domolibrary2.routes.user import (
+    DeleteUserError,
+    DownloadAvatar_Error,
+    ResetPasswordPasswordUsedError,
+    SearchUserNotFoundError,
+    User_CRUD_Error,
+    # Exception classes
+    User_GET_Error,
+    UserAttributes_CRUD_Error,
+    UserAttributes_GET_Error,
+    # User attributes
+    UserAttributes_IssuerType,
+    UserProperty,
+    # User properties
+    UserProperty_Type,
+    UserSharing_Error,
+    clean_attribute_id,
+    create_user,
+    create_user_attribute,
+    delete_user,
+    delete_user_attribute,
+    download_avatar,
+    generate_avatar_bytestr,
+    generate_create_user_attribute_body,
+    generate_patch_user_property_body,
+    # Core user functions
+    get_all_users,
+    get_by_id,
+    get_user_attribute_by_id,
+    get_user_attributes,
+    process_v1_search_users,
+    request_password_reset,
+    reset_password,
+    search_users,
+    search_users_by_email,
+    search_users_by_id,
+    search_virtual_user_by_subscriber_instance,
+    set_user_landing_page,
+    update_user,
+    update_user_attribute,
+    upload_avatar,
+    user_is_allowed_direct_signon,
+)
 
 
 class TestUserFunctionExistence:
@@ -92,12 +136,12 @@ class TestUserFunctionExistence:
         # Core exceptions
         assert inspect.isclass(User_GET_Error)
         assert inspect.isclass(User_CRUD_Error)
-        assert inspect.isclass(SearchUser_NotFound)
-        assert inspect.isclass(DeleteUser_Error)
+        assert inspect.isclass(SearchUserNotFoundError)
+        assert inspect.isclass(DeleteUserError)
         assert inspect.isclass(UserSharing_Error)
 
         # Property exceptions
-        assert inspect.isclass(ResetPassword_PasswordUsed)
+        assert inspect.isclass(ResetPasswordPasswordUsedError)
         assert inspect.isclass(DownloadAvatar_Error)
 
         # Attribute exceptions
@@ -107,7 +151,7 @@ class TestUserFunctionExistence:
         # Test they are proper exception classes
         assert issubclass(User_GET_Error, Exception)
         assert issubclass(User_CRUD_Error, Exception)
-        assert issubclass(DeleteUser_Error, Exception)
+        assert issubclass(DeleteUserError, Exception)
         assert issubclass(UserSharing_Error, Exception)
 
     def test_user_property_enumeration_values(self):
@@ -219,12 +263,12 @@ class TestUserFunctionExistence:
         # Core exceptions
         assert issubclass(User_GET_Error, Exception)
         assert issubclass(User_CRUD_Error, Exception)
-        assert issubclass(SearchUser_NotFound, Exception)
-        assert issubclass(DeleteUser_Error, Exception)
+        assert issubclass(SearchUserNotFoundError, Exception)
+        assert issubclass(DeleteUserError, Exception)
         assert issubclass(UserSharing_Error, Exception)
 
         # Property exceptions
-        assert issubclass(ResetPassword_PasswordUsed, Exception)
+        assert issubclass(ResetPasswordPasswordUsedError, Exception)
         assert issubclass(DownloadAvatar_Error, Exception)
 
         # Attribute exceptions
@@ -236,12 +280,12 @@ class TestUserFunctionExistence:
         # Test that exception classes exist and are callable
         assert callable(User_GET_Error)
         assert callable(User_CRUD_Error)
-        assert callable(SearchUser_NotFound)
-        assert callable(DeleteUser_Error)
+        assert callable(SearchUserNotFoundError)
+        assert callable(DeleteUserError)
         assert callable(UserSharing_Error)
 
         # Test other exception classes are callable
-        assert callable(ResetPassword_PasswordUsed)
+        assert callable(ResetPasswordPasswordUsedError)
         assert callable(DownloadAvatar_Error)
         assert callable(UserAttributes_GET_Error)
         assert callable(UserAttributes_CRUD_Error)

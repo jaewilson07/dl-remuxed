@@ -11,9 +11,12 @@ from typing import Optional
 
 import httpx
 
-from ..client import get_data as gd, response as rgd
-from ..client.auth import DomoAuth, DomoFullAuth
-from ..client.exceptions import RouteError
+from ..auth import DomoAuth, DomoFullAuth
+from ..base.exceptions import RouteError
+from ..client import (
+    get_data as gd,
+    response as rgd,
+)
 
 
 class Bootstrap_GET_Error(RouteError):
@@ -31,7 +34,7 @@ class Bootstrap_GET_Error(RouteError):
 async def get_bootstrap(
     auth: DomoFullAuth,  ## only works with DomoFullAuth authentication, do not use TokenAuth
     debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
 ) -> rgd.ResponseGetData:
@@ -105,7 +108,7 @@ async def get_bootstrap_customerid(
 @gd.route_function
 async def get_bootstrap_features(
     auth: DomoFullAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     return_raw: bool = False,
     debug_num_stacks_to_drop: int = 2,
@@ -129,7 +132,7 @@ async def get_bootstrap_features(
 @gd.route_function
 async def get_bootstrap_features_is_accountsv2_enabled(
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     return_raw: bool = False,
     debug_num_stacks_to_drop: int = 2,
@@ -163,7 +166,7 @@ async def get_bootstrap_features_is_accountsv2_enabled(
 @gd.route_function
 async def get_bootstrap_pages(
     auth: DomoFullAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     return_raw: bool = False,
     debug_num_stacks_to_drop: int = 2,

@@ -5,11 +5,17 @@ import datetime as dt
 import numbers
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Callable, List, Optional
+from typing import Callable, Optional, list
 
-from ..client.auth import DomoAuth
+import httpx
+
+from ..auth import DomoAuth
+from ..base.entities import DomoEntity
 from ..routes import appdb as appdb_routes
-from ..utils import chunk_execution as ce, convert as dlcv
+from ..utils import (
+    chunk_execution as dmce,
+    convert as dlcv,
+)
 
 
 def to_dict(value):
@@ -29,14 +35,14 @@ def to_dict(value):
 
 
 @dataclass
-class AppDbDocument:
+class AppDbDocument(DomoEntity):
     auth: Optional[DomoAuth] = field(repr=False)
     _id: Optional[str] = None
     _created_on_dt: Optional[datetime] = None
     _updated_on_dt: Optional[datetime] = None
     content: Optional[dict] = None
     _collection_id: Optional[str] = None
-    _identity_columns: Optional[List[str]] = None
+    _identity_columns: Optional[list[str]] = None
 
     def to_dict(self, custom_content_to_dict_fn: Optional[Callable] = None):
         self.update_config()
@@ -61,7 +67,7 @@ class AppDbDocument:
 
         if self._identity_columns:
             return all(
-                getattr(self, col) == getattr(other.col)
+                getattr(self, col) == getattr(other, col)
                 for col in self._identity_columns
             )
 
@@ -128,9 +134,9 @@ class AppDbDocument:
 
     async def update_document(
         self,
-        content: dict = None,
+        content: Optional[dict] = None,
         debug_api: bool = False,
-        session: httpx.AsyncClient = None,
+        session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop=1,
         return_raw: bool = False,
     ):
@@ -158,15 +164,15 @@ class AppDbDocument:
         auth: DomoAuth,
         collection_id,
         content: dict,
-        identity_columns: List[str],
-        session: httpx.AsyncClient = None,
+        identity_columns: list[str],
+        session: httpx.AsyncClient | None = None,
         debug_api=False,
         debug_num_stacks_to_drop=3,
         return_raw: bool = False,
     ):
         domo_doc = None
 
-        query = {f"content.{col}": content[col] for col in identity_columns}
+        {f"content.{col}": content[col] for col in identity_columns}
 
         domo_collection = await AppDbCollection.get_by_id(
             auth=auth, collection_id=collection_id, return_raw=False
@@ -211,7 +217,7 @@ class AppDbDocument:
         cls,
         auth: DomoAuth,
         obj,
-        identity_columns: List[str] = None,
+        identity_columns: list[str] = None,
     ):
         content = obj.pop("content")
 
@@ -229,7 +235,7 @@ class AppDbDocument:
         auth: DomoAuth,
         collection_id: str,
         content: dict,
-        identity_columns: List[str] = None,
+        identity_columns: list[str] = None,
     ):
         return cls.from_dict(
             auth=auth,
@@ -334,7 +340,7 @@ async def update_document(
 
 
 @dataclass
-class AppDbCollection:
+class AppDbCollection(DomoEntity):
     auth: DomoAuth = field(repr=False)
     id: str
     name: str
@@ -344,7 +350,7 @@ class AppDbCollection:
 
     schema: dict
 
-    domo_documents: List[AppDbDocument] = None
+    domo_documents: list[AppDbDocument] = None
 
     @classmethod
     def from_dict(cls, auth, obj):
@@ -380,12 +386,6 @@ class AppDbCollection:
             return res
 
         return cls.from_dict(auth=auth, obj=res.response)
-
-    def __eq__(self, other):
-        if not isinstance(other, AppDbCollection):
-            return False
-
-        return self.id == other.id
 
     async def share_collection(
         self,
@@ -446,7 +446,7 @@ class AppDbCollection:
             if return_raw:
                 return res
 
-            self.domo_documents = await ce.gather_with_concurrency(
+            self.domo_documents = await dmce.gather_with_concurrency(
                 *[
                     AppDbDocument.get_by_id(
                         collection_id=self.id, document_id=doc["id"], auth=self.auth
@@ -519,7 +519,7 @@ async def query_documents(
         if return_raw:
             return res
 
-        self.domo_documents = await ce.gather_with_concurrency(
+        self.domo_documents = await dmce.gather_with_concurrency(
             *[
                 AppDbDocument.get_by_id(
                     collection_id=self.id, document_id=doc["id"], auth=self.auth
@@ -537,7 +537,7 @@ async def upsert(
     auth: DomoAuth,
     collection_id,
     content: dict,
-    identity_columns: List[str],
+    identity_columns: list[str],
     session: httpx.AsyncClient = None,
     debug_api=False,
     debug_num_stacks_to_drop=3,
@@ -576,9 +576,9 @@ class AppDbCollections:
     async def get_collections(
         cls,
         auth: DomoAuth,
-        datastore_id: str = None,
+        datastore_id: Optional[str] = None,
         debug_api: bool = False,
-        session: httpx.AsyncClient = None,
+        session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop=1,
         return_raw: bool = False,
     ):
@@ -594,7 +594,7 @@ class AppDbCollections:
         if return_raw:
             return res
 
-        return await ce.gather_with_concurrency(
+        return await dmce.gather_with_concurrency(
             *[
                 AppDbCollection.get_by_id(collection_id=obj["id"], auth=auth)
                 for obj in res.response

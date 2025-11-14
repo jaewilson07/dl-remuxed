@@ -6,20 +6,22 @@ __all__ = [
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 import httpx
 
-from ..classes.DomoApplication_Job_Base import (
+from domolibrary2.base.base import DomoBase
+
+from ...auth import DomoAuth
+from ...routes import application as application_routes
+from .Job_Base import (
     DomoJob_Base,
     DomoTrigger,
     DomoTrigger_Schedule,
 )
-from ..routes import application as application_routes
 
 
 @dataclass
-class RemoteDomoStats_Config_Policy:
+class RemoteDomoStats_Config_Policy(DomoBase):
     type: str
     dataset_id: str
 
@@ -35,7 +37,7 @@ class RemoteDomoStats_Config_Policy:
 
 @dataclass
 class RemoteDomoStats_Config:
-    policies: List[RemoteDomoStats_Config_Policy] = field(default_factory=lambda: [])
+    policies: list[RemoteDomoStats_Config_Policy] = field(default_factory=lambda: [])
 
     def _add_policy(self, report_type, dataset_id):
         new_policy = RemoteDomoStats_Config_Policy(
@@ -98,7 +100,7 @@ class DomoJob_RemoteDomoStats(DomoJob_Base):
         job_id,
         auth: DomoAuth,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop=2,
         return_raw: bool = False,
     ):
@@ -137,13 +139,13 @@ class DomoJob_RemoteDomoStats(DomoJob_Base):
         logs_dataset_id: str,
         description: str = f"created via domolibrary f{dt.date.today()}",
         remote_instance: str = None,
-        accounts: List[int] = None,
-        triggers: List[DomoTrigger_Schedule] = None,
+        accounts: list[int] = None,
+        triggers: list[DomoTrigger_Schedule] = None,
         execution_timeout: int = 1440,
         return_raw: bool = False,
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ):
         triggers_ls = []
         if triggers is not None and len(triggers) > 0:

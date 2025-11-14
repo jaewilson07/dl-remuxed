@@ -1,11 +1,12 @@
 __all__ = ["DomoDatacenter"]
 
 from dataclasses import dataclass, field
-from typing import Any, List, Union
+from typing import Any, Union
 
 import httpx
 
-from ..client.DomoError import DomoError
+from ..auth import DomoAuth
+from ..base.exceptions import DomoError
 from ..routes import datacenter as datacenter_routes
 from ..routes.datacenter import generate_search_datacenter_filter
 from ..utils import chunk_execution as dmce
@@ -28,7 +29,7 @@ class DomoDatacenter:
         return_raw: bool = False,
         session: httpx.AsyncClient = None,
         debug_api: bool = False,
-    ) -> List[Any]:
+    ) -> list[Any]:
         res = await datacenter_routes.search_datacenter(
             auth=self.auth,
             maximum=maximum,
@@ -38,6 +39,7 @@ class DomoDatacenter:
             entity_type=entity_type,
             additional_filters_ls=additional_filters_ls,
             debug_api=debug_api,
+            return_raw=return_raw,
         )
 
         if return_raw:
@@ -54,8 +56,8 @@ class DomoDatacenter:
         return_raw: bool = False,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
-    ) -> List[Any]:
-        from . import dataset as dmds
+    ) -> list[Any]:
+        from . import DomoDataset as dmds
 
         json_list = await self.search_datacenter(
             maximum=maximum,
@@ -70,18 +72,28 @@ class DomoDatacenter:
         if return_raw or len(json_list) == 0:
             return json_list
 
-        return await dmce.gather_with_concurrency(
-            n=20,
-            *[
-                dmds.DomoDataset.get_by_id(
-                    dataset_id=json_obj.get("databaseId"),
-                    auth=self.auth,
-                    debug_api=debug_api,
-                    session=session,
-                )
-                for json_obj in json_list
-            ],
-        )
+        # return await dmce.gather_with_concurrency(
+        #     n=60,
+        #     *[
+        #         dmds.DomoDataset.get_by_id(
+        #             dataset_id=obj.get("databaseId"),
+        #             auth=self.auth,
+        #             debug_api=debug_api,
+        #             session=session,
+        #         )
+        #         for obj in json_list
+        #     ],
+        # )
+
+        return [
+            dmds.DomoDataset.from_dict(
+                obj=obj,
+                auth=self.auth,
+                # debug_api=debug_api,
+                # session=session,
+            )
+            for obj in json_list
+        ]
 
     async def get_accounts(
         self,
@@ -92,7 +104,7 @@ class DomoDatacenter:
         return_raw: bool = False,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
-    ) -> List[Any]:
+    ) -> list[Any]:
         """search Domo Datacenter account api.
         Note: at the time of this writing 7/18/2023, the datacenter api does not support searching accounts by name
         """
@@ -125,14 +137,13 @@ class DomoDatacenter:
 
         if search_text:
             json_list = [
-                json_obj
-                for json_obj in json_list
-                if search_text.lower() in json_obj.get("displayName", "").lower()
+                obj
+                for obj in json_list
+                if search_text.lower() in obj.get("displayName", "").lower()
             ]
 
         domo_account_ls = [
-            dmac.DomoAccount.from_dict(json_obj, auth=self.auth)
-            for json_obj in json_list
+            dmac.DomoAccount.from_dict(obj, auth=self.auth) for obj in json_list
         ]
 
         return domo_account_ls
@@ -147,7 +158,7 @@ class DomoDatacenter:
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
         is_suppress_errors: bool = False,
-    ) -> List[Any]:
+    ) -> list[Any]:
         from . import DomoCard as dmc
 
         json_list = await self.search_datacenter(
@@ -167,20 +178,20 @@ class DomoDatacenter:
             n=60,
             *[
                 dmc.DomoCard.get_by_id(
-                    card_id=json_obj.get("databaseId"),
+                    card_id=obj.get("databaseId"),
                     auth=self.auth,
                     debug_api=debug_api,
                     session=session,
                     is_suppress_errors=is_suppress_errors,
                 )
-                for json_obj in json_list
+                for obj in json_list
             ],
         )
 
     async def get_cards_admin_summary(
         self,
         auth=DomoAuth,
-        page_ids: List[str] = None,
+        page_ids: list[str] = None,
         card_search_text: str = None,
         page_search_text: str = None,
         maximum: int = None,  # maximum number of results to return
@@ -189,7 +200,7 @@ class DomoDatacenter:
         debug_api: bool = False,
         debug_loop: bool = False,
         session: httpx.AsyncClient = None,
-    ) -> List[Any]:
+    ) -> list[Any]:
         """search Domo Datacenter card api."""
 
         from ..routes import card as card_routes
@@ -216,10 +227,7 @@ class DomoDatacenter:
 
         domo_account_ls = await dmce.gather_with_concurrency(
             n=60,
-            *[
-                dmc.DomoCard.from_dict(json_obj, auth=self.auth)
-                for json_obj in res.response
-            ],
+            *[dmc.DomoCard.from_dict(obj, auth=self.auth) for obj in res.response],
         )
 
         return domo_account_ls
@@ -233,7 +241,7 @@ class DomoDatacenter:
         return_raw: bool = False,
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
-    ) -> List[Any]:
+    ) -> list[Any]:
         from .DomoCodeEngine import CodeEngine as dmceg
 
         res = await self.search_datacenter(

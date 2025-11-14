@@ -17,13 +17,13 @@ Functions:
 
 Exception Classes:
     PDP_GET_Error: Raised when PDP policy retrieval fails
-    SearchPDP_NotFound: Raised when PDP policy search returns no results
+    SearchPDPNotFoundError: Raised when PDP policy search returns no results
     PDP_CRUD_Error: Raised when PDP policy create/update/delete operations fail
 """
 
 __all__ = [
     "PDP_GET_Error",
-    "SearchPDP_NotFound",
+    "SearchPDPNotFoundError",
     "PDP_CRUD_Error",
     "get_pdp_policies",
     "search_pdp_policies_by_name",
@@ -34,18 +34,20 @@ __all__ = [
     "delete_policy",
     "toggle_pdp",
     # Legacy exports for backward compatibility
-    "PDP_NotRetrieved",
     "SearchPDP_Error",
     "CreatePolicy_Error",
 ]
 
-from typing import Optional, Union
+from typing import Optional
 
 import httpx
 
-from ..client import get_data as gd, response as rgd
-from ..client.auth import DomoAuth
-from ..client.exceptions import RouteError
+from ..auth import DomoAuth
+from ..base.exceptions import RouteError
+from ..client import (
+    get_data as gd,
+    response as rgd,
+)
 
 
 class PDP_GET_Error(RouteError):
@@ -72,7 +74,7 @@ class PDP_GET_Error(RouteError):
         super().__init__(message=message, entity_id=dataset_id, res=res, **kwargs)
 
 
-class SearchPDP_NotFound(RouteError):
+class SearchPDPNotFoundError(RouteError):
     """
     Raised when PDP policy search operations return no results.
 
@@ -128,7 +130,7 @@ class PDP_CRUD_Error(RouteError):
 
 
 # Legacy error classes for backward compatibility
-class PDP_NotRetrieved(PDP_GET_Error):
+class PDPNotRetrievedError(PDP_GET_Error):
     """Legacy error class - use PDP_GET_Error instead."""
 
     def __init__(
@@ -146,8 +148,8 @@ class PDP_NotRetrieved(PDP_GET_Error):
         )
 
 
-class SearchPDP_Error(SearchPDP_NotFound):
-    """Legacy error class - use SearchPDP_NotFound instead."""
+class SearchPDP_Error(SearchPDPNotFoundError):
+    """Legacy error class - use SearchPDPNotFoundError instead."""
 
     def __init__(
         self, status=None, message=None, domo_instance=None, function_name=None
@@ -169,7 +171,7 @@ async def get_pdp_policies(
     auth: DomoAuth,
     dataset_id: str,
     include_all_rows: bool = True,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -239,7 +241,7 @@ def search_pdp_policies_by_name(
     result_list: list[dict],
     is_exact_match: bool = True,
     is_suppress_errors: bool = False,
-) -> Union[dict, list[dict], bool]:
+) -> dict | list[dict | bool]:
     """
     Search for PDP policies by name within a list of policies.
 
@@ -248,7 +250,7 @@ def search_pdp_policies_by_name(
 
     Args:
         search_name: Name or partial name to search for
-        result_list: List of policy dictionaries from get_pdp_policies response
+        result_list: list of policy dictionaries from get_pdp_policies response
         is_exact_match: If True, search for exact name match; if False, partial match
         is_suppress_errors: If True, return False instead of raising error when not found
 
@@ -257,7 +259,7 @@ def search_pdp_policies_by_name(
         or False if no matches and is_suppress_errors is True
 
     Raises:
-        SearchPDP_NotFound: If no policies match the search criteria (unless is_suppress_errors is True)
+    SearchPDPNotFoundError: If no policies match the search criteria (unless is_suppress_errors is True)
 
     Example:
         >>> policies = await get_pdp_policies(auth, "abc123")
@@ -276,7 +278,7 @@ def search_pdp_policies_by_name(
         ]
 
     if not policy_search and not is_suppress_errors:
-        raise SearchPDP_NotFound(
+        raise SearchPDPNotFoundError(
             search_criteria=f"name: {search_name}",
         )
 
@@ -299,7 +301,7 @@ def generate_policy_parameter_simple(
     Args:
         column_name: Name of the column to filter on
         type: Parameter type (default: "COLUMN")
-        column_values_ls: List of column values to filter, or single value
+        column_values_ls: list of column values to filter, or single value
         operator: Comparison operator (default: "EQUALS")
         ignore_case: Whether to ignore case when comparing values (default: True)
 
@@ -344,11 +346,11 @@ def generate_policy_body(
     Args:
         policy_name: Name for the policy
         dataset_id: Unique identifier for the dataset
-        parameters_ls: List of parameter dicts (from generate_policy_parameter_simple)
+        parameters_ls: list of parameter dicts (from generate_policy_parameter_simple)
         policy_id: Policy ID (only for updates, omit for new policies)
-        user_ids: List of user IDs to assign the policy to
-        group_ids: List of group IDs to assign the policy to
-        virtual_user_ids: List of virtual user IDs to assign the policy to
+        user_ids: list of user IDs to assign the policy to
+        group_ids: list of group IDs to assign the policy to
+        virtual_user_ids: list of virtual user IDs to assign the policy to
 
     Returns:
         Dictionary representing complete policy request body
@@ -398,7 +400,7 @@ async def create_policy(
     body: dict,
     override_same_name: bool = False,
     is_suppress_errors: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -500,7 +502,7 @@ async def update_policy(
     dataset_id: str,
     policy_id: str,
     body: dict,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -572,7 +574,7 @@ async def delete_policy(
     auth: DomoAuth,
     dataset_id: str,
     policy_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -636,7 +638,7 @@ async def toggle_pdp(
     auth: DomoAuth,
     dataset_id: str,
     is_enable: bool = True,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,

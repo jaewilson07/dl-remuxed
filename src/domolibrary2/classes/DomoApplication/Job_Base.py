@@ -1,14 +1,26 @@
-__all__ = ["DomoTrigger_Schedule", "DomoTrigger", "DomoJob_Base"]
+__all__ = [
+    "DomoTrigger_Schedule",
+    "DomoTrigger",
+    "DomoJob_Base",
+    # Route exceptions
+    "ApplicationError_NoJobRetrieved",
+    "Application_CRUD_Error",
+]
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Optional
 
 import httpx
 
-from ..client.auth import DomoAuth
-from ..routes import application as application_routes
-from ..utils import convert as cc
+from ...auth import DomoAuth
+from ...base import DomoEntity
+from ...routes import application as application_routes
+from ...routes.application import (
+    Application_CRUD_Error,
+    ApplicationError_NoJobRetrieved,
+)
+from ...utils import convert as cc
 
 
 @dataclass
@@ -62,7 +74,7 @@ class DomoTrigger_Schedule:
 class DomoTrigger:
     id: str
     job_id: str
-    schedule: List[DomoTrigger_Schedule] = None
+    schedule: list[DomoTrigger_Schedule] = None
 
     @classmethod
     def from_dict(cls, obj):
@@ -75,20 +87,21 @@ class DomoTrigger:
         )
 
 
-@dataclass
-class DomoJob_Base:
+@dataclass(eq=False)
+class DomoJob_Base(DomoEntity):
     """
     the base class only captures attributes applicable to all jobs (i.e. does not destructure execution_payload onto the class)
     build Application / Job extensions by creating children of the DomoJob_Base class
     """
 
     auth: DomoAuth = field(repr=False)
+    id: str = None
+    raw: dict = field(default_factory=dict, repr=False)
 
-    name: str
-    application_id: str
+    name: str = None
+    application_id: str = None
 
     logs_dataset_id: str = None
-    id: str = None
     user_id: str = None
     execution_timeout: int = 1440
 
@@ -101,8 +114,17 @@ class DomoJob_Base:
 
     execution_payload: dict = field(default_factory=lambda: {})
     share_state: dict = field(default_factory=lambda: {})
-    accounts: List[str] = field(default_factory=[])
-    triggers: List[DomoTrigger] = field(default_factory=[])
+    accounts: list[str] = field(default_factory=list)
+    triggers: list[DomoTrigger] = field(default_factory=list)
+
+    @property
+    def display_url(self) -> str:
+        """Generate the URL to display this job in the Domo interface.
+
+        Returns:
+            str: Complete URL to view the job in Domo
+        """
+        return f"https://{self.auth.domo_instance}.domo.com/admin/apps/{self.application_id}/jobs/{self.id}"
 
     @staticmethod
     def _format_remote_instance(remote_instance):
@@ -141,36 +163,64 @@ class DomoJob_Base:
     @classmethod
     def from_dict(
         cls,
-        obj,
-        auth,
+        auth: DomoAuth,
+        obj: dict,
     ):
-        """from_dict is a required abstract method.  Each DomoJob_Base implementation must have an instance of from_dict"""
+        """Create a DomoJob_Base instance from an API response dictionary.
+
+        Args:
+            auth: Authentication object for API requests
+            obj: Dictionary representation of the job from API response
+
+        Returns:
+            DomoJob_Base instance
+        """
 
         base_obj = cls._convert_API_res_to_DomoJob_base_obj(obj=obj)
 
         return cls(
             auth=auth,
+            raw=obj,
             **base_obj,
         )
 
     @classmethod
     async def _get_by_id(
         cls,
-        application_id,
-        job_id,
         auth: DomoAuth,
+        application_id: str,
+        job_id: str,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
-        debug_num_stacks_to_drop=2,
-        new_cls: DomoJob_Base = None,  # pass in a child class which has the mandatory "from_json" function
+        debug_num_stacks_to_drop: int = 2,
+        parent_class: Optional[str] = None,
         return_raw: bool = False,
-        parent_class=None,
+        new_cls: "DomoJob_Base" = None,  # pass in a child class which has the mandatory "from_dict" function
     ):
         """
-        this function will receive the parent_class as an input_parameter (instead of relying on the actual class DomoJob_Base)
+        Internal method to retrieve a job by ID with support for inheritance.
+
+        This function receives the parent_class as an input_parameter (instead of relying on the actual class DomoJob_Base)
         to call the `new_class.from_dict()`
 
-        this process will handle converting the JSON obj into 'the correct' class
+        This process handles converting the JSON obj into 'the correct' class
+
+        Args:
+            auth: Authentication object for API requests
+            application_id: The ID of the application containing the job
+            job_id: The ID of the job to retrieve
+            session: Optional HTTP session for connection pooling
+            debug_api: Enable API debugging output
+            debug_num_stacks_to_drop: Number of stack frames to drop in debugging
+            parent_class: Name of the calling class for error reporting
+            return_raw: Return raw response without processing
+            new_cls: Child class to instantiate (defaults to cls)
+
+        Returns:
+            DomoJob_Base instance or ResponseGetData if return_raw=True
+
+        Raises:
+            ApplicationError_NoJobRetrieved: If job retrieval fails
         """
 
         res = await application_routes.get_application_job_by_id(
@@ -179,43 +229,68 @@ class DomoJob_Base:
             job_id=job_id,
             session=session,
             debug_api=debug_api,
-            parent_class=parent_class,
+            parent_class=parent_class or cls.__name__,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         )
 
         if return_raw:
             return res
 
+        if not res.is_success:
+            raise ApplicationError_NoJobRetrieved(
+                domo_instance=auth.domo_instance,
+                application_id=application_id,
+                parent_class=parent_class or cls.__name__,
+                function_name=(
+                    res.traceback_details.function_name
+                    if res.traceback_details
+                    else None
+                ),
+            )
+
         cls = new_cls or cls
 
         return cls.from_dict(
-            obj=res.response,
             auth=auth,
+            obj=res.response,
         )
 
     @classmethod
     async def get_by_id(
         cls,
-        application_id,
-        job_id,
         auth: DomoAuth,
+        application_id: str,
+        job_id: str,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
-        debug_num_stacks_to_drop=2,
+        debug_num_stacks_to_drop: int = 2,
         return_raw: bool = False,
     ):
         """
-        stub abstract function that each `DomoJob_Base` will have.
-        note we pass the calling functions class into classmethod _get_by_id()
-        so that we can call cls.from_dict() during code execution
+        Retrieve a job by its ID from a specific application.
+
+        Args:
+            auth: Authentication object for API requests
+            application_id: The ID of the application containing the job
+            job_id: The ID of the job to retrieve
+            session: Optional HTTP session for connection pooling
+            debug_api: Enable API debugging output
+            debug_num_stacks_to_drop: Number of stack frames to drop in debugging
+            return_raw: Return raw response without processing
+
+        Returns:
+            DomoJob_Base instance or ResponseGetData if return_raw=True
+
+        Raises:
+            ApplicationError_NoJobRetrieved: If job retrieval fails
         """
 
         return await cls._get_by_id(
+            auth=auth,
             application_id=application_id,
             job_id=job_id,
-            auth=auth,
-            debug_api=debug_api,
             session=session,
+            debug_api=debug_api,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
             return_raw=return_raw,
             new_cls=cls,
@@ -244,7 +319,6 @@ class DomoJob_Base:
             # updated / excluded because generated metadata
             "triggers": trigger_ls,
             "jobDescription": self.description,
-            "executionTimeout": self.execution_timeout,
             "accounts": self.accounts,
         }
 

@@ -27,9 +27,12 @@ from typing import Optional
 
 import httpx
 
-from ...client import get_data as gd, response as rgd
-from ...client.auth import DomoAuth
-from ...entities.entities import DomoEnumMixin
+from ...auth import DomoAuth
+from ...base.base import DomoEnumMixin
+from ...client import (
+    get_data as gd,
+    response as rgd,
+)
 from .exceptions import AppDb_CRUD_Error, AppDb_GET_Error, SearchAppDb_NotFound
 
 
@@ -44,7 +47,7 @@ async def create_collection(
     auth: DomoAuth,
     datastore_id: str,  # collections must be created inside a datastore which will show as the associated app_name
     collection_name: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -96,7 +99,7 @@ async def create_collection(
 async def get_collections(
     auth: DomoAuth,
     datastore_id: Optional[str] = None,  # filters for a specific datastoreId
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -152,7 +155,7 @@ async def get_collections(
 async def get_collection_by_id(
     auth: DomoAuth,
     collection_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -209,7 +212,7 @@ async def modify_collection_permissions(
     user_id: Optional[str] = None,
     group_id: Optional[str] = None,
     permission: Collection_Permission_Enum = Collection_Permission_Enum.READ_CONTENT,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,

@@ -1,11 +1,11 @@
 __all__ = [
-    "AI_GET_Error",
-    "AI_CRUD_Error",
+    "AIGETError",
+    "AICRUDError",
     "DataDictionary_ColumnsDict",
     "ColumnsDict",
     "generate_chat_body",
-    "llm_generate_text",
-    "OutputStyleEnum",
+    "AIGETError",
+    "AICRUDError",
     "generate_summarize_body",
     "llm_summarize_text",
     "get_dataset_ai_readiness",
@@ -15,17 +15,20 @@ __all__ = [
 
 import json
 from enum import Enum
-from typing import List, Optional, TypedDict
+from typing import Optional, TypedDict
 
 import httpx
 
-from ..client import get_data as gd, response as rgd
-from ..client.auth import DomoAuth
-from ..entities.entities import DomoEnumMixin
-from ..client.exceptions import RouteError
+from ..auth import DomoAuth
+from ..base.base import DomoEnumMixin
+from ..base.exceptions import RouteError
+from ..client import (
+    get_data as gd,
+    response as rgd,
+)
 
 
-class AI_GET_Error(RouteError):
+class AIGETError(RouteError):
     """Raised when AI service retrieval operations fail."""
 
     def __init__(self, message: Optional[str] = None, res=None, **kwargs):
@@ -36,7 +39,7 @@ class AI_GET_Error(RouteError):
         )
 
 
-class AI_CRUD_Error(RouteError):
+class AICRUDError(RouteError):
     """Raised when AI service create, update, or delete operations fail."""
 
     def __init__(
@@ -47,7 +50,7 @@ class AI_CRUD_Error(RouteError):
         **kwargs,
     ):
         super().__init__(
-            message=message or f"AI service {operation} operation failed",
+            message=message or f"AI service {operation} failed",
             res=res,
             **kwargs,
         )
@@ -72,7 +75,7 @@ async def llm_generate_text(
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/ai/v1/text/generation"
 
@@ -93,7 +96,7 @@ async def llm_generate_text(
         return res
 
     if not res.is_success:
-        raise AI_CRUD_Error(operation="generate text", res=res)
+        raise AICRUDError(operation="generate text", res=res)
 
     res.response["output"] = res.response["choices"][0]["output"]
 
@@ -138,7 +141,7 @@ async def llm_summarize_text(
     return_raw: bool = False,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     parent_class: Optional[str] = None,
 ) -> rgd.ResponseGetData:
     output_style = (
@@ -171,7 +174,7 @@ async def llm_summarize_text(
         return res
 
     if not res.is_success:
-        raise AI_CRUD_Error(operation="summarize text", res=res)
+        raise AICRUDError(operation="summarize text", res=res)
 
     res.response["ouptput"] = res.response["choices"][0]["output"]
 
@@ -184,7 +187,7 @@ async def get_dataset_ai_readiness(
     dataset_id: str,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     parent_class: Optional[str] = None,
 ) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/ai/readiness/v1/data-dictionary/dataset/{dataset_id}"
@@ -200,7 +203,7 @@ async def get_dataset_ai_readiness(
     )
 
     if not res.is_success:
-        raise AI_GET_Error(res=res, entity_id=dataset_id)
+        raise AIGETError(res=res, entity_id=dataset_id)
 
     return res
 
@@ -208,7 +211,7 @@ async def get_dataset_ai_readiness(
 class DataDictionary_ColumnsDict(TypedDict):
     name: str
     description: str
-    synonyms: List[str]
+    synonyms: list[str]
     subType: str
     agentEnabled: bool
     beastmodeId: str
@@ -220,10 +223,10 @@ async def create_dataset_ai_readiness(
     dataset_id: str,
     dictionary_name: str,
     description: Optional[str] = None,
-    columns: Optional[List[DataDictionary_ColumnsDict]] = None,
+    columns: Optional[list[DataDictionary_ColumnsDict]] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     parent_class: Optional[str] = None,
 ) -> rgd.ResponseGetData:
     body = {
@@ -248,7 +251,7 @@ async def create_dataset_ai_readiness(
     )
 
     if not res.is_success:
-        raise AI_CRUD_Error(operation="create", res=res, entity_id=dataset_id)
+        raise AICRUDError(operation="create", res=res, entity_id=dataset_id)
 
     return res
 
@@ -256,7 +259,7 @@ async def create_dataset_ai_readiness(
 class ColumnsDict(TypedDict):
     name: str
     description: str
-    synonyms: List[str]
+    synonyms: list[str]
     subType: str
     agentEnabled: bool
     beastmodeId: str
@@ -268,12 +271,12 @@ async def update_dataset_ai_readiness(
     dataset_id: str,
     dictionary_id: Optional[str] = None,
     dictionary_name: Optional[str] = None,
-    columns: Optional[List[ColumnsDict]] = None,
+    columns: Optional[list[ColumnsDict]] = None,
     description: Optional[str] = None,
     body: Optional[dict] = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     parent_class: Optional[str] = None,
 ) -> rgd.ResponseGetData:
     body = body or {
@@ -299,6 +302,6 @@ async def update_dataset_ai_readiness(
     )
 
     if not res.is_success:
-        raise AI_CRUD_Error(operation="update", res=res, entity_id=dataset_id)
+        raise AICRUDError(operation="update", res=res, entity_id=dataset_id)
 
     return res

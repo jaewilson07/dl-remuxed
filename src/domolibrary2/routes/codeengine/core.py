@@ -31,12 +31,12 @@ from typing import Optional
 
 import httpx
 
+from ...auth import DomoAuth
+from ...base.base import DomoEnumMixin
 from ...client import (
     get_data as gd,
     response as rgd,
 )
-from ...client.auth import DomoAuth
-from ...entities.entities import DomoEnumMixin
 from .exceptions import (
     CodeEngine_FunctionCallError,
     CodeEngine_GET_Error,
@@ -54,7 +54,7 @@ class CodeEngine_Package_Parts(DomoEnumMixin, Enum):
 @gd.route_function
 async def get_packages(
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -104,7 +104,7 @@ async def get_codeengine_package_by_id(
     auth: DomoAuth,
     package_id: str,
     params: Optional[dict] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -166,7 +166,7 @@ async def get_codeengine_package_by_id(
 async def get_package_versions(
     auth: DomoAuth,
     package_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -229,7 +229,7 @@ async def get_codeengine_package_by_id_and_version(
     package_id: str,
     version: str,
     params: Optional[dict] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -292,7 +292,7 @@ async def test_package_is_released(
     auth: DomoAuth,
     existing_package=None,
     params: Optional[dict] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -341,7 +341,7 @@ async def test_package_is_identical(
     new_package=None,
     new_code=None,
     params: Optional[dict] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,

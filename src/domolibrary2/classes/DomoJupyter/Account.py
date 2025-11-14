@@ -1,31 +1,37 @@
 from __future__ import annotations
 
 __all__ = [
-    "DJW_PermissionToAccountDenied",
-    "DJW_AccountInvalid_NotAddedToWorkspace",
+    "DJW_PermissionToAccountDeniedError",
+    "DJW_AccountInvalid_NotAddedToWorkspaceError",
     "read_domo_jupyter_account",
     "DomoJupyter_Account",
-    "DJW_InvalidClass",
+    "DJW_InvalidClassError",
 ]
 
 
 import json
 from dataclasses import dataclass, field
-from typing import Any, Callable, Union
+from typing import Any, Callable
 
 import httpx
 
-from ..client import exceptions as dmde
-from ..utils import xkcd_password as dmxkcd
-from . import Account as dmac
+from ...auth import DomoAuth
+from ...base import exceptions as dmde
+from ...base.exceptions import DomoError
+from ...routes.account.exceptions import AccountNoMatchError
+from ...utils import xkcd_password as dmxkcd
+from ...utils.logging import get_colored_logger
+from .. import DomoAccount as dmac
+
+logger = get_colored_logger()
 
 
-class DJW_PermissionToAccountDenied(DomoError):
+class DJW_PermissionToAccountDeniedError(DomoError):
     def __init__(self, message, account_name):
         super().__init__(message=message, entity_id=account_name)
 
 
-class DJW_AccountInvalid_NotAddedToWorkspace(DomoError):
+class DJW_AccountInvalid_NotAddedToWorkspaceError(DomoError):
     def __init__(self, message, account_name):
         super().__init__(message=message, entity_id=account_name)
 
@@ -41,14 +47,14 @@ def read_domo_jupyter_account(
 
     except Exception as e:
         if str(e).startswith("Permissions denied for workspace"):
-            raise DJW_PermissionToAccountDenied(
+            raise DJW_PermissionToAccountDeniedError(
                 message=f"share account with user - {e}", account_name=account_name
             ) from e
 
         if str(e).startswith(
             "Failed to obtain workspace account properties for workspace"
         ):
-            raise DJW_AccountInvalid_NotAddedToWorkspace(
+            raise DJW_AccountInvalid_NotAddedToWorkspaceError(
                 message=f"add account to workspace - {e}", account_name=account_name
             ) from e
 
@@ -78,7 +84,7 @@ class DomoJupyter_Account:
 
     is_exists: bool = False
     domo_account: dmac.DomoAccount = None
-    creds: Union[str, dict] = field(default=None, repr=False)
+    creds: str | dict = field(default=None, repr=False)
 
     def __post_init__(self):
         self.account_id = int(self.account_id)
@@ -107,6 +113,7 @@ class DomoJupyter_Account:
                 auth=self.dj_workspace.auth,
                 account_id=self.account_id,
                 is_use_default_account_class=is_use_default_account_class,
+                is_suppress_no_config=is_suppress_errors,
                 session=session,
                 debug_api=debug_api,
             )
@@ -114,9 +121,11 @@ class DomoJupyter_Account:
 
             return self.domo_account
 
-        except (dmac.Account_NoMatch, DomoError) as e:
+        except (AccountNoMatchError, DomoError) as e:
             self.is_exists = False
-            print(f"{e} - account does not exist.  is it shared with you?")
+            await logger.warning(
+                f"account id {self.account_id} not found - {e} - is it shared with you?"
+            )
 
             if not is_suppress_errors:
                 raise e from e
@@ -253,7 +262,7 @@ class DomoJupyter_Account:
         is_force_reset: bool = False,
     ) -> dmac.DomoAccount:
         """
-        tests credentials for target_user -- will reset passsword or access token
+        tests credentials for target_user -- will reset password or access token
         """
 
         creds = self.read_creds(domojupyter_fn=domojupyter_fn)
@@ -316,7 +325,7 @@ class DomoJupyter_Account:
         is_force_reset: bool = False,
     ) -> dict:
         """
-        tests credentials for target_user -- will reset passsword or access token
+        tests credentials for target_user -- will reset password or access token
         """
 
         creds = self.read_creds(domojupyter_fn=domojupyter_fn)
@@ -357,6 +366,6 @@ class DomoJupyter_Account:
         return self.domo_account
 
 
-class DJW_InvalidClass(dmde.ClassError):
+class DJW_InvalidClassError(dmde.ClassError):
     def __init__(self, cls_instance, message):
         super().__init__(cls_instance=cls_instance, message=message)

@@ -1,10 +1,11 @@
-"""
+r"""
 Test file generated from 50_DomoPublish.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
@@ -28,7 +29,7 @@ async def test_cell_1(token_auth=token_auth):
     publication
 
     subscriber_ls = publication["subscriptionAuthorizations"]
-    subscriber = subscriber_ls[0]
+    subscriber_ls[0]
 
 
 async def test_cell_2(token_auth=token_auth):
@@ -44,7 +45,7 @@ async def test_cell_2(token_auth=token_auth):
 async def test_cell_3(token_auth=token_auth):
     """Test case from cell 3"""
     domo_publication = await DomoPublication.get_by_id(
-        publication_id=publication['id'], 
+        publication_id=publication['id'],
         auth=auth,
         return_raw = False
     )

@@ -32,7 +32,7 @@ DomoSubEntity (for composition - entities that belong to parents)
 1. **Dataclass Pattern**: All entities use `@dataclass` decorator
 2. **Composition over Inheritance**: Use `DomoSubEntity` for related entities (e.g., `DomoTags`, `DomoLineage`, `DomoCertification`)
 3. **Route Function Delegation**: Class methods should call route functions, not implement API logic
-4. **Standardized Signatures**: 
+4. **Standardized Signatures**:
    - `auth` parameter always comes first
    - Optional parameters properly typed with defaults
    - All methods include docstrings
@@ -42,8 +42,8 @@ DomoSubEntity (for composition - entities that belong to parents)
 
 ## 📍 Class Location
 
-**File**: `src/domolibrary2/classes/[path]/[ClassName].py`  
-**Route Module**: `src/domolibrary2/routes/[route_name]/`  
+**File**: `src/domolibrary2/classes/[path]/[ClassName].py`
+**Route Module**: `src/domolibrary2/routes/[route_name]/`
 **Test File**: `tests/classes/test_50_[ClassName].py`
 
 ---
@@ -80,7 +80,7 @@ DomoSubEntity (for composition - entities that belong to parents)
   - [ ] Check if entity should have `DomoCertification` (datasets, cards)
   - [ ] Check if entity should have `DomoAccess` (sharing/permissions)
   - [ ] Check if entity should have `DomoMembership` (groups, user groups)
-  - [ ] List any entity-specific subentities needed (e.g., `DomoDataset_Schema`, `PDP_Policies`)
+  - [ ] list any entity-specific subentities needed (e.g., `DomoDataset_Schema`, `PDP_Policies`)
 
 - [ ] **Task 2.2**: Implement subentity composition
   - [ ] Add subentity attributes as `field(default=None)`
@@ -127,7 +127,7 @@ DomoSubEntity (for composition - entities that belong to parents)
   - [ ] Test exception handling (not found, invalid auth, etc.)
 
 - [ ] **Task 5.3**: Document required environment variables
-  - [ ] List all `.env` constants needed for tests
+  - [ ] list all `.env` constants needed for tests
   - [ ] Example values provided (sanitized)
   - [ ] Document how to obtain test values
 
@@ -198,7 +198,7 @@ DOMO_ACCESS_TOKEN="your-token"
 <!-- Add any class-specific notes, quirks, or special considerations -->
 
 ### Known Issues
-- [ ] List any known bugs or limitations
+- [ ] list any known bugs or limitations
 
 ### Related Issues
 - Related to #[issue-number]

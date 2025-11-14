@@ -6,15 +6,15 @@ This module contains all exception classes for page operations.
 
 __all__ = [
     "Page_GET_Error",
-    "SearchPage_NotFound",
+    "SearchPageNotFoundError",
     "Page_CRUD_Error",
     "PageSharing_Error",
 ]
 
 from typing import Optional
 
+from ...base.exceptions import RouteError
 from ...client import response as rgd
-from ...client.exceptions import RouteError
 
 
 class Page_GET_Error(RouteError):
@@ -35,7 +35,7 @@ class Page_GET_Error(RouteError):
         )
 
 
-class SearchPage_NotFound(RouteError):
+class SearchPageNotFoundError(RouteError):
     """Raised when page search operations return no results."""
 
     def __init__(

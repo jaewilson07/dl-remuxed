@@ -1,10 +1,10 @@
 """preferred response class for all API requests"""
 
-__all__ = ["STREAM_FILE_PATH", "ResponseGetData", "find_ip"]
+__all__ = ["STREAM_FILE_PATH", "ResponseGetData", "find_ip", "RequestMetadata"]
 
 import re
 from dataclasses import dataclass, field
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 import httpx
 import requests
@@ -18,7 +18,7 @@ class RequestMetadata:
     body: Optional[str] = field(default=None)
     params: Optional[dict] = field(default=None)
 
-    def to_dict(self, auth_headers: Optional[List[str]] = None) -> dict:
+    def to_dict(self, auth_headers: Optional[list[str]] = None) -> dict:
         """returns dict representation of RequestMetadata"""
 
         return {
@@ -36,7 +36,7 @@ class ResponseGetData:
     """preferred response class for all API Requests"""
 
     status: int
-    response: Any
+    response: dict[str, Any] | str | list[Any]
     is_success: bool
 
     request_metadata: Optional[RequestMetadata] = field(default=None)
@@ -57,18 +57,17 @@ class ResponseGetData:
     @classmethod
     def from_requests_response(
         cls,
-        res: requests.Response,  # requests response object
-        additional_information: Optional[dict] = None,
+        res: requests.Response,
         request_metadata: Optional[RequestMetadata] = None,
+        additional_information: Optional[dict] = None,
     ) -> "ResponseGetData":
-        """returns ResponseGetData"""
+        """returns ResponseGetData from requests.Response"""
 
-        # JSON responses
+        # Check for JSON responses
         response = None
         if res.ok:
-            if "application/json" in res.headers.get("Content-Type", {}):
+            if "application/json" in res.headers.get("Content-Type", ""):
                 response = res.json()
-
             else:
                 response = res.text
 
@@ -80,7 +79,7 @@ class ResponseGetData:
                 is_success=True,
             )
 
-        # errors
+        # Error responses
         return cls(
             status=res.status_code,
             response=res.reason,
@@ -92,44 +91,35 @@ class ResponseGetData:
     @classmethod
     def from_httpx_response(
         cls,
-        res: httpx.Response,  # httpx response object
+        res: httpx.Response,
         request_metadata: Optional[RequestMetadata] = None,
         additional_information: Optional[dict] = None,
     ) -> "ResponseGetData":
-        """returns ResponseGetData"""
+        """returns ResponseGetData from httpx.Response"""
 
-        # JSON responses
-        ok = res.status_code <= 399 and res.status_code >= 200
-
-        body = None
-        if hasattr(res.request, "content"):
-            body = res.request.content
-
-        # Ensure body is a string or None before passing to ResponseGetData
-        if isinstance(body, bytes):
-            body = body.decode("utf-8")
+        # Check if response is successful
+        ok = 200 <= res.status_code <= 399
 
         if ok:
-            try:
-                if "application/json" in res.headers.get("Content-Type", {}):
-                    return cls(
-                        status=res.status_code,
-                        response=res.json(),
-                        is_success=True,
-                        additional_information=additional_information,
-                        request_metadata=request_metadata,
-                    )
+            content_type = res.headers.get("Content-Type", "")
 
-            except ValueError:
-                return cls(
-                    status=res.status_code,
-                    response=res.text,
-                    is_success=True,
-                    additional_information=additional_information,
-                    request_metadata=request_metadata,
-                )
+            # Try to parse as JSON if content type indicates it
+            response = res.text  # Default to text
+            if "application/json" in content_type:
+                try:
+                    response = res.json()
+                except ValueError:
+                    pass  # Keep as text if JSON parse fails
 
-        # errors
+            return cls(
+                status=res.status_code,
+                response=response,
+                is_success=True,
+                additional_information=additional_information,
+                request_metadata=request_metadata,
+            )
+
+        # Error responses
         response_text = (
             res.reason_phrase if hasattr(res, "reason_phrase") else "Unknown reason"
         )
@@ -145,9 +135,9 @@ class ResponseGetData:
     async def from_looper(
         cls,
         res: "ResponseGetData",
-        array: list,  # requests response object
+        array: list,
     ) -> "ResponseGetData":
-        """async method returns ResponseGetData"""
+        """async method returns ResponseGetData with array response"""
 
         if not res.is_success:
             return res
@@ -156,33 +146,25 @@ class ResponseGetData:
         return res
 
 
-def find_ip(html, html_tag: str = "p"):
+def find_ip(html: str, html_tag: str = "p") -> Optional[str]:
+    """Extract IP address from HTML content.
+
+    Args:
+        html: HTML content to search
+        html_tag: HTML tag to search within (default: "p")
+
+    Returns:
+        IP address string if found, None otherwise
+    """
     ip_address_regex = r"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})"
     soup = BeautifulSoup(html, "html.parser")
 
-    return re.findall(ip_address_regex, str(soup.find(html_tag)))[0]
+    tag = soup.find(html_tag)
+    if not tag:
+        return None
+
+    matches = re.findall(ip_address_regex, str(tag))
+    return matches[0] if matches else None
 
 
 STREAM_FILE_PATH = "__large-file.json"
-
-
-async def _write_stream(
-    res: httpx.Response, file_name: str = STREAM_FILE_PATH, stream_chunks=10
-):
-    print(type(res), type(res.content), stream_chunks)
-
-    index = 0
-    with open(file_name, "wb") as fd:
-        async for chunk in res.aiter_bytes():
-            index += 1
-            print(f"writing chunk - {index}")
-            fd.write(chunk)
-
-    print("done writing stream")
-
-    return None
-
-
-async def _read_stream(file_name: str):
-    with open(file_name, "rb") as f:
-        return f.read()

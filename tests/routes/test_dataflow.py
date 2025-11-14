@@ -1,10 +1,11 @@
-"""
+r"""
 Test file generated from dataflow.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
@@ -16,7 +17,7 @@ token_auth = dmda.DomoTokenAuth(
 
 async def test_cell_1(token_auth=token_auth):
     """Test case from cell 1"""
-    token_auth = dmda.DomoTokenAuth(
+    dmda.DomoTokenAuth(
         domo_instance=os.environ['DOMO_INSTANCE'],
         domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],
     )
@@ -48,7 +49,7 @@ async def test_cell_4(token_auth=token_auth):
     """Test case from cell 4"""
     res = await get_dataflow_tags_by_id(dataflow_id=dataflow_id, auth=token_auth)
 
-    df_tags = res.response['tags']
+    res.response['tags']
     res.response
 
 
@@ -117,7 +118,7 @@ async def test_cell_10(token_auth=token_auth):
 async def test_cell_11(token_auth=token_auth):
     """Test case from cell 11"""
     try:
-        await search_dataflows_to_jupyter_workspaces(auth = token_auth, 
+        await search_dataflows_to_jupyter_workspaces(auth = token_auth,
                                                     dataflow_id = 86,
                                                     debug_api = False,
         )
