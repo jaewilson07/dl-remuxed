@@ -6,7 +6,7 @@ intelligently maps users and groups across different Domo objects.
 """
 
 import asyncio
-from domolibrary2.client.auth import DomoTokenAuth
+from domolibrary2.auth import DomoTokenAuth
 from domolibrary2.classes.subentity import (
     DomoObjectAccessManager,
     AccessLevel,

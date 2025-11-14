@@ -6,7 +6,7 @@ Generated on: C:\GitHub\domolibrary
 
 import os
 
-import domolibrary2.client.auth as dmda
+import domolibrary2.auth as dmda
 
 # Setup authentication for tests
 token_auth = dmda.DomoTokenAuth(

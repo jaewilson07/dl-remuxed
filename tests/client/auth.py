@@ -1,12 +1,12 @@
 """
-Comprehensive tests for domolibrary2.client.auth using the test harness.
+Comprehensive tests for domolibrary2.auth using the test harness.
 """
 
 import os
 
 from dotenv import load_dotenv
 
-import domolibrary2.client.auth as dmda
+import domolibrary2.auth as dmda
 
 load_dotenv()
 

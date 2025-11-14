@@ -94,7 +94,7 @@ def test_dataset_schedule_initialization():
         DomoSchedule_Base,
         ScheduleFrequencyEnum,
     )
-    from domolibrary2.client.auth import DomoTokenAuth
+    from domolibrary2.auth import DomoTokenAuth
 
     # Create mock auth
     auth = DomoTokenAuth(domo_instance="test-instance", domo_access_token="test-token")

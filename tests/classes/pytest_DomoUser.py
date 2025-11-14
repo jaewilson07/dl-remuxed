@@ -9,7 +9,7 @@ import pytest
 from dotenv import load_dotenv
 
 import domolibrary2.classes.DomoUser as dmdu
-import domolibrary2.client.auth as dmda
+import domolibrary2.auth as dmda
 
 load_dotenv()
 

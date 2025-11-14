@@ -7,7 +7,7 @@ Tests the refactored CodeEngine entity classes following domolibrary2 standards.
 import os
 from dotenv import load_dotenv
 
-import domolibrary2.client.auth as dmda
+import domolibrary2.auth as dmda
 import domolibrary2.classes.DomoCodeEngine as dmce
 
 load_dotenv()

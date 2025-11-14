@@ -7,7 +7,7 @@ import os
 
 from dotenv import load_dotenv
 
-import domolibrary2.client.auth as dmda
+import domolibrary2.auth as dmda
 from domolibrary2.classes.DomoDataset.Schema import (
     DatasetSchema_Types,
     DomoDataset_Schema,

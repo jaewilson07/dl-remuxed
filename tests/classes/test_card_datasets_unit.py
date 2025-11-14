@@ -1,7 +1,7 @@
 """Unit test for DomoCard.Datasets manager (no credentials needed)"""
 
 from dataclasses import dataclass
-import domolibrary2.client.auth as dmda
+import domolibrary2.auth as dmda
 import domolibrary2.classes.DomoCard as dmdc
 
 

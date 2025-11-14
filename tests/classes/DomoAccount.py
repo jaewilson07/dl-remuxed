@@ -10,7 +10,7 @@ import os
 import pytest
 from dotenv import load_dotenv
 
-import domolibrary2.client.auth as dmda
+import domolibrary2.auth as dmda
 import domolibrary2.routes.account as account_routes
 from domolibrary2.classes.DomoAccount import (
     DomoAccount,

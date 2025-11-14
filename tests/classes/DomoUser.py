@@ -9,7 +9,7 @@ import os
 from dotenv import load_dotenv
 
 import domolibrary2.classes.DomoUser as dmdu
-import domolibrary2.client.auth as dmda
+import domolibrary2.auth as dmda
 import domolibrary2.utils.chunk_execution as dmce
 from domolibrary2.routes.user import UserProperty, UserProperty_Type
 

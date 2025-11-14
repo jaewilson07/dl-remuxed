@@ -14,7 +14,7 @@ os.environ.setdefault("DOMO_ACCESS_TOKEN", "test-token")
 
 # Import after path is set
 import domolibrary2.classes.DomoInstanceConfig.allowlist as allowlist_module
-import domolibrary2.client.auth as dmda
+import domolibrary2.auth as dmda
 
 print("=" * 60)
 print("TESTING: tests/classes/DomoPage/allowlist.py")

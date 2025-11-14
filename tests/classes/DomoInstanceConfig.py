@@ -13,7 +13,7 @@ from domolibrary2.classes.DomoInstanceConfig.instance_config import DomoInstance
 from dotenv import load_dotenv
 
 from domolibrary2.classes.DomoUser import DomoUser, DomoUsers
-from domolibrary2.client.auth import DomoFullAuth, DomoTokenAuth
+from domolibrary2.auth import DomoFullAuth, DomoTokenAuth
 
 load_dotenv()
 

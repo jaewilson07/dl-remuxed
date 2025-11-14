@@ -7,7 +7,7 @@ import os
 
 from dotenv import load_dotenv
 
-import domolibrary2.client.auth as dmda
+import domolibrary2.auth as dmda
 from domolibrary2.classes.DomoDataset.stream import DomoStream
 from domolibrary2.routes.stream import Stream_GET_Error
 

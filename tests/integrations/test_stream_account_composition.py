@@ -6,7 +6,7 @@ sys.path.insert(0, "src")
 
 from domolibrary2.classes.DomoDataset.stream import DomoStream
 from domolibrary2.classes.DomoAccount import DomoAccount
-from domolibrary2.client.auth import DomoTokenAuth
+from domolibrary2.auth import DomoTokenAuth
 from dataclasses import fields
 
 

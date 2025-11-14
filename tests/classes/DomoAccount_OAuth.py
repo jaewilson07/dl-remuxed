@@ -25,7 +25,7 @@ from domolibrary2.classes.DomoAccount.account_oauth import (
     DomoAccountOAuth_Config_SnowflakeOauth,
     OAuthConfig,
 )
-from domolibrary2.client.auth import DomoTokenAuth
+from domolibrary2.auth import DomoTokenAuth
 from domolibrary2.routes.account.exceptions import Account_NoMatch
 
 load_dotenv()

@@ -8,7 +8,7 @@ import os
 from dotenv import load_dotenv
 
 import domolibrary2.classes.DomoDataset as dmds
-import domolibrary2.client.auth as dmda
+import domolibrary2.auth as dmda
 from domolibrary2.classes.subentity.schedule import (
     DomoSchedule_Base,
     ScheduleFrequencyEnum,

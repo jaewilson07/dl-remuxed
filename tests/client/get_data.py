@@ -9,7 +9,7 @@ from dc_logger.client.base import (
 from dc_logger.logs.services.file import File_ServiceConfig, FileHandler
 from dotenv import load_dotenv
 
-import domolibrary2.client.auth as dmda
+import domolibrary2.auth as dmda
 
 load_dotenv()
 

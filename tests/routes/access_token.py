@@ -11,7 +11,7 @@ from dc_logger.logs.services.file import File_ServiceConfig, FileHandler
 # import domolibrary2.routes.access_token as access_token_routes
 from dotenv import load_dotenv
 
-import domolibrary2.client.auth as dmda
+import domolibrary2.auth as dmda
 
 load_dotenv()
 

@@ -13,7 +13,7 @@ def test_dataflow_trigger_integration():
     """Test that DomoDataflow properly initializes TriggerSettings"""
     from domolibrary2.classes.DomoDataflow import DomoDataflow
     from domolibrary2.classes.subentity import DomoTriggerSettings
-    from domolibrary2.client.auth import DomoTokenAuth
+    from domolibrary2.auth import DomoTokenAuth
 
     load_dotenv()
 
@@ -138,7 +138,7 @@ def test_dataflow_trigger_integration():
 def test_dataflow_without_triggers():
     """Test that DomoDataflow handles missing trigger settings"""
     from domolibrary2.classes.DomoDataflow import DomoDataflow
-    from domolibrary2.client.auth import DomoTokenAuth
+    from domolibrary2.auth import DomoTokenAuth
 
     load_dotenv()
 
@@ -169,7 +169,7 @@ def test_dataflow_without_triggers():
 async def test_with_real_dataflow():
     """Optional: Test with a real dataflow if credentials are available"""
     from domolibrary2.classes.DomoDataflow import DomoDataflow
-    from domolibrary2.client.auth import DomoTokenAuth
+    from domolibrary2.auth import DomoTokenAuth
 
     load_dotenv()
 

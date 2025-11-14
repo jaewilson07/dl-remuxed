@@ -9,7 +9,7 @@ import os
 from dotenv import load_dotenv
 
 import domolibrary2.classes.DomoDataset as dmds
-import domolibrary2.client.auth as dmda
+import domolibrary2.auth as dmda
 
 assert load_dotenv()
 
@@ -86,7 +86,7 @@ async def test_cell_6(token_auth=token_auth):
 
     # import domolibrary2.classes.DomoDatacenter as dmdc
     # import domolibrary2.classes.DomoPublish as dmpb
-    import domolibrary2.client.auth as dmda
+    import domolibrary2.auth as dmda
 
     FEDERATED_DS_ID = "58a75bc7-e626-4ea1-a3d9-b1ae96188b5c"
 

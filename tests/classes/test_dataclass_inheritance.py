@@ -6,7 +6,7 @@ inherit the __eq__ method from DomoEntity instead of generating their own,
 which prevents recursion errors and maintains consistent equality behavior.
 """
 
-from domolibrary2.client.auth import DomoFullAuth
+from domolibrary2.auth import DomoFullAuth
 
 
 def test_domouser_equality():

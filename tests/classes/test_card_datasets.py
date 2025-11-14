@@ -2,7 +2,7 @@
 
 import os
 from dotenv import load_dotenv
-import domolibrary2.client.auth as dmda
+import domolibrary2.auth as dmda
 import domolibrary2.classes.DomoCard as dmdc
 
 load_dotenv()

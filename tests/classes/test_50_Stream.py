@@ -5,7 +5,7 @@ Tests the Stream class functionality including get_by_id and from_dict methods
 
 import os
 from dotenv import load_dotenv
-import domolibrary2.client.auth as dmda
+import domolibrary2.auth as dmda
 import domolibrary2.routes.stream as stream_routes
 from domolibrary2.classes.DomoDataset.Stream import DomoStream, Stream_GET_Error, Stream_CRUD_Error
 

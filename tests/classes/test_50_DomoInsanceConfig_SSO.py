@@ -13,7 +13,7 @@ from domolibrary2.classes.DomoInstanceConfig.sso import (
     SSOConfig_InstantiationError,
 )
 from domolibrary2.classes.DomoUser import DomoUsers
-from domolibrary2.client.auth import DomoFullAuth, DomoTokenAuth
+from domolibrary2.auth import DomoFullAuth, DomoTokenAuth
 
 # Setup authentication for tests
 token_auth = DomoTokenAuth(

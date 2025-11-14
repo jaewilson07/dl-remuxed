@@ -10,7 +10,7 @@ import os
 
 import pytest
 
-from domolibrary2.client.auth import DomoTokenAuth
+from domolibrary2.auth import DomoTokenAuth
 
 # Import all user route functions to test they exist and are callable
 from domolibrary2.routes.user import (

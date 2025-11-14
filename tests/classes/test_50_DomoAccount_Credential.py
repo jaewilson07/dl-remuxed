@@ -10,7 +10,7 @@ import os
 from dotenv import load_dotenv
 
 import domolibrary2.classes.DomoAccount.Account_Credential as dmac
-import domolibrary2.client.auth as dmda
+import domolibrary2.auth as dmda
 
 load_dotenv()
 
