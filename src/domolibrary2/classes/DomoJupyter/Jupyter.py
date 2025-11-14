@@ -262,6 +262,12 @@ class DomoJupyterWorkspace(DomoEntity):
             is_suppress_errors=is_suppress_errors,
             is_use_default_account_class=is_use_default_account_class,
         )
+        await djw.get_account_configuration(
+            session=session,
+            debug_api=debug_api,
+            is_suppress_errors=is_suppress_errors,
+            is_use_default_account_class=is_use_default_account_class,
+        )
 
         return djw
 
@@ -418,6 +424,18 @@ class DomoJupyterWorkspace(DomoEntity):
             return_raw=return_raw,
             session=session,
         )
+        all_content = [
+            content for content in all_content if content.file_type != "directory"
+        ]
+        defi.upsert_folder(base_export_folder, replace_folder=replace_folder)
+
+        return [
+            content.export(default_export_folder=base_export_folder)
+            for content in all_content
+        ]
+
+    def _test_config_duplicates(self, config_name):
+        configuration = getattr(self, config_name)
 
         if return_raw:
             return res
