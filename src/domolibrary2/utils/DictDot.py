@@ -30,7 +30,6 @@ Example:
 __all__ = ["DictDot", "split_str_to_obj"]
 
 from types import SimpleNamespace
-from typing import Any, Dict, List
 
 
 class DictDot(SimpleNamespace):
@@ -75,7 +74,7 @@ class DictDot(SimpleNamespace):
         - Missing attributes return None instead of raising exceptions
     """
 
-    def __init__(self, dictionary: Dict[str, Any], **kwargs):
+    def __init__(self, dictionary: dict[str, object], **kwargs):
         super().__init__(**kwargs)
 
         for key, value in dictionary.items():
@@ -95,7 +94,7 @@ class DictDot(SimpleNamespace):
                 # Store primitive values directly
                 self.__setattr__(key, value)
 
-    def __getattr__(self, item: str) -> Any:
+    def __getattr__(self, item: str) -> object:
         """
         Return None for missing attributes instead of raising AttributeError.
 
@@ -111,7 +110,7 @@ class DictDot(SimpleNamespace):
         """
         return None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, object]:
         """
         Convert the DictDot object back to a regular dictionary.
 
@@ -136,7 +135,7 @@ class DictDot(SimpleNamespace):
                 result[key] = value
         return result
 
-    def get(self, key: str, default: Any = None) -> Any:
+    def get(self, key: str, default: object = None) -> object:
         """
         Get an attribute value with a default fallback.
 
@@ -155,7 +154,7 @@ class DictDot(SimpleNamespace):
         return getattr(self, key, default)
 
 
-def split_str_to_obj(piped_str: str, key_ls: List[str]) -> DictDot:
+def split_str_to_obj(piped_str: str, key_ls: list[str]) -> DictDot:
     """
     Convert a pipe-separated string to a DictDot object with specified keys.
 
@@ -165,7 +164,7 @@ def split_str_to_obj(piped_str: str, key_ls: List[str]) -> DictDot:
 
     Args:
         piped_str (str): Pipe-separated string to parse
-        key_ls (List[str]): List of keys to assign to each value
+        key_ls (list[str]): list of keys to assign to each value
 
     Returns:
         DictDot: Object with keys from key_ls and values from piped_str

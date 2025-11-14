@@ -22,15 +22,18 @@ from typing import Optional
 
 import httpx
 
-from ...client import get_data as gd, response as rgd
-from ...client.auth import DomoAuth
+from ...auth import DomoAuth
+from ...client import (
+    get_data as gd,
+    response as rgd,
+)
 from .exceptions import AppDb_CRUD_Error, AppDb_GET_Error, SearchAppDb_NotFound
 
 
 @gd.route_function
 async def get_datastores(
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -77,7 +80,7 @@ async def get_datastores(
 async def get_datastore_by_id(
     auth: DomoAuth,
     datastore_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -131,7 +134,7 @@ async def get_datastore_by_id(
 async def get_collections_from_datastore(
     auth: DomoAuth,
     datastore_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -179,7 +182,7 @@ async def get_collections_from_datastore(
 async def create_datastore(
     auth: DomoAuth,
     datastore_name: Optional[str] = None,  # in UI shows up as appName
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,

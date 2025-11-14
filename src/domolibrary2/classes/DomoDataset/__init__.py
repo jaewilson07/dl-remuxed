@@ -18,7 +18,7 @@ Classes:
 Exceptions:
     DatasetNotFoundError: Raised when dataset cannot be found
     QueryRequestError: Raised when dataset query fails
-    DatasetSchema_InvalidSchema: Raised when schema validation fails
+    DatasetSchema_InvalidSchemaError: Raised when schema validation fails
     SearchPDP_NotFound: Raised when PDP policy search returns no results
 
 Enums:
@@ -29,15 +29,15 @@ Enums:
 
 # Import all classes and functionality from the package modules
 from .connector import DomoConnector, DomoConnectors
-from .dataset import (
+from .core import (
     DomoDataset,
     DomoDataset_Default,
     DomoPublishDataset,
     FederatedDomoDataset,
 )
-from .pdp import Dataset_PDP_Policies, PDP_Parameter, PDP_Policy, SearchPDP_NotFound
+from .pdp import DatasetPdpPolicies, PdpParameter, PDPPolicy
 from .schema import (
-    DatasetSchema_InvalidSchema,
+    DatasetSchema_InvalidSchemaError,
     DatasetSchema_Types,
     DomoDataset_Schema,
     DomoDataset_Schema_Column,
@@ -48,12 +48,12 @@ from .stream import (
 )
 from .stream_config import (
     StreamConfig,
-    StreamConfig_Mappings,
     StreamConfig_Mapping_snowflake,
     StreamConfig_Mapping_snowflake_federated,
     StreamConfig_Mapping_snowflake_internal_unload,
     StreamConfig_Mapping_snowflake_keypair_internal_managed_unload,
     StreamConfig_Mapping_snowflakekeypairauthentication,
+    StreamConfig_Mappings,
 )
 
 # Import route-level exceptions that are commonly used
@@ -77,12 +77,11 @@ __all__ = [
     "DomoDataset_Schema",
     "DomoDataset_Schema_Column",
     "DatasetSchema_Types",
-    "DatasetSchema_InvalidSchema",
+    "DatasetSchema_InvalidSchemaError",
     # PDP functionality
-    "PDP_Policy",
-    "PDP_Parameter",
-    "Dataset_PDP_Policies",
-    "SearchPDP_NotFound",
+    "PDPPolicy",
+    "PdpParameter",
+    "DatasetPdpPolicies",
     # Streaming
     "DomoStream",
     "DomoStreams",

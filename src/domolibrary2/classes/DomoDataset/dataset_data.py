@@ -1,46 +1,25 @@
 """a class based approach for interacting with Domo Datasets"""
 
 __all__ = [
-    "DomoDataset_Default",
-    "FederatedDomoDataset",
-    "DomoPublishDataset",
-    "DomoDataset",
+    "DomoDataset_Data",
 ]
 
 
 import asyncio
-import datetime as dt
 import io
-import json
-from dataclasses import dataclass, field
-from typing import Callable, List, Optional
+from dataclasses import dataclass
 
 import httpx
 import pandas as pd
 
-from ...client.auth import DomoAuth
-from ...client.exceptions import DomoError
-from ...entities.entities import (
-    DomoEntity_w_Lineage,
-    DomoFederatedEntity,
-    DomoPublishedEntity,
-    DomoSubEntity,
-)
+from ...base.entities import DomoSubEntity
+from ...base.exceptions import DomoError
 from ...routes import dataset as dataset_routes
 from ...routes.dataset import (
     DatasetNotFoundError,
     QueryRequestError,
-    ShareDataset_AccessLevelEnum,
 )
-from ...utils import chunk_execution as dmce, convert as dmcv
-
-from ..subentity import DomoTag as dmtg, DomoLineage as dmdl, DomoCertification as dmdc
-
-from . import (
-    PDP as dmpdp,
-    Schema as dmdsc,
-    Stream as dmdst,
-)
+from ...utils import chunk_execution as dmce
 
 
 @dataclass
@@ -50,12 +29,13 @@ class DomoDataset_Data(DomoSubEntity):
     async def query(
         self,
         sql: str,
-        session: Optional[httpx.AsyncClient] = None,
-        filter_pdp_policy_id_ls: List[int] = None,  # filter by pdp policy
+        session: httpx.AsyncClient | None = None,
+        filter_pdp_policy_id_ls: list[int] = None,  # filter by pdp policy
         loop_until_end: bool = False,  # retrieve all available rows
         limit=100,  # maximum rows to return per request.  refers to PAGINATION
         skip=0,
         maximum=100,  # equivalent to the LIMIT or TOP clause in SQL, the number of rows to return total
+        return_raw: bool = False,
         debug_api: bool = False,
         debug_loop: bool = False,
         debug_num_stacks_to_drop: int = 2,
@@ -63,7 +43,6 @@ class DomoDataset_Data(DomoSubEntity):
         maximum_retry: int = 5,
         is_return_dataframe: bool = True,
     ) -> pd.DataFrame:
-
         auth = self.parent.auth
         dataset_id = self.parent.id
 
@@ -84,6 +63,7 @@ class DomoDataset_Data(DomoSubEntity):
                     skip=skip,
                     limit=limit,
                     loop_until_end=loop_until_end,
+                    return_raw=return_raw,
                     session=session,
                     debug_loop=debug_loop,
                     debug_api=debug_api,
@@ -91,6 +71,9 @@ class DomoDataset_Data(DomoSubEntity):
                     debug_num_stacks_to_drop=debug_num_stacks_to_drop,
                     parent_class=self.__class__.__name__,
                 )
+
+                if return_raw:
+                    return res
 
             except DomoError as e:
                 if isinstance(e, (DatasetNotFoundError, QueryRequestError)):
@@ -173,6 +156,7 @@ class DomoDataset_Data(DomoSubEntity):
                         f"failed to upload data for {dataset_id} in {auth.domo_instance}"
                     )
                     raise e
+                    return
 
                 await asyncio.sleep(5)
 
@@ -245,9 +229,7 @@ class DomoDataset_Data(DomoSubEntity):
 
         if is_index:
             await asyncio.sleep(3)
-            return await self.index_dataset(
-                auth=auth, dataset_id=dataset_id, debug_api=debug_api, session=session
-            )
+            return await self.index(debug_api=debug_api, session=session)
 
         return res
 
@@ -277,7 +259,7 @@ class DomoDataset_Data(DomoSubEntity):
         dataset_id = self.parent.id
 
         if empty_df is None:
-            empty_df = await self.query_dataset_private(
+            empty_df = await self.query(
                 sql="SELECT * from table limit 1",
                 debug_api=debug_api,
             )
@@ -330,16 +312,12 @@ class DomoDataset_Data(DomoSubEntity):
 
         return res.response
 
-    async def truncate_data(
+    async def truncate(
         self,
         is_index: bool = True,
         empty_df: pd.DataFrame = None,
         debug_api: bool = False,
     ):
-
-        auth = self.parent.auth
-        dataset_id = self.parent.id
-
         execute_reset = input(
             "This function will delete all rows.  Type BLOW_ME_AWAY to execute:"
         )
@@ -350,9 +328,7 @@ class DomoDataset_Data(DomoSubEntity):
 
         # create empty dataset to retain schema
         empty_df = empty_df or (
-            await self.query_dataset_private(
-                auth=auth,
-                dataset_id=dataset_id,
+            await self.query(
                 sql="SELECT * from table limit 1",
                 debug_api=debug_api,
             )
@@ -360,10 +336,19 @@ class DomoDataset_Data(DomoSubEntity):
 
         empty_df = pd.DataFrame(columns=empty_df.columns)
 
+        res = await self.upload_data(
+            upload_df=empty_df,
+            upload_method="REPLACE",
+            is_index=is_index,
+            debug_api=debug_api,
+        )
+
         # get partition list
         partition_list = await self.list_partitions()
-        if len(partition_list) > 0:
-            partition_list = dmce.chunk_list(partition_list, 100)
+        if len(partition_list) == 0:
+            return res
+
+        partition_list = dmce.chunk_list(partition_list, 100)
 
         for index, pl in enumerate(partition_list):
             print(f"🥫 starting chunk {index + 1} of {len(partition_list)}")
@@ -379,13 +364,6 @@ class DomoDataset_Data(DomoSubEntity):
                 ]
             )
             if is_index:
-                await self.index_dataset()
-
-        res = await self.upload_data(
-            upload_df=empty_df,
-            upload_method="REPLACE",
-            is_index=is_index,
-            debug_api=debug_api,
-        )
+                await self.index()
 
         return res

@@ -6,15 +6,15 @@ This module contains all exception classes for Cloud Amplifier operations.
 
 __all__ = [
     "CloudAmplifier_GET_Error",
-    "SearchCloudAmplifier_NotFound",
+    "SearchCloudAmplifierNotFoundError",
     "CloudAmplifier_CRUD_Error",
     "Cloud_Amplifier_Error",
 ]
 
 from typing import Optional
 
+from ...base.exceptions import RouteError
 from ...client import response as rgd
-from ...client.exceptions import RouteError
 
 
 class CloudAmplifier_GET_Error(RouteError):
@@ -35,13 +35,27 @@ class CloudAmplifier_GET_Error(RouteError):
         if not message:
             if entity_id:
                 message = f"Failed to retrieve Cloud Amplifier integration {entity_id}"
-            else:
-                message = "Failed to retrieve Cloud Amplifier integration"
 
-        super().__init__(message=message, entity_id=entity_id, res=res, **kwargs)
+    class SearchCloudAmplifierNotFoundError(RouteError):
+        """
+        Raised when Cloud Amplifier integration search operations return no results.
+        """
+
+        def __init__(
+            self,
+            search_criteria: str,
+            res: Optional[rgd.ResponseGetData] = None,
+            **kwargs,
+        ):
+            message = f"No Cloud Amplifier resources found matching: {search_criteria}"
+            super().__init__(
+                message=message,
+                res=res,
+                **kwargs,
+            )
 
 
-class SearchCloudAmplifier_NotFound(RouteError):
+class SearchCloudAmplifierNotFoundError(RouteError):
     """
     Raised when Cloud Amplifier integration search operations return no results.
 
@@ -100,7 +114,7 @@ class Cloud_Amplifier_Error(RouteError):
     Legacy error class for Cloud Amplifier operations.
 
     .. deprecated::
-        Use CloudAmplifier_GET_Error, SearchCloudAmplifier_NotFound, or
+    Use CloudAmplifier_GET_Error, SearchCloudAmplifierNotFoundError, or
         CloudAmplifier_CRUD_Error instead for more specific error handling.
     """
 

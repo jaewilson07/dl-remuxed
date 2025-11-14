@@ -16,13 +16,18 @@ Enums:
 
 import datetime as dt
 from enum import Enum
-from typing import List, Optional
+from typing import Optional
 
 import httpx
 
-from ...client import get_data as gd, response as rgd
-from ...client.auth import DomoAuth, DomoFullAuth
-from ...entities.entities import DomoEnumMixin
+from domolibrary2.base.exceptions import RouteError
+
+from ...auth import DomoAuth, DomoFullAuth
+from ...base.base import DomoEnumMixin
+from ...client import (
+    get_data as gd,
+    response as rgd,
+)
 from .exceptions import ApiClient_CRUD_Error, ApiClient_GET_Error, ApiClient_RevokeError
 
 
@@ -43,10 +48,15 @@ class ApiClient_ScopeEnum(DomoEnumMixin, Enum):
     DASHBOARD = "dashboard"
 
 
+class InvalidAuthTypeError(RouteError):
+    def __init__(self, res: rgd.ResponseGetData = None, message=None):
+        super().__init__(res=res, message=message)
+
+
 @gd.route_function
 async def get_api_clients(
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -100,7 +110,7 @@ async def get_api_clients(
 async def get_client_by_id(
     auth: DomoAuth,
     client_id: int,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -149,8 +159,8 @@ async def create_api_client(
     auth: DomoFullAuth,  # username and password (full) auth required for this API
     client_name: str,
     client_description: str = f"generated via DL {str(dt.date.today()).replace('-', '')}",
-    scope: Optional[List[ApiClient_ScopeEnum]] = None,  # defaults to [data, audit]
-    session: Optional[httpx.AsyncClient] = None,
+    scope: Optional[list[ApiClient_ScopeEnum]] = None,  # defaults to [data, audit]
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -166,7 +176,7 @@ async def create_api_client(
         auth: DomoFullAuth object (username and password required)
         client_name: Name for the new API client
         client_description: Optional description for the API client
-        scope: List of ApiClient_ScopeEnum values, defaults to [data, audit]
+        scope: list of ApiClient_ScopeEnum values, defaults to [data, audit]
         session: Optional HTTP client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to omit in debug output
@@ -181,7 +191,9 @@ async def create_api_client(
         ApiClient_CRUD_Error: If API client creation fails
     """
     if not isinstance(auth, DomoFullAuth):
-        raise InvalidAuthTypeError(required_auth_type=DomoFullAuth)
+        raise InvalidAuthTypeError(
+            message=f"required auth type {DomoFullAuth.__class__.__name__}"
+        )
 
     if scope and isinstance(scope, list) and isinstance(scope[0], ApiClient_ScopeEnum):
         scope = [sc.value for sc in scope]
@@ -227,7 +239,7 @@ async def create_api_client(
 async def revoke_api_client(
     auth: DomoAuth,
     client_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,

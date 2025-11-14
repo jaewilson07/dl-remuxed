@@ -14,13 +14,13 @@ Functions:
 
 Exception Classes:
     AccessToken_GET_Error: Raised when token retrieval fails
-    SearchAccessToken_NotFound: Raised when token search returns no results
+    SearchAccessTokenNotFoundError: Raised when token search returns no results
     AccessToken_CRUD_Error: Raised when token create/update/delete operations fail
 """
 
 __all__ = [
     "AccessToken_GET_Error",
-    "SearchAccessToken_NotFound",
+    "SearchAccessTokenNotFoundError",
     "AccessToken_CRUD_Error",
     "get_access_tokens",
     "get_access_token_by_id",
@@ -36,9 +36,12 @@ from typing import Optional, Union
 import httpx
 from dc_logger.client.base import Logger
 
-from ..client import get_data as gd, response as rgd
-from ..client.auth import DomoAuth
-from ..client.exceptions import RouteError
+from ..auth import DomoAuth
+from ..base.exceptions import RouteError
+from ..client import (
+    get_data as gd,
+    response as rgd,
+)
 
 
 class AccessToken_GET_Error(RouteError):
@@ -65,7 +68,7 @@ class AccessToken_GET_Error(RouteError):
         super().__init__(message=message, entity_id=entity_id, res=res, **kwargs)
 
 
-class SearchAccessToken_NotFound(RouteError):
+class SearchAccessTokenNotFoundError(RouteError):
     """
     Raised when access token search operations return no results.
 
@@ -122,7 +125,7 @@ class AccessToken_CRUD_Error(RouteError):
 @gd.route_function
 async def get_access_tokens(
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -197,7 +200,7 @@ async def get_access_tokens(
 async def get_access_token_by_id(
     auth: DomoAuth,
     access_token_id: int,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -224,7 +227,7 @@ async def get_access_token_by_id(
 
     Raises:
         AccessToken_GET_Error: If token retrieval fails
-        SearchAccessToken_NotFound: If no token with the specified ID exists
+    SearchAccessTokenNotFoundError: If no token with the specified ID exists
 
     Example:
         >>> token_response = await get_access_token_by_id(auth, 12345)
@@ -261,7 +264,7 @@ async def get_access_token_by_id(
     )
 
     if not token:
-        raise SearchAccessToken_NotFound(
+        raise SearchAccessTokenNotFoundError(
             search_criteria=f"ID: {access_token_id}", res=res
         )
 
@@ -307,7 +310,7 @@ async def generate_access_token(
     token_name: str,
     user_id: Union[int, str],
     duration_in_days: int = 90,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -398,7 +401,7 @@ async def generate_access_token(
 async def revoke_access_token(
     auth: DomoAuth,
     access_token_id: int,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,

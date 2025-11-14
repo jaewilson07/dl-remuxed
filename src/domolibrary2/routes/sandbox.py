@@ -7,13 +7,16 @@ __all__ = [
     "get_repo_from_id",
 ]
 
-from typing import List, Optional
+from typing import Optional
 
 import httpx
 
-from ..client import get_data as gd, response as rgd
-from ..client.auth import DomoAuth
-from ..client.exceptions import RouteError
+from ..auth import DomoAuth
+from ..base.exceptions import RouteError
+from ..client import (
+    get_data as gd,
+    response as rgd,
+)
 
 
 class Sandbox_GET_Error(RouteError):
@@ -56,7 +59,7 @@ class Sandbox_CRUD_Error(RouteError):
 @gd.route_function
 async def get_is_allow_same_instance_promotion_enabled(
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
     debug_num_stacks_to_drop: int = 1,
     debug_api: bool = False,
@@ -90,13 +93,31 @@ async def get_is_allow_same_instance_promotion_enabled(
 
 @gd.route_function
 async def toggle_allow_same_instance_promotion(
-    is_enabled: bool,
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
-    debug_num_stacks_to_drop: int = 1,
+    is_enabled: bool,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
+    debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
+    """Toggle the allow same instance promotion setting.
+
+    Args:
+        auth: Authentication object
+        is_enabled: Whether to enable same instance promotion
+        session: Optional HTTP client session
+        debug_api: Enable API debugging
+        debug_num_stacks_to_drop: Stack frames to drop for debugging
+        parent_class: Parent class name for debugging
+        return_raw: Return raw response without processing
+
+    Returns:
+        ResponseGetData object
+
+    Raises:
+        Sandbox_CRUD_Error: If the operation fails
+    """
     url = f"https://{auth.domo_instance}.domo.com/api/version/v1/settings"
 
     body = {"allowSelfPromotion": is_enabled}
@@ -112,6 +133,9 @@ async def toggle_allow_same_instance_promotion(
         parent_class=parent_class,
     )
 
+    if return_raw:
+        return res
+
     if not res.is_success:
         raise Sandbox_CRUD_Error(operation="toggle same instance promotion", res=res)
 
@@ -121,7 +145,7 @@ async def toggle_allow_same_instance_promotion(
 @gd.route_function
 async def get_shared_repos(
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
     parent_class: Optional[str] = None,
     debug_api: bool = False,
@@ -142,7 +166,7 @@ async def get_shared_repos(
         "shared": False,
     }
 
-    def arr_fn(res: rgd.ResponseGetData) -> List[dict]:
+    def arr_fn(res: rgd.ResponseGetData) -> list[dict]:
         return res.response["repositories"]
 
     offset_params = {"offset": "offset", "limit": "limit"}
@@ -180,11 +204,29 @@ async def get_shared_repos(
 async def get_repo_from_id(
     auth: DomoAuth,
     repository_id: str,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
+    """Get a sandbox repository by ID.
+
+    Args:
+        auth: Authentication object
+        repository_id: Repository identifier
+        session: Optional HTTP client session
+        debug_api: Enable API debugging
+        debug_num_stacks_to_drop: Stack frames to drop for debugging
+        parent_class: Parent class name for debugging
+        return_raw: Return raw response without processing
+
+    Returns:
+        ResponseGetData object
+
+    Raises:
+        Sandbox_GET_Error: If retrieval fails
+    """
     url = f"https://{auth.domo_instance}.domo.com/api/version/v1/repositories/{repository_id}"
 
     res = await gd.get_data(
@@ -196,6 +238,9 @@ async def get_repo_from_id(
         num_stacks_to_drop=debug_num_stacks_to_drop,
         session=session,
     )
+
+    if return_raw:
+        return res
 
     if not res.is_success:
         raise Sandbox_GET_Error(repository_id=repository_id, res=res)

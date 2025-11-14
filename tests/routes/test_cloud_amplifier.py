@@ -1,10 +1,11 @@
-"""
+r"""
 Test file generated from cloud_amplifier.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
@@ -16,9 +17,9 @@ token_auth = dmda.DomoTokenAuth(
 
 async def test_cell_1(token_auth=token_auth):
     """Test case from cell 1"""
-    token_auth = dmda.DomoTokenAuth(
+    dmda.DomoTokenAuth(
         domo_instance=os.environ["DOMO_INSTANCE"],
-        domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],                                                                                 
+        domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],
     )
 
 
@@ -106,7 +107,7 @@ async def test_cell_6(token_auth=token_auth):
     sample_dataset_id = "6b9b4112-6683-434f-b6b5-457946c2f2ca"
 
     try:
-        collisions = await check_for_colliding_datasources(
+        await check_for_colliding_datasources(
             auth = token_auth,
             dataset_id = sample_dataset_id,
         )
@@ -115,7 +116,7 @@ async def test_cell_6(token_auth=token_auth):
     print("Collision check complete")
 
     try:
-        fed_meta = await get_federated_source_metadata(
+        await get_federated_source_metadata(
             auth = token_auth,
             dataset_id = sample_dataset_id,
         )

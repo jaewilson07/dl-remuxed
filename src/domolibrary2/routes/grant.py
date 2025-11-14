@@ -4,9 +4,12 @@ from typing import Optional
 
 import httpx
 
-from ..client import get_data as gd, response as rgd
-from ..client.auth import DomoAuth
-from ..client.exceptions import RouteError
+from ..auth import DomoAuth
+from ..base.exceptions import RouteError
+from ..client import (
+    get_data as gd,
+    response as rgd,
+)
 
 
 class Grant_GET_Error(RouteError):
@@ -24,7 +27,7 @@ class Grant_GET_Error(RouteError):
 async def get_grants(
     auth: DomoAuth,
     debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
 ) -> rgd.ResponseGetData:

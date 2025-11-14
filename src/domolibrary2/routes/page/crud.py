@@ -20,18 +20,30 @@ __all__ = [
 from typing import Optional
 
 import httpx
+from dc_logger.decorators import LogDecoratorConfig, log_call
 
-from ...client import get_data as gd, response as rgd
-from ...client.auth import DomoAuth
+from ...auth import DomoAuth
+from ...client import (
+    get_data as gd,
+    response as rgd,
+)
+from ...utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 from .exceptions import Page_CRUD_Error
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def update_page_layout(
     auth: DomoAuth,
     layout_id: str,
     body: dict,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -83,12 +95,19 @@ async def update_page_layout(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def put_writelock(
     auth: DomoAuth,
     layout_id: str,
     user_id: str,
     epoch_time: int,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -147,10 +166,17 @@ async def put_writelock(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def delete_writelock(
     auth: DomoAuth,
     layout_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,

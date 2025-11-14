@@ -2,28 +2,32 @@
 
 __all__ = ["DomoPage"]
 
-import datetime as dt
 from dataclasses import dataclass, field
-from typing import List
+from typing import Any, ClassVar, Optional
 
 import httpx
 
-from ..subentity import DomoLineage as dmdl
-
-from ...client import exceptions as dmde
-from ...client.auth import DomoAuth
-from ...entities.entities import DomoEntity_w_Lineage
+from ...auth import DomoAuth
+from ...base import exceptions as dmde
+from ...base.entities import DomoEntity_w_Lineage
 from ...routes import page as page_routes
-from ...utils import DictDot as util_dd, chunk_execution as dmce, convert as dmcv
-from .. import DomoPage_Content as dmpg_c, DomoUser as dmu
-from .exceptions import Page_NoAccess
+from ...utils import (
+    DictDot as util_dd,
+    chunk_execution as dmce,
+)
+from .. import (
+    DomoUser as dmu,
+)
+from ..subentity.lineage import DomoLineage, DomoLineage_Page
+from . import page_content as dmpg_c
+from .pages import DomoPages
 
 
 @dataclass
 class DomoPage(DomoEntity_w_Lineage):
     id: int
     auth: DomoAuth = field(repr=False)
-    Lineage: dmdl.DomoLineage = field(repr=False)
+    Lineage: Optional[DomoLineage] = field(repr=False, default=None)
 
     title: str = None
     top_page_id: int = None
@@ -46,12 +50,20 @@ class DomoPage(DomoEntity_w_Lineage):
 
     layout: dmpg_c.PageLayout = field(default_factory=dict)
 
-    cards: List["DomoCard"] = None
-    datasets: List["DomoDataset"] = None
+    cards: list[Any] = None  # DomoCard
+    datasets: list[Any] = None  # DomoDataset
+
+    # Include computed properties in serialization
+    __serialize_properties__: ClassVar[tuple] = ("display_url",)
 
     def __post_init__(self):
-        self.Lineage = dmdl.DomoLineage_Page.from_parent(parent=self)
+        self.Lineage = DomoLineage_Page.from_parent(parent=self)
 
+    @property
+    def entity_type(self):
+        return "PAGE"
+
+    @property
     def display_url(self):
         return f"https://{self.auth.domo_instance}.domo.com/page/{self.id}"
 
@@ -66,7 +78,7 @@ class DomoPage(DomoEntity_w_Lineage):
         if not owners or len(owners) == 0:
             return []
 
-        from .. import DomoGroup as dmg
+        from ..DomoGroup import core as dmg
 
         domo_groups = []
         domo_users = []
@@ -140,6 +152,7 @@ class DomoPage(DomoEntity_w_Lineage):
             collections=dd.collections,
             auth=auth,
             Lineage=None,
+            Relations=None,
         )
 
         if hasattr(dd, "pageLayoutV4") and dd.pageLayoutV4 is not None:
@@ -199,7 +212,7 @@ class DomoPage(DomoEntity_w_Lineage):
         return pg
 
     @classmethod
-    async def _get_entity_by_id(cls, entity_id: str, **kwargs):
+    async def get_entity_by_id(cls, entity_id: str, **kwargs):
         return await cls.get_by_id(page_id=entity_id, **kwargs)
 
     @classmethod
@@ -237,6 +250,7 @@ class DomoPage(DomoEntity_w_Lineage):
             is_locked=dd.locked,
             auth=auth,
             Lineage=None,
+            Relations=None,
         )
 
         if dd.page and dd.page.owners and len(dd.page.owners) > 0:
@@ -269,7 +283,14 @@ class DomoPage(DomoEntity_w_Lineage):
         if isinstance(page_obj, dict):
             dd = util_dd.DictDot(page_obj)
 
-        pg = cls(id=int(dd.id), title=dd.title, raw=page_obj, auth=auth, Lineage=None)
+        pg = cls(
+            id=int(dd.id),
+            title=dd.title,
+            raw=page_obj,
+            auth=auth,
+            Lineage=None,
+            Relations=None,
+        )
 
         if isinstance(dd.owners, list) and len(dd.owners) > 0:
             pg.owners = await pg._get_domo_owners_from_dd(
@@ -294,3 +315,100 @@ class DomoPage(DomoEntity_w_Lineage):
             [print(other_dd) for other_dd in dd.children if other_dd.type != "page"]
 
         return pg
+
+    async def get_parents(self):
+        if not self.parent_page_id:
+            return self.custom_attributes
+
+        if not self.top_page_id:
+            page_as = next(
+                pg
+                for pg in (await DomoPages(auth=self.auth).get(search_title=self.id))
+                if pg.id == self.id
+            )
+            self.top_page_id = page_as.top_page_id
+            self.top_page = page_as
+
+        if self.id == self.top_page_id:
+            self.custom_attributes["top_page"] = self.top_page
+
+        parent_page_as = next(
+            pg
+            for pg in (
+                await DomoPages(auth=self.auth).get(search_title=self.parent_page_id)
+            )
+            if pg.id == self.parent_page_id
+        )
+
+        if self.parent_page_id == parent_page_as.id:
+            self.parent_page = parent_page_as
+
+        self.custom_attributes["parent_page"] = parent_page_as
+
+        if not self.custom_attributes.get("path"):
+            self.custom_attributes["path"] = []
+
+        self.custom_attributes["path"].append(parent_page_as)
+
+        if self.id != self.top_page_id:
+            await self.get_parents(page=parent_page_as)
+
+        return self.custom_attributes
+
+    async def get_children(self, is_suppress_errors: bool = False):
+        async def _get_children_recur(parent_page, is_suppress_errors: bool = False):
+            parent_page.children = parent_page.children or []
+
+            try:
+                child_pages = await DomoPages(auth=parent_page.auth).get(
+                    parent_page_id=parent_page.id,
+                    # is_suppress_errors=is_suppress_errors
+                )
+
+                parent_page.children = [
+                    child
+                    for child in child_pages
+                    if child is not None and child.parent_page_id == parent_page.id
+                ]
+
+                await dmce.gather_with_concurrency(
+                    n=10,
+                    *[
+                        _get_children_recur(
+                            parent_page=cp,
+                            is_suppress_errors=is_suppress_errors,
+                        )
+                        for cp in parent_page.children
+                    ],
+                )
+
+                return self.children
+
+            except dmde.DomoError as e:
+                print(
+                    f"cannot access child page -- https://{parent_page.auth.domo_instance}.domo.com/page/{parent_page.id} -- is it shared\nwith you?"
+                )
+                if not is_suppress_errors:
+                    raise e from e
+
+        self.children = await _get_children_recur(
+            parent_page=self,
+            is_suppress_errors=is_suppress_errors,
+        )
+
+        return self.children
+
+    def flatten_children(self, path=None, hierarchy=0, results=None):
+        results = results or []
+
+        path = f"{path} > {self.title}" if path else self.title
+
+        results.append({"hierarchy": hierarchy, "path": path, "page": self})
+
+        if self.children:
+            [
+                child.flatten_children(path, hierarchy + 1, results)
+                for child in self.children
+            ]
+
+        return results

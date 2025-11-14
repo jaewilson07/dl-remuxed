@@ -12,9 +12,12 @@ from typing import Optional
 
 import httpx
 
-from ..client import get_data as gd, response as rgd
-from ..client.auth import DomoAuth
-from ..client.exceptions import RouteError
+from ..auth import DomoAuth
+from ..base.exceptions import RouteError
+from ..client import (
+    get_data as gd,
+    response as rgd,
+)
 
 
 class Stream_GET_Error(RouteError):
@@ -58,7 +61,7 @@ class Stream_CRUD_Error(RouteError):
 async def get_streams(
     auth: DomoAuth,
     loop_until_end: bool = True,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
     debug_api: bool = False,
@@ -109,14 +112,14 @@ async def get_streams(
 async def get_stream_by_id(
     auth: DomoAuth,
     stream_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Get a stream by its ID.
-    
+
     Args:
         auth: Authentication object
         stream_id: Unique stream identifier
@@ -125,10 +128,10 @@ async def get_stream_by_id(
         debug_num_stacks_to_drop: Stack frames to drop for debugging
         parent_class: Name of the calling class
         return_raw: Return raw response without processing
-        
+
     Returns:
         ResponseGetData object
-        
+
     Raises:
         Stream_GET_Error: If retrieval fails
     """
@@ -158,14 +161,14 @@ async def update_stream(
     auth: DomoAuth,
     stream_id: str,
     body: dict,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_num_stacks_to_drop: int = 1,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Update a stream configuration.
-    
+
     Args:
         auth: Authentication object
         stream_id: Unique stream identifier
@@ -175,10 +178,10 @@ async def update_stream(
         debug_api: Enable API debugging
         parent_class: Name of the calling class
         return_raw: Return raw response without processing
-        
+
     Returns:
         ResponseGetData object
-        
+
     Raises:
         Stream_CRUD_Error: If update operation fails
     """
@@ -208,14 +211,14 @@ async def update_stream(
 async def create_stream(
     auth: DomoAuth,
     body: dict,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Create a new stream.
-    
+
     Args:
         auth: Authentication object
         body: Stream configuration data
@@ -224,10 +227,10 @@ async def create_stream(
         debug_num_stacks_to_drop: Stack frames to drop for debugging
         parent_class: Name of the calling class
         return_raw: Return raw response without processing
-        
+
     Returns:
         ResponseGetData object
-        
+
     Raises:
         Stream_CRUD_Error: If create operation fails
     """
@@ -257,14 +260,14 @@ async def create_stream(
 async def execute_stream(
     auth: DomoAuth,
     stream_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Execute a stream to run data import.
-    
+
     Args:
         auth: Authentication object
         stream_id: Unique stream identifier
@@ -273,10 +276,10 @@ async def execute_stream(
         parent_class: Name of the calling class
         debug_num_stacks_to_drop: Stack frames to drop for debugging
         return_raw: Return raw response without processing
-        
+
     Returns:
         ResponseGetData object
-        
+
     Raises:
         Stream_CRUD_Error: If execute operation fails
     """

@@ -2,12 +2,12 @@
 
 __all__ = ["extract_role_hierarchy", "get_roles_w_hierarchy", "calc_role"]
 
-from ..classes.DomoInstanceConfig import Role as dmdr
+from ..classes.DomoInstanceConfig.role import DomoRole, DomoRoles
 
 
 def extract_role_hierarchy(
-    role: dmdr.DomoRole, hierarchy_delimiter, debug_prn: bool = False
-) -> dmdr.DomoRole:  # augments the domo role with a hierarchy INT attribute
+    role: DomoRole, hierarchy_delimiter, debug_prn: bool = False
+) -> DomoRole:  # augments the domo role with a hierarchy INT attribute
     description_arr = role.description.split(hierarchy_delimiter)
 
     if len(description_arr) != 1:
@@ -41,7 +41,7 @@ async def get_roles_w_hierarchy(
 ):
     """gets instance roles and adds an attribute hierarchy"""
 
-    domo_config = dmdr.DomoRoles(auth=auth)
+    domo_config = DomoRoles(auth=auth)
     domo_roles = await domo_config.get(debug_api=debug_api)
     return [
         extract_role_hierarchy(
