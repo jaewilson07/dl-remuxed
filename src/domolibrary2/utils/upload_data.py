@@ -1,10 +1,12 @@
 __all__ = ["upload_data"]
 
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import httpx
 import pandas as pd
-from dc_logger.client.base import Logger
+
+if TYPE_CHECKING:
+    from dc_logger.client.base import Logger
 
 from ..auth import DomoAuth
 from ..classes import DomoDataset
