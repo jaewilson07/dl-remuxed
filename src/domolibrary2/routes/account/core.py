@@ -59,7 +59,7 @@ async def get_available_data_providers(
         url=url,
         method="GET",
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
     )
@@ -111,7 +111,7 @@ async def get_accounts(
         url=url,
         method="GET",
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
     )
@@ -167,7 +167,7 @@ async def get_account_by_id(
         debug_api=debug_api,
         session=session,
         timeout=20,  # occasionally this API has a long response time
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         params={"unmask": is_unmask},
     )

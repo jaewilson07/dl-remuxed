@@ -158,7 +158,7 @@ async def get_user_attributes(
         session=session,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -299,7 +299,7 @@ async def create_user_attribute(
         session=session,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -395,7 +395,7 @@ async def update_user_attribute(
         session=session,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -450,7 +450,7 @@ async def delete_user_attribute(
         session=session,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:

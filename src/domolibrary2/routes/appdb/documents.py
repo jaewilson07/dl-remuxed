@@ -71,7 +71,7 @@ async def get_documents_from_collection(
         parent_class=parent_class,
         debug_api=debug_api,
         session=session,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -129,7 +129,7 @@ async def get_collection_document_by_id(
         parent_class=parent_class,
         debug_api=debug_api,
         session=session,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -185,7 +185,7 @@ async def create_document(
         session=session,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -239,7 +239,7 @@ async def update_document(
         session=session,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:

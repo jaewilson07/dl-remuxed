@@ -74,7 +74,7 @@ async def search_groups_by_name(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
     if not res.is_success:
         raise Group_GET_Error(res=res)
@@ -161,7 +161,7 @@ async def get_group_by_id(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if res.status == 404 and res.response == "Not Found":
@@ -197,7 +197,7 @@ async def is_system_groups_visible(
         auth=auth,
         method="GET",
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         session=session,
         parent_class=parent_class,
     )
@@ -237,7 +237,7 @@ async def toggle_system_group_visibility(
         auth=auth,
         body={"type": "system", "hidden": is_hide_system_groups},
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         session=session,
         parent_class=parent_class,
     )
@@ -302,7 +302,7 @@ async def create_group(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -370,7 +370,7 @@ async def update_group(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if group_name and res.status == 400:
@@ -411,7 +411,7 @@ async def delete_groups(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -452,7 +452,7 @@ async def get_group_owners(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     ## probably not paginated, headers would not make sence when checking owners
@@ -515,7 +515,7 @@ async def get_group_membership(
     #     debug_api=debug_api,
     #     session=session,
     #     parent_class=parent_class,
-    #     num_stacks_to_drop=debug_num_stacks_to_drop,
+    #     debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     #     params = {
     #         "offset" : 1,
     #         "limit" : 1
@@ -618,7 +618,7 @@ async def update_group_membership(
         body=update_payload,
         debug_api=debug_api,
         session=session,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -658,7 +658,7 @@ async def update_group_members(
         body=body,
         debug_api=debug_api,
         session=session,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -697,7 +697,7 @@ async def update_group_owners(
         body=body,
         debug_api=debug_api,
         session=session,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
