@@ -71,7 +71,7 @@ class CodeEngine_CRUD_Error(RouteError):
         super().__init__(message=message, entity_id=entity_id, res=res, **kwargs)
 
 
-class CodeEngineInvalidPackageError(RouteError):
+class CodeEngine_InvalidPackageError(RouteError):
     """Raised when package validation fails."""
 
     def __init__(

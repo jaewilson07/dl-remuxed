@@ -83,7 +83,7 @@ async def create_filesets_index(
         auth=auth,
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -139,7 +139,7 @@ async def embed_image(
         method="POST",
         body=body,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         session=session,
         parent_class=parent_class,
     )
@@ -164,7 +164,7 @@ async def get_fileset_by_id(
         method="GET",
         url=url,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
     )
@@ -201,7 +201,7 @@ async def search_fileset_files(
         url=url,
         body=body,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
     )
@@ -229,7 +229,7 @@ async def get_data_file_by_id(
         url=url,
         method="GET",
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         session=session,
         parent_class=parent_class,
     )

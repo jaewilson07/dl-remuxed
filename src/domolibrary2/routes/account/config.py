@@ -83,7 +83,7 @@ async def get_account_config(
         session=session,
         params={"unmask": is_unmask},
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -152,7 +152,7 @@ async def get_oauth_account_config(
         debug_api=debug_api,
         session=session,
         timeout=20,  # occasionally this API has a long response time
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -234,7 +234,7 @@ async def update_account_config(
         method="PUT",
         body=config_body,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
     )
@@ -309,7 +309,7 @@ async def update_oauth_account_config(
         method="PUT",
         body=config_body,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
     )

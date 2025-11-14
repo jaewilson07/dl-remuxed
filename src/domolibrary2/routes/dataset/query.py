@@ -1,6 +1,7 @@
 """Dataset query operations."""
 
 import re
+
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
 
@@ -45,7 +46,7 @@ async def query_dataset_public(
         body=body,
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -87,7 +88,7 @@ async def query_dataset_private(
         "limit": "limit",
     }
 
-    def body_fn(skip, limit, body: dict[str, object] | None = None):
+    def body_fn(skip, limit, body: dict[str, object]):
         # Strip any existing LIMIT/OFFSET clauses from the SQL to avoid duplication
         cleaned_sql = re.sub(r"\s+limit\s+\d+", "", sql, flags=re.IGNORECASE)
         cleaned_sql = re.sub(r"\s+offset\s+\d+", "", cleaned_sql, flags=re.IGNORECASE)

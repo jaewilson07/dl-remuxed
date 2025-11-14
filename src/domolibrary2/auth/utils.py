@@ -18,7 +18,7 @@ from ..utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 def test_is_full_auth(
     auth,
     function_name=None,
-    num_stacks_to_drop=1,
+    debug_num_stacks_to_drop=1,
 ):
     """Test that the provided object is a DomoFullAuth instance.
 
@@ -28,7 +28,7 @@ def test_is_full_auth(
     Args:
         auth: The authentication object to validate
         function_name (Optional[str]): Override function name for error reporting
-        num_stacks_to_drop (int): Number of stack frames to drop for debugging
+        debug_num_stacks_to_drop (int): Number of stack frames to drop for debugging
 
     Raises:
         InvalidAuthTypeError: If auth is not a DomoFullAuth instance

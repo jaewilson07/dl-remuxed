@@ -179,7 +179,7 @@ async def get_jupyter_content(
         auth=auth,
         headers={"authorization": f"Token {auth.jupyter_token}"},
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
     )
@@ -256,7 +256,7 @@ async def create_jupyter_obj(
         body=body,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         session=session,
     )
 
@@ -289,7 +289,7 @@ async def create_jupyter_obj(
         body={"path": content_path, "content": new_content},
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         session=session,
     )
 
@@ -359,7 +359,7 @@ async def delete_jupyter_content(
         auth=auth,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         session=session,
     )
 
@@ -436,7 +436,7 @@ async def update_jupyter_file(
         body=body,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         session=session,
     )
 

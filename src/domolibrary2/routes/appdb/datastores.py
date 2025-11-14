@@ -64,7 +64,7 @@ async def get_datastores(
         parent_class=parent_class,
         debug_api=debug_api,
         session=session,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -113,7 +113,7 @@ async def get_datastore_by_id(
         parent_class=parent_class,
         debug_api=debug_api,
         session=session,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -166,7 +166,7 @@ async def get_collections_from_datastore(
         parent_class=parent_class,
         debug_api=debug_api,
         session=session,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -217,7 +217,7 @@ async def create_datastore(
         parent_class=parent_class,
         debug_api=debug_api,
         session=session,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:

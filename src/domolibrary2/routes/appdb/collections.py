@@ -83,7 +83,7 @@ async def create_collection(
         parent_class=parent_class,
         debug_api=debug_api,
         session=session,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -132,7 +132,7 @@ async def get_collections(
         parent_class=parent_class,
         debug_api=debug_api,
         session=session,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -188,7 +188,7 @@ async def get_collection_by_id(
         parent_class=parent_class,
         debug_api=debug_api,
         session=session,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -255,7 +255,7 @@ async def modify_collection_permissions(
         params=params,
         url=url,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
     )
