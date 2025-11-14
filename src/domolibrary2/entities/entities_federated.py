@@ -14,6 +14,20 @@ class DomoFederatedEntity(DomoEntity_w_Lineage):
     instances in federated environments.
     """
 
+    def __eq__(self, other) -> bool:
+        """Check equality based on entity ID and class type.
+
+        Args:
+            other: Object to compare with
+
+        Returns:
+            bool: True if both are the same class type with the same ID
+        """
+        if self.__class__.__name__ != other.__class__.__name__:
+            return False
+
+        return self.id == other.id
+
     @abc.abstractmethod
     async def get_federated_parent(
         self, parent_auth=None, parent_auth_retrieval_fn: Optional[Callable] = None
@@ -45,6 +59,20 @@ class DomoPublishedEntity(DomoFederatedEntity):
 
     subscription: Any = field(repr=False, default=None)
     parent_publication: Any = field(repr=False, default=None)
+
+    def __eq__(self, other) -> bool:
+        """Check equality based on entity ID and class type.
+
+        Args:
+            other: Object to compare with
+
+        Returns:
+            bool: True if both are the same class type with the same ID
+        """
+        if self.__class__.__name__ != other.__class__.__name__:
+            return False
+
+        return self.id == other.id
 
     @abc.abstractmethod
     async def get_subscription(self):

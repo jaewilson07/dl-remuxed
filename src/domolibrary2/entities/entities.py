@@ -197,6 +197,20 @@ class DomoEntity_w_Lineage(DomoEntity):
 
         super().__post_init__()
 
+    def __eq__(self, other) -> bool:
+        """Check equality based on entity ID and class type.
+
+        Args:
+            other: Object to compare with
+
+        Returns:
+            bool: True if both are the same class type with the same ID
+        """
+        if self.__class__.__name__ != other.__class__.__name__:
+            return False
+
+        return self.id == other.id
+
 
 @dataclass
 class DomoManager(DomoBase):
