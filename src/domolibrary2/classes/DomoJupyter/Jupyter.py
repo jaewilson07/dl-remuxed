@@ -105,6 +105,19 @@ class DomoJupyterWorkspace(DomoEntity):
         self.output_configuration.sort()
         self.input_configuration.sort()
 
+    def __eq__(self, other) -> bool:
+        """Check equality based on workspace ID.
+        
+        Args:
+            other: Object to compare with
+            
+        Returns:
+            bool: True if both are DomoJupyterWorkspace instances with the same ID
+        """
+        if self.__class__.__name__ != other.__class__.__name__:
+            return False
+        return self.id == other.id
+
     def _update_auth_params(self):
         """extracts service location and prefix from "instance" object"""
 
@@ -249,6 +262,12 @@ class DomoJupyterWorkspace(DomoEntity):
             is_suppress_errors=is_suppress_errors,
             is_use_default_account_class=is_use_default_account_class,
         )
+        await djw.get_account_configuration(
+            session=session,
+            debug_api=debug_api,
+            is_suppress_errors=is_suppress_errors,
+            is_use_default_account_class=is_use_default_account_class,
+        )
 
         return djw
 
@@ -313,6 +332,8 @@ class DomoJupyterWorkspace(DomoEntity):
                         obj=ic,
                         dj_workspace=self,
                         is_suppress_errors=is_suppress_errors,
+                        session=session,
+                        debug_api=debug_api,
                     )
                     for ic in self.raw["inputConfiguration"]
                 ],
@@ -334,6 +355,8 @@ class DomoJupyterWorkspace(DomoEntity):
                         obj=oc,
                         dj_workspace=self,
                         is_suppress_errors=is_suppress_errors,
+                        session=session,
+                        debug_api=debug_api,
                     )
                     for oc in self.raw["outputConfiguration"]
                 ],
@@ -358,7 +381,7 @@ class DomoJupyterWorkspace(DomoEntity):
     def add_config_input_datasource(self, dja_datasource: DomoJupyter_DataSource):
         if not isinstance(dja_datasource, DomoJupyter_DataSource):
             raise DJW_InvalidClass(
-                message="must passs instance of DomoJupyter_DataSource",
+                message="must pass instance of DomoJupyter_DataSource",
                 cls_instance=self,
             )
 
@@ -367,7 +390,7 @@ class DomoJupyterWorkspace(DomoEntity):
     def add_config_output_datasource(self, dja_datasource: DomoJupyter_DataSource):
         if not isinstance(dja_datasource, DomoJupyter_DataSource):
             raise DJW_InvalidClass(
-                message="must passs instance of DomoJupyter_DataSource",
+                message="must pass instance of DomoJupyter_DataSource",
                 cls_instance=self,
             )
         return self._add_config(dja_datasource, attribute="output_configuration")
@@ -375,7 +398,7 @@ class DomoJupyterWorkspace(DomoEntity):
     def add_config_account(self, dja_account: DomoJupyter_Account):
         if not isinstance(dja_account, DomoJupyter_Account):
             raise DJW_InvalidClass(
-                message="must passs instance of DomoJupyter_Account", cls_instance=self
+                message="must pass instance of DomoJupyter_Account", cls_instance=self
             )
         return self._add_config(dja_account, attribute="account_configuration")
 
@@ -401,6 +424,18 @@ class DomoJupyterWorkspace(DomoEntity):
             return_raw=return_raw,
             session=session,
         )
+        all_content = [
+            content for content in all_content if content.file_type != "directory"
+        ]
+        defi.upsert_folder(base_export_folder, replace_folder=replace_folder)
+
+        return [
+            content.export(default_export_folder=base_export_folder)
+            for content in all_content
+        ]
+
+    def _test_config_duplicates(self, config_name):
+        configuration = getattr(self, config_name)
 
         if return_raw:
             return res
@@ -508,6 +543,8 @@ class DomoJupyterWorkspace(DomoEntity):
             return self.account_configuration
 
         retry = 0
+        last_error = None
+
         while retry <= 1:
             try:
                 res = await self.update_config(debug_api=debug_api, session=session)
@@ -529,6 +566,7 @@ class DomoJupyterWorkspace(DomoEntity):
                 )
 
             except JupyterAPI_Error as e:
+                last_error = e
                 share_user_id = (domo_user and domo_user.id) or (
                     await self.auth.who_am_i()
                 ).response["id"]
@@ -543,6 +581,11 @@ class DomoJupyterWorkspace(DomoEntity):
                     raise e from e
 
                 retry += 1
+
+        # This should never be reached due to the logic above, but ensures no implicit None return
+        raise last_error if last_error else JupyterAPI_Error(
+            message="Unexpected error in add_account retry loop"
+        )
 
     async def add_input_dataset(
         self,
@@ -570,12 +613,14 @@ class DomoJupyterWorkspace(DomoEntity):
             return self.input_configuration
 
         retry = 0
+        last_error = None
 
         while retry <= 1:
             try:
                 return await self.update_config(debug_api=debug_api, session=session)
 
             except JupyterAPI_Error as e:
+                last_error = e
                 domo_user = domo_user or await dmdu.DomoUser.get_by_id(
                     auth=self.auth,
                     user_id=(await self.auth.who_am_i()).response["id"],
@@ -594,6 +639,11 @@ class DomoJupyterWorkspace(DomoEntity):
                     raise e from e
 
                 retry += 1
+
+        # This should never be reached due to the logic above, but ensures no implicit None return
+        raise last_error if last_error else JupyterAPI_Error(
+            message="Unexpected error in add_input_dataset retry loop"
+        )
 
     async def add_output_dataset(
         self,
@@ -619,12 +669,14 @@ class DomoJupyterWorkspace(DomoEntity):
             return self.output_configuration
 
         retry = 0
+        last_error = None
 
         while retry <= 1:
             try:
                 return await self.update_config(debug_api=debug_api, session=session)
 
             except JupyterAPI_Error as e:
+                last_error = e
                 domo_user = domo_user or await dmdu.DomoUser.get_by_id(
                     auth=self.auth,
                     user_id=(await self.auth.who_am_i()).response["id"],
@@ -643,6 +695,11 @@ class DomoJupyterWorkspace(DomoEntity):
                     raise e from e
 
                 retry += 1
+
+        # This should never be reached due to the logic above, but ensures no implicit None return
+        raise last_error if last_error else JupyterAPI_Error(
+            message="Unexpected error in add_output_dataset retry loop"
+        )
 
 
 @dataclass

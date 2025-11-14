@@ -32,7 +32,6 @@ __all__ = ["run_with_retry", "gather_with_concurrency", "run_sequence", "chunk_l
 
 import asyncio
 import functools
-
 import httpx
 
 from ..utils.logging import get_colored_logger
@@ -103,14 +102,16 @@ def run_with_retry(
                         )
                         await asyncio.sleep(2)
 
-                    await logger.warning(
-                        f"retry decorator attempt - {retry}/{max_retry} - {e}",
-                        color="yellow",
-                    )
-
                     retry += 1
-                    if retry >= max_retry:
+                    if retry > max_retry:
                         raise e from e
+
+                    # Only log warning for non-ConnectTimeout errors when we're actually retrying
+                    if not isinstance(e, httpx.ConnectTimeout):
+                        await logger.warning(
+                            f"retry decorator attempt - {retry}/{max_retry} - {e}",
+                            color="yellow",
+                        )
 
         return wrapper
 
