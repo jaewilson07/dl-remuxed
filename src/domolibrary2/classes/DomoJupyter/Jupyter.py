@@ -250,6 +250,7 @@ class DomoJupyterWorkspace(DomoEntity):
             session=session,
             debug_api=debug_api,
             is_suppress_errors=is_suppress_errors,
+            is_use_default_account_class=is_use_default_account_class,
         )
         await djw.get_input_configuration(
             session=session,
