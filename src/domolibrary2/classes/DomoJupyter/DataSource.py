@@ -6,7 +6,7 @@ __all__ = ["DomoJupyter_DataSource"]
 from dataclasses import dataclass, field
 from typing import Any
 
-from ..DomoDataset import DomoDataset as dmds
+from .. import DomoDataset as dmds
 
 
 @dataclass
@@ -31,20 +31,38 @@ class DomoJupyter_DataSource:
 
         return self.alias < other.alias
 
-    async def get_dataset(self):
+    async def get_dataset(
+        self,
+        is_suppress_no_account_config: bool = False,
+        session: httpx.AsyncClient | None = None,
+        debug_api: bool = False,
+    ):
+        import domolibrary2.routes.dataset as dataset_route
+
         try:
             self.domo_dataset = await dmds.DomoDataset.get_by_id(
-                auth=self.dj_workspace.auth, dataset_id=self.dataset_id
+                auth=self.dj_workspace.auth,
+                dataset_id=self.dataset_id,
+                is_suppress_no_config=is_suppress_no_account_config,
+                session=session,
+                debug_api=debug_api,
             )
             self.is_exists = True
 
             return self.domo_dataset
 
-        except dmds.DatasetNotFoundError:
+        except dataset_route.DatasetNotFoundError:
             self.is_exists = False
 
     @classmethod
-    async def from_dict(cls, obj, dj_workspace):
+    async def from_dict(
+        cls,
+        obj,
+        dj_workspace,
+        is_suppress_errors: bool = False,
+        session: httpx.AsyncClient | None = None,
+        debug_api: bool = False,
+    ):
         dataset_id = obj["dataSourceId"]
 
         ds = cls(
@@ -53,7 +71,11 @@ class DomoJupyter_DataSource:
             dj_workspace=dj_workspace,
         )
 
-        await ds.get_dataset()
+        await ds.get_dataset(
+            is_suppress_no_account_config=is_suppress_errors,
+            session=session,
+            debug_api=debug_api,
+        )
         return ds
 
     def to_dict(self):
