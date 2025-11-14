@@ -86,6 +86,7 @@ def create_httpx_session(
 @log_call(
     action_name="get_data",
     level_name="client",
+    log_level="DEBUG",
     config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
     color="light_blue",
 )
@@ -103,7 +104,7 @@ async def get_data(
     is_follow_redirects: bool = False,
     timeout: int = DEFAULT_TIMEOUT,
     parent_class: Optional[str] = None,  # noqa: ARG001
-    num_stacks_to_drop: int = 2,  # noqa: ARG001
+    debug_num_stacks_to_drop: int = 2,  # noqa: ARG001
     is_verify: bool = False,
 ) -> rgd.ResponseGetData:
     """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint."""
@@ -177,7 +178,7 @@ async def get_data(
             ip_address = rgd.find_ip(response.text)
             res = rgd.ResponseGetData(
                 status=response.status_code,
-                response="Blocked by Allowlist",
+                response=f"Blocked by Allowlist: {ip_address}",
                 is_success=False,
                 request_metadata=request_metadata,
                 additional_information=additional_information,
@@ -214,6 +215,7 @@ async def get_data(
 @log_call(
     action_name="get_data_stream",
     level_name="client",
+    log_level="DEBUG",
     config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
 )
 async def get_data_stream(
@@ -226,7 +228,7 @@ async def get_data_stream(
     debug_api: bool = False,
     timeout: int = DEFAULT_STREAM_TIMEOUT,
     parent_class: Optional[str] = None,
-    num_stacks_to_drop: int = 2,  # noqa: ARG001
+    debug_num_stacks_to_drop: int = 2,  # noqa: ARG001
     debug_traceback: bool = False,  # noqa: ARG001
     session: httpx.AsyncClient | None = None,
     is_verify: bool = False,
@@ -244,7 +246,7 @@ async def get_data_stream(
         debug_api: Enable debugging information.
         timeout: Maximum time to wait for a response (in seconds).
         parent_class: (Optional) Name of the calling class.
-        num_stacks_to_drop: Number of stack frames to drop in the traceback.
+        debug_num_stacks_to_drop: Number of stack frames to drop in the traceback.
         debug_traceback: Enable detailed traceback debugging.
         session: Optional HTTPX session to be used.
         is_verify: SSL verification flag.
@@ -339,7 +341,7 @@ class LooperError(DomoError):
         super().__init__(message=f"{loop_stage} - {message}")
 
 
-@log_call(action_name="looper", level_name="client")
+@log_call(action_name="looper", level_name="client", log_level="DEBUG")
 async def looper(
     auth: dmda.DomoAuth,
     session: httpx.AsyncClient | None,
@@ -456,7 +458,7 @@ async def looper(
             debug_api=debug_api,
             timeout=timeout,
             parent_class=parent_class,
-            num_stacks_to_drop=debug_num_stacks_to_drop,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         )
 
         if not res or not res.is_success:

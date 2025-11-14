@@ -51,7 +51,7 @@ class DomoError(Exception):
 
     @property
     def prefix_txt(self) -> str:
-        return "⚠️ " if self.is_warning else "🛑 "
+        return "[WARNING] " if self.is_warning else "[ERROR] "
 
     @property
     def status_txt(self) -> Union[str, None]:

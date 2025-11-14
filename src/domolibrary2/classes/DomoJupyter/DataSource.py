@@ -6,6 +6,8 @@ __all__ = ["DomoJupyter_DataSource"]
 from dataclasses import dataclass, field
 from typing import Any
 
+import httpx
+
 from .. import DomoDataset as dmds
 
 
