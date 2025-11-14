@@ -173,7 +173,6 @@ class DomoDataset_Data(DomoSubEntity):
                         f"failed to upload data for {dataset_id} in {auth.domo_instance}"
                     )
                     raise e
-                    return
 
                 await asyncio.sleep(5)
 
