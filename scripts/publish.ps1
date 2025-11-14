@@ -29,10 +29,10 @@ Write-Host "Building package..." -ForegroundColor Yellow
 # Publish
 if ($TestPyPI) {
     Write-Host "Publishing to Test PyPI..." -ForegroundColor Yellow
-    & C:\Users\jwilson1\.local\bin\uv.exe publish --repository-url https://test.pypi.org/legacy/ dist/*
+    uv publish --repository-url https://test.pypi.org/legacy/ dist/*
 } else {
     Write-Host "Publishing to PyPI..." -ForegroundColor Yellow
-    & C:\Users\jwilson1\.local\bin\uv.exe publish dist/*
+    uv publish dist/*
 }
 
 Write-Host "Publish complete!" -ForegroundColor Cyan

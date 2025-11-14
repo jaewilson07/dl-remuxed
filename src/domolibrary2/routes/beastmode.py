@@ -17,13 +17,13 @@ Functions:
 Exception Classes:
     BeastMode_GET_Error: Raised when BeastMode retrieval fails
     BeastMode_CRUD_Error: Raised when BeastMode create/update/delete operations fail
-    SearchBeastMode_NotFound: Raised when BeastMode search returns no results
+    SearchBeastModeNotFoundError: Raised when BeastMode search returns no results
 """
 
 __all__ = [
     "BeastMode_GET_Error",
     "BeastMode_CRUD_Error",
-    "SearchBeastMode_NotFound",
+    "SearchBeastModeNotFoundError",
     "Search_BeastModeLink",
     "generate_beastmode_body",
     "search_beastmodes",
@@ -37,17 +37,17 @@ __all__ = [
 ]
 
 from enum import Enum
-from typing import List, Optional
+from typing import Optional
 
 import httpx
 
+from ..auth import DomoAuth
+from ..base.base import DomoEnumMixin
+from ..base.exceptions import RouteError
 from ..client import (
     get_data as gd,
     response as rgd,
 )
-from ..client.auth import DomoAuth
-from ..client.exceptions import RouteError
-from ..entities.base import DomoEnumMixin
 from ..utils import chunk_execution as dmce
 
 
@@ -106,7 +106,7 @@ class BeastMode_CRUD_Error(RouteError):
         )
 
 
-class SearchBeastMode_NotFound(RouteError):
+class SearchBeastModeNotFoundError(RouteError):
     """
     Raised when BeastMode search operations return no results.
 
@@ -140,7 +140,7 @@ class Search_BeastModeLink(DomoEnumMixin, Enum):
 
 def generate_beastmode_body(
     name: str = None,
-    filters: List[dict] = None,
+    filters: list[dict] = None,
     is_unlocked: bool = None,
     is_not_variable: bool = None,
     link: Search_BeastModeLink = None,
@@ -161,8 +161,8 @@ def generate_beastmode_body(
 @gd.route_function
 async def search_beastmodes(
     auth: DomoAuth,
-    filters: Optional[List[dict]] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    filters: Optional[list[dict]] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     debug_loop: bool = False,
@@ -238,7 +238,7 @@ async def lock_beastmode(
     auth: DomoAuth,
     beastmode_id: str,
     is_locked: bool,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -281,7 +281,7 @@ async def lock_beastmode(
         body=body,
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -303,7 +303,7 @@ async def lock_beastmode(
 async def get_beastmode_by_id(
     auth: DomoAuth,
     beastmode_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -330,7 +330,7 @@ async def get_beastmode_by_id(
 
     Raises:
         BeastMode_GET_Error: If BeastMode retrieval fails
-        SearchBeastMode_NotFound: If no BeastMode with the specified ID exists
+    SearchBeastModeNotFoundError: If no BeastMode with the specified ID exists
 
     Example:
         >>> beastmode_res = await get_beastmode_by_id(auth, "beastmode-123")
@@ -345,7 +345,7 @@ async def get_beastmode_by_id(
         url=url,
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -354,7 +354,7 @@ async def get_beastmode_by_id(
 
     if not res.is_success:
         if res.status == 404:
-            raise SearchBeastMode_NotFound(
+            raise SearchBeastModeNotFoundError(
                 search_criteria=f"ID: {beastmode_id}",
                 res=res,
             )
@@ -371,10 +371,10 @@ async def get_card_beastmodes(
     auth: DomoAuth,
     card_id: str,
     debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_num_stacks_to_drop: int = 2,
     return_raw: bool = False,
-) -> List[dict]:
+) -> list[dict]:
     """
     Get BeastModes associated with a specific card.
 
@@ -391,7 +391,7 @@ async def get_card_beastmodes(
         return_raw: Return raw API response without filtering
 
     Returns:
-        List of BeastMode dictionaries containing id, name, locked status,
+        list of BeastMode dictionaries containing id, name, locked status,
         legacyId, status, and links
 
     Example:

@@ -1,16 +1,17 @@
-import domolibrary2.client.auth as dmda
-
-# import domolibrary2.routes.access_token as access_token_routes
-from dotenv import load_dotenv
 import os
 
 from dc_logger.client.base import (
-    Logger,
-    HandlerInstance,
     Handler_BufferSettings,
+    HandlerInstance,
+    Logger,
     set_global_logger,
 )
-from dc_logger.logs.services.file import FileHandler, File_ServiceConfig
+from dc_logger.logs.services.file import File_ServiceConfig, FileHandler
+
+# import domolibrary2.routes.access_token as access_token_routes
+from dotenv import load_dotenv
+
+import domolibrary2.auth as dmda
 
 load_dotenv()
 
@@ -42,7 +43,7 @@ async def test_logger():
 
     await logger.info(message="Starting test_logger function.")
 
-    domo_auth = dmda.DomoTokenAuth(
+    dmda.DomoTokenAuth(
         domo_access_token=os.getenv("DOMO_ACCESS_TOKEN"),
         domo_instance=os.getenv("DOMO_INSTANCE"),
     )

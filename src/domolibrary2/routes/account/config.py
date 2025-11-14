@@ -13,24 +13,30 @@ Functions:
 from typing import Optional, Union
 
 import httpx
+from dc_logger.decorators import LogDecoratorConfig, log_call
 
+from ...auth import DomoAuth
 from ...client import (
     get_data as gd,
     response as rgd,
 )
-from ...client.auth import DomoAuth
+from ...utils.logging import ResponseGetDataProcessor
 from .core import get_account_by_id
-from .exceptions import Account_Config_Error, Account_NoMatch
+from .exceptions import Account_Config_Error, AccountNoMatchError
 from .oauth import get_oauth_account_by_id
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def get_account_config(
     auth: DomoAuth,
     account_id: Union[int, str],
     data_provider_type: Optional[str] = None,
     is_unmask: bool = True,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -53,7 +59,7 @@ async def get_account_config(
         ResponseGetData object containing account configuration
 
     Raises:
-        Account_NoMatch: If account is not found or not accessible
+        AccountNoMatchError: If account is not found or not accessible
         Account_Config_Error: If account configuration retrieval fails
     """
     if not data_provider_type:
@@ -77,7 +83,7 @@ async def get_account_config(
         session=session,
         params={"unmask": is_unmask},
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -86,7 +92,7 @@ async def get_account_config(
     if not res.is_success and (
         res.response == "Forbidden" or res.response == "Not Found"
     ):
-        raise Account_NoMatch(account_id=str(account_id), res=res)
+        raise AccountNoMatchError(account_id=str(account_id), res=res)
 
     if not res.is_success:
         raise Account_Config_Error(account_id=str(account_id), res=res)
@@ -104,11 +110,15 @@ async def get_account_config(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def get_oauth_account_config(
     auth: DomoAuth,
     account_id: Union[int, str],
     data_provider_type: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -130,7 +140,7 @@ async def get_oauth_account_config(
         ResponseGetData object containing OAuth account configuration
 
     Raises:
-        Account_NoMatch: If OAuth account is not found or not accessible
+        AccountNoMatchError: If OAuth account is not found or not accessible
         Account_Config_Error: If OAuth account configuration retrieval fails
     """
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/providers/{data_provider_type}/template/{account_id}?unmask=true"
@@ -142,7 +152,7 @@ async def get_oauth_account_config(
         debug_api=debug_api,
         session=session,
         timeout=20,  # occasionally this API has a long response time
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -152,7 +162,7 @@ async def get_oauth_account_config(
     if not res.is_success and (
         res.response == "Forbidden" or res.response == "Not Found"
     ):
-        raise Account_NoMatch(account_id=str(account_id), res=res)
+        raise AccountNoMatchError(account_id=str(account_id), res=res)
 
     if not res.is_success:
         raise Account_Config_Error(account_id=str(account_id), res=res)
@@ -170,12 +180,16 @@ async def get_oauth_account_config(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def update_account_config(
     auth: DomoAuth,
     account_id: Union[int, str],
     config_body: dict,
     data_provider_type: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -220,7 +234,7 @@ async def update_account_config(
         method="PUT",
         body=config_body,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
     )
@@ -242,12 +256,16 @@ async def update_account_config(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def update_oauth_account_config(
     auth: DomoAuth,
     account_id: Union[int, str],
     config_body: dict,
     data_provider_type: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -291,7 +309,7 @@ async def update_oauth_account_config(
         method="PUT",
         body=config_body,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
     )

@@ -7,60 +7,28 @@ This module tests all user route functions including:
 - User properties and configuration
 """
 
-import pytest
-import anyio
-import asyncio
-from typing import Dict, Any, List
-from unittest.mock import AsyncMock, patch
 import inspect
+
+
+import pytest
 from dotenv import load_dotenv
+
+# Import user route functions and exceptions
+import domolibrary2.routes.user as user_routes
+from domolibrary2.routes.user import (
+    SearchUserNotFoundError,
+    create_user_attribute,
+    get_by_id,
+    get_user_attributes,
+    reset_password,
+    search_users_by_id,
+    # Property functions
+    set_user_landing_page,
+)
 
 # Import test harness utilities
 from ..tools.test_harness import (
-    RouteTestHarness,
-    RouteTestBuilder,
-    TestScenario,
-    MockResponse,
-    create_standard_route_tests,
     PytestRouteTestCase,
-)
-
-# Import user route functions and exceptions
-import domolibrary2.client.auth as dmda
-import domolibrary2.routes.user as user_routes
-from domolibrary2.routes.user import (
-    # Core functions
-    get_all_users,
-    search_users,
-    search_users_by_id,
-    search_users_by_email,
-    get_by_id,
-    create_user,
-    update_user,
-    delete_user,
-    # Attribute functions
-    get_user_attributes,
-    get_user_attribute_by_id,
-    create_user_attribute,
-    update_user_attribute,
-    delete_user_attribute,
-    # Property functions
-    set_user_landing_page,
-    reset_password,
-    request_password_reset,
-    download_avatar,
-    upload_avatar,
-    user_is_allowed_direct_signon,
-    # Exception classes
-    User_GET_Error,
-    User_CRUD_Error,
-    SearchUser_NotFound,
-    UserSharing_Error,
-    UserAttributes_GET_Error,
-    UserAttributes_CRUD_Error,
-    DownloadAvatar_Error,
-    ResetPassword_PasswordUsed,
-    DeleteUser_Error,
 )
 
 load_dotenv()
@@ -155,7 +123,7 @@ class TestUserRoutesImport:
             len(signature_info) > 0
         ), "Should be able to inspect at least one function signature"
 
-        print(f"✅ Function signatures inspected:")
+        print("✅ Function signatures inspected:")
         for info in signature_info:
             if "error" in info:
                 print(f"  - {info['name']}: Error - {info['error']}")
@@ -264,7 +232,7 @@ class TestUserCoreRoutes(PytestRouteTestCase):
             )
 
             # Test not found scenario
-            with pytest.raises(SearchUser_NotFound):
+            with pytest.raises(SearchUserNotFoundError):
                 await get_by_id(auth=harness.default_auth, user_id="nonexistent")
 
 
@@ -376,7 +344,7 @@ def test_user_route_module_completeness():
         # Exception classes
         "User_GET_Error",
         "User_CRUD_Error",
-        "SearchUser_NotFound",
+        "SearchUserNotFoundError",
         "UserSharing_Error",
         "UserAttributes_GET_Error",
         "UserAttributes_CRUD_Error",

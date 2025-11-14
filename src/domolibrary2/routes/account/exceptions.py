@@ -5,17 +5,17 @@ This module contains all exception classes used by account route functions.
 
 Exception Classes:
     Account_GET_Error: Raised when account retrieval operations fail
-    SearchAccount_NotFound: Raised when account search returns no results
+    SearchAccountNotFoundError: Raised when account search returns no results
     Account_CRUD_Error: Raised when account create/update/delete operations fail
     AccountSharing_Error: Raised when account sharing operations fail
     Account_Config_Error: Raised when account configuration operations fail
-    Account_NoMatch: Raised when a specific account cannot be found or accessed
+    AccountNoMatchError: Raised when a specific account cannot be found or accessed
     Account_CreateParams_Error: Raised when account creation parameters are invalid
 """
 
 from typing import Optional
 
-from ...client.exceptions import RouteError
+from ...base.exceptions import RouteError
 
 
 class Account_GET_Error(RouteError):
@@ -30,7 +30,7 @@ class Account_GET_Error(RouteError):
         )
 
 
-class SearchAccount_NotFound(RouteError):
+class SearchAccountNotFoundError(RouteError):
     """Raised when account search operations return no results."""
 
     def __init__(self, search_criteria: str, res=None, **kwargs):
@@ -67,9 +67,11 @@ class AccountSharing_Error(RouteError):
         operation: str,
         account_id: Optional[str] = None,
         res=None,
+        message: Optional[str] = None,
         **kwargs,
     ):
-        message = f"Account sharing {operation} failed"
+        if not message:
+            message = f"Account sharing {operation} failed"
         super().__init__(message=message, entity_id=account_id, res=res, **kwargs)
 
 
@@ -88,7 +90,7 @@ class Account_Config_Error(RouteError):
         super().__init__(message=message, entity_id=account_id, res=res, **kwargs)
 
 
-class Account_NoMatch(RouteError):
+class AccountNoMatchError(RouteError):
     """Raised when a specific account cannot be found or accessed."""
 
     def __init__(

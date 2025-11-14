@@ -1,2 +1,0 @@
-# Requirements for PR comment capture script
-requests>=2.25.0

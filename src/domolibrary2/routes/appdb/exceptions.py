@@ -5,19 +5,19 @@ This module contains all exception classes used by AppDb route functions.
 
 Exception Classes:
     AppDb_GET_Error: Raised when AppDb retrieval operations fail
-    SearchAppDb_NotFound: Raised when AppDb search returns no results
+    SearchAppDbNotFoundError: Raised when AppDb search returns no results
     AppDb_CRUD_Error: Raised when AppDb create/update/delete operations fail
 """
 
 __all__ = [
     "AppDb_GET_Error",
-    "SearchAppDb_NotFound",
+    "SearchAppDbNotFoundError",
     "AppDb_CRUD_Error",
 ]
 
 from typing import Optional
 
-from ...client.exceptions import RouteError
+from ...base.exceptions import RouteError
 
 
 class AppDb_GET_Error(RouteError):
@@ -38,7 +38,7 @@ class AppDb_GET_Error(RouteError):
         )
 
 
-class SearchAppDb_NotFound(RouteError):
+class SearchAppDbNotFoundError(RouteError):
     """Raised when AppDb search operations return no results."""
 
     def __init__(

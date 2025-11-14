@@ -1,5 +1,5 @@
 import os
-import domolibrary2.client.auth as dmda
+import domolibrary2.auth as dmda
 import domolibrary2.classes.DomoDataset as dmds
 from dotenv import load_dotenv
 

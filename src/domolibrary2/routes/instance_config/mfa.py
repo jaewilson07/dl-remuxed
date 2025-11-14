@@ -29,11 +29,11 @@ from typing import Any, Optional
 
 import httpx
 
+from ...auth import DomoAuth
 from ...client import (
     get_data as gd,
     response as rgd,
 )
-from ...client.auth import DomoAuth
 from .exceptions import Config_CRUD_Error, Config_GET_Error
 
 
@@ -79,7 +79,7 @@ class MFA_CRUD_Error(Config_CRUD_Error):
 async def toggle_enable_mfa(
     auth: DomoAuth,
     is_enable_MFA: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -125,7 +125,7 @@ async def toggle_enable_mfa(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -153,7 +153,7 @@ async def get_mfa_config(
     incl_is_multifactor_required: bool = True,
     incl_num_days_valid: bool = True,
     incl_max_code_attempts: bool = True,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -215,7 +215,7 @@ async def get_mfa_config(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         params=params,
     )
 
@@ -257,7 +257,7 @@ async def get_mfa_config(
 async def set_mfa_max_code_attempts(
     auth: DomoAuth,
     max_code_attempts: int,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -314,7 +314,7 @@ async def set_mfa_max_code_attempts(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -341,7 +341,7 @@ async def set_mfa_max_code_attempts(
 async def set_mfa_num_days_valid(
     auth: DomoAuth,
     num_days_valid: int,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -395,7 +395,7 @@ async def set_mfa_num_days_valid(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:

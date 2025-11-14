@@ -1,9 +1,10 @@
 __all__ = ["CodeEngineManifest"]
 
+import os
 from dataclasses import dataclass
-from typing import Any, Dict, List
+from typing import Any
 
-from ..utils import (
+from ...utils import (
     convert as dmcv,
     files as dmfi,
 )
@@ -13,13 +14,13 @@ from .Manifest_Function import CodeEngineManifest_Function
 @dataclass
 class CodeEngineManifest:
     functions: list[CodeEngineManifest_Function]
-    configuration: Dict[str, Any]
+    configuration: dict[str, Any]
 
     raw: str = None
 
     @classmethod
     def from_python_file(
-        cls, file_path: str, accounts_mapping: List[Any]
+        cls, file_path: str, accounts_mapping: list[Any]
     ) -> "CodeEngineManifest":
         """
         Analyze all functions in a Python script file and return a structured manifest.
@@ -33,7 +34,7 @@ class CodeEngineManifest:
 
         Returns:
             Manifest: A manifest object containing:
-                - functions (List[FunctionMetadata]): List of function metadata objects
+                - functions (list[FunctionMetadata]): list of function metadata objects
                 - configuration (Dict[str, Any]): Configuration dictionary with accountsMapping
 
         Error Handling:
@@ -67,7 +68,7 @@ class CodeEngineManifest:
 
     @classmethod
     def from_python_string(
-        cls, python_str: str, accounts_mapping: List[Any]
+        cls, python_str: str, accounts_mapping: list[Any]
     ) -> "CodeEngineManifest":
         """
         Analyze all functions in a Python script string and return a structured manifest.
@@ -81,7 +82,7 @@ class CodeEngineManifest:
 
         Returns:
             Manifest: A manifest object containing:
-                - functions (List[FunctionMetadata]): List of function metadata objects
+                - functions (list[FunctionMetadata]): list of function metadata objects
                 - configuration (Dict[str, Any]): Configuration dictionary with accountsMapping
 
         Error Handling:

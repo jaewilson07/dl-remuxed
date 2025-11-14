@@ -22,7 +22,7 @@ Classes:
     UserProperty: Class representing a user property with type and values
 
 Exception Classes:
-    ResetPassword_PasswordUsed: Raised when password was previously used
+    ResetPasswordPasswordUsedErrorError: Raised when password was previously used
     DownloadAvatar_Error: Raised when avatar download fails
 """
 
@@ -43,21 +43,23 @@ __all__ = [
 import base64
 import os
 from enum import Enum
-from typing import List, Optional
+from typing import Optional
 
 import httpx
+from dc_logger.decorators import LogDecoratorConfig, log_call
 
+from ...auth import DomoAuth
+from ...base.base import DomoEnumMixin
+from ...base.exceptions import DomoError
 from ...client import (
     get_data as gd,
     response as rgd,
 )
-from ...client.auth import DomoAuth
-from ...client.exceptions import DomoError
-from ...entities.base import DomoEnumMixin
 from ...utils import images
+from ...utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 from .exceptions import (
     DownloadAvatar_Error,
-    ResetPassword_PasswordUsed,
+    ResetPasswordPasswordUsedError,
     User_CRUD_Error,
 )
 
@@ -116,11 +118,11 @@ class UserProperty:
         }
 
 
-def generate_patch_user_property_body(user_property_ls: List[UserProperty]) -> dict:
+def generate_patch_user_property_body(user_property_ls: list[UserProperty]) -> dict:
     """Generate request body for user property updates.
 
     Args:
-        user_property_ls: List of UserProperty objects to update
+        user_property_ls: list of UserProperty objects to update
 
     Returns:
         dict: Request body with attributes array for PATCH request
@@ -131,12 +133,19 @@ def generate_patch_user_property_body(user_property_ls: List[UserProperty]) -> d
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def update_user(
     user_id: str,
-    user_property_ls: List[UserProperty],
+    user_property_ls: list[UserProperty],
     auth: DomoAuth,
     debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
@@ -145,7 +154,7 @@ async def update_user(
 
     Args:
         user_id: ID of the user to update
-        user_property_ls: List of UserProperty objects with updates
+        user_property_ls: list of UserProperty objects with updates
         auth: Authentication object
         debug_api: Enable API debugging
         session: HTTP client session
@@ -183,7 +192,7 @@ async def update_user(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -196,6 +205,13 @@ async def update_user(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def set_user_landing_page(
     auth: DomoAuth,
     user_id: str,
@@ -203,7 +219,7 @@ async def set_user_landing_page(
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
 ):
     """Set a user's landing page.
@@ -231,7 +247,7 @@ async def set_user_landing_page(
         method="PUT",
         auth=auth,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
     )
@@ -250,6 +266,13 @@ async def set_user_landing_page(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def reset_password(
     auth: DomoAuth,
     user_id: str,
@@ -257,7 +280,7 @@ async def reset_password(
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Reset a user's password.
@@ -277,7 +300,7 @@ async def reset_password(
 
     Raises:
         User_CRUD_Error: If password reset fails
-        ResetPassword_PasswordUsed: If password was previously used
+        ResetPasswordPasswordUsedError: If password was previously used
     """
     url = f"https://{auth.domo_instance}.domo.com/api/identity/v1/password"
 
@@ -290,7 +313,7 @@ async def reset_password(
         body=body,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         session=session,
     )
 
@@ -310,7 +333,7 @@ async def reset_password(
         and res.response.get("description", None)
         == "Password has been used previously."
     ):
-        raise ResetPassword_PasswordUsed(
+        raise ResetPasswordPasswordUsedError(
             user_id=user_id,
             res=res,
             message=res.response["description"].replace(".", ""),
@@ -320,12 +343,19 @@ async def reset_password(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def request_password_reset(
     domo_instance: str,
     email: str,
     locale="en-us",
     debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
     return_raw: bool = False,
@@ -360,7 +390,7 @@ async def request_password_reset(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -377,6 +407,13 @@ async def request_password_reset(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def download_avatar(
     user_id,
     auth: DomoAuth,
@@ -388,7 +425,7 @@ async def download_avatar(
     return_raw: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ):
     """Download a user's avatar image.
 
@@ -419,7 +456,7 @@ async def download_avatar(
         auth=auth,
         debug_api=debug_api,
         headers={"accept": "image/png;charset=utf-8"},
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
     )
@@ -469,6 +506,13 @@ def generate_avatar_bytestr(img_bytestr, img_type):
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def upload_avatar(
     auth: DomoAuth,
     user_id: int,
@@ -476,7 +520,7 @@ async def upload_avatar(
     img_type: str,  #'jpg or png'
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     parent_class: Optional[str] = None,
     return_raw: bool = False,
 ):
@@ -515,7 +559,7 @@ async def upload_avatar(
         body=body,
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         auth=auth,
         parent_class=parent_class,
     )
@@ -534,6 +578,13 @@ async def upload_avatar(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def user_is_allowed_direct_signon(
     auth: DomoAuth,
     user_ids: list[str],
@@ -541,14 +592,14 @@ async def user_is_allowed_direct_signon(
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
     parent_class: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Manage direct sign-on permissions for users.
 
     Args:
         auth: Authentication object
-        user_ids: List of user IDs to modify
+        user_ids: list of user IDs to modify
         is_allow_dso: Whether to allow direct sign-on (default: True)
         debug_api: Enable API debugging
         debug_num_stacks_to_drop: Stack frames to drop for debugging
@@ -574,7 +625,7 @@ async def user_is_allowed_direct_signon(
         body=user_ids if isinstance(user_ids, list) else [user_ids],
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:

@@ -2,11 +2,11 @@
 
 __all__ = ["test_page_access", "get_accesslist", "share"]
 
-from typing import Dict, List, Optional, Union
+from typing import Optional, Union
 
 import httpx
 
-from ...client.auth import DomoAuth
+from ...auth import DomoAuth
 from ...client.response import ResponseGetData
 from ...routes import (
     datacenter as datacenter_routes,
@@ -22,7 +22,7 @@ async def test_page_access(
     suppress_no_access_error: bool = False,
     debug_api: bool = False,
     return_raw: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_num_stacks_to_drop: int = 2,
 ) -> ResponseGetData:
     """Test if the authenticated user has access to the page.
@@ -83,9 +83,9 @@ async def get_accesslist(
     auth: Optional[DomoAuth] = None,
     return_raw: bool = False,
     debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_num_stacks_to_drop: int = 2,
-) -> Union[ResponseGetData, Dict[str, Union[int, List]]]:
+) -> Union[ResponseGetData, dict[str, Union[int, list]]]:
     """Retrieve the access list for the page showing users and groups with access.
 
     This method fetches the comprehensive access list for a page, including:
@@ -108,16 +108,16 @@ async def get_accesslist(
             Dictionary containing:
                 - explicit_shared_user_count (int): Number of users with explicit shares
                 - total_user_count (int): Total number of users with access
-                - domo_users (List[DomoUser]): List of users with access, enriched with:
+                - domo_users (list[DomoUser]): list of users with access, enriched with:
                     - custom_attributes['is_explicit_share']: True if directly shared
-                    - custom_attributes['group_membership']: List of groups user belongs to
+                    - custom_attributes['group_membership']: list of groups user belongs to
                     - custom_attributes['is_owner']: True if user is an owner
-                - domo_groups (List[DomoGroup]): List of groups with access, enriched with:
+                - domo_groups (list[DomoGroup]): list of groups with access, enriched with:
                     - custom_attributes['is_owner']: True if group is an owner
 
     Raises:
         PageSharing_Error: If access list retrieval fails (raised by route function).
-        SearchPage_NotFound: If page with specified ID doesn't exist (raised by route function).
+        SearchPageNotFoundError: If page with specified ID doesn't exist (raised by route function).
     """
     auth = auth or self.auth
 
@@ -134,7 +134,7 @@ async def get_accesslist(
     if return_raw:
         return res
 
-    from .. import DomoGroup as dmg
+    from ..DomoGroup import core as dmg
 
     s = {
         "explicit_shared_user_count": res.response.get("explicitSharedUserCount"),
@@ -244,11 +244,11 @@ async def get_accesslist(
 async def share(
     self,
     auth: Optional[DomoAuth] = None,
-    domo_users: Optional[Union[List, object]] = None,
-    domo_groups: Optional[Union[List, object]] = None,
+    domo_users: Optional[Union[list, object]] = None,
+    domo_groups: Optional[Union[list, object]] = None,
     message: Optional[str] = None,
     debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ) -> ResponseGetData:
     """Share the page with specified users and/or groups.
 

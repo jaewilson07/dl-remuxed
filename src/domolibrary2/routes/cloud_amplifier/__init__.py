@@ -16,10 +16,10 @@ Functions:
     get_integration_permissions: Get permissions for integrations
     check_for_colliding_datasources: Check for dataset collisions
     get_federated_source_metadata: Retrieve federated source metadata
-    get_integration_warehouses: List available compute warehouses
-    get_databases: List databases for an integration
-    get_schemas: List schemas for a database
-    get_tables: List tables for a schema
+    get_integration_warehouses: list available compute warehouses
+    get_databases: list databases for an integration
+    get_schemas: list schemas for a database
+    get_tables: list tables for a schema
     convert_federated_to_cloud_amplifier: Convert federated dataset to Cloud Amplifier
     create_integration: Create a new Cloud Amplifier integration
     update_integration_warehouses: Update compute warehouses

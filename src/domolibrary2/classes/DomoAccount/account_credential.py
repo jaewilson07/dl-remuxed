@@ -1,32 +1,28 @@
 __all__ = [
-    "DAC_NoTargetInstance",
-    "DAC_NoTargetUser",
-    "DAC_NoPassword",
-    "DAC_NoUserName",
-    "DAC_NoAccessTokenName",
-    "DAC_NoAccessToken",
-    "DAC_ValidAuth",
-    "DomoAccount_Credential",
+    "DACNoTargetInstanceError",
+    "DACNoTargetUserError",
+    "DACNoPasswordError",
+    "DACNoUserNameError",
+    "DACNoAccessTokenNameError",
+    "DACNoAccessTokenError",
+    "DACValidAuthError",
+    "DomoAccountCredential",
 ]
 
 
 from dataclasses import dataclass, field
-from typing import Optional
 
 import httpx
 
-from ...client.auth import AuthError, DomoAuth, DomoFullAuth, DomoTokenAuth
-from ...client.exceptions import ClassError, DomoError
+from ...auth import DomoAuth, DomoFullAuth, DomoTokenAuth
+from ...base.exceptions import AuthError, ClassError, DomoError
 from ...utils import convert as dmcv
 from ..DomoInstanceConfig.access_token import DomoAccessToken
-from ..DomoUser import (
-    DomoUser,
-    DomoUsers,
-)
+from ..DomoUser import DomoUser, DomoUsers
 from .account_default import DomoAccount_Default
 
 
-class DAC_NoTargetInstance(ClassError):
+class DACNoTargetInstanceError(ClassError):
     def __init__(self, cls_instance):
         super().__init__(
             message=f"no target_instance on class - {cls_instance.name}",
@@ -34,7 +30,7 @@ class DAC_NoTargetInstance(ClassError):
         )
 
 
-class DAC_NoTargetUser(ClassError):
+class DACNoTargetUserError(ClassError):
     def __init__(self, cls_instance):
         super().__init__(
             message=f"no target_user on class - {cls_instance.name}",
@@ -42,7 +38,7 @@ class DAC_NoTargetUser(ClassError):
         )
 
 
-class DAC_NoPassword(ClassError):
+class DACNoPasswordError(ClassError):
     def __init__(self, cls_instance):
         super().__init__(
             message=f"no password stored in account - {cls_instance.name}",
@@ -50,7 +46,7 @@ class DAC_NoPassword(ClassError):
         )
 
 
-class DAC_NoUserName(ClassError):
+class DACNoUserNameError(ClassError):
     def __init__(self, cls_instance):
         super().__init__(
             message=f"no username stored in account - {cls_instance.name}",
@@ -58,7 +54,7 @@ class DAC_NoUserName(ClassError):
         )
 
 
-class DAC_NoAccessTokenName(ClassError):
+class DACNoAccessTokenNameError(ClassError):
     def __init__(self, cls_instance):
         super().__init__(
             message="must pass access token name to retrieve",
@@ -66,7 +62,7 @@ class DAC_NoAccessTokenName(ClassError):
         )
 
 
-class DAC_NoAccessToken(ClassError):
+class DACNoAccessTokenError(ClassError):
     def __init__(self, cls_instance):
         super().__init__(
             message=f"no access_token stored in account - {cls_instance.name}",
@@ -74,7 +70,7 @@ class DAC_NoAccessToken(ClassError):
         )
 
 
-class DAC_ValidAuth(ClassError):
+class DACValidAuthError(ClassError):
     def __init__(self, cls_instance, message=None):
         super().__init__(
             message=message
@@ -84,7 +80,7 @@ class DAC_ValidAuth(ClassError):
 
 
 @dataclass
-class DomoAccount_Credential(DomoAccount_Default):
+class DomoAccountCredential(DomoAccount_Default):
     """Account credential management class for Domo accounts.
 
     This class extends DomoAccount_Default to provide credential management
@@ -100,16 +96,16 @@ class DomoAccount_Credential(DomoAccount_Default):
         target_access_token: Access token for the account
     """
 
-    target_auth: DomoAuth = field(default=None)
-    target_user: DomoUser = field(default=None)
-    target_access_token: DomoAccessToken = field(default=None)
+    target_auth: DomoAuth = field(default=None, compare=False)
+    target_user: DomoUser = field(default=None, compare=False)
+    target_access_token: DomoAccessToken = field(default=None, compare=False)
     target_instance: str = field(default=None)
 
-    is_valid_full_auth: Optional[bool] = None
-    is_valid_token_auth: Optional[bool] = None
+    is_valid_full_auth: bool = None
+    is_valid_token_auth: bool = None
 
-    _token_auth: Optional[DomoAuth] = field(repr=False, default=None)
-    _full_auth: Optional[DomoAuth] = field(repr=False, default=None)
+    _token_auth: DomoAuth = field(repr=False, default=None, compare=False)
+    _full_auth: DomoAuth = field(repr=False, default=None, compare=False)
 
     # Note: __post_init__ is inherited from DomoAccount_Default
     # which initializes the Access subentity
@@ -119,7 +115,7 @@ class DomoAccount_Credential(DomoAccount_Default):
         cls,
         obj: dict,
         is_admin_summary: bool = True,
-        auth: Optional[DomoAuth] = None,
+        auth: DomoAuth | None = None,
         is_use_default_account_class: bool = False,
         **kwargs,
     ):
@@ -180,7 +176,7 @@ class DomoAccount_Credential(DomoAccount_Default):
         return True
 
     async def test_full_auth(
-        self, debug_api: bool = False, session: Optional[httpx.AsyncClient] = None
+        self, debug_api: bool = False, session: httpx.AsyncClient | None = None
     ) -> bool:
         """Test full authentication (username/password) for the account.
 
@@ -201,13 +197,13 @@ class DomoAccount_Credential(DomoAccount_Default):
         self.is_valid_full_auth = False
 
         if not self.Config.username:
-            raise DAC_NoUserName(self)
+            raise DACNoUserNameError(self)
 
         if not self.Config.password:
-            raise DAC_NoPassword(self)
+            raise DACNoPasswordError(self)
 
         if not self.target_instance:
-            raise DAC_NoTargetInstance(self)
+            raise DACNoTargetInstanceError(self)
 
         self._full_auth = DomoFullAuth(
             domo_instance=self.target_instance,
@@ -227,7 +223,7 @@ class DomoAccount_Credential(DomoAccount_Default):
         return self.is_valid_full_auth
 
     async def test_token_auth(
-        self, debug_api: bool = False, session: Optional[httpx.AsyncClient] = None
+        self, debug_api: bool = False, session: httpx.AsyncClient | None = None
     ) -> bool:
         """Test token authentication for the account.
 
@@ -248,10 +244,10 @@ class DomoAccount_Credential(DomoAccount_Default):
         self.is_valid_token_auth = False
 
         if not self.Config.domo_access_token:
-            raise DAC_NoAccessToken(self)
+            raise DACNoAccessTokenError(self)
 
         if not self.target_instance:
-            raise DAC_NoTargetInstance(self)
+            raise DACNoTargetInstanceError(self)
 
         self._token_auth = DomoTokenAuth(
             domo_instance=self.target_instance,
@@ -271,7 +267,7 @@ class DomoAccount_Credential(DomoAccount_Default):
 
     def _set_target_auth(
         self,
-        valid_backup_auth: Optional[DomoAuth] = None,
+        valid_backup_auth: DomoAuth | None = None,
     ) -> DomoAuth:
         """Set target authentication using best available method.
 
@@ -284,7 +280,7 @@ class DomoAccount_Credential(DomoAccount_Default):
             The selected authentication object
 
         Raises:
-            DAC_ValidAuth: If no valid authentication method is available
+            DACValidAuthError: If no valid authentication method is available
         """
 
         target_auth = None
@@ -299,7 +295,7 @@ class DomoAccount_Credential(DomoAccount_Default):
             target_auth = valid_backup_auth
 
         if not target_auth:
-            raise DAC_ValidAuth(self)
+            raise DACValidAuthError(self)
 
         self.target_auth = target_auth
 
@@ -307,9 +303,9 @@ class DomoAccount_Credential(DomoAccount_Default):
 
     async def test_auths(
         self,
-        backup_auth: Optional[DomoAuth] = None,
+        backup_auth: DomoAuth | None = None,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ) -> dict:
         """Test both token and full authentication methods.
 
@@ -341,10 +337,8 @@ class DomoAccount_Credential(DomoAccount_Default):
         ## generate target_auth
         try:
             self._set_target_auth(valid_backup_auth=backup_auth)
-
-        except DAC_ValidAuth as e:
+        except DACValidAuthError as e:
             print(f"{self.name}: unable to generate valid target_auth: {e}")
-
         return self.to_dict()
 
     def to_dict(self) -> dict:
@@ -368,10 +362,10 @@ class DomoAccount_Credential(DomoAccount_Default):
 
     async def get_target_user(
         self,
-        user_email: Optional[str] = None,
-        target_auth: Optional[DomoAuth] = None,
+        user_email: str | None = None,
+        target_auth: DomoAuth | None = None,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ) -> DomoUser:
         """Retrieve the target user for this account.
 
@@ -386,18 +380,18 @@ class DomoAccount_Credential(DomoAccount_Default):
 
         Raises:
             DAC_NoUserName: If user email is not provided or configured
-            DAC_ValidAuth: If target authentication is not available
+            DACValidAuthError: If target authentication is not available
             DAC_NoTargetUser: If user cannot be found
         """
         user_email = user_email or self.Config.username
 
         if not user_email:
-            raise DAC_NoUserName(self)
+            raise DACNoUserNameError(self)
 
         target_auth = target_auth or self.target_auth
 
         if not target_auth:
-            raise DAC_ValidAuth(
+            raise DACValidAuthError(
                 self,
                 message="no target_auth, pass a valid backup_auth",
             )
@@ -409,19 +403,19 @@ class DomoAccount_Credential(DomoAccount_Default):
         )
 
         if not self.target_user:
-            raise DAC_NoTargetUser(self)
+            raise DACNoTargetUserError(self)
 
         return self.target_user
 
     async def update_target_user_password(
         self,
         new_password: str,
-        user_email: Optional[str] = None,
+        user_email: str | None = None,
         is_update_account: bool = True,
-        target_auth: Optional[DomoAuth] = None,
+        target_auth: DomoAuth | None = None,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
-    ) -> "DomoAccount_Credential":
+        session: httpx.AsyncClient | None = None,
+    ) -> "DomoAccountCredential":
         """Update the password for the target user.
 
         Args:
@@ -436,12 +430,12 @@ class DomoAccount_Credential(DomoAccount_Default):
             Self for method chaining
 
         Raises:
-            DAC_ValidAuth: If target authentication is not available
+            DACValidAuthError: If target authentication is not available
         """
         target_auth = target_auth or self.target_auth
 
         if not target_auth:
-            raise DAC_ValidAuth(
+            raise DACValidAuthError(
                 self,
                 message="no target_auth, pass a valid backup_auth",
             )
@@ -469,11 +463,11 @@ class DomoAccount_Credential(DomoAccount_Default):
 
     async def get_target_access_token(
         self,
-        token_name: Optional[str] = None,
-        user_email: Optional[str] = None,
-        target_auth: Optional[DomoAuth] = None,
+        token_name: str | None = None,
+        user_email: str | None = None,
+        target_auth: DomoAuth | None = None,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
     ) -> DomoAccessToken:
         """Retrieve an access token for the target user.
 
@@ -488,13 +482,13 @@ class DomoAccount_Credential(DomoAccount_Default):
             DomoAccessToken object if found, None otherwise
 
         Raises:
-            DAC_ValidAuth: If target authentication is not available
+            DACValidAuthError: If target authentication is not available
             DAC_NoAccessTokenName: If token name is not provided or available
         """
         target_auth = target_auth or self.target_auth
 
         if not target_auth:
-            raise DAC_ValidAuth(
+            raise DACValidAuthError(
                 self,
                 message="no target_auth, pass a valid backup_auth",
             )
@@ -510,7 +504,7 @@ class DomoAccount_Credential(DomoAccount_Default):
         token_name = token_name or self.name
 
         if not token_name:
-            raise DAC_NoAccessTokenName(self)
+            raise DACNoAccessTokenNameError(self)
 
         domo_access_tokens = await self.target_user.get_access_tokens(
             session=session,
@@ -527,20 +521,20 @@ class DomoAccount_Credential(DomoAccount_Default):
         )
 
         if not self.target_access_token:
-            raise DAC_NoAccessTokenName(self)
+            raise DACNoAccessTokenNameError(self)
 
         return self.target_access_token
 
     async def regenerate_target_access_token(
         self,
-        token_name: Optional[str] = None,
+        token_name: str | None = None,
         duration_in_days: int = 90,
-        user_email: Optional[str] = None,
+        user_email: str | None = None,
         is_update_account: bool = True,
-        target_auth: Optional[DomoAuth] = None,
+        target_auth: DomoAuth | None = None,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
-    ) -> "DomoAccount_Credential":
+        session: httpx.AsyncClient | None = None,
+    ) -> "DomoAccountCredential":
         """Regenerate or create an access token for the target user.
 
         If a token with the given name exists, it will be regenerated. Otherwise,
@@ -559,13 +553,13 @@ class DomoAccount_Credential(DomoAccount_Default):
             Self for method chaining
 
         Raises:
-            DAC_ValidAuth: If target authentication is not available
+            DACValidAuthError: If target authentication is not available
             DAC_NoTargetUser: If target user cannot be retrieved
         """
         target_auth = target_auth or self.target_auth
 
         if not target_auth:
-            raise DAC_ValidAuth(
+            raise DACValidAuthError(
                 self,
                 message="no target_auth, pass a valid backup_auth",
             )
@@ -579,7 +573,7 @@ class DomoAccount_Credential(DomoAccount_Default):
         )  # handles retrieving target user
 
         if not self.target_user:
-            raise DAC_NoTargetUser(self)
+            raise DACNoTargetUserError(self)
 
         if domo_access_token:
             await domo_access_token.regenerate(

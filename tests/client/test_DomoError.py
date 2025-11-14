@@ -1,10 +1,11 @@
-"""
+r"""
 Test file generated from DomoError.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
@@ -16,11 +17,7 @@ token_auth = dmda.DomoTokenAuth(
 
 async def test_cell_1(token_auth=token_auth):
     """Test case from cell 1"""
-    import domolibrary.routes.user as user_route
-    import domolibrary.classes.DomoUser as dmdu
 
-    import domolibrary.client.DomoAuth as dmda
-    import os
 
 
 async def test_cell_2(token_auth=token_auth):

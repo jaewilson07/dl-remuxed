@@ -9,12 +9,12 @@ from typing import Optional
 
 import httpx
 
+from ...auth import DomoAuth
+from ...base.exceptions import RouteError
 from ...client import (
     get_data as gd,
     response as rgd,
 )
-from ...client.auth import DomoAuth
-from ...client.exceptions import RouteError
 
 
 class InstanceSwitcher_GET_Error(RouteError):
@@ -60,7 +60,7 @@ class InstanceSwitcher_CRUD_Error(RouteError):
 @gd.route_function
 async def get_instance_switcher_mapping(
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -97,7 +97,7 @@ async def get_instance_switcher_mapping(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         timeout=timeout,
     )
 
@@ -118,7 +118,7 @@ async def get_instance_switcher_mapping(
 async def set_instance_switcher_mapping(
     auth: DomoAuth,
     mapping_payloads: list[dict],
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -133,7 +133,7 @@ async def set_instance_switcher_mapping(
 
     Args:
         auth: Authentication object containing instance and credentials
-        mapping_payloads: List of mapping configurations, each with format:
+        mapping_payloads: list of mapping configurations, each with format:
             {'userAttribute': 'attribute_name', 'instance': 'instance.domo.com'}
         session: Optional HTTP client session for connection reuse
         debug_api: Enable detailed API request/response logging
@@ -166,7 +166,7 @@ async def set_instance_switcher_mapping(
         session=session,
         body=mapping_payloads,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         timeout=timeout,
     )
 

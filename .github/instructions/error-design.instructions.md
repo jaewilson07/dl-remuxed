@@ -84,7 +84,7 @@ class Card_GET_Error(RouteError): pass
 **Examples**:
 ```python
 class SearchDataset_NotFound(RouteError): pass
-class SearchUser_NotFound(RouteError): pass
+class SearchUserNotFoundError(RouteError): pass
 class SearchRole_NotFound(RouteError): pass
 ```
 
@@ -252,7 +252,7 @@ class SearchDataset_NotFound(RouteError):
 class InvalidAuthTypeError(AuthError):
     """Raised when wrong authentication method is used for an API endpoint."""
 
-    def __init__(self, required_auth_types: List[str], current_auth_type: Optional[str] = None, **kwargs):
+    def __init__(self, required_auth_types: list[str], current_auth_type: Optional[str] = None, **kwargs):
         auth_list = ", ".join(required_auth_types)
         message = f"This API requires one of: {auth_list}"
         if current_auth_type:
@@ -310,7 +310,7 @@ except InvalidAuthTypeError as e:
 # Fallback search strategies
 try:
     users = await search_users_by_email(email)
-except SearchUser_NotFound:
+except SearchUserNotFoundError:
     # Try partial match
     users = await search_users_by_partial_email(email)
 ```
@@ -396,7 +396,7 @@ class User_GET_Error(RouteError):
     def __init__(self, user_id: Optional[str] = None, res=None, **kwargs):
         super().__init__(message="User retrieval failed", entity_id=user_id, res=res, **kwargs)
 
-class SearchUser_NotFound(RouteError):
+class SearchUserNotFoundError(RouteError):
     """Raised when user search operations return no results."""
     def __init__(self, search_criteria: str, res=None, **kwargs):
         message = f"No users found matching: {search_criteria}"
@@ -415,7 +415,7 @@ class UserSharing_Error(RouteError):
         super().__init__(message=message, entity_id=user_id, res=res, **kwargs)
 
 # Specialized errors
-class ResetPassword_PasswordUsed(RouteError): pass
+class ResetPasswordPasswordUsedError(RouteError): pass
 class DownloadAvatar_Error(RouteError): pass
 ```
 

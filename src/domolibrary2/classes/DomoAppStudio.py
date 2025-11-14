@@ -2,12 +2,11 @@ __all__ = ["DomoAppStudio", "DomoAppStudios"]
 
 
 from dataclasses import dataclass, field
-from typing import List
 
 import httpx
 
-from ..client.auth import DomoAuth
-from ..entities.entities import DomoEntity_w_Lineage
+from ..auth import DomoAuth
+from ..base.entities import DomoEntity_w_Lineage
 from ..routes import appstudio as appstudio_routes
 from ..utils import (
     DictDot as util_dd,
@@ -84,7 +83,7 @@ class DomoAppStudio(DomoEntity_w_Lineage):
         if not owners or len(owners) == 0:
             return []
 
-        from . import DomoGroup as dmg
+        from .DomoGroup import core as dmg
 
         domo_groups = []
         domo_users = []
@@ -167,7 +166,7 @@ class DomoAppStudio(DomoEntity_w_Lineage):
         if not res.is_success:
             raise Exception("error getting access list")
 
-        from . import DomoGroup as dmg
+        from .DomoGroup import core as dmg
 
         s = {
             # "explicit_shared_user_count": res.response.get("explicitSharedUserCount"),
@@ -232,9 +231,9 @@ class DomoAppStudio(DomoEntity_w_Lineage):
     async def add_appstudio_owner(
         cls,
         auth: DomoAuth,
-        appstudio_id_ls: List[int],  # AppStudio IDs to be updated by owner,
-        group_id_ls: List[int],  # DomoGroup IDs to share page with
-        user_id_ls: List[int],  # DomoUser IDs to share page with
+        appstudio_id_ls: list[int],  # AppStudio IDs to be updated by owner,
+        group_id_ls: list[int],  # DomoGroup IDs to share page with
+        user_id_ls: list[int],  # DomoUser IDs to share page with
         note: str = None,  # message for automated email
         send_email: bool = False,  # send or not email to the new owners
         debug_api: bool = False,

@@ -1,469 +1,313 @@
 ---
-applies-to: tests/test_harness.py
-title: Domo Library Route Testing Harness
+applies-to: tests/**/*
+title: Domo Library Testing Standards
 ---
-# Route Testing Harness Guide
+# Testing Standards
 
-## Overview
+## Test Structure
 
-This testing framework provides comprehensive tools for testing Domo Library route functions with:
-- **Mock responses** for isolated unit testing
-- **Error scenario testing** for robust error handling validation
-- **Performance testing** for optimization
-- **Integration testing** for real API validation
-- **Async support** for modern Python patterns
+### Test File Organization
 
-## Quick Start
+```
+tests/
+├── classes/          # Class tests (test_50_*.py)
+├── routes/           # Route tests
+├── client/           # Client tests
+├── integrations/     # Integration tests
+├── tools/            # Tool tests
+└── utils/            # Utility tests
+```
 
-### Basic Route Test
+### Test File Naming
+
+- **Class tests**: `tests/classes/test_50_ClassName.py`
+- **Route tests**: `tests/routes/module_name.py` or `test_module_name.py`
+- **Client tests**: `tests/client/test_component.py`
+
+## Standard Test Pattern
+
+All tests follow a consistent async pattern with environment-based configuration:
 
 ```python
-import pytest
-from tests.test_harness import RouteTestHarness, RouteTestBuilder
+import os
+from dotenv import load_dotenv
+import domolibrary2.client.auth as dmda
+import domolibrary2.classes.DomoUser as dmdu
 
-@pytest.mark.asyncio
-async def test_my_route():
-    # Create test harness
-    harness = RouteTestHarness()
+load_dotenv()
 
-    # Build test scenarios
-    builder = RouteTestBuilder(harness)
-    builder.add_success_scenario(
-        "valid_request",
-        "Test successful route call",
-        res={"id": "123", "name": "Test Entity"}
+# Setup authentication for tests
+token_auth = dmda.DomoTokenAuth(
+    domo_instance=os.environ["DOMO_INSTANCE"],
+    domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],
+)
+
+# Test data from environment
+TEST_USER_ID_1 = os.environ.get("USER_ID_1")
+
+async def test_cell_1(token_auth=token_auth):
+    """Test description of what this validates."""
+    # Test implementation
+    result = await dmdu.DomoUser.get_by_id(
+        auth=token_auth,
+        user_id=TEST_USER_ID_1
     )
-
-    scenarios = builder.build()
-
-    # Your route function (example)
-    async def my_route_function(auth, entity_id):
-        return harness.create_response_get_data(
-            status=200,
-            res={"id": entity_id, "status": "success"}
-        )
-
-    # Run tests
-    results = harness.run_test_scenarios(
-        my_route_function,
-        scenarios,
-        entity_id="123"
-    )
-
-    assert results["passed"] > 0
+    assert result is not None
+    assert result.id == TEST_USER_ID_1
+    return result
 ```
 
-### Standard Test Patterns
-
-Use the convenience function for common CRUD operations:
-
-```python
-from tests.test_harness import create_standard_route_tests
-
-def test_user_route_standard():
-    harness = RouteTestHarness()
-
-    # Automatically creates success, error, not found, auth error scenarios
-    scenarios = create_standard_route_tests(
-        harness,
-        entity_name="user",
-        sample_data={"id": "user-123", "name": "John Doe"}
-    )
-
-    # Test your route function
-    results = harness.run_test_scenarios(get_user_by_id, scenarios)
-    assert results["failed"] == 0
-```
-
-## Test Scenario Types
-
-### 1. Success Scenarios
-
-```python
-builder.add_success_scenario(
-    "get_entity_success",
-    "Successfully retrieve entity",
-    res={"id": "123", "name": "Test"},
-    status_code=200,
-    entity_id="123"  # Function parameters
-)
-```
-
-### 2. Error Scenarios
-
-```python
-# Generic error
-builder.add_error_scenario(
-    "server_error",
-    "Internal server error",
-    status_code=500,
-    error_response={"error": "Internal error"},
-    expected_exception=RouteError
-)
-
-# Authentication error
-builder.add_auth_error_scenario(
-    "unauthorized",
-    "Invalid or expired token",
-    status_code=401
-)
-
-# Not found error
-builder.add_not_found_scenario(
-    "entity_not_found",
-    "Entity does not exist",
-    entity_id="nonexistent-id"
-)
-```
-
-### 3. Custom Scenarios
-
-```python
-scenario = TestScenario(
-    name="custom_test",
-    description="Custom test scenario",
-    mock_response=MockResponse(
-        status_code=202,
-        json_data={"message": "Accepted"},
-        headers={"Location": "/status/123"}
-    ),
-    expected_success=True,
-    function_kwargs={"custom_param": "value"}
-)
-```
-
-## Error Testing Patterns
-
-### Test Exception Handling
-
-```python
-async def test_route_error_handling():
-    harness = RouteTestHarness()
-
-    # Test that route raises correct exception
-    scenario = TestScenario(
-        name="auth_error",
-        description="Should raise AuthError for 401",
-        mock_response=MockResponse(
-            status_code=401,
-            json_data={"error": "Unauthorized"},
-            is_success=False
-        ),
-        expected_success=False,
-        expected_exception=AuthError  # Verify correct exception type
-    )
-
-    results = harness.run_test_scenarios(my_route, [scenario])
-    assert results["passed"] == 1
-```
-
-### Test Error Messages
-
-```python
-from src.client.exceptions import RouteError
-
-async def test_error_message_context():
-    harness = RouteTestHarness()
-
-    try:
-        # Simulate route that should fail
-        error = RouteError.for_entity(
-            "dataset-123",
-            "Dataset {entity_id} not found",
-            "dataset"
-        )
-        raise error
-    except RouteError as e:
-        assert "dataset-123" in str(e)
-        assert "not found" in str(e)
-```
-
-## Performance Testing
-
-```python
-from tests.test_harness import PerformanceTestHarness
-
-@pytest.mark.performance
-async def test_route_performance():
-    # Measure route execution time
-    performance = await PerformanceTestHarness.measure_route_performance(
-        route_function=my_fast_route,
-        iterations=100,
-        auth=harness.default_auth,
-        entity_id="test-123"
-    )
-
-    # Assert performance requirements
-    assert performance["avg_time"] < 0.1  # Under 100ms average
-    assert performance["errors"] == 0     # No failures
-    assert performance["max_time"] < 0.5  # No request over 500ms
-```
-
-## Integration Testing
-
-For testing against real APIs (use sparingly):
-
-```python
-@pytest.mark.integration
-async def test_real_api_integration():
-    from tests.test_harness import IntegrationTestHarness
-
-    # Requires real auth credentials
-    real_auth = get_real_auth_from_env()
-    integration = IntegrationTestHarness(real_auth)
-
-    result = await integration.test_route_integration(
-        route_function=get_user_by_id,
-        test_params={"user_id": "real-user-id"},
-        expected_status_range=(200, 299)
-    )
-
-    assert result["success"] is True
-```
-
-## Mock Responses
-
-### JSON Responses
-
-```python
-MockResponse(
-    status_code=200,
-    json_data={
-        "users": [
-            {"id": "1", "name": "User 1"},
-            {"id": "2", "name": "User 2"}
-        ],
-        "total": 2
-    }
-)
-```
-
-### Text Responses
-
-```python
-MockResponse(
-    status_code=200,
-    text_data="Plain text response",
-    headers={"Content-Type": "text/plain"}
-)
-```
-
-### Error Responses
-
-```python
-MockResponse(
-    status_code=404,
-    json_data={"error": "Not Found", "message": "Entity does not exist"},
-    is_success=False
-)
-```
-
-## Authentication Testing
-
-### Different Auth Types
-
-```python
-# Full auth (session token)
-full_auth = harness._create_mock_auth(auth_type="full")
-
-# Developer auth (client credentials)
-dev_auth = harness._create_mock_auth(
-    auth_type="developer",
-    domo_instance="my-instance"
-)
-
-# Custom auth configuration
-custom_auth = harness._create_mock_auth(
-    domo_instance="custom-instance",
-    custom_field="custom_value"
-)
-```
-
-### Auth Error Scenarios
-
-```python
-# Test various auth failures
-auth_scenarios = [
-    TestScenario(
-        name="invalid_token",
-        description="Invalid session token",
-        mock_response=MockResponse(401, {"error": "Invalid token"}),
-        expected_exception=InvalidCredentialsError
-    ),
-    TestScenario(
-        name="expired_token",
-        description="Expired session token",
-        mock_response=MockResponse(401, {"error": "Token expired"}),
-        expected_exception=InvalidCredentialsError
-    ),
-    TestScenario(
-        name="insufficient_permissions",
-        description="Valid token but no permission",
-        mock_response=MockResponse(403, {"error": "Forbidden"}),
-        expected_exception=AuthError
-    )
-]
-```
-
-## Best Practices
-
-### 1. Test Structure
-
-```python
-class TestEntityRoutes:
-    """Group related route tests together."""
-
-    @pytest.fixture
-    def entity_data(self):
-        return {"id": "123", "name": "Test Entity"}
-
-    @pytest.mark.asyncio
-    async def test_get_entity(self, entity_data):
-        # Test implementation
-        pass
-
-    @pytest.mark.asyncio
-    async def test_create_entity(self, entity_data):
-        # Test implementation
-        pass
-```
-
-### 2. Parameterized Tests
-
-```python
-@pytest.mark.parametrize("status_code,expected_exception", [
-    (400, RouteError),
-    (401, AuthError),
-    (403, AuthError),
-    (404, RouteError),
-    (500, RouteError)
-])
-async def test_error_status_codes(status_code, expected_exception):
-    # Test different error status codes
-    pass
-```
-
-### 3. Fixture Reuse
-
-```python
-@pytest.fixture
-def common_scenarios(harness):
-    """Reusable scenarios across multiple tests."""
-    return create_standard_route_tests(harness, "entity")
-
-def test_route_a(common_scenarios):
-    # Use shared scenarios
-    pass
-
-def test_route_b(common_scenarios):
-    # Reuse same scenarios for different route
-    pass
-```
-
-### 4. Error Message Testing
-
-```python
-async def test_error_messages_are_helpful():
-    """Ensure error messages provide useful debugging information."""
-
-    error = RouteError.for_entity(
-        "user-123",
-        "User {entity_id} not found in instance {domo_instance}",
-        domo_instance="test-instance"
-    )
-
-    error_str = str(error)
-    assert "user-123" in error_str
-    assert "test-instance" in error_str
-    assert "not found" in error_str
-```
-
-## Running Tests
-
-### Command Line Examples
-
-```bash
-# Run all tests
-pytest
-
-# Run only unit tests
-pytest -m unit
-
-# Run with coverage
-pytest --cov=src --cov-report=html
-
-# Run specific test file
-pytest tests/test_user_routes.py
-
-# Run integration tests (requires credentials)
-pytest -m integration --run-integration
-
-# Run performance tests
-pytest -m performance --run-performance
-
-# Verbose output
-pytest -v
-
-# Stop on first failure
-pytest -x
-
-# Run tests in parallel
-pytest -n auto
-```
+## Test Requirements
+
+### Essential Elements
+
+1. **Async Functions**: All test functions must be async
+2. **Environment Variables**: Use `.env` file for test configuration
+3. **Type Hints**: Include type hints on test functions where helpful
+4. **Docstrings**: Document what each test validates
+5. **Assertions**: Include clear assertions for validation
+6. **Return Values**: Optionally return results for inspection
 
 ### Environment Variables
 
+Store sensitive data in `.env` (never commit):
+
 ```bash
-# For integration tests
-export DOMO_INSTANCE="your-instance"
-export DOMO_TOKEN="your-token"
-
-# Test configuration
-export TESTING=true
-export PYTEST_CURRENT_TEST=true
+DOMO_INSTANCE="your-instance"
+DOMO_ACCESS_TOKEN="your-developer-token"
+USER_ID_1="test-user-id"
+DATASET_ID_1="test-dataset-id"
+ACCOUNT_CREDENTIAL_ID_1="123"
+# Add more as needed
 ```
 
-## Advanced Usage
+Update `.env_sample` with new variables (without actual values).
 
-### Custom Mock Responses
+## Running Tests
+
+### Using Scripts
+
+```powershell
+# Run all tests with coverage
+.\scripts\test.ps1
+
+# Run specific test file
+uv run pytest tests/classes/test_50_DomoUser.py -v
+
+# Run specific test function
+uv run pytest tests/classes/test_50_DomoUser.py::test_cell_1 -v
+
+# Run with coverage report
+uv run pytest tests/ --cov=src --cov-report=html
+```
+
+### Using pytest directly
+
+```powershell
+# All tests
+pytest tests/ -v
+
+# Specific module
+pytest tests/classes/ -v
+
+# With markers
+pytest tests/ -m "not integration" -v
+
+# Stop on first failure
+pytest tests/ -x
+```
+
+## Test Markers
+
+Use pytest markers to categorize tests:
 
 ```python
-class CustomMockResponse:
-    """Custom response handler for complex scenarios."""
+import pytest
 
-    def __init__(self, scenario_data):
-        self.scenario_data = scenario_data
+@pytest.mark.unit
+async def test_basic_functionality():
+    """Unit test for basic functionality."""
+    pass
 
-    async def handle_request(self, **kwargs):
-        # Custom logic based on request parameters
-        if kwargs.get("entity_id") == "special":
-            return special_response()
-        return standard_response()
+@pytest.mark.integration
+async def test_api_integration():
+    """Integration test requiring real API calls."""
+    pass
+
+@pytest.mark.slow
+async def test_large_dataset():
+    """Test that takes significant time."""
+    pass
 ```
 
-### Test Data Factories
+Run specific markers:
+```powershell
+pytest -m unit  # Only unit tests
+pytest -m "not integration"  # Skip integration tests
+```
+
+## Test Patterns
+
+### Testing Class Methods
 
 ```python
-def create_user_list(count=5):
-    """Generate test user data."""
-    return [
-        {
-            "id": f"user-{i}",
-            "name": f"User {i}",
-            "email": f"user{i}@example.com"
-        }
-        for i in range(count)
-    ]
-
-def create_dataset_schema():
-    """Generate test dataset schema."""
-    return {
-        "columns": [
-            {"name": "id", "type": "STRING"},
-            {"name": "value", "type": "DOUBLE"},
-            {"name": "date", "type": "DATE"}
-        ]
-    }
+async def test_get_by_id():
+    """Test retrieving entity by ID."""
+    entity = await DomoEntity.get_by_id(
+        auth=token_auth,
+        entity_id=TEST_ENTITY_ID
+    )
+    assert entity is not None
+    assert entity.id == TEST_ENTITY_ID
+    assert entity.auth.domo_instance == token_auth.domo_instance
 ```
 
-This testing harness provides comprehensive coverage for route function testing while maintaining simplicity and flexibility for various testing scenarios.
+### Testing Route Functions
+
+```python
+from domolibrary2.routes import user as user_routes
+
+async def test_route_get_user():
+    """Test user route returns valid response."""
+    res = await user_routes.get_by_id(
+        auth=token_auth,
+        user_id=TEST_USER_ID
+    )
+    assert res.is_success
+    assert res.status == 200
+    assert res.response.get("id") == TEST_USER_ID
+```
+
+### Testing Error Handling
+
+```python
+from domolibrary2.routes.user.exceptions import User_GET_Error
+
+async def test_invalid_user_id():
+    """Test that invalid user ID raises appropriate error."""
+    with pytest.raises(User_GET_Error) as exc_info:
+        await user_routes.get_by_id(
+            auth=token_auth,
+            user_id="invalid-id-12345"
+        )
+    assert "not found" in str(exc_info.value).lower()
+```
+
+### Testing with Mocks (when needed)
+
+```python
+from unittest.mock import AsyncMock, patch
+
+async def test_with_mock():
+    """Test using mocked API responses."""
+    mock_response = {"id": "123", "name": "Test User"}
+
+    with patch('domolibrary2.routes.user.get_by_id') as mock_get:
+        mock_get.return_value.response = mock_response
+        mock_get.return_value.is_success = True
+
+        result = await user_routes.get_by_id(
+            auth=token_auth,
+            user_id="123"
+        )
+        assert result.response == mock_response
+```
+
+## Test Organization Best Practices
+
+### 1. Group Related Tests
+
+```python
+class TestUserCRUD:
+    """Group of tests for user CRUD operations."""
+
+    async def test_create_user(self):
+        """Test user creation."""
+        pass
+
+    async def test_update_user(self):
+        """Test user update."""
+        pass
+
+    async def test_delete_user(self):
+        """Test user deletion."""
+        pass
+```
+
+### 2. Use Fixtures for Common Setup
+
+```python
+import pytest
+
+@pytest.fixture
+async def test_user(token_auth):
+    """Create a test user for multiple tests."""
+    user = await create_test_user(auth=token_auth)
+    yield user
+    # Cleanup
+    await delete_test_user(auth=token_auth, user_id=user.id)
+
+async def test_with_fixture(test_user):
+    """Test using the fixture."""
+    assert test_user.id is not None
+```
+
+### 3. Skip Tests Conditionally
+
+```python
+@pytest.mark.skipif(
+    not os.environ.get("RUN_INTEGRATION_TESTS"),
+    reason="Integration tests disabled"
+)
+async def test_integration():
+    """Integration test."""
+    pass
+```
+
+## Coverage Requirements
+
+- Aim for >80% code coverage
+- All public methods should have tests
+- Critical paths must be tested
+- Error scenarios should be tested
+
+View coverage report:
+```powershell
+.\scripts\test.ps1
+# Open htmlcov/index.html in browser
+```
+
+## Continuous Integration
+
+Tests run automatically on:
+- Pull requests
+- Pushes to main branch
+- Pre-release checks
+
+Ensure all tests pass before submitting PRs.
+
+## Debugging Tests
+
+### Run with verbose output
+
+```powershell
+pytest tests/ -vv --tb=long
+```
+
+### Run with logging
+
+```powershell
+pytest tests/ -v --log-cli-level=DEBUG
+```
+
+### Debug specific test
+
+```powershell
+pytest tests/classes/test_50_DomoUser.py::test_cell_1 -vv -s
+```
+
+## Reference
+
+- Full test examples: `tests/classes/test_50_DomoUser.py`
+- Route tests: `tests/routes/access_token.py`
+- Testing guide: `docs/testing-guide.md`

@@ -1,10 +1,11 @@
-"""
+r"""
 Test file generated from 50_DomoRole.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
@@ -23,11 +24,11 @@ async def test_cell_1(token_auth=token_auth):
     )
 
     roles = (await role_routes.get_roles(auth=auth)).response
-    role = next((role for role in roles if 'test' in role['name'].lower()))
-    role_id = role["id"]
+    role = next(role for role in roles if 'test' in role['name'].lower())
+    role["id"]
 
     users = (await user_routes.get_all_users(auth=auth)).response
-    user = next((user for user in users if 'test' in user["emailAddress"].lower()))
+    next(user for user in users if 'test' in user["emailAddress"].lower())
 
 
 async def test_cell_2(token_auth=token_auth):

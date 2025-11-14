@@ -29,7 +29,7 @@ Utility Functions:
 
 Exception Classes:
     Jupyter_GET_Error: Raised when Jupyter workspace retrieval fails
-    SearchJupyter_NotFound: Raised when Jupyter search returns no results
+    SearchJupyterNotFoundError: Raised when Jupyter search returns no results
     Jupyter_CRUD_Error: Raised when Jupyter create/update/delete operations fail
     JupyterWorkspace_Error: Raised when workspace operations fail
 """
@@ -42,6 +42,7 @@ from .config import (
 # Import utility functions
 # Import content management functions
 from .content import (
+    GenerateUpdateJupyterBodyFactory,
     create_jupyter_obj,
     delete_jupyter_content,
     generate_update_jupyter_body,
@@ -49,7 +50,6 @@ from .content import (
     generate_update_jupyter_body__ipynb,
     generate_update_jupyter_body__new_content_path,
     generate_update_jupyter_body__text,
-    generate_update_jupyter_body_factory,
     get_content,
     get_content_recursive,
     get_jupyter_content,
@@ -72,13 +72,13 @@ from .exceptions import (  # Backward compatibility aliases
     JupyterAPI_Error,
     JupyterAPI_WorkspaceStarted,
     JupyterWorkspace_Error,
-    SearchJupyter_NotFound,
+    SearchJupyterNotFoundError,
 )
 
 __all__ = [
     # Exception classes
     "Jupyter_GET_Error",
-    "SearchJupyter_NotFound",
+    "SearchJupyterNotFoundError",
     "Jupyter_CRUD_Error",
     "JupyterWorkspace_Error",
     "JupyterAPI_Error",  # Backward compatibility
@@ -103,6 +103,6 @@ __all__ = [
     "generate_update_jupyter_body__text",
     "generate_update_jupyter_body__ipynb",
     "generate_update_jupyter_body__directory",
-    "generate_update_jupyter_body_factory",
+    "GenerateUpdateJupyterBodyFactory",
     "generate_update_jupyter_body",
 ]

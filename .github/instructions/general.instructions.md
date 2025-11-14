@@ -16,16 +16,33 @@ Domolibrary2 is a Python library for interacting with Domo APIs. The project use
 
 ```
 src/domolibrary2/
-├── classes/          # Domo entity classes (DomoUser, DomoDataset, etc.)
-├── routes/           # API route handlers grouped by domain
-├── client/           # Core client classes (DomoAuth, entities, exceptions)
-├── utils/            # Utility functions and helpers
-└── integrations/     # Higher-level integration patterns
+├── auth/              # Authentication classes (DomoAuth, DomoFullAuth, etc.)
+│   ├── __init__.py    # Re-exports all auth classes
+│   ├── base.py        # DomoAuth base class
+│   ├── full.py        # Username/password auth
+│   ├── token.py       # Access token auth
+│   ├── developer.py   # OAuth2 client credentials
+│   ├── jupyter.py     # Jupyter-specific auth
+│   └── utils.py       # Auth utilities
+├── base/              # Base classes and exceptions
+│   ├── base.py        # DomoEnumMixin and base utilities
+│   ├── entities.py    # DomoEntity, DomoManager base classes
+│   ├── exceptions.py  # DomoError, RouteError, ClassError, AuthError
+│   └── relationships.py # Relationship utilities
+├── classes/           # Domo entity classes (DomoUser, DomoDataset, etc.)
+├── routes/            # API route handlers grouped by domain
+│   ├── Single-file modules (simple routes)
+│   └── Folder modules (complex routes with submodules)
+├── client/            # HTTP client utilities
+│   ├── get_data.py    # Core HTTP request handler
+│   └── response.py    # Response classes
+├── utils/             # Utility functions and helpers
+└── integrations/      # Higher-level integration patterns
 
 tests/
-├── classes/          # Class tests (test_50_*.py)
-├── routes/           # Route tests
-└── client/           # Client tests
+├── classes/           # Class tests (test_50_*.py)
+├── routes/            # Route tests
+└── client/            # Client tests
 ```
 
 ## Key Design Principles
@@ -51,16 +68,28 @@ tests/
 
 5. **Error Design**:
    - Route-specific exceptions (User_GET_Error, Dataset_CRUD_Error)
-   - Exceptions in `routes/[domain]/exceptions.py`
-   - Inherit from DomoError base class
+   - Exceptions in `routes/[domain]/exceptions.py` (folder modules) or at top of file (single-file modules)
+   - All exceptions inherit from base classes in `base/exceptions.py`:
+     - **DomoError**: Base for all Domo-related errors
+     - **RouteError**: API route/endpoint errors
+     - **ClassError**: Class instance errors
+     - **AuthError**: Authentication-specific errors
+
+6. **Authentication Architecture**:
+   - All auth classes in `auth/` module
+   - **DomoAuth**: Base authentication class (abstract)
+   - **DomoFullAuth**: Username/password authentication
+   - **DomoTokenAuth**: Access token authentication
+   - **DomoDeveloperAuth**: OAuth2 client credentials
+   - **DomoJupyterAuth**: Jupyter-specific authentication variants
 
 ## Import Conventions
 
 ### Standard Aliases:
 ```python
-import domolibrary2.client.auth as dmda
-import domolibrary2.client.entities as dmde
-import domolibrary2.client.exceptions as dmex
+import domolibrary2.auth as dmda
+import domolibrary2.base.entities as dmde
+import domolibrary2.base.exceptions as dmex
 import domolibrary2.utils.DictDot as util_dd
 ```
 
@@ -71,12 +100,21 @@ import domolibrary2.utils.DictDot as util_dd
 
 ### Relative Import Pattern:
 ```python
+# From routes to auth
+from ..auth import DomoAuth  # Single-file module
+from ...auth import DomoAuth  # Folder module
+
 # From routes to client
-from ..client.auth import DomoAuth
 from ..client import get_data as gd
+from ..client import response as rgd
+
+# From routes to base exceptions
+from ..base.exceptions import RouteError  # Single-file module
+from ...base.exceptions import RouteError  # Folder module
 
 # From classes to routes
 from ...routes import user as user_routes
+from ...routes.dataset import get_dataset_by_id  # Folder module
 from ...routes.user.exceptions import User_GET_Error
 
 # From classes to subentities
@@ -111,8 +149,9 @@ from ...routes.instance_config.user_attributes import (
 ## Code Style
 
 ### Formatting:
-- **Black** for code formatting (line length: 88)
+- **Ruff-format** for code formatting (Black-compatible, line length: 88)
 - **isort** for import sorting
+- **Ruff** for linting with auto-fix
 - Run via pre-commit hooks or `scripts/format-code.ps1`
 
 ### Naming:
@@ -194,10 +233,14 @@ Update `.env_sample` with new variables (without actual values).
 ## Pre-commit Hooks
 
 Run before every commit:
-- **black**: Code formatting
+- **ruff**: Linting with auto-fix
+- **ruff-format**: Code formatting (Black-compatible)
 - **isort**: Import sorting
-- **flake8**: Linting
-- **mypy**: Type checking
+- **bandit**: Security scanning
+- **trailing-whitespace**, **end-of-file-fixer**: File cleanup
+- **check-yaml**, **check-toml**: Configuration validation
+
+Note: mypy type checking is available via `scripts/lint.ps1` but not in pre-commit hooks.
 
 Bypass if needed (not recommended):
 ```powershell
@@ -216,7 +259,7 @@ async with httpx.AsyncClient() as session:
 ```python
 async def function_name(
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ):
     # Function handles both with and without session
     res = await route_function(auth=auth, session=session)
@@ -265,9 +308,10 @@ class CustomError(DomoError):
 ## Documentation
 
 ### Project Documentation:
-- [Class Validation System](../../docs/CLASS-VALIDATION-START-HERE.md)
 - [Testing Guide](../../docs/testing-guide.md)
 - [Type Hints Guide](../../docs/type-hints-implementation-guide.md)
+- [Trigger System Guide](../../docs/trigger-system-guide.md)
+- [Card Datasets Manager](../../docs/card-datasets-manager.md)
 
 ### API Documentation:
 Generated from docstrings using Sphinx or similar tool.

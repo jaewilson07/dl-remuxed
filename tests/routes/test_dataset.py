@@ -1,10 +1,11 @@
-"""
+r"""
 Test file generated from dataset.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
@@ -23,12 +24,11 @@ async def test_cell_1(token_auth=token_auth):
 
     await token_auth.who_am_i()
 
-    dataset_id = '04c1574e-c8be-4721-9846-c6ffa491144b'
 
 
 async def test_cell_2(token_auth=token_auth):
     """Test case from cell 2"""
-    sql = f"SELECT * FROM TABLE"
+    sql = "SELECT * FROM TABLE"
 
     pd.DataFrame(
         (

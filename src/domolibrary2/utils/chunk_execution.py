@@ -5,7 +5,7 @@ This module provides utilities for async function execution with features like:
 - Automatic retry logic with customizable error handling
 - Concurrency control with semaphores
 - Sequential execution of async functions
-- List chunking for batch processing
+- list chunking for batch processing
 
 Functions:
     run_with_retry: Decorator for automatic retry logic on async functions
@@ -26,28 +26,25 @@ Example:
     >>> chunks = chunk_list(large_list, chunk_size=100)
 """
 
+from __future__ import annotations
+
 __all__ = ["run_with_retry", "gather_with_concurrency", "run_sequence", "chunk_list"]
 
 import asyncio
 import functools
-from collections.abc import Awaitable
-from typing import Any, Callable, List, Optional, Tuple, TypeVar
+import httpx
 
-# Import httpx with fallback for optional dependency
-try:
-    import httpx
+import httpx
 
-    _HTTPX_AVAILABLE = True
-except ImportError:
-    httpx = None
-    _HTTPX_AVAILABLE = False
+from ..utils.logging import get_colored_logger
 
-T = TypeVar("T")
+# Initialize colored logger
+logger = get_colored_logger()
 
 
 def run_with_retry(
-    max_retry: int = 1, errors_to_retry_tp: Optional[Tuple[type, ...]] = None
-) -> Callable:
+    max_retry: int = 1, errors_to_retry_tp: tuple[type, ...] | None = None
+):
     """
     Decorator that adds automatic retry logic to async functions.
 
@@ -76,36 +73,49 @@ def run_with_retry(
         - All retry attempts are logged to stdout
     """
     errors_to_retry_tp = errors_to_retry_tp or ()
+    allowed_errors_tp = (httpx.ConnectTimeout,)
 
-    def actual_decorator(run_fn: Callable) -> Callable:
+    def actual_decorator(run_fn):
         @functools.wraps(run_fn)
         async def wrapper(*args, **kwargs):
             retry = 0
             while retry <= max_retry:
                 try:
                     return await run_fn(*args, **kwargs)
+
                 except Exception as e:
-                    # Handle httpx.ConnectTimeout if httpx is available
-                    if (
-                        _HTTPX_AVAILABLE
-                        and httpx
-                        and isinstance(e, httpx.ConnectTimeout)
-                    ):
-                        print(f"connect timeout - retry attempt {retry} - {e}")
-                        retry += 1
-                        await asyncio.sleep(2)
-                        if retry > max_retry:
-                            raise
-                        continue
+                    from domolibrary2.base.exceptions import AuthError
+                    from domolibrary2.client.get_data import GetDataError
+
+                    if isinstance(e, (GetDataError, AuthError)):
+                        raise e from e
 
                     # Only retry if error is in errors_to_retry_tp (if specified)
-                    if errors_to_retry_tp and not isinstance(e, errors_to_retry_tp):
-                        raise
+                    if errors_to_retry_tp and not isinstance(
+                        e, errors_to_retry_tp + allowed_errors_tp
+                    ):
+                        raise e from e
 
-                    print(f"retry decorator attempt - {retry} - {e}")
+                    # Check if we've exhausted retries
+                    if retry >= max_retry:
+                        raise e from e
+
+                    # Handle httpx.ConnectTimeout if httpx is available
+                    if isinstance(e, httpx.ConnectTimeout):
+                        await logger.info(
+                            f"connect timeout - retry attempt {retry + 1}/{max_retry} - {e}",
+                            color="yellow",
+                        )
+                        await asyncio.sleep(2)
+
                     retry += 1
-                    if retry > max_retry:
-                        raise
+
+                    # Only log warning for non-ConnectTimeout errors when we're actually retrying
+                    if not isinstance(e, httpx.ConnectTimeout):
+                        await logger.warning(
+                            f"retry decorator attempt - {retry}/{max_retry} - {e}",
+                            color="yellow",
+                        )
 
         return wrapper
 
@@ -113,9 +123,9 @@ def run_with_retry(
 
 
 async def gather_with_concurrency(
-    *coros: Awaitable[T],
+    *coros,
     n: int = 60,
-) -> List[T]:
+):
     """
     Execute multiple coroutines with concurrency control.
 
@@ -127,7 +137,7 @@ async def gather_with_concurrency(
         n (int): Maximum number of concurrent coroutines (default: 60)
 
     Returns:
-        List[T]: Results from all coroutines in the same order as input
+        list[T]: Results from all coroutines in the same order as input
 
     Example:
         >>> async def fetch_url(url):
@@ -144,7 +154,7 @@ async def gather_with_concurrency(
     """
     semaphore = asyncio.Semaphore(n)
 
-    async def sem_coro(coro: Awaitable[T]) -> T:
+    async def sem_coro(coro):
         async with semaphore:
             return await coro
 
@@ -152,8 +162,8 @@ async def gather_with_concurrency(
 
 
 async def run_sequence(
-    *functions: Awaitable[Any],
-) -> List[Any]:
+    *functions,
+):
     """
     Execute a sequence of async functions sequentially.
 
@@ -165,7 +175,7 @@ async def run_sequence(
         *functions: Variable number of awaitable functions to execute
 
     Returns:
-        List[Any]: Results from all functions in execution order
+        list[Any]: Results from all functions in execution order
 
     Example:
         >>> async def step1():
@@ -185,9 +195,9 @@ async def run_sequence(
 
 
 def chunk_list(
-    obj_ls: List[Any],
+    obj_ls: list,
     chunk_size: int,
-) -> List[List[Any]]:
+):
     """
     Split a list into smaller chunks of specified size.
 
@@ -196,11 +206,11 @@ def chunk_list(
     is not evenly divisible by chunk_size.
 
     Args:
-        obj_ls (List[Any]): List of objects to split into chunks
+        obj_ls (list[Any]): list of objects to split into chunks
         chunk_size (int): Maximum number of items per chunk
 
     Returns:
-        List[List[Any]]: List of chunks, where each chunk is a list of objects
+        list[list[Any]]: list of chunks, where each chunk is a list of objects
 
     Raises:
         ValueError: If chunk_size is less than 1

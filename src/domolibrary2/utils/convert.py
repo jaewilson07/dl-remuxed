@@ -33,7 +33,7 @@ Functions:
 
 Exception Classes:
     InvalidEmail: Raised when email validation fails
-    ConcatDataframe_InvalidElement: Raised when dataframe concat fails
+    ConcatDataframeInvalidElementError: Raised when dataframe concat fails
 
 Example:
     >>> # Datetime conversions
@@ -61,61 +61,29 @@ __all__ = [
     "convert_programming_text_to_title_case",
     "convert_snake_to_pascal",
     "convert_str_to_snake_case",
-    "InvalidEmail",
+    "InvalidEmailError",
     "test_valid_email",
     "convert_string_to_bool",
-    "ConcatDataframe_InvalidElement",
+    "ConcatDataframeError",
     "concat_list_dataframe",
     "merge_dict",
 ]
 
+
 import ast
 import datetime as dt
 import re
-from typing import Any, Dict, List, Optional, Union
 
 # Optional dependencies with fallbacks
-try:
-    import pandas as pd
-
-    _PANDAS_AVAILABLE = True
-except ImportError:
-    pd = None
-    _PANDAS_AVAILABLE = False
-
-try:
-    from dateutil import parser as date_parser
-
-    _DATEUTIL_AVAILABLE = True
-except ImportError:
-    date_parser = None
-    _DATEUTIL_AVAILABLE = False
-
-try:
-    from IPython.display import display_markdown
-
-    _IPYTHON_AVAILABLE = True
-except ImportError:
-    display_markdown = None
-    _IPYTHON_AVAILABLE = False
+import pandas as pd
+from dateutil import parser as date_parser
+from IPython.display import display_markdown
 
 # Import custom exceptions
 from .exceptions import ConcatDataframeError, InvalidEmailError
 
 
-# Legacy exception names for backwards compatibility
-class InvalidEmail(InvalidEmailError):
-    """Legacy alias for InvalidEmailError."""
-
-    pass
-
-
-class ConcatDataframe_InvalidElement(ConcatDataframeError):
-    """Legacy alias for ConcatDataframeError."""
-
-    pass
-
-
+## Legacy exception aliases removed for N818 compliance
 def print_md(md_str: str) -> None:
     """
     Display markdown string in Jupyter notebook environment.
@@ -133,14 +101,12 @@ def print_md(md_str: str) -> None:
         This function only works in Jupyter notebook environments where
         IPython.display is available.
     """
-    if not _IPYTHON_AVAILABLE or display_markdown is None:
-        raise ImportError("IPython is required for print_md function")
     display_markdown(md_str, raw=True)
 
 
 def convert_epoch_millisecond_to_datetime(
-    epoch: Optional[int],
-) -> Optional[dt.datetime]:
+    epoch: int | None,
+) -> dt.datetime | None:
     """
     Convert Epoch time with milliseconds to datetime object.
 
@@ -159,8 +125,8 @@ def convert_epoch_millisecond_to_datetime(
 
 
 def convert_datetime_to_epoch_millisecond(
-    datetime: Optional[dt.datetime],
-) -> Optional[int]:
+    datetime: dt.datetime | None,
+) -> int | None:
     """
     Convert datetime object to Epoch time with milliseconds.
 
@@ -179,7 +145,7 @@ def convert_datetime_to_epoch_millisecond(
     return int(datetime.timestamp() * 1000) if datetime else None
 
 
-def convert_string_to_datetime(datestr: Optional[str]) -> Optional[dt.datetime]:
+def convert_string_to_datetime(datestr: str | None) -> dt.datetime | None:
     """
     Convert a date string to datetime object using flexible parsing.
 
@@ -201,19 +167,14 @@ def convert_string_to_datetime(datestr: Optional[str]) -> Optional[dt.datetime]:
     if not datestr:
         return None
 
-    if not _DATEUTIL_AVAILABLE or date_parser is None:
-        raise ImportError(
-            "dateutil is required for convert_string_to_datetime function"
-        )
-
     return date_parser.parse(datestr)
 
 
 def convert_python_to_ast_module(
-    python_str: Optional[str] = None,
-    python_file_path: Optional[str] = None,
+    python_str: str | None = None,
+    python_file_path: str | None = None,
     return_str: bool = False,
-) -> Union[ast.Module, str]:
+) -> ast.Module | str:
     """
     Parse Python code string or file and return its AST module.
 
@@ -251,7 +212,7 @@ def convert_python_to_ast_module(
     return ast.parse(python_str)
 
 
-def extract_ast_functions(ast_module: ast.Module) -> List[ast.FunctionDef]:
+def extract_ast_functions(ast_module: ast.Module) -> list[ast.FunctionDef]:
     """
     Extract all function definitions from an AST module.
 
@@ -259,7 +220,7 @@ def extract_ast_functions(ast_module: ast.Module) -> List[ast.FunctionDef]:
         ast_module (ast.Module): AST module to extract functions from
 
     Returns:
-        List[ast.FunctionDef]: List of function definition nodes
+        list[ast.FunctionDef]: list of function definition nodes
 
     Example:
         >>> code = '''
@@ -415,10 +376,10 @@ def test_valid_email(email: str) -> bool:
     if re.fullmatch(pattern, email):
         return True
     else:
-        raise InvalidEmail(email=email)
+        raise InvalidEmailError(email=email)
 
 
-def convert_string_to_bool(v: Union[str, bool]) -> bool:
+def convert_string_to_bool(v: str | bool) -> bool:
     """
     Convert string representation to boolean value.
 
@@ -446,12 +407,12 @@ def convert_string_to_bool(v: Union[str, bool]) -> bool:
     return str(v).lower() in ("yes", "true", "t", "1")
 
 
-def concat_list_dataframe(df_ls: List[Any]) -> Any:
+def concat_list_dataframe(df_ls: list[object]) -> object:
     """
     Take a list of DataFrames and concatenate them into one DataFrame.
 
     Args:
-        df_ls (List[Any]): List of pandas DataFrames to concatenate
+        df_ls (list[Any]): list of pandas DataFrames to concatenate
 
     Returns:
         Any: Concatenated DataFrame (returns Any due to optional pandas dependency)
@@ -470,13 +431,10 @@ def concat_list_dataframe(df_ls: List[Any]) -> Any:
         Requires pandas to be installed. Uses inner join for concatenation
         and resets the index.
     """
-    if not _PANDAS_AVAILABLE or pd is None:
-        raise ImportError("pandas is required for concat_list_dataframe function")
-
     df = None
     for elem in df_ls:
         if not isinstance(elem, pd.DataFrame):
-            raise ConcatDataframe_InvalidElement(elem)
+            raise ConcatDataframeError(elem)
 
         if len(elem.index) == 0:
             continue
@@ -489,7 +447,9 @@ def concat_list_dataframe(df_ls: List[Any]) -> Any:
     return df
 
 
-def merge_dict(source: Dict[str, Any], destination: Dict[str, Any]) -> Dict[str, Any]:
+def merge_dict(
+    source: dict[str, object], destination: dict[str, object]
+) -> dict[str, object]:
     """
     Deep merge source dictionary into destination dictionary.
 

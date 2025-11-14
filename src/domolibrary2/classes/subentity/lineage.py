@@ -15,14 +15,14 @@ __all__ = [
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, List, Optional
+from typing import Any, Callable, Optional
 
 import httpx
 
-from ...client.auth import DomoAuth
-from ...client.exceptions import DomoError
-from ...entities.base import DomoEnumMixin
-from ...entities.entities import DomoEntity
+from ...auth import DomoAuth
+from ...base.base import DomoEnumMixin
+from ...base.entities import DomoEntity
+from ...base.exceptions import DomoError
 from ...routes import datacenter as datacenter_routes
 from ...utils import chunk_execution as dmce
 
@@ -36,8 +36,8 @@ class DomoLineage_Link(ABC):
 
     entity: Any = field(repr=False)  # DomoDataset, DomoDataflow, DomoPublication
 
-    parents: List["DomoLineage_Link"] = field(default_factory=list)
-    children: List["DomoLineage_Link"] = field(default_factory=list)
+    parents: list["DomoLineage_Link"] = field(default_factory=list)
+    children: list["DomoLineage_Link"] = field(default_factory=list)
 
     def __eq__(self, other):
         if other.__class__.__name__ != self.__class__.__name__:
@@ -103,7 +103,7 @@ class DomoLineageLink_Dataflow(DomoLineage_Link):
     async def get_entity(
         entity_id, auth, session: httpx.AsyncClient = None, debug_api: bool = False
     ):
-        from ..DomoDataflow import Dataflow as dmdf
+        from ..DomoDataflow import core as dmdf
 
         return await dmdf.DomoDataflow.get_by_id(dataflow_id=entity_id, auth=auth)
 
@@ -251,6 +251,7 @@ class DomoLineage_ParentTypeEnum(DomoEnumMixin, Enum):
     FederatedDomoDataset = "DATA_SOURCE"
     DomoPage = "PAGE"
     DomoCard = "CARD"
+    FederatedDomoCard = "CARD"
     DomoRepository = "REPOSITORY"
     DomoAppStudio = "DATA_APP"
 
@@ -264,7 +265,7 @@ class DomoLineage:
 
     parent: Any = field(repr=False, default=None)
 
-    lineage: List[DomoLineage_Link] = field(repr=False, default_factory=list)
+    lineage: list[DomoLineage_Link] = field(repr=False, default_factory=list)
 
     # raw_datacenter: dict = field(repr=False, default_factory=dict)
 
@@ -340,69 +341,13 @@ class DomoLineage:
         # dmcv.merge_dict(res.response, self.raw_datacenter)
 
         async def _get_entity_from_dict(obj):
-            entity_cls = DomoLineageLinkTypeFactory_Enum[obj["type"]].value  # class
+            entity = DomoLineageLinkTypeFactory_Enum[obj["type"]].value  ## abc
 
-            return await entity_cls.from_dict(obj=obj, auth=self.auth)
-
-        # Detect placeholder DATA_SOURCE entries returned by the datacenter API
-        # We consider a placeholder one when ancestorCounts == {} and type == 'DATA_SOURCE'
-        candidate_ds_ids = [
-            str(obj["id"])
-            for _, obj in res.response.items()
-            if obj.get("type") == "DATA_SOURCE" and obj.get("ancestorCounts", {}) == {} and str(obj["id"]) != str(self.parent.id)
-        ]
-
-        id_to_dataset = {}
-        if candidate_ds_ids:
-            # Lazy import to avoid circular imports
-            from ..DomoDataset.core import DomoDataset as dmds
-
-            # Prefetch dataset objects concurrently
-            ds_objs = await dmce.gather_with_concurrency(
-                *[
-                    dmds.get_by_id(dataset_id=did, auth=(self.parent.auth if self.parent else self.auth), session=session, debug_api=debug_api)
-                    for did in candidate_ds_ids
-                ],
-                n=10,
-            )
-
-            # Normalize results into id -> DomoDataset_Default mapping
-            for did, ds in zip(candidate_ds_ids, ds_objs):
-                # If the route returned a dataset instance directly
-                if hasattr(ds, "id"):
-                    id_to_dataset[did] = ds
-                # If it returned a ResponseGetData-like object with .response
-                elif getattr(ds, "response", None):
-                    try:
-                        id_to_dataset[did] = dmds.from_dict(auth=(self.parent.auth if self.parent else self.auth), obj=ds.response)
-                    except Exception:
-                        # swallow - leave out of mapping if we can't convert
-                        pass
-
-        async def _get_entity_from_dict_with_override(obj):
-            """
-            If we prefetched a federated dataset for this DATA_SOURCE placeholder,
-            create the lineage link using the prefetched entity to replace the placeholder.
-            Otherwise fall back to the standard from_dict path.
-            """
-            obj_id_str = str(obj["id"])
-
-            entity_cls = DomoLineageLinkTypeFactory_Enum[obj["type"]].value
-            test = await entity_cls.from_dict(obj=obj, auth=self.auth)
-
-            if obj.get("type") == "DATA_SOURCE" and obj_id_str in id_to_dataset:
-                ds = id_to_dataset[obj_id_str]
-                if getattr(ds, "is_federated", False):
-                    fed_lineage = await ds.Lineage.get_federated_lineage(parent_auth=parent_auth, parent_auth_retrieval_fn=parent_auth_retrieval_fn)
-                    test.parents = fed_lineage
-                    pass
-
-
-            return test
+            return await entity.from_dict(obj=obj, auth=self.auth)
 
         dx_classes = await dmce.gather_with_concurrency(
             *[
-                _get_entity_from_dict_with_override(obj)
+                _get_entity_from_dict(obj)
                 for _, obj in res.response.items()
                 if str(obj["id"]) != str(self.parent.id)
             ],
@@ -499,17 +444,14 @@ class DomoLineage:
                 debug_api=debug_api,
                 return_raw=return_raw,
             )
-
         # parent_auth = parent_auth or if parent....
         ## if its federated do something else
         # await self.get_parent_content_details(parent_auth)
 
         else:
             await self.get_datacenter_lineage(
-                session=session, debug_api=debug_api, return_raw=return_raw, parent_auth=parent_auth, parent_auth_retrieval_fn=parent_auth_retrieval_fn
+                session=session, debug_api=debug_api, return_raw=return_raw
             )
-
-
 
         if is_recursive:
             # recursively get lineage for all items in lineage
@@ -526,7 +468,6 @@ class DomoLineage:
                 ],
                 n=10,
             )
-            
 
             # flatten list of lists
             flattened_lineage = [item for sublist in all_lineage for item in sublist]
@@ -536,14 +477,16 @@ class DomoLineage:
                 if lin and lin not in self.lineage:
                     self.lineage.append(lin)
 
-        
-
         return self.lineage
 
 
 @dataclass
 class DomoLineage_Page(DomoLineage):
-    cards: List[Any] = field(repr=False, default=None)
+    cards: list[Any] = field(repr=False, default=None)
+
+    @property
+    def parent_type(self) -> DomoLineage_ParentTypeEnum:
+        return DomoLineage_ParentTypeEnum.DomoPage
 
     @property
     def parent_type(self) -> DomoLineage_ParentTypeEnum:
@@ -613,10 +556,10 @@ class DomoLineage_Publication(DomoLineage):
         default=DomoLineage_ParentTypeEnum.DomoPublication, repr=False
     )
 
-    datasets: List[Any] = field(repr=False, default=None)
-    cards: List[Any] = field(repr=False, default=None)
-    page: List[Any] = field(repr=False, default=None)
-    unsorted: List[Any] = field(repr=False, default=None)
+    datasets: list[Any] = field(repr=False, default=None)
+    cards: list[Any] = field(repr=False, default=None)
+    page: list[Any] = field(repr=False, default=None)
+    unsorted: list[Any] = field(repr=False, default=None)
 
     async def get(
         self,
@@ -674,29 +617,29 @@ class DomoLineage_Publication(DomoLineage):
             n=10,
         )
 
-        self.lineage = [l for l in lineage if l]
+        self.lineage = [ele for ele in lineage if ele]
 
-        for l in self.lineage:
-            if l.__class__.__name__ == "DomoDataset":
+        for ele in self.lineage:
+            if ele.__class__.__name__ == "DomoDataset":
                 if not self.datasets:
                     self.datasets = []
-                self.datasets.append(l)
-            elif l.__class__.__name__ == "DomoCard":
+                self.datasets.append(ele)
+            elif ele.__class__.__name__ == "DomoCard":
                 if not self.cards:
                     self.cards = []
-                self.cards.append(l)
-            elif l.__class__.__name__ == "DomoPage":
+                self.cards.append(ele)
+            elif ele.__class__.__name__ == "DomoPage":
                 if not self.page:
                     self.page = []
-                self.page.append(l)
+                self.page.append(ele)
             else:
                 if not self.unsorted:
                     self.unsorted = []
-                self.unsorted.append(l)
+                self.unsorted.append(ele)
 
         if self.unsorted:
             print(
-                f"Unsorted lineage items: {', '.join([l.__class__.__name__ for l in self.unsorted])}"
+                f"Unsorted lineage items: {', '.join([ele.__class__.__name__ for ele in self.unsorted])}"
             )
 
         return self.lineage

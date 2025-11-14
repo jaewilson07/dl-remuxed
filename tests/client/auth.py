@@ -1,25 +1,12 @@
 """
-Comprehensive tests for domolibrary2.client.auth using the test harness.
+Comprehensive tests for domolibrary2.auth using the test harness.
 """
 
-import pytest
-import asyncio
-from unittest.mock import AsyncMock, patch
-import domolibrary2.client.auth as dmda
-from dotenv import load_dotenv
 import os
 
-import domolibrary2.client.auth as dmda
-from domolibrary2.client.response import ResponseGetData, RequestMetadata
-from domolibrary2.client.exceptions import AuthError, InvalidCredentialsError
-from tests.tools.test_harness import (
-    RouteTestHarness,
-    TestScenario,
-    MockResponse,
-    RouteTestBuilder,
-    PytestRouteTestCase,
-    IntegrationTestHarness,
-)
+from dotenv import load_dotenv
+
+import domolibrary2.auth as dmda
 
 load_dotenv()
 

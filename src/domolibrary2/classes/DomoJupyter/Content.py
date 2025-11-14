@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 import httpx
 from dateutil.parser import parse
 
-from ...client import auth as dmda
+from ... import auth as dmda
 from ...routes import jupyter as jupyter_routes
 from ...utils import DictDot as util_dd
 

@@ -1,5 +1,5 @@
 __all__ = [
-    "Role_NotRetrieved",
+    "RoleNotRetrievedError",
     "Role_CRUD_Error",
     "get_roles",
     "get_role_by_id",
@@ -14,20 +14,18 @@ __all__ = [
     "role_membership_add_users",
 ]
 
-from typing import List, Optional
 
 import httpx
 
+from ..auth import DomoAuth
+from ..base.exceptions import RouteError
 from ..client import (
     get_data as gd,
 )
-
-from ..client.auth import DomoAuth
-from ..client.exceptions import RouteError
 from ..client.response import ResponseGetData
 
 
-class Role_NotRetrieved(RouteError):
+class RoleNotRetrievedError(RouteError):
     def __init__(
         self,
         res: ResponseGetData,
@@ -49,7 +47,7 @@ class Role_CRUD_Error(RouteError):
 @gd.route_function
 async def get_roles(
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
@@ -61,13 +59,13 @@ async def get_roles(
         url=url,
         method="GET",
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
     )
 
     if not res.is_success:
-        raise Role_NotRetrieved(res=res)
+        raise RoleNotRetrievedError(res=res)
 
     return res
 
@@ -76,7 +74,7 @@ async def get_roles(
 async def get_role_by_id(
     auth: DomoAuth,
     role_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
     parent_class: str = None,
@@ -89,12 +87,12 @@ async def get_role_by_id(
         method="GET",
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
     if not res.is_success:
-        raise Role_NotRetrieved(
+        raise RoleNotRetrievedError(
             res=res,
         )
 
@@ -105,7 +103,7 @@ async def get_role_by_id(
 async def get_role_grants(
     auth: DomoAuth,
     role_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
     parent_class: str = None,
@@ -118,7 +116,7 @@ async def get_role_grants(
         method="GET",
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -128,7 +126,7 @@ async def get_role_grants(
         domo_role = [role for role in role_res.response if role.get("id") == role_id]
 
         if not domo_role:
-            raise Role_NotRetrieved(
+            raise RoleNotRetrievedError(
                 res=res,
                 message=f"role {role_id} does not exist",
             )
@@ -140,7 +138,7 @@ async def get_role_grants(
 async def get_role_membership(
     auth: DomoAuth,
     role_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -154,7 +152,7 @@ async def get_role_membership(
         method="GET",
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -166,7 +164,7 @@ async def get_role_membership(
         )
 
         if not domo_role:
-            raise Role_NotRetrieved(
+            raise RoleNotRetrievedError(
                 res=res,
                 message=f"role {role_id} does not exist or cannot be retrieved",
             )
@@ -184,7 +182,7 @@ async def create_role(
     auth: DomoAuth,
     name: str,
     description: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
@@ -200,7 +198,7 @@ async def create_role(
         body=body,
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -214,7 +212,7 @@ async def create_role(
 async def delete_role(
     auth: DomoAuth,
     role_id: int,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
@@ -228,7 +226,7 @@ async def delete_role(
         method="DELETE",
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -252,7 +250,7 @@ async def delete_role(
 @gd.route_function
 async def get_default_role(
     auth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
@@ -268,12 +266,12 @@ async def get_default_role(
         params=params,
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
     if not res.is_success:
-        raise Role_NotRetrieved(res=res)
+        raise RoleNotRetrievedError(res=res)
 
     res.response = res.response.get("value")
 
@@ -284,7 +282,7 @@ async def get_default_role(
 async def set_default_role(
     auth: DomoAuth,
     role_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class=None,
@@ -302,7 +300,7 @@ async def set_default_role(
         debug_api=debug_api,
         body=body,
         session=session,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -318,7 +316,7 @@ async def update_role_metadata(
     role_id,
     role_name,
     role_description: str = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
@@ -335,7 +333,7 @@ async def update_role_metadata(
         body=body,
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -358,8 +356,8 @@ async def update_role_metadata(
 async def set_role_grants(
     auth: DomoAuth,
     role_id: str,
-    grants: List[str],
-    session: Optional[httpx.AsyncClient] = None,
+    grants: list[str],
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
@@ -375,7 +373,7 @@ async def set_role_grants(
         session=session,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -397,8 +395,8 @@ async def set_role_grants(
 async def role_membership_add_users(
     auth: DomoAuth,
     role_id: str,
-    user_ids: List[str],  # list of user ids
-    session: Optional[httpx.AsyncClient] = None,
+    user_ids: list[str],  # list of user ids
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
@@ -412,7 +410,7 @@ async def role_membership_add_users(
         body=user_ids,
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 

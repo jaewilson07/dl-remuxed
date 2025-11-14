@@ -1,10 +1,11 @@
-"""
+r"""
 Test file generated from DomoPublish.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
@@ -74,7 +75,7 @@ async def test_cell_3(token_auth=token_auth):
         domo_access_token=os.environ.get("DOMO_PARENT_ACCESS_TOKEN"),
     )
 
-    child_auth = dmda.DomoTokenAuth(
+    dmda.DomoTokenAuth(
         domo_instance=os.environ.get("DOMO_CHILD_INSTANCE"),
         domo_access_token=os.environ.get("DOMO_CHILD_ACCESS_TOKEN"),
     )
@@ -143,7 +144,7 @@ async def test_cell_8(token_auth=token_auth):
 
 async def test_cell_9(token_auth=token_auth):
     """Test case from cell 9"""
-    domo_everywhere_parent = DomoEverywhere(auth=parent_auth)
+    DomoEverywhere(auth=parent_auth)
     domo_everywhere_child = DomoEverywhere(auth=child_auth)
 
     await domo_everywhere_child.get_subscriptions(debug_api=False, return_raw=False)

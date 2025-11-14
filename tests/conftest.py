@@ -2,11 +2,12 @@
 pytest configuration for route testing.
 """
 
-import pytest
 import asyncio
-from typing import Generator
 import os
+from collections.abc import Generator
 from unittest.mock import MagicMock
+
+import pytest
 
 from .tools.test_harness import RouteTestHarness
 

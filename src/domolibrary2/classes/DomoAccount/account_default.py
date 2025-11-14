@@ -1,29 +1,31 @@
 __all__ = [
-    "Account_CanIModify",
-    "UpsertAccount_MatchCriteria",
-    "DomoAccounConfig_MissingFields",
+    "Account_CanIModifyError",
+    "UpsertAccount_MatchCriteriaError",
+    "DomoAccounConfig_MissingFieldsError",
     "DomoAccount_Default",
-    "AccountClass_CRUD_Error",
+    "AccountClass_CRUDError",
 ]
-
-
 import asyncio
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import Any, List
+from typing import Any
 
 import httpx
+from dc_logger.decorators import LogDecoratorConfig, log_call
 
-from ...client.auth import DomoAuth
-from ...client.exceptions import ClassError, DomoError
-from ...entities.entities import DomoEntity
+from ...auth import DomoAuth
+from ...base.entities import DomoEntity
+from ...base.exceptions import ClassError, DomoError
 from ...routes import account as account_routes
 from ...utils import convert as cd
+from ...utils.logging import ResponseGetDataProcessor, get_colored_logger
 from .access import DomoAccess_Account
 from .config import AccountConfig, DomoAccount_Config
 
+logger = get_colored_logger()
 
-class Account_CanIModify(ClassError):
+
+class Account_CanIModifyError(ClassError):
     def __init__(self, account_id, domo_instance):
         super().__init__(
             message="`DomoAccount.is_admin_summary` must be `False` to proceed.  Either set the value explicity, or retrieve the account instance using `DomoAccount.get_by_id()`",
@@ -32,7 +34,7 @@ class Account_CanIModify(ClassError):
         )
 
 
-class UpsertAccount_MatchCriteria(ClassError):
+class UpsertAccount_MatchCriteriaError(ClassError):
     def __init__(self, domo_instance):
         super().__init__(
             message="must pass an account_id or account_name to UPSERT",
@@ -40,7 +42,7 @@ class UpsertAccount_MatchCriteria(ClassError):
         )
 
 
-class DomoAccounConfig_MissingFields(ClassError):
+class DomoAccounConfig_MissingFieldsError(ClassError):
     def __init__(self, domo_instance, missing_keys, account_id):
         super().__init__(
             domo_instance=domo_instance,
@@ -48,7 +50,7 @@ class DomoAccounConfig_MissingFields(ClassError):
         )
 
 
-class AccountClass_CRUD_Error(ClassError):
+class AccountClass_CRUDError(ClassError):
     def __init__(self, cls_instance, message):
         super().__init__(cls_instance=cls_instance, message=message)
 
@@ -58,22 +60,36 @@ class DomoAccount_Default(DomoEntity):
     id: int
     auth: DomoAuth = field(repr=False)
 
-    name: str = None
+    name: str = None  # Internal name field
+    display_name: str = None  # User-friendly display name
     data_provider_type: str = None
 
     created_dt: dt.datetime = None
     modified_dt: dt.datetime = None
 
-    owners: List[Any] = None  # DomoUser or DomoGroup
+    owners: list[Any] = None  # DomoUser or DomoGroup
 
     is_admin_summary: bool = True
 
-    Config: DomoAccount_Config = field(repr=False, default=None)
-    Access: DomoAccess_Account = field(repr=False, default=None)
+    Config: DomoAccount_Config = field(repr=False, default=None, compare=False)
+    Access: DomoAccess_Account = field(repr=False, default=None, compare=False)
+
+    def __eq__(self, other):
+        if not isinstance(other, DomoAccount_Default):
+            return False
+
+        return (
+            self.id == other.id and self.auth.domo_instance == other.auth.domo_instance
+        )
 
     @property
     def entity_type(self):
         return "ACCOUNT"
+
+    @property
+    def display_url(self):
+        """returns the URL to the account in Domo"""
+        return f"{self.auth.domo_instance}/datacenter/accounts"
 
     def __post_init__(self):
         self.id = int(self.id)
@@ -81,10 +97,6 @@ class DomoAccount_Default(DomoEntity):
         self.Access = DomoAccess_Account.from_parent(
             parent=self,
         )
-
-    def display_url(self):
-        """returns the URL to the account in Domo"""
-        return f"{self.auth.domo_instance}/datacenter/accounts"
 
     @classmethod
     def from_dict(
@@ -99,7 +111,8 @@ class DomoAccount_Default(DomoEntity):
 
         return new_cls(
             id=obj.get("id") or obj.get("databaseId"),
-            name=obj.get("displayName"),
+            name=obj.get("name"),
+            display_name=obj.get("displayName"),
             data_provider_type=obj.get("dataProviderId") or obj.get("dataProviderType"),
             created_dt=cd.convert_epoch_millisecond_to_datetime(
                 obj.get("createdAt") or obj.get("createDate")
@@ -127,6 +140,33 @@ class DomoAccount_Default(DomoEntity):
     def _test_missing_keys(self, res_obj, config_obj):
         return [r_key for r_key in res_obj.keys() if r_key not in config_obj.keys()]
 
+    async def refresh(
+        self,
+        is_suppress_no_config: bool = False,
+        debug_api: bool = False,
+        session: httpx.Client = None,
+    ):
+        """synchronous wrapper for _get_config"""
+
+        await super().refresh(
+            is_suppress_no_config=is_suppress_no_config,
+            debug_api=debug_api,
+            session=session,
+        )
+
+        await self._get_config(
+            is_suppress_no_config=is_suppress_no_config,
+            debug_api=debug_api,
+            session=session,
+        )
+
+        return self
+
+    @log_call(
+        level_name="class",
+        config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+        logger=logger,
+    )
     async def _get_config(
         self,
         session=None,
@@ -163,17 +203,18 @@ class DomoAccount_Default(DomoEntity):
         if return_raw:
             return res
 
-        config_fn = AccountConfig(self.data_provider_type).value
-
         try:
+            config_fn = AccountConfig(self.data_provider_type).value
             self.Config = config_fn.from_dict(
                 obj=res.response, data_provider_type=self.data_provider_type
             )
 
-        except DomoError as e:
+        except (DomoError, ValueError, TypeError) as e:
+            await logger.warning(
+                f"unable to parse account config for account id {self.id} - {e}"
+            )
             if not is_suppress_no_config:
                 raise e from e
-            print(e)
 
         if self.Config and self.Config.to_dict() != {}:
             self._test_missing_keys(
@@ -278,7 +319,7 @@ class DomoAccount_Default(DomoEntity):
         res = await account_routes.update_account_name(
             auth=auth,
             account_id=self.id,
-            account_name=account_name or self.name,
+            account_name=account_name or self.display_name or self.name,
             debug_api=debug_api,
             session=session,
         )
@@ -287,13 +328,15 @@ class DomoAccount_Default(DomoEntity):
             return res
 
         if not res.is_success and self.is_admin_summary:
-            raise Account_CanIModify(
+            raise Account_CanIModifyError(
                 account_id=self.id, domo_instance=auth.domo_instance
             )
 
         new_acc = await DomoAccount_Default.get_by_id(auth=auth, account_id=self.id)
 
         self._update_self(new_class=new_acc, skip_props=["Config"])
+
+        return self
 
         return self
 
@@ -317,7 +360,7 @@ class DomoAccount_Default(DomoEntity):
         )
 
         if not res.is_success and self.is_admin_summary:
-            raise Account_CanIModify(
+            raise Account_CanIModifyError(
                 account_id=self.id, domo_instance=auth.domo_instance
             )
 
@@ -340,7 +383,7 @@ class DomoAccount_Default(DomoEntity):
             self.Config = config
 
         if not self.Config:
-            raise AccountClass_CRUD_Error(
+            raise AccountClass_CRUDError(
                 cls_instance=self,
                 message="unable to update account - no domo_account.Config not provided",
             )
@@ -363,7 +406,7 @@ class DomoAccount_Default(DomoEntity):
             return res
 
         if not res.is_success and self.is_admin_summary:
-            raise Account_CanIModify(
+            raise Account_CanIModifyError(
                 account_id=self.id, domo_instance=auth.domo_instance
             )
 
@@ -383,7 +426,7 @@ class DomoAccount_Default(DomoEntity):
     async def upsert_target_account(
         self,
         target_auth: DomoAuth,  # valid auth for target destination
-        account_name: str = None,  # defaults to self.name
+        account_name: str = None,  # defaults to self.display_name or self.name
         debug_api: bool = False,
     ):
         """
@@ -396,7 +439,109 @@ class DomoAccount_Default(DomoEntity):
 
         return await core.DomoAccounts.upsert_account(
             auth=target_auth,
-            account_name=account_name or self.name,
+            account_name=account_name or self.display_name or self.name,
             account_config=deepcopy(self.Config),
+            data_provider_type=self.data_provider_type,
             debug_api=debug_api,
         )
+
+    async def get_access(
+        self,
+        session: httpx.AsyncClient | None = None,
+        debug_api: bool = False,
+        force_refresh: bool = False,
+        debug_num_stacks_to_drop: int = 2,
+    ):
+        """Retrieve the access list for this account.
+
+        This method retrieves all users and groups that have access to this account
+        along with their access levels.
+
+        Args:
+            session: HTTP client session (optional)
+            debug_api: Enable API debugging
+            force_refresh: If True, refresh even if Access relationships are already loaded
+            debug_num_stacks_to_drop: Stack frames to drop for debugging
+
+        Returns:
+            List of Access_Relation objects representing users/groups with access
+
+        Example:
+            >>> account = await DomoAccount.get_by_id(auth=auth, account_id="123")
+            >>> access_list = await account.get_access()
+            >>> for access in access_list:
+            ...     print(f"{access.entity.name}: {access.relationship_type}")
+        """
+        if not force_refresh and self.Access.relationships:
+            return self.Access.relationships
+
+        return await self.Access.get(
+            debug_api=debug_api,
+            session=session,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        )
+
+    async def share(
+        self,
+        user_id: int = None,
+        group_id: int = None,
+        access_level=None,  # ShareAccount_AccessLevel
+        session: httpx.AsyncClient | None = None,
+        debug_api: bool = False,
+        return_raw: bool = False,
+    ):
+        """Share this account with a user or group.
+
+        Args:
+            user_id: User ID to share with (mutually exclusive with group_id)
+            group_id: Group ID to share with (mutually exclusive with user_id)
+            access_level: Access level (ShareAccount_AccessLevel enum)
+            session: HTTP client session (optional)
+            debug_api: Enable API debugging
+            return_raw: Return raw response without processing
+
+        Returns:
+            ResponseGetData if return_raw=True, else the updated account
+
+        Raises:
+            ValueError: If neither user_id nor group_id is provided
+            Account_Share_Error: If sharing operation fails
+
+        Example:
+            >>> from domolibrary2.routes.account import ShareAccount_AccessLevel
+            >>> account = await DomoAccount.get_by_id(auth=auth, account_id="123")
+            >>> await account.share(
+            ...     user_id=456,
+            ...     access_level=ShareAccount_AccessLevel.CAN_EDIT
+            ... )
+        """
+        if not user_id and not group_id:
+            raise ValueError("Must provide either user_id or group_id")
+
+        if not access_level:
+            from ...routes.account import ShareAccount_AccessLevel
+
+            access_level = ShareAccount_AccessLevel.CAN_VIEW
+
+        # Generate share payload
+        share_payload = access_level.generate_payload(
+            user_id=user_id, group_id=group_id
+        )
+
+        res = await account_routes.share_account(
+            auth=self.auth,
+            account_id=self.id,
+            share_payload=share_payload,
+            session=session,
+            debug_api=debug_api,
+            return_raw=return_raw,
+        )
+
+        if return_raw:
+            return res
+
+        # Refresh access list after sharing
+        if self.Access:
+            await self.get_access(force_refresh=True, session=session)
+
+        return self

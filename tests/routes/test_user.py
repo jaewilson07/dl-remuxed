@@ -1,7 +1,9 @@
 import os
-import domolibrary2.client.auth as dmda
-import domolibrary2.routes.user as user_routes
+
 from dotenv import load_dotenv
+
+import domolibrary2.auth as dmda
+import domolibrary2.routes.user as user_routes
 
 load_dotenv()
 

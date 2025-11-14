@@ -9,11 +9,11 @@ __all__ = [
 
 import asyncio
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Optional
 
 import httpx
 
-from ...client.auth import DomoAuth
+from ...auth import DomoAuth
 from ...routes.instance_config import instance_switcher as instance_switcher_routes
 from ...routes.instance_config.instance_switcher import (
     InstanceSwitcher_CRUD_Error,
@@ -48,7 +48,7 @@ class InstanceSwitcher_Mapping:
         Returns:
             bool: True if both have the same user_attribute and target_instance
         """
-        if type(self) != type(other):
+        if type(self) is not type(other):
             return False
         else:
             return (
@@ -118,25 +118,25 @@ class InstanceSwitcher:
 
     Attributes:
         auth: Authentication object for API requests
-        domo_instance_switcher_mapping: List of instance switcher mappings
+        domo_instance_switcher_mapping: list of instance switcher mappings
     """
 
     auth: DomoAuth = field(repr=False)
-    domo_instance_switcher_mapping: List[InstanceSwitcher_Mapping] = field(
+    domo_instance_switcher_mapping: list[InstanceSwitcher_Mapping] = field(
         default_factory=list
     )
 
     def _add_mapping_to_ls(
         self,
         domo_instance_switcher_mapping: InstanceSwitcher_Mapping,
-    ) -> List[InstanceSwitcher_Mapping]:
+    ) -> list[InstanceSwitcher_Mapping]:
         """Add a mapping to the list with deduplication.
 
         Args:
             domo_instance_switcher_mapping: Mapping to add
 
         Returns:
-            List[DomoInstanceConfig_InstanceSwitcher_Mapping]: Updated mapping list
+            list[DomoInstanceConfig_InstanceSwitcher_Mapping]: Updated mapping list
         """
 
         if domo_instance_switcher_mapping not in self.domo_instance_switcher_mapping:
@@ -147,10 +147,10 @@ class InstanceSwitcher:
         self,
         debug_api: bool = False,
         return_raw: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop: int = 2,
         timeout: int = 20,
-    ) -> List[InstanceSwitcher_Mapping]:
+    ) -> list[InstanceSwitcher_Mapping]:
         """Retrieve current instance switcher mappings.
 
         Args:
@@ -161,7 +161,7 @@ class InstanceSwitcher:
             timeout: Request timeout in seconds
 
         Returns:
-            List of instance switcher mappings or raw response if return_raw=True
+            list of instance switcher mappings or raw response if return_raw=True
         """
         res = await instance_switcher_routes.get_instance_switcher_mapping(
             auth=self.auth,
@@ -183,19 +183,19 @@ class InstanceSwitcher:
     async def set_mapping(
         self,
         mapping_ls: Optional[
-            List[InstanceSwitcher_Mapping]
+            list[InstanceSwitcher_Mapping]
         ] = None,  # will default to self.domo_instance_switcher_mapping
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         return_raw: bool = False,
         debug_num_stacks_to_drop: int = 2,
         timeout: int = 60,
         wait: int = 5,
-    ) -> List[InstanceSwitcher_Mapping]:
+    ) -> list[InstanceSwitcher_Mapping]:
         """Overwrite existing mappings with new mapping list.
 
         Args:
-            mapping_ls: List of mappings to set (defaults to self.domo_instance_switcher_mapping)
+            mapping_ls: list of mappings to set (defaults to self.domo_instance_switcher_mapping)
             session: HTTP client session
             debug_api: Enable API debugging
             return_raw: Return raw response without processing
@@ -233,17 +233,17 @@ class InstanceSwitcher:
 
     async def add_mapping(
         self,
-        mapping_to_add_ls: List[InstanceSwitcher_Mapping],
-        session: Optional[httpx.AsyncClient] = None,
+        mapping_to_add_ls: list[InstanceSwitcher_Mapping],
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         timeout: int = 20,
         wait: int = 5,
-    ) -> List[InstanceSwitcher_Mapping]:
+    ) -> list[InstanceSwitcher_Mapping]:
         """Add new mappings to existing configuration.
 
         Args:
-            mapping_to_add_ls: List of mappings to add
+            mapping_to_add_ls: list of mappings to add
             session: HTTP client session
             debug_api: Enable API debugging
             debug_num_stacks_to_drop: Stack frames to drop for debugging

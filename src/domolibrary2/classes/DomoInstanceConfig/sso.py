@@ -8,22 +8,24 @@ __all__ = [
 ]
 
 
-import abc
-from functools import partial
 import json
 from copy import deepcopy
 from dataclasses import asdict, dataclass, field
+from functools import partial
 from pprint import pprint  # pprint from_dict
 from typing import Any, Callable
 
 import httpx
 
-from ...client import (
+from ...auth import DomoAuth
+from ...base import (
+    DomoBase,
+    DomoManager,
     exceptions as dmde,
+)
+from ...client import (
     response as rgd,
 )
-from ...client.auth import DomoAuth
-from ...client.entities import DomoBase, DomoManager
 from ...routes.instance_config import sso as sso_routes
 from ...utils import convert as dmcv
 
@@ -227,7 +229,6 @@ class SSO_OIDC_Config(SSO_Config):
         debug_prn: bool = False,
         return_raw: bool = False,
     ):
-
         res = await sso_routes.get_sso_oidc_config(
             auth=auth,
             session=session,

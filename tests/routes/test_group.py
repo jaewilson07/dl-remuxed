@@ -1,10 +1,11 @@
-"""
+r"""
 Test file generated from group.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
@@ -16,7 +17,7 @@ token_auth = dmda.DomoTokenAuth(
 
 async def test_cell_1(token_auth=token_auth):
     """Test case from cell 1"""
-    auth = dmda.DomoTokenAuth(
+    dmda.DomoTokenAuth(
         domo_instance=os.environ["DOMO_INSTANCE"],
         domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],
     )
@@ -50,10 +51,9 @@ async def test_cell_4(token_auth=token_auth):
 
 async def test_cell_5(token_auth=token_auth):
     """Test case from cell 5"""
-    res = await toggle_system_group_visibility(auth=auth, is_hide_system_groups=True)
+    await toggle_system_group_visibility(auth=auth, is_hide_system_groups=True)
 
-    res = await get_all_groups(auth=auth)
-    all_groups = res.response
+    await get_all_groups(auth=auth)
 
     (
         await toggle_system_group_visibility(auth=auth, is_hide_system_groups=False)

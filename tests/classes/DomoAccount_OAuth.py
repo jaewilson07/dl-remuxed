@@ -16,15 +16,16 @@ Environment Variables Required:
 """
 
 import os
-from dotenv import load_dotenv
+
 import pytest
-from domolibrary2.client.auth import DomoTokenAuth
+from dotenv import load_dotenv
 
 from domolibrary2.classes.DomoAccount.account_oauth import (
-    OAuthConfig,
     DomoAccount_OAuth,
     DomoAccountOAuth_Config_SnowflakeOauth,
+    OAuthConfig,
 )
+from domolibrary2.auth import DomoTokenAuth
 from domolibrary2.routes.account.exceptions import Account_NoMatch
 
 load_dotenv()

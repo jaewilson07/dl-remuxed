@@ -13,10 +13,10 @@ import ast
 import re
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List
+from typing import Any
 
-from ..client import entities as dmen
-from ..utils import convert as dmcv
+from ...client import entities as dmen
+from ...utils import convert as dmcv
 
 
 def extract_ast_arg_type_annotation(
@@ -53,7 +53,7 @@ def extract_ast_arg_name(ast_arg: ast.arg):
     return ast_arg.arg
 
 
-def extract_ast_arg_default_value(arg, ast_fn: ast.FunctionDef) -> Dict[str, bool]:
+def extract_ast_arg_default_value(arg, ast_fn: ast.FunctionDef) -> dict[str, bool]:
     """
     Extract the default value for a function parameter if it exists.
 
@@ -99,12 +99,12 @@ class PythonTypeToSchemaType(dmen.DomoEnumMixin, Enum):
     DICT = "dict"
     DICT_CAP = "Dict"
     LIST = "list"
-    LIST_CAP = "List"
+    LIST_CAP = "list"
     OBJECT = "object"
     ANY = "Any"
 
     @property
-    def code_engine_schema_type(self):
+    def codeengine_schema_type(self):
         mapping = {
             PythonTypeToSchemaType.STR: "text",
             PythonTypeToSchemaType.STRING: "text",
@@ -135,7 +135,7 @@ class PythonTypeToSchemaType(dmen.DomoEnumMixin, Enum):
 
     @classmethod
     def map_python_type_to_schema(cls, type_str: str, default="OBJECT") -> str:
-        return cls.get(type_str, default=default).code_engine_schema_type
+        return cls.get(type_str, default=default).codeengine_schema_type
 
 
 @dataclass
@@ -161,12 +161,12 @@ class CodeEngine_Argument:
     @classmethod
     def init(
         cls, annotation_text: str, has_default_value: bool = None
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         return cls(annotation_text=annotation_text, has_default_value=has_default_value)
 
-    def to_dict(self, is_map_type_to_codeengine: bool = True) -> Dict[str, Any]:
+    def to_dict(self, is_map_type_to_codeengine: bool = True) -> dict[str, Any]:
         schema_type = (
-            self.schema_type.code_engine_schema_type
+            self.schema_type.codeengine_schema_type
             if is_map_type_to_codeengine
             else self.schema_type.value
         )
@@ -201,18 +201,18 @@ class CodeEngine_Argument:
         """
         Check if the type annotation represents a list or array type.
 
-        Detects various list type patterns including typing.List, built-in list,
+        Detects various list type patterns including typing.list, built-in list,
         and generic list annotations from both Python 3.8+ and earlier versions.
 
         Examples:
-            'List[str]' -> True
+            'list[str]' -> True
             'list[int]' -> True
             'list' -> True
             'str' -> False
         """
 
         self.is_list = (
-            "List[" in self.annotation_text
+            "list[" in self.annotation_text
             or "list[" in self.annotation_text
             or self.annotation_text.lower() == "list"
         )
@@ -242,27 +242,27 @@ class CodeEngine_Argument:
 
     def extract_inner_list(self) -> str:
         """
-        Extract the inner element type from List[InnerType] annotations.
+        Extract the inner element type from list[InnerType] annotations.
 
         Parses list type annotations to determine the type of elements contained
-        within the list, supporting both typing.List and built-in list formats.
+        within the list, supporting both typing.list and built-in list formats.
 
         Args:
-            annotation_text (str): List type annotation (e.g., 'List[str]', 'list[int]')
+            annotation_text (str): list type annotation (e.g., 'list[str]', 'list[int]')
 
         Returns:
             str: The inner type without the list wrapper (e.g., 'str', 'int')
 
         Examples:
-            'List[str]' -> 'str'
+            'list[str]' -> 'str'
             'list[int]' -> 'int'
-            'List[Dict[str, Any]]' -> 'Dict[str, Any]'
+            'list[Dict[str, Any]]' -> 'Dict[str, Any]'
         """
 
         # is this superfluoous given how enum has been implemented with "in" checks?
 
         self.is_list = False
-        if "List[" in self.annotation_text:
+        if "list[" in self.annotation_text:
             self.is_list = True
             return self.is_list
         elif "list[" in self.annotation_text:
@@ -298,7 +298,7 @@ class CodeEngineManifest_Argument(CodeEngine_Argument):
     # not implemented yet
     entity_sub_type = None  # not mapped to ast_arg
     value: str = None  # not mapped to ast_arg
-    children: List[Any] = field(default_factory=list)  # not mapped to ast_arg
+    children: list[Any] = field(default_factory=list)  # not mapped to ast_arg
 
     def __post_init__(self):
         self.process_display_name()

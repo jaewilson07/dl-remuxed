@@ -1,10 +1,11 @@
-"""
+r"""
 Test file generated from codeengine_GET.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
@@ -23,8 +24,6 @@ async def test_cell_1(token_auth=token_auth):
     auth
 
 
-    PACKAGE_ID = "517ca12c-3459-4e66-b0bb-40f000720a84"
-    VERSION_ID = "1.0.0"
 
 
 async def test_cell_2(token_auth=token_auth):

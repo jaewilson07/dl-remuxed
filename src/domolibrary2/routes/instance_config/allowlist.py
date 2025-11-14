@@ -11,15 +11,14 @@ __all__ = [
 from typing import Optional
 
 import httpx
-from typing import Optional
 
+from ... import auth as dmda
+from ...auth import DomoAuth
+from ...base import exceptions as dmde
 from ...client import (
-    auth as dmda,
-    exceptions as dmde,
     get_data as gd,
     response as rgd,
 )
-from ...client.auth import DomoAuth
 from ...utils.convert import convert_string_to_bool
 from .exceptions import Config_GET_Error
 
@@ -40,7 +39,7 @@ class AllowlistUnableToUpdate(dmde.RouteError):
 @gd.route_function
 async def get_allowlist(
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
     debug_api: bool = False,
     parent_class=None,
@@ -57,7 +56,7 @@ async def get_allowlist(
         debug_api=debug_api,
         is_follow_redirects=True,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -82,7 +81,7 @@ async def set_allowlist(
     ip_address_ls: list[str],
     debug_api: bool = False,
     return_raw: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     parent_class=None,
     debug_num_stacks_to_drop=1,
 ) -> rgd.ResponseGetData:
@@ -102,7 +101,7 @@ async def set_allowlist(
         session=session,
         headers={"accept": "text/plain"},
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
     if return_raw:
         return res
@@ -116,7 +115,7 @@ async def set_allowlist(
 @gd.route_function
 async def get_allowlist_is_filter_all_traffic_enabled(
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     return_raw: bool = False,
     parent_class: Optional[str] = None,
@@ -140,7 +139,7 @@ async def get_allowlist_is_filter_all_traffic_enabled(
         debug_api=debug_api,
         is_follow_redirects=True,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -165,7 +164,7 @@ async def get_allowlist_is_filter_all_traffic_enabled(
 async def toggle_allowlist_is_filter_all_traffic_enabled(
     auth: dmda.DomoFullAuth,
     is_enabled: bool,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     return_raw: bool = False,
     parent_class: Optional[str] = None,
@@ -192,7 +191,7 @@ async def toggle_allowlist_is_filter_all_traffic_enabled(
         debug_api=debug_api,
         is_follow_redirects=True,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if not res.is_success:

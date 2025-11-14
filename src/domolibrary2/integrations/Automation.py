@@ -2,7 +2,7 @@ __all__ = [
     "search_domo_groups_by_name",
     "upsert_domo_group",
     "search_or_upsert_domo_group",
-    "DJW_NoAccount",
+    "DJW_NoAccountError",
     "search_domo_account_by_name",
     "share_domo_account_with_domo_group",
     "remove_partition_by_x_days",
@@ -10,23 +10,22 @@ __all__ = [
 ]
 
 import datetime as dt
-from typing import List
 
 import pandas as pd
 
+from ..auth import DomoAuth
+from ..base.exceptions import ClassError, DomoError
 from ..classes import (
     DomoAccount as dmacc,
     DomoDataset as dmds,
-    DomoGroup as dmdg,
 )
-from ..client.auth import DomoAuth
-from ..client.exceptions import ClassError, DomoError
+from ..classes.DomoGroup import core as dmdg
 from ..routes.account import ShareAccount_AccessLevel
 
 
 async def search_domo_groups_by_name(
-    auth: DomoAuth, group_names: List[str], is_hide_system_groups: bool = True
-) -> List[dmdg.DomoGroup]:
+    auth: DomoAuth, group_names: list[str], is_hide_system_groups: bool = True
+) -> list[dmdg.DomoGroup]:
     domo_groups = dmdg.DomoGroups(auth=auth)
 
     await domo_groups.get(is_hide_system_groups=is_hide_system_groups)
@@ -38,7 +37,7 @@ async def upsert_domo_group(
     auth: DomoAuth,
     group_name: str,
     description: str = f"updated via {dt.date.today()}",
-    group_owner_names: List[str] = None,  # ["Role: Admin"]
+    group_owner_names: list[str] = None,  # ["Role: Admin"]
     group_type: dmdg.GroupType_Enum = dmdg.GroupType_Enum["CLOSED"].value,
     is_hide_system_groups: bool = True,
     debug_api: bool = False,
@@ -92,7 +91,7 @@ async def search_or_upsert_domo_group(
         raise e from e
 
 
-class DJW_NoAccount(ClassError):
+class DJW_NoAccountError(ClassError):
     def __init__(self, account_name, domo_instance):
         super().__init__(
             f"unable to retrieve account - {account_name} from {domo_instance}"
@@ -116,7 +115,7 @@ async def search_domo_account_by_name(
     )
 
     if not domo_account:
-        raise DJW_NoAccount(account_name, auth.domo_instance)
+        raise DJW_NoAccountError(account_name, auth.domo_instance)
 
     return domo_account
 

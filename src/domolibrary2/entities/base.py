@@ -6,8 +6,13 @@ the building blocks for all Domo entities and relationships.
 """
 
 import abc
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, field, fields
 from enum import Enum
+from typing import Any, Optional, Callable, List, TYPE_CHECKING
+
+
+from ..utils.convert import convert_snake_to_pascal
+from ..client import auth as dmda
 
 
 class DomoEnumMixin:
@@ -83,39 +88,6 @@ class DomoBase(abc.ABC):
     providing a common interface and ensuring consistent implementation
     across the inheritance hierarchy.
     """
-
-    def to_dict(self):
-        """Convert dataclass to dictionary, excluding fields with repr=False.
-
-        Recursively converts nested dataclasses by calling their to_dict() method.
-        """
-        result = {}
-        for fld in fields(self):
-            if not fld.repr:
-                continue
-
-            value = getattr(self, fld.name)
-
-            # Handle nested dataclasses
-            if hasattr(value, "__dataclass_fields__") and hasattr(value, "to_dict"):
-                result[fld.name] = value.to_dict()
-            # Handle lists/tuples that might contain dataclasses
-            elif isinstance(value, (list, tuple)):
-                result[fld.name] = [
-                    (
-                        item.to_dict()
-                        if (
-                            hasattr(item, "__dataclass_fields__")
-                            and hasattr(item, "to_dict")
-                        )
-                        else item
-                    )
-                    for item in value
-                ]
-            else:
-                result[fld.name] = value
-
-        return result
 
 
 __all__ = [

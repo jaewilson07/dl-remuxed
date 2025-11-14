@@ -37,12 +37,12 @@ from typing import Optional
 
 import httpx
 
+from ..auth import DomoAuth
+from ..base.exceptions import RouteError
 from ..client import (
     get_data as gd,
     response as rgd,
 )
-from ..client.auth import DomoAuth
-from ..client.exceptions import RouteError
 from ..utils import files as dmfi
 
 
@@ -130,7 +130,7 @@ async def get_all_designs(
     auth: DomoAuth,
     parts: str = "owners,creator,thumbnail,versions,cards",
     debug_loop: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -213,7 +213,7 @@ async def get_design_by_id(
     auth: DomoAuth,
     design_id: str,
     parts: str = "owners,cards,versions,creator",
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -254,7 +254,7 @@ async def get_design_by_id(
         params={"parts": parts},
         auth=auth,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         session=session,
         parent_class=parent_class,
     )
@@ -272,7 +272,7 @@ async def get_design_by_id(
 async def get_design_versions(
     auth: DomoAuth,
     design_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -311,7 +311,7 @@ async def get_design_versions(
         auth=auth,
         method="get",
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         session=session,
         parent_class=parent_class,
     )
@@ -336,7 +336,7 @@ async def get_design_source_code_by_version(
     version: str,
     download_path: Optional[str] = None,
     is_unpack_archive: bool = True,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -382,7 +382,7 @@ async def get_design_source_code_by_version(
         method="get",
         auth=auth,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         session=session,
         parent_class=parent_class,
     )

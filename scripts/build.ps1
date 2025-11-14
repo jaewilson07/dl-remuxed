@@ -10,6 +10,6 @@ if (Test-Path "dist") {
 }
 
 # Build the package
-& C:\Users\jwilson1\.local\bin\uv.exe build
+uv build
 
 Write-Host "Build complete! Check dist/ folder for artifacts." -ForegroundColor Cyan

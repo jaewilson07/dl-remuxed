@@ -1,10 +1,11 @@
-"""
+r"""
 Test file generated from 50_DomoDataflow_History.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
@@ -25,7 +26,7 @@ async def test_cell_1(token_auth=token_auth):
     dataflow_id = dataflows[0]['id']
 
     history = (await dataflow_routes.get_dataflow_execution_history(auth = auth, dataflow_id = dataflow_id)).response
-    execution_id = history[0]['id']
+    history[0]['id']
 
 
 async def test_cell_2(token_auth=token_auth):

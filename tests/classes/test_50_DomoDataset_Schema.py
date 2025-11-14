@@ -1,10 +1,11 @@
-"""
+r"""
 Test file generated from 50_DomoDataset_Schema.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
@@ -23,7 +24,6 @@ async def test_cell_1(token_auth=token_auth):
 
     await token_auth.who_am_i()
 
-    DATASET_ID = 'e1b88aab-42b5-4733-9817-cae8937ecb08'
 
 
 async def test_cell_2(token_auth=token_auth):

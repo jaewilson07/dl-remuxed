@@ -1,17 +1,14 @@
-__all__ = ["DomoJob_Types", "DomoApplication"]
+__all__ = ["DomoApplication"]
 
 from dataclasses import dataclass, field
-from enum import Enum
-from typing import List, Optional
 
 import httpx
 import pandas as pd
 
-from ...client.auth import DomoAuth
+from ...auth import DomoAuth
 from ...routes import application as application_routes
 from ...utils import (
     DictDot as util_dd,
-    convert as cc,
 )
 from . import Job as dmdj
 
@@ -52,9 +49,9 @@ class DomoApplication:
     customer_id: str = None
     description: str = None
     execution_class: str = None
-    grants: List[str] = None
-    jobs: List[dmdj.DomoJob] = field(default=None)
-    jobs_schedule: List[dmdj.DomoTrigger_Schedule] = field(default=None, repr=False)
+    grants: list[str] = None
+    jobs: list[dmdj.DomoJob] = field(default=None)
+    jobs_schedule: list[dmdj.DomoTrigger_Schedule] = field(default=None, repr=False)
 
     @classmethod
     def from_dict(cls, obj, auth: DomoAuth = None):
@@ -71,8 +68,8 @@ class DomoApplication:
             auth=auth,
         )
 
-    def _get_job_class(self):
-        return DomoJob_Types.get_from_api_name(self.name)
+    # def _get_job_class(self):
+    #     return DomoJob_Types.get_from_api_name(self.name)
 
     @classmethod
     async def get_by_id(
@@ -100,7 +97,7 @@ class DomoApplication:
     async def get_jobs(
         self,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         return_raw: bool = False,
     ):
         res = await application_routes.get_application_jobs(

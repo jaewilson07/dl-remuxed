@@ -12,7 +12,6 @@ import inspect
 from typing import get_type_hints
 
 import pytest
-
 from domolibrary2.routes.instance_config_instance_switcher import (
     InstanceSwitcher_CRUD_Error,
     InstanceSwitcher_GET_Error,
@@ -134,7 +133,7 @@ class TestTypeHints:
         hints = get_type_hints(set_instance_switcher_mapping)
         mapping_payloads_hint = str(hints.get("mapping_payloads", ""))
 
-        # Should use list[dict] not List[dict]
+        # Should use list[dict] not list[dict]
         assert "list" in mapping_payloads_hint.lower()
 
 

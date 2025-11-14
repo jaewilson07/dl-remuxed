@@ -1,10 +1,11 @@
-"""
+r"""
 Test file generated from 50_DomoDataflow.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
@@ -25,7 +26,7 @@ async def test_cell_1(token_auth=token_auth):
     dataflow_id = dataflows[0]['id']
 
     versions = (await dataflow_routes.get_dataflow_versions(auth =auth, dataflow_id = dataflow_id)).response
-    version_id = versions[0]['id']
+    versions[0]['id']
 
 
 async def test_cell_2(token_auth=token_auth):
@@ -59,7 +60,7 @@ async def test_cell_5(token_auth=token_auth):
         domo_dataflow = await DomoDataflow.get_by_id(dataflow_id=86, auth=auth, return_raw = False)
 
 
-        print((await domo_dataflow.get_jupyter_config()))
+        print(await domo_dataflow.get_jupyter_config())
 
     except dmde.DomoError as e:
         print(e)

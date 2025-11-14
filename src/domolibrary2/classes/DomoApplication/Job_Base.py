@@ -9,16 +9,16 @@ __all__ = [
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Optional
 
 import httpx
 
-from ...client.auth import DomoAuth
-from ...client.entities import DomoEntity
+from ...auth import DomoAuth
+from ...base import DomoEntity
 from ...routes import application as application_routes
 from ...routes.application import (
-    ApplicationError_NoJobRetrieved,
     Application_CRUD_Error,
+    ApplicationError_NoJobRetrieved,
 )
 from ...utils import convert as cc
 
@@ -74,7 +74,7 @@ class DomoTrigger_Schedule:
 class DomoTrigger:
     id: str
     job_id: str
-    schedule: List[DomoTrigger_Schedule] = None
+    schedule: list[DomoTrigger_Schedule] = None
 
     @classmethod
     def from_dict(cls, obj):
@@ -87,7 +87,7 @@ class DomoTrigger:
         )
 
 
-@dataclass
+@dataclass(eq=False)
 class DomoJob_Base(DomoEntity):
     """
     the base class only captures attributes applicable to all jobs (i.e. does not destructure execution_payload onto the class)
@@ -114,8 +114,8 @@ class DomoJob_Base(DomoEntity):
 
     execution_payload: dict = field(default_factory=lambda: {})
     share_state: dict = field(default_factory=lambda: {})
-    accounts: List[str] = field(default_factory=list)
-    triggers: List[DomoTrigger] = field(default_factory=list)
+    accounts: list[str] = field(default_factory=list)
+    triggers: list[DomoTrigger] = field(default_factory=list)
 
     @property
     def display_url(self) -> str:
@@ -190,7 +190,7 @@ class DomoJob_Base(DomoEntity):
         auth: DomoAuth,
         application_id: str,
         job_id: str,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         parent_class: Optional[str] = None,
@@ -261,7 +261,7 @@ class DomoJob_Base(DomoEntity):
         auth: DomoAuth,
         application_id: str,
         job_id: str,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         return_raw: bool = False,
@@ -319,7 +319,6 @@ class DomoJob_Base(DomoEntity):
             # updated / excluded because generated metadata
             "triggers": trigger_ls,
             "jobDescription": self.description,
-            "executionTimeout": self.execution_timeout,
             "accounts": self.accounts,
         }
 

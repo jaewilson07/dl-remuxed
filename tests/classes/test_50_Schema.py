@@ -4,15 +4,14 @@ Following the DomoUser.py test pattern
 """
 
 import os
+
 from dotenv import load_dotenv
-import domolibrary2.client.auth as dmda
-import domolibrary2.classes.DomoDataset.Schema as schema
+
+import domolibrary2.auth as dmda
 from domolibrary2.classes.DomoDataset.Schema import (
+    DatasetSchema_Types,
     DomoDataset_Schema,
     DomoDataset_Schema_Column,
-    DatasetSchema_Types,
-    DatasetSchema_InvalidSchema,
-    CRUD_Dataset_Error,
 )
 
 load_dotenv()
@@ -44,7 +43,7 @@ async def test_cell_1(token_auth=token_auth):
             self.name = "Test Dataset"
 
     parent = MockParent(token_auth, TEST_DATASET_ID_1)
-    
+
     # Create schema instance
     dataset_schema = DomoDataset_Schema(
         auth=token_auth,
@@ -54,11 +53,11 @@ async def test_cell_1(token_auth=token_auth):
 
     # Get schema from API
     columns = await dataset_schema.get(debug_api=False, return_raw=False)
-    
+
     assert columns is not None
     assert len(columns) > 0
     assert isinstance(columns[0], DomoDataset_Schema_Column)
-    
+
     print(f"Schema has {len(columns)} columns")
     return dataset_schema
 
@@ -73,7 +72,7 @@ async def test_cell_2(token_auth=token_auth):
             self.name = "Test Dataset"
 
     parent = MockParent(token_auth, TEST_DATASET_ID_1)
-    
+
     # Create schema with test columns
     dataset_schema = DomoDataset_Schema(
         auth=token_auth,
@@ -98,11 +97,11 @@ async def test_cell_2(token_auth=token_auth):
     )
 
     schema_dict = dataset_schema.to_dict()
-    
+
     assert "columns" in schema_dict
     assert len(schema_dict["columns"]) == 2
     assert schema_dict["columns"][0]["name"] == "test_col_1"
-    
+
     print(f"Schema dict: {schema_dict}")
     return schema_dict
 
@@ -120,14 +119,14 @@ async def test_cell_3(token_auth=token_auth):
     }
 
     column = DomoDataset_Schema_Column.from_dict(test_obj)
-    
+
     assert column.name == "test_column"
     assert column.id == "123"
     assert column.type == "STRING"
     assert column.visible is True
     assert column.upsert_key is False
     assert len(column.tags) == 2
-    
+
     print(f"Column created: {column.name} ({column.type})")
     return column
 
@@ -142,7 +141,7 @@ async def test_cell_4(token_auth=token_auth):
             self.name = "Test Dataset"
 
     parent = MockParent(token_auth, TEST_DATASET_ID_1)
-    
+
     dataset_schema = DomoDataset_Schema(
         auth=token_auth,
         parent=parent,
@@ -155,15 +154,15 @@ async def test_cell_4(token_auth=token_auth):
         id="999",
         type=DatasetSchema_Types.STRING,
     )
-    
+
     dataset_schema.add_col(new_col, debug_prn=True)
     assert len(dataset_schema.columns) == 1
     assert dataset_schema.columns[0].name == "new_column"
-    
+
     # Test remove_col
     dataset_schema.remove_col(new_col)
     assert len(dataset_schema.columns) == 0
-    
+
     print("✓ add_col and remove_col work correctly")
     return dataset_schema
 
@@ -177,13 +176,13 @@ async def main(token_auth=token_auth):
         test_cell_3,
         test_cell_4,
     ]
-    
+
     for fn in fn_ls:
         print(f"\n{'='*60}")
         print(f"Running: {fn.__name__}")
         print(f"{'='*60}")
         try:
-            result = await fn(token_auth=token_auth)
+            await fn(token_auth=token_auth)
             print(f"✓ {fn.__name__} passed")
         except Exception as e:
             print(f"✗ {fn.__name__} failed: {e}")

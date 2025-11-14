@@ -21,7 +21,7 @@ import argparse
 import os
 from dotenv import load_dotenv
 
-from domolibrary2.client.auth import DomoTokenAuth
+from domolibrary2.auth import DomoTokenAuth
 from domolibrary2.classes.DomoInstanceConfig.scheduler_policies import (
     DomoScheduler_Policies,
 )

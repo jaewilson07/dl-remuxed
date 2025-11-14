@@ -7,16 +7,16 @@ __all__ = [
     "get_repo_from_id",
 ]
 
-from typing import List, Optional
+from typing import Optional
 
 import httpx
 
+from ..auth import DomoAuth
+from ..base.exceptions import RouteError
 from ..client import (
     get_data as gd,
     response as rgd,
 )
-from ..client.auth import DomoAuth
-from ..client.exceptions import RouteError
 
 
 class Sandbox_GET_Error(RouteError):
@@ -59,7 +59,7 @@ class Sandbox_CRUD_Error(RouteError):
 @gd.route_function
 async def get_is_allow_same_instance_promotion_enabled(
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
     debug_num_stacks_to_drop: int = 1,
     debug_api: bool = False,
@@ -73,7 +73,7 @@ async def get_is_allow_same_instance_promotion_enabled(
         url=url,
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -95,7 +95,7 @@ async def get_is_allow_same_instance_promotion_enabled(
 async def toggle_allow_same_instance_promotion(
     auth: DomoAuth,
     is_enabled: bool,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -129,7 +129,7 @@ async def toggle_allow_same_instance_promotion(
         body=body,
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -145,7 +145,7 @@ async def toggle_allow_same_instance_promotion(
 @gd.route_function
 async def get_shared_repos(
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
     parent_class: Optional[str] = None,
     debug_api: bool = False,
@@ -166,7 +166,7 @@ async def get_shared_repos(
         "shared": False,
     }
 
-    def arr_fn(res: rgd.ResponseGetData) -> List[dict]:
+    def arr_fn(res: rgd.ResponseGetData) -> list[dict]:
         return res.response["repositories"]
 
     offset_params = {"offset": "offset", "limit": "limit"}
@@ -204,7 +204,7 @@ async def get_shared_repos(
 async def get_repo_from_id(
     auth: DomoAuth,
     repository_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -235,7 +235,7 @@ async def get_repo_from_id(
         url=url,
         parent_class=parent_class,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         session=session,
     )
 

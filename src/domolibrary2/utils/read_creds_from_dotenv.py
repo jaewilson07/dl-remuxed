@@ -29,16 +29,9 @@ Example:
 __all__ = ["read_creds_from_dotenv"]
 
 import os
-from typing import List, Optional
 
 # Optional dependency with fallback
-try:
-    from dotenv import load_dotenv
-
-    _DOTENV_AVAILABLE = True
-except ImportError:
-    load_dotenv = None
-    _DOTENV_AVAILABLE = False
+from dotenv import load_dotenv
 
 from . import DictDot as utils_dd
 from .exceptions import CredentialsError
@@ -46,7 +39,7 @@ from .exceptions import CredentialsError
 
 def read_creds_from_dotenv(
     env_path: str = ".env",
-    params: Optional[List[str]] = None,
+    params: list[str] | None = None,
 ) -> utils_dd.DictDot:
     """
     Read credentials from .env file and return as DictDot object for easy access.
@@ -56,7 +49,7 @@ def read_creds_from_dotenv(
 
     Args:
         env_path (str): Path to the .env file (default: ".env")
-        params (List[str], optional): List of specific parameters to extract.
+        params (list[str], optional): list of specific parameters to extract.
                                     If None, extracts all environment variables.
 
     Returns:
@@ -89,11 +82,6 @@ def read_creds_from_dotenv(
         - Environment variables are loaded into os.environ during execution
         - Supports standard .env file format with KEY=value pairs
     """
-    if not _DOTENV_AVAILABLE or load_dotenv is None:
-        raise ImportError(
-            "python-dotenv package is required for read_creds_from_dotenv function. "
-            "Install with: pip install python-dotenv"
-        )
 
     # Check if file exists
     if not os.path.exists(env_path):
