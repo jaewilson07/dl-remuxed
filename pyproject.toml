@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "domolibrary2"
-version = "0.0.1-alpha"
+version = "0.0.2-alpha"
 description = "A Python library for interacting with Domo APIs"
 authors = [
     { name = "Jae Wilson", email = "jaewilson07@gmail.com" }
