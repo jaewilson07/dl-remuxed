@@ -67,18 +67,18 @@ class DomoEntity(DomoBase):
         return name
 
     def __eq__(self, other) -> bool:
-        """Check equality based on entity ID.
+        """Check equality based on entity ID and class type.
 
         Args:
             other: Object to compare with
 
         Returns:
-            bool: True if both are DomoEntity instances with the same ID
+            bool: True if both are the same class type with the same ID
         """
-        if isinstance(other, DomoEntity):
-            return self.id == other.id
+        if self.__class__.__name__ != other.__class__.__name__:
+            return False
 
-        return False
+        return self.id == other.id
 
     def to_dict(self, override_fn: Optional[Callable] = None) -> dict:
         """Convert all dataclass attributes to a dictionary in pascalCase.
