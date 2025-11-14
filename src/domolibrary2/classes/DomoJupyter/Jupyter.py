@@ -107,10 +107,10 @@ class DomoJupyterWorkspace(DomoEntity):
 
     def __eq__(self, other) -> bool:
         """Check equality based on workspace ID.
-        
+
         Args:
             other: Object to compare with
-            
+
         Returns:
             bool: True if both are DomoJupyterWorkspace instances with the same ID
         """
@@ -565,8 +565,10 @@ class DomoJupyterWorkspace(DomoEntity):
                 retry += 1
 
         # This should never be reached due to the logic above, but ensures no implicit None return
-        raise last_error if last_error else JupyterAPI_Error(
-            message="Unexpected error in add_account retry loop"
+        raise (
+            last_error
+            if last_error
+            else JupyterAPI_Error(message="Unexpected error in add_account retry loop")
         )
 
     async def add_input_dataset(
@@ -623,8 +625,12 @@ class DomoJupyterWorkspace(DomoEntity):
                 retry += 1
 
         # This should never be reached due to the logic above, but ensures no implicit None return
-        raise last_error if last_error else JupyterAPI_Error(
-            message="Unexpected error in add_input_dataset retry loop"
+        raise (
+            last_error
+            if last_error
+            else JupyterAPI_Error(
+                message="Unexpected error in add_input_dataset retry loop"
+            )
         )
 
     async def add_output_dataset(
@@ -679,8 +685,12 @@ class DomoJupyterWorkspace(DomoEntity):
                 retry += 1
 
         # This should never be reached due to the logic above, but ensures no implicit None return
-        raise last_error if last_error else JupyterAPI_Error(
-            message="Unexpected error in add_output_dataset retry loop"
+        raise (
+            last_error
+            if last_error
+            else JupyterAPI_Error(
+                message="Unexpected error in add_output_dataset retry loop"
+            )
         )
 
 
