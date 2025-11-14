@@ -37,7 +37,7 @@ from . import core as codeengine_routes
 from .exceptions import (
     CodeEngine_CRUD_Error,
     CodeEngine_GET_Error,
-    CodeEngineInvalidPackageError,
+    CodeEngine_InvalidPackageError,
 )
 
 
@@ -204,7 +204,7 @@ async def upsert_codeengine_package_version(
         ResponseGetData object containing package data
 
     Raises:
-        CodeEngine_InvalidPackage: If package is already deployed and auto_increment is False
+        CodeEngine_InvalidPackageError: If package is already deployed and auto_increment is False
         CodeEngine_CRUD_Error: If package creation/update fails
     """
     package_id = payload.get("id")
@@ -228,7 +228,7 @@ async def upsert_codeengine_package_version(
             auth=auth,
         ):
             if not auto_increment_version:
-                raise CodeEngineInvalidPackageError(
+                raise CodeEngine_InvalidPackageError(
                     message=f"Package {package_id} v{version} already deployed",
                     auth=auth,
                 )
