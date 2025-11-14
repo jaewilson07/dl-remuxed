@@ -136,7 +136,7 @@ class DomoStream(DomoEntity):
         debug_api: bool = False,
         session: httpx.AsyncClient = None,
         is_get_account: bool = True,
-        is_suppress_no_account_config: bool = False,
+        is_suppress_no_account_config: bool = True,
     ):
         # Only refresh if stream has an ID (some datasets don't have streams)
         if not self.id:
@@ -168,7 +168,7 @@ class DomoStream(DomoEntity):
         debug_api: bool = False,
         session: httpx.AsyncClient | None = None,
         is_get_account: bool = True,
-        is_suppress_no_account_config: bool = False,
+        is_suppress_no_account_config: bool = True,
     ):
         """Get a stream by its ID.
 
@@ -248,7 +248,7 @@ class DomoStream(DomoEntity):
         session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         force_refresh: bool = False,
-        is_suppress_no_account_config: bool = False,
+        is_suppress_no_account_config: bool = True,
     ) -> DomoAccount | None:
         """Retrieve the Account associated with this stream.
 
