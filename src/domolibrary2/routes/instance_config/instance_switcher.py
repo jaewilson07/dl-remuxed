@@ -97,7 +97,7 @@ async def get_instance_switcher_mapping(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         timeout=timeout,
     )
 
@@ -166,7 +166,7 @@ async def set_instance_switcher_mapping(
         session=session,
         body=mapping_payloads,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         timeout=timeout,
     )
 

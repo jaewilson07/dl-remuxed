@@ -30,7 +30,7 @@ async def test_cell_2(token_auth=token_auth):
 
     FUNCTION_INDEX = 3
 
-    res = await code_engine_routes.get_codeengine_package_by_id_and_version(
+    res = await codeengine_routes.get_codeengine_package_by_id_and_version(
         auth=token_auth,
         package_id=PACKAGE_ID,
         version=VERSION_ID,
