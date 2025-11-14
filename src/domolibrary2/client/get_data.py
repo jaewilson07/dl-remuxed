@@ -86,6 +86,7 @@ def create_httpx_session(
 @log_call(
     action_name="get_data",
     level_name="client",
+    log_level="DEBUG",
     config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
     color="light_blue",
 )
@@ -214,6 +215,7 @@ async def get_data(
 @log_call(
     action_name="get_data_stream",
     level_name="client",
+    log_level="DEBUG",
     config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
 )
 async def get_data_stream(
@@ -339,7 +341,7 @@ class LooperError(DomoError):
         super().__init__(message=f"{loop_stage} - {message}")
 
 
-@log_call(action_name="looper", level_name="client")
+@log_call(action_name="looper", level_name="client", log_level="DEBUG")
 async def looper(
     auth: dmda.DomoAuth,
     session: httpx.AsyncClient | None,
