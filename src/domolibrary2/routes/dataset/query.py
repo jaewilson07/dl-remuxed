@@ -88,7 +88,7 @@ async def query_dataset_private(
         "limit": "limit",
     }
 
-    def body_fn(skip, limit, body: dict[str, object] | None = None):
+    def body_fn(skip, limit, body: dict[str, object]):
         # Strip any existing LIMIT/OFFSET clauses from the SQL to avoid duplication
         cleaned_sql = re.sub(r"\s+limit\s+\d+", "", sql, flags=re.IGNORECASE)
         cleaned_sql = re.sub(r"\s+offset\s+\d+", "", cleaned_sql, flags=re.IGNORECASE)
