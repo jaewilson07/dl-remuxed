@@ -354,7 +354,7 @@ class DomoCodeEngine_PackageVersion(DomoSubEntity):
     def export(
         self,
         file_name: str | None = None,
-        output_folder: str = "EXPORT/code_engine/",
+        output_folder: str = "EXPORT/codeengine/",
         debug_prn: bool = False,
     ):
         """Export the source code to a file.

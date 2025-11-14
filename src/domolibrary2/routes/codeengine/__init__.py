@@ -14,6 +14,7 @@ Modules:
 # Import core functions
 from .core import (
     CodeEngine_Package_Parts,
+    execute_codeengine_function,
     get_codeengine_package_by_id,
     get_codeengine_package_by_id_and_version,
     get_package_versions,
@@ -25,18 +26,18 @@ from .core import (
 # Import CRUD functions
 from .crud import (
     CodeEnginePackageBuilder,
-    create_code_engine_package,
-    deploy_code_engine_package,
+    create_codeengine_package,
+    deploy_codeengine_package,
     increment_version,
-    upsert_code_engine_package_version,
+    upsert_codeengine_package_version,
     upsert_package,
 )
 from .exceptions import (
     CodeEngine_CRUD_Error,
     CodeEngine_FunctionCallError,
     CodeEngine_GET_Error,
-    CodeEngine_InvalidPackage,
-    SearchCodeEngine_NotFound,
+    CodeEngineInvalidPackageError,
+    SearchCodeEngineNotFoundError,
 )
 
 # Backward compatibility alias
@@ -45,9 +46,9 @@ CodeEngine_API_Error = CodeEngine_GET_Error
 __all__ = [
     # Exception classes
     "CodeEngine_GET_Error",
-    "SearchCodeEngine_NotFound",
+    "SearchCodeEngineNotFoundError",
     "CodeEngine_CRUD_Error",
-    "CodeEngine_InvalidPackage",
+    "CodeEngineInvalidPackageError",
     "CodeEngine_FunctionCallError",
     "CodeEngine_API_Error",  # Backward compatibility alias
     # Core functions
@@ -58,11 +59,12 @@ __all__ = [
     "get_codeengine_package_by_id_and_version",
     "test_package_is_released",
     "test_package_is_identical",
+    "execute_codeengine_function",
     # CRUD functions
     "CodeEnginePackageBuilder",
-    "deploy_code_engine_package",
-    "create_code_engine_package",
+    "deploy_codeengine_package",
+    "create_codeengine_package",
     "increment_version",
-    "upsert_code_engine_package_version",
+    "upsert_codeengine_package_version",
     "upsert_package",
 ]

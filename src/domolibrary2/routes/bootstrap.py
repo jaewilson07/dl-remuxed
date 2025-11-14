@@ -43,7 +43,7 @@ async def get_bootstrap(
     # Import here to avoid circular imports
     from ..client import auth as dmda
 
-    dmda.test_is_full_auth(auth, num_stacks_to_drop=2)
+    dmda.test_is_full_auth(auth, debug_num_stacks_to_drop=2)
 
     # url = f"https://{auth.domo_instance}.domo.com/api/domoweb/bootstrap?v2Navigation=false"
     url = (
@@ -57,7 +57,7 @@ async def get_bootstrap(
         debug_api=debug_api,
         session=session,
         is_follow_redirects=True,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
