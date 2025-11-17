@@ -45,6 +45,7 @@ from ...client import (
     get_data as gd,
     response as rgd,
 )
+from ...client.context import RouteContext
 from ..user.exceptions import UserAttributes_CRUD_Error, UserAttributes_GET_Error
 
 
@@ -115,6 +116,8 @@ async def get_user_attributes(
     issuer_type_ls: Optional[
         list[UserAttributes_IssuerType]
     ] = None,  # use `UserAttributes_IssuerType` enum
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
@@ -130,6 +133,7 @@ async def get_user_attributes(
     Args:
         auth: Authentication object
         issuer_type_ls: list of issuer types to retrieve (default: all types)
+        context: Optional RouteContext for session and debug settings
         session: HTTP client session (optional)
         debug_api: Enable API debugging
         parent_class: Name of calling class for debugging
@@ -142,6 +146,14 @@ async def get_user_attributes(
     Raises:
         UserAttributes_GET_Error: If user attributes retrieval fails
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+    
     issuer_type_ls = issuer_type_ls or [member for member in UserAttributes_IssuerType]
 
     issuer_types = ",".join([member.value for member in issuer_type_ls])
@@ -155,10 +167,7 @@ async def get_user_attributes(
         url=url,
         method="GET",
         params=params,
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
@@ -180,6 +189,8 @@ async def get_user_attributes(
 async def get_user_attribute_by_id(
     auth: DomoAuth,
     attribute_id: str,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
@@ -191,6 +202,7 @@ async def get_user_attribute_by_id(
     Args:
         auth: Authentication object
         attribute_id: ID of the attribute to retrieve
+        context: Optional RouteContext for session and debug settings
         session: HTTP client session (optional)
         debug_api: Enable API debugging
         parent_class: Name of calling class for debugging
@@ -203,13 +215,25 @@ async def get_user_attribute_by_id(
     Raises:
         UserAttributes_GET_Error: If attribute retrieval fails or attribute not found
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
+    # Create a new context with incremented debug_num_stacks_to_drop for nested call
+    nested_context = RouteContext(
+        session=context.session,
+        debug_api=context.debug_api,
+        debug_num_stacks_to_drop=context.debug_num_stacks_to_drop + 1,
+        parent_class=context.parent_class,
+    )
 
     res = await get_user_attributes(
         auth=auth,
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
+        context=nested_context,
         return_raw=return_raw,
     )
 
@@ -242,6 +266,8 @@ async def create_user_attribute(
     data_type: Optional[str] = None,
     security_voter: Optional[str] = None,
     issuer_type: Optional[UserAttributes_IssuerType] = None,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
@@ -258,6 +284,7 @@ async def create_user_attribute(
         data_type: Data type validator (default: "ANY_VALUE")
         security_voter: Security voter setting (default: "FULL_VIS_ADMIN_IDP")
         issuer_type: Type of issuer (default: CUSTOM)
+        context: Optional RouteContext for session and debug settings
         session: HTTP client session (optional)
         debug_api: Enable API debugging
         parent_class: Name of calling class for debugging
@@ -270,6 +297,14 @@ async def create_user_attribute(
     Raises:
         UserAttributes_CRUD_Error: If attribute creation fails
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+    
     name = name or attribute_id
     attribute_id = clean_attribute_id(attribute_id)
     description = (
@@ -296,10 +331,7 @@ async def create_user_attribute(
         url=url,
         method="POST",
         body=body,
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
@@ -327,6 +359,8 @@ async def update_user_attribute(
     issuer_type: UserAttributes_IssuerType = UserAttributes_IssuerType.CUSTOM,
     data_type: Optional[str] = None,
     security_voter: Optional[str] = None,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
@@ -347,6 +381,7 @@ async def update_user_attribute(
         issuer_type: Type of issuer (default: CUSTOM)
         data_type: Data type validator
         security_voter: Security voter setting
+        context: Optional RouteContext for session and debug settings
         session: HTTP client session (optional)
         debug_api: Enable API debugging
         parent_class: Name of calling class for debugging
@@ -360,6 +395,13 @@ async def update_user_attribute(
         UserAttributes_CRUD_Error: If attribute update fails
         UserAttributes_GET_Error: If attribute to update is not found
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     body = generate_create_user_attribute_body(
         attribute_id=attribute_id,
@@ -370,13 +412,18 @@ async def update_user_attribute(
         security_voter=security_voter,
     )
 
+    # Create a new context with incremented debug_num_stacks_to_drop for nested call
+    nested_context = RouteContext(
+        session=context.session,
+        debug_api=context.debug_api,
+        debug_num_stacks_to_drop=context.debug_num_stacks_to_drop + 1,
+        parent_class=context.parent_class,
+    )
+
     res = await get_user_attribute_by_id(
         attribute_id=attribute_id,
         auth=auth,
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
+        context=nested_context,
         return_raw=return_raw,
     )
 
@@ -392,10 +439,7 @@ async def update_user_attribute(
         url=url,
         method="PUT",
         body=body,
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
@@ -418,6 +462,8 @@ async def update_user_attribute(
 async def delete_user_attribute(
     auth: DomoAuth,
     attribute_id: str,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
@@ -429,6 +475,7 @@ async def delete_user_attribute(
     Args:
         auth: Authentication object
         attribute_id: ID of the attribute to delete
+        context: Optional RouteContext for session and debug settings
         session: HTTP client session (optional)
         debug_api: Enable API debugging
         parent_class: Name of calling class for debugging
@@ -441,16 +488,21 @@ async def delete_user_attribute(
     Raises:
         UserAttributes_CRUD_Error: If attribute deletion fails
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+    
     url = f"https://{auth.domo_instance}.domo.com/api/user/v1/properties/meta/keys/{attribute_id}"
 
     res = await gd.get_data(
         auth=auth,
         url=url,
         method="DELETE",
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
