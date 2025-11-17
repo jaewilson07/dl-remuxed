@@ -17,6 +17,7 @@ from ...client import (
     get_data as gd,
     response as rgd,
 )
+from ...client.context import RouteContext
 from .exceptions import Jupyter_CRUD_Error, SearchJupyterNotFoundError
 
 
@@ -25,6 +26,8 @@ async def update_jupyter_workspace_config(
     auth: DomoAuth,
     workspace_id: str,
     config: dict,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 2,
@@ -37,6 +40,7 @@ async def update_jupyter_workspace_config(
         auth: Authentication object containing credentials and instance info
         workspace_id: Unique identifier for the workspace to configure
         config: Configuration dictionary to update the workspace with
+        context: Optional RouteContext object containing session and debug parameters
         session: Optional httpx client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to drop in debug output
@@ -50,6 +54,14 @@ async def update_jupyter_workspace_config(
         Jupyter_CRUD_Error: If workspace configuration update fails
         SearchJupyterNotFoundError: If workspace doesn't exist
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/datascience/v1/workspaces/{workspace_id}"
 
     res = await gd.get_data(
@@ -57,10 +69,7 @@ async def update_jupyter_workspace_config(
         method="PUT",
         auth=auth,
         body=config,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-        session=session,
+        context=context,
     )
 
     if return_raw:
