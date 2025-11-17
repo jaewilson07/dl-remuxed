@@ -23,6 +23,7 @@ from ..base.exceptions import DomoError
 from ..utils import chunk_execution as dmce
 from ..utils.logging import ResponseGetDataProcessor, get_colored_logger
 from . import response as rgd
+from .context import RouteContext
 
 # Initialize colored logger
 logger = get_colored_logger()
@@ -98,6 +99,7 @@ async def get_data(
     headers: dict = None,
     body: dict | list | str | None = None,
     params: dict = None,
+    context: RouteContext | None = None,
     debug_api: bool = False,
     session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
@@ -107,7 +109,36 @@ async def get_data(
     debug_num_stacks_to_drop: int = 2,  # noqa: ARG001
     is_verify: bool = False,
 ) -> rgd.ResponseGetData:
-    """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint."""
+    """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint.
+    
+    Args:
+        url: API endpoint URL
+        method: HTTP method (GET, POST, PUT, DELETE, etc.)
+        auth: Authentication object containing credentials
+        content_type: Content type for the request
+        headers: Additional headers for the request
+        body: Request body (dict, list, or str)
+        params: Query parameters
+        context: RouteContext object containing session, debug_api, debug_num_stacks_to_drop, parent_class
+                 If provided, individual parameters are ignored in favor of context values
+        debug_api: Enable debug logging (overridden by context if provided)
+        session: HTTPX async client session (overridden by context if provided)
+        return_raw: Return raw response without processing
+        is_follow_redirects: Follow HTTP redirects
+        timeout: Request timeout in seconds
+        parent_class: Parent class name for debugging (overridden by context if provided)
+        debug_num_stacks_to_drop: Number of stack frames to drop in debug output (overridden by context if provided)
+        is_verify: SSL verification flag
+        
+    Returns:
+        ResponseGetData object containing response data and metadata
+    """
+    # Extract values from context if provided
+    if context is not None:
+        session = context.session if session is None else session
+        debug_api = context.debug_api if not debug_api else debug_api
+        debug_num_stacks_to_drop = context.debug_num_stacks_to_drop if debug_num_stacks_to_drop == 2 else debug_num_stacks_to_drop
+        parent_class = context.parent_class if parent_class is None else parent_class
 
     if debug_api:
         print(f"🐛 Debugging get_data: {method} {url}")
@@ -537,6 +568,7 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
 
     The decorated function takes the following arguments:
         *args (Any): Positional arguments for the decorated function.
+        context (RouteContext, optional): RouteContext object. If provided, takes precedence over individual params.
         parent_class (str, optional): The parent class. Defaults to None.
         debug_num_stacks_to_drop (int, optional): The number of stacks to drop for debugging. Defaults to 1.
         debug_api (bool, optional): Whether to debug the API. Defaults to False.
@@ -547,6 +579,7 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(func)
     async def wrapper(
         *args: Any,
+        context: RouteContext | None = None,
         parent_class: Optional[str] = None,
         debug_num_stacks_to_drop: int = 1,
         debug_api: bool = False,
@@ -555,6 +588,7 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
     ) -> Any:
         result = await func(
             *args,
+            context=context,
             parent_class=parent_class,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
             debug_api=debug_api,
