@@ -178,7 +178,7 @@ async def get_data(
             ip_address = rgd.find_ip(response.text)
             res = rgd.ResponseGetData(
                 status=response.status_code,
-                response="Blocked by Allowlist",
+                response=f"Blocked by Allowlist: {ip_address}",
                 is_success=False,
                 request_metadata=request_metadata,
                 additional_information=additional_information,
