@@ -25,6 +25,7 @@ from ...client import (
     get_data as gd,
     response as rgd,
 )
+from ...client.context import RouteContext
 from ...utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 from .exceptions import (
     Page_CRUD_Error,
@@ -45,6 +46,8 @@ from .exceptions import (
 async def get_page_access_test(
     auth: DomoAuth,
     page_id: str,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -56,6 +59,7 @@ async def get_page_access_test(
     Args:
         auth: Authentication object containing credentials and instance info
         page_id: Unique identifier for the page
+        context: Optional RouteContext containing session, debug_api, debug_num_stacks_to_drop, parent_class
         session: Optional httpx client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to drop in debug output
@@ -69,16 +73,21 @@ async def get_page_access_test(
         Page_GET_Error: If access test fails
         SearchPageNotFoundError: If page with specified ID doesn't exist
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/pages/{page_id}/access"
 
     res = await gd.get_data(
         url,
         method="GET",
         auth=auth,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if return_raw:
@@ -107,6 +116,8 @@ async def get_page_access_list(
     auth: DomoAuth,
     page_id: str,
     is_expand_users: bool = True,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -119,6 +130,7 @@ async def get_page_access_list(
         auth: Authentication object containing credentials and instance info
         page_id: Unique identifier for the page
         is_expand_users: Whether to expand group memberships to include individual users
+        context: Optional RouteContext containing session, debug_api, debug_num_stacks_to_drop, parent_class
         session: Optional httpx client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to drop in debug output
@@ -132,6 +144,13 @@ async def get_page_access_list(
         PageSharing_Error: If access list retrieval fails
         SearchPageNotFoundError: If page with specified ID doesn't exist
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/share/accesslist/page/{page_id}?expandUsers={is_expand_users}"
 
@@ -139,10 +158,7 @@ async def get_page_access_list(
         url,
         method="GET",
         auth=auth,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if return_raw:
@@ -197,6 +213,8 @@ async def add_page_owner(
     user_id_ls: Optional[list[int | str]] = None,
     note: str = "",
     send_email: bool = False,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -212,6 +230,7 @@ async def add_page_owner(
         user_id_ls: Optional list of user IDs to add as owners
         note: Optional note to include with ownership changes
         send_email: Whether to send notification email
+        context: Optional RouteContext containing session, debug_api, debug_num_stacks_to_drop, parent_class
         session: Optional httpx client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to drop in debug output
@@ -224,6 +243,14 @@ async def add_page_owner(
     Raises:
         Page_CRUD_Error: If adding page owners fails
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     page_id_ls = [str(ele) for ele in page_id_ls]
     group_id_ls = group_id_ls or []
     user_id_ls = user_id_ls or []
@@ -247,10 +274,7 @@ async def add_page_owner(
         method="PUT",
         url=url,
         body=body,
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:

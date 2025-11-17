@@ -24,6 +24,12 @@ from ..utils import chunk_execution as dmce
 from ..utils.logging import ResponseGetDataProcessor, get_colored_logger
 from . import response as rgd
 
+# Import for type hints only (avoid circular import)
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .context import RouteContext
+
 # Initialize colored logger
 logger = get_colored_logger()
 
@@ -98,6 +104,7 @@ async def get_data(
     headers: dict = None,
     body: dict | list | str | None = None,
     params: dict = None,
+    context: Optional["RouteContext"] = None,
     debug_api: bool = False,
     session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
@@ -107,7 +114,36 @@ async def get_data(
     debug_num_stacks_to_drop: int = 2,  # noqa: ARG001
     is_verify: bool = False,
 ) -> rgd.ResponseGetData:
-    """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint."""
+    """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint.
+
+    Args:
+        url: API endpoint URL
+        method: HTTP method (GET, POST, PUT, DELETE, etc.)
+        auth: Authentication object containing credentials
+        content_type: Optional content type header
+        headers: Additional HTTP headers
+        body: Request body (dict, list, or string)
+        params: Query parameters
+        context: Optional RouteContext containing session, debug_api, debug_num_stacks_to_drop, parent_class
+        debug_api: Enable debugging (overridden by context if provided)
+        session: Optional httpx session (overridden by context if provided)
+        return_raw: Return raw response
+        is_follow_redirects: Follow HTTP redirects
+        timeout: Request timeout in seconds
+        parent_class: Parent class name for debugging (overridden by context if provided)
+        debug_num_stacks_to_drop: Stack frames to drop (overridden by context if provided)
+        is_verify: SSL verification flag
+
+    Returns:
+        ResponseGetData object with status, response data, and metadata
+    """
+
+    # Extract parameters from context if provided
+    if context is not None:
+        session = context.session if context.session is not None else session
+        debug_api = context.debug_api if context.debug_api else debug_api
+        debug_num_stacks_to_drop = context.debug_num_stacks_to_drop
+        parent_class = context.parent_class if context.parent_class is not None else parent_class
 
     if debug_api:
         print(f"🐛 Debugging get_data: {method} {url}")
