@@ -20,7 +20,7 @@ __all__ = [
 ]
 
 # Registry to store mapping classes
-_MAPPING_REGISTRY: dict[str, type[StreamConfig_Mapping]] = {}
+_MAPPING_REGISTRY: dict[str, type["StreamConfig_Mapping"]] = {}
 
 
 def register_mapping(data_provider_type: str):
