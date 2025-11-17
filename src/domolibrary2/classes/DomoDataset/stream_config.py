@@ -82,7 +82,7 @@ class StreamConfig_Mapping(DomoBase):
 
 # Import all mappings from the stream_configs subfolder
 # This triggers the @register_mapping decorators and populates _MAPPING_REGISTRY
-from . import stream_configs  # noqa: E402, F401
+import domolibrary2.classes.DomoDataset.stream_configs  # noqa: E402, F401
 
 # ============================================================================
 # StreamConfig_Mappings Enum (Auto-generated from registry)
@@ -97,10 +97,8 @@ class StreamConfig_Mappings(DomoEnumMixin, Enum):
     new subclass with the @register_mapping decorator above.
     """
 
-    @classmethod
-    def _generate_next_value_(cls, start, count, last_values):
-        """Generate enum values from the registry."""
-        return _MAPPING_REGISTRY.get(cls)
+    # Explicit default member to prevent AttributeError
+    default = None  # Will be set dynamically via _missing_
 
     @classmethod
     def _missing_(cls, value):
@@ -121,7 +119,7 @@ class StreamConfig_Mappings(DomoEnumMixin, Enum):
         return cls.default
 
     @classmethod
-    def search(cls, value, debug_api: bool = False) -> StreamConfig_Mapping | None:
+    def search(cls, value, debug_api: bool = False) -> StreamConfig_Mapping:
         """Search for a mapping by data provider type.
 
         Args:
