@@ -23,6 +23,7 @@ from ..base.exceptions import DomoError
 from ..utils import chunk_execution as dmce
 from ..utils.logging import ResponseGetDataProcessor, get_colored_logger
 from . import response as rgd
+from .context import RouteContext
 
 # Initialize colored logger
 logger = get_colored_logger()
@@ -106,8 +107,26 @@ async def get_data(
     parent_class: Optional[str] = None,  # noqa: ARG001
     debug_num_stacks_to_drop: int = 2,  # noqa: ARG001
     is_verify: bool = False,
+    context: Optional[RouteContext] = None,
 ) -> rgd.ResponseGetData:
-    """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint."""
+    """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint.
+
+    Args:
+        context: Optional RouteContext object containing session, debug_api,
+                debug_num_stacks_to_drop, and parent_class. If provided, individual
+                parameters are extracted from context.
+    """
+
+    # Extract parameters from context if provided
+    if context is not None:
+        session = context.session if session is None else session
+        debug_api = context.debug_api if not debug_api else debug_api
+        debug_num_stacks_to_drop = (
+            context.debug_num_stacks_to_drop
+            if debug_num_stacks_to_drop == 2
+            else debug_num_stacks_to_drop
+        )
+        parent_class = context.parent_class if parent_class is None else parent_class
 
     if debug_api:
         print(f"🐛 Debugging get_data: {method} {url}")
@@ -365,6 +384,7 @@ async def looper(
     wait_sleep: int = 0,
     is_verify: bool = False,
     return_raw: bool = False,
+    context: Optional[RouteContext] = None,
 ) -> rgd.ResponseGetData:
     """Iteratively retrieves paginated data from a Domo API endpoint.
 
@@ -391,10 +411,23 @@ async def looper(
         wait_sleep: Time to wait between consecutive requests (in seconds).
         is_verify: SSL verification flag.
         return_raw: Flag to return the raw response instead of processed data.
+        context: Optional RouteContext object containing session, debug_api,
+                debug_num_stacks_to_drop, and parent_class.
 
     Returns:
         An instance of ResponseGetData containing the aggregated data and pagination metadata.
     """
+    # Extract parameters from context if provided
+    if context is not None:
+        session = context.session if session is None else session
+        debug_api = context.debug_api if not debug_api else debug_api
+        debug_num_stacks_to_drop = (
+            context.debug_num_stacks_to_drop
+            if debug_num_stacks_to_drop == 1
+            else debug_num_stacks_to_drop
+        )
+        parent_class = context.parent_class if parent_class is None else parent_class
+
     is_close_session = False
 
     session, is_close_session = create_httpx_session(session, is_verify=is_verify)
