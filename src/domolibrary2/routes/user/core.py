@@ -39,6 +39,7 @@ from ...client import (
     get_data as gd,
     response as rgd,
 )
+from ...client.context import RouteContext
 from ...utils import (
     chunk_execution as dmce,
 )
@@ -81,6 +82,8 @@ def process_v1_search_users(
 )
 async def get_all_users(
     auth: DomoAuth,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -99,6 +102,7 @@ async def get_all_users(
     documentation or inspect the raw response using `return_raw=True`.
     Args:
         auth: Authentication object
+        context: Route execution context (optional)
         session: HTTP client session (optional)
         debug_api: Enable API debugging
         debug_num_stacks_to_drop: Stack frames to drop for debugging
@@ -111,16 +115,21 @@ async def get_all_users(
     Raises:
         User_GET_Error: If user retrieval fails
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/content/v2/users"
 
     res = await gd.get_data(
         url=url,
         method="GET",
         auth=auth,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-        session=session,
+        context=context,
     )
 
     if return_raw:
@@ -143,10 +152,12 @@ async def get_all_users(
 async def search_users(
     auth: DomoAuth,
     body: dict,
+    *,
     loop_until_end: bool = True,  # retrieve all available rows
     limit=200,  # maximum rows to return per request.  refers to PAGINATION
     maximum=100,  # equivalent to the LIMIT or TOP clause in SQL, the number of rows to return total
     suppress_no_results_error: bool = False,
+    context: RouteContext | None = None,
     debug_api: bool = False,
     return_raw: bool = False,
     debug_loop: bool = False,
@@ -163,6 +174,7 @@ async def search_users(
         limit: Maximum rows to return per request (pagination)
         maximum: Maximum total rows to return (like SQL LIMIT)
         suppress_no_results_error: Don't raise error if no results found
+        context: Route execution context (optional)
         debug_api: Enable API debugging
         return_raw: Return raw API response without processing
         debug_loop: Enable loop debugging
@@ -177,6 +189,14 @@ async def search_users(
         User_GET_Error: If search request fails
         SearchUserNotFoundError: If no users found and suppress_no_results_error is False
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/identity/v1/users/search"
 
     offset_params = {"offset": "offset", "limit": "limit"}
@@ -199,11 +219,11 @@ async def search_users(
         arr_fn=arr_fn,
         body_fn=body_fn,
         body=body,
-        debug_api=debug_api,
+        debug_api=context.debug_api,
         debug_loop=debug_loop,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-        session=session,
+        debug_num_stacks_to_drop=context.debug_num_stacks_to_drop,
+        parent_class=context.parent_class,
+        session=context.session,
     )
 
     if return_raw:
@@ -231,6 +251,8 @@ async def search_users(
 async def search_users_by_id(
     user_ids: list[str],  # list of user ids to search
     auth: DomoAuth,
+    *,
+    context: RouteContext | None = None,
     debug_api: bool = False,
     return_raw: bool = False,
     suppress_no_results_error: bool = False,
@@ -243,6 +265,7 @@ async def search_users_by_id(
     Args:
         user_ids: list of user IDs to search for
         auth: Authentication object
+        context: Route execution context (optional)
         debug_api: Enable API debugging
         return_raw: Return raw API response without processing
         suppress_no_results_error: Don't raise error if no results found
@@ -257,6 +280,13 @@ async def search_users_by_id(
         User_GET_Error: If search request fails
         SearchUserNotFoundError: If no users found and suppress_no_results_error is False
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     user_cn = dmce.chunk_list(user_ids, 1000)
 
@@ -290,12 +320,13 @@ async def search_users_by_id(
                         "lastActivity",
                     ],
                 },
-                debug_api=debug_api,
+                context=context,
+                debug_api=context.debug_api,
                 return_raw=return_raw,
                 suppress_no_results_error=suppress_no_results_error,
-                debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-                parent_class=parent_class,
-                session=session,
+                debug_num_stacks_to_drop=context.debug_num_stacks_to_drop,
+                parent_class=context.parent_class,
+                session=context.session,
             )
             for user_ls in user_cn
         ],
@@ -324,6 +355,8 @@ async def search_users_by_email(
         str
     ],  # list of user emails to search.  Note:  search does not appear to be case sensitive
     auth: DomoAuth,
+    *,
+    context: RouteContext | None = None,
     debug_api: bool = False,
     return_raw: bool = False,
     suppress_no_results_error: bool = False,
@@ -336,6 +369,7 @@ async def search_users_by_email(
     Args:
         user_email_ls: list of user email addresses to search for
         auth: Authentication object
+        context: Route execution context (optional)
         debug_api: Enable API debugging
         return_raw: Return raw API response without processing
         suppress_no_results_error: Don't raise error if no results found
@@ -353,6 +387,13 @@ async def search_users_by_email(
     Note:
         Search does not appear to be case sensitive
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     user_cn = dmce.chunk_list(user_email_ls, 1000)
 
@@ -388,12 +429,13 @@ async def search_users_by_email(
                         "lastActivity",
                     ],
                 },
-                debug_api=debug_api,
+                context=context,
+                debug_api=context.debug_api,
                 return_raw=return_raw,
                 suppress_no_results_error=suppress_no_results_error,
-                debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-                parent_class=parent_class,
-                session=session,
+                debug_num_stacks_to_drop=context.debug_num_stacks_to_drop,
+                parent_class=context.parent_class,
+                session=context.session,
             )
             for user_ls in user_cn
         ],
@@ -412,6 +454,8 @@ async def search_users_by_email(
 async def _get_by_id(
     user_id,
     auth: DomoAuth,
+    *,
+    context: RouteContext | None = None,
     debug_api: bool = False,
     return_raw: bool = False,
     session: httpx.AsyncClient | None = None,
@@ -423,6 +467,14 @@ async def _get_by_id(
     This function combines data from both v2 and v3 endpoints to provide
     comprehensive user information.
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     v2_url = f"https://{auth.domo_instance}.domo.com/api/content/v2/users/{user_id}"
 
     v3_url = f"https://{auth.domo_instance}.domo.com/api/content/v3/users/{user_id}"
@@ -446,21 +498,15 @@ async def _get_by_id(
             url=v2_url,
             method="GET",
             auth=auth,
-            debug_api=debug_api,
-            session=session,
             params=params,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-            parent_class=parent_class,
+            context=context,
         ),
         gd.get_data(
             url=v3_url,
             method="GET",
             auth=auth,
-            debug_api=debug_api,
-            session=session,
             params=params,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-            parent_class=parent_class,
+            context=context,
         ),
     )
 
@@ -512,6 +558,8 @@ async def _get_by_id(
 async def get_by_id(
     user_id,
     auth: DomoAuth,
+    *,
+    context: RouteContext | None = None,
     debug_api: bool = False,
     return_raw: bool = False,
     session: httpx.AsyncClient | None = None,
@@ -524,6 +572,7 @@ async def get_by_id(
     Args:
         user_id: The unique identifier for the user
         auth: Authentication object
+        context: Route execution context (optional)
         debug_api: Enable API debugging
         return_raw: Return raw API response without processing
         session: HTTP client session
@@ -538,26 +587,50 @@ async def get_by_id(
         User_GET_Error: If user retrieval fails
         SearchUserNotFoundError: If user with specified ID doesn't exist
     """
-    if not is_v2:
-        return await _get_by_id(
-            user_id=user_id,
-            auth=auth,
-            debug_api=debug_api,
-            return_raw=return_raw,
+    if context is None:
+        context = RouteContext(
             session=session,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
             parent_class=parent_class,
         )
 
+    if not is_v2:
+        # Increment debug_num_stacks_to_drop for nested call
+        nested_context = RouteContext(
+            session=context.session,
+            debug_api=context.debug_api,
+            debug_num_stacks_to_drop=context.debug_num_stacks_to_drop + 1,
+            parent_class=context.parent_class,
+        )
+        return await _get_by_id(
+            user_id=user_id,
+            auth=auth,
+            context=nested_context,
+            debug_api=context.debug_api,
+            return_raw=return_raw,
+            session=context.session,
+            debug_num_stacks_to_drop=context.debug_num_stacks_to_drop + 1,
+            parent_class=context.parent_class,
+        )
+
+    # Increment debug_num_stacks_to_drop for nested call
+    nested_context = RouteContext(
+        session=context.session,
+        debug_api=context.debug_api,
+        debug_num_stacks_to_drop=context.debug_num_stacks_to_drop + 2,
+        parent_class=context.parent_class,
+    )
     res = await search_users_by_id(
         user_ids=[user_id],
         auth=auth,
-        debug_api=debug_api,
+        context=nested_context,
+        debug_api=context.debug_api,
         return_raw=return_raw,
         suppress_no_results_error=False,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop + 2,
-        parent_class=parent_class,
-        session=session,
+        debug_num_stacks_to_drop=context.debug_num_stacks_to_drop + 2,
+        parent_class=context.parent_class,
+        session=context.session,
     )
 
     if return_raw:

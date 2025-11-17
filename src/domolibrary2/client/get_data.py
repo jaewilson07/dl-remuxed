@@ -11,7 +11,7 @@ __all__ = [
 import time
 from functools import wraps
 from pprint import pprint
-from typing import Any, Callable, Optional
+from typing import TYPE_CHECKING, Any, Callable, Optional
 
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
@@ -23,6 +23,9 @@ from ..base.exceptions import DomoError
 from ..utils import chunk_execution as dmce
 from ..utils.logging import ResponseGetDataProcessor, get_colored_logger
 from . import response as rgd
+
+if TYPE_CHECKING:
+    from .context import RouteContext
 
 # Initialize colored logger
 logger = get_colored_logger()
@@ -98,6 +101,7 @@ async def get_data(
     headers: dict = None,
     body: dict | list | str | None = None,
     params: dict = None,
+    context: Optional["RouteContext"] = None,
     debug_api: bool = False,
     session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
@@ -107,7 +111,35 @@ async def get_data(
     debug_num_stacks_to_drop: int = 2,  # noqa: ARG001
     is_verify: bool = False,
 ) -> rgd.ResponseGetData:
-    """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint."""
+    """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint.
+    
+    Args:
+        url: API endpoint URL
+        method: HTTP method (GET, POST, PUT, DELETE, etc.)
+        auth: Authentication object
+        content_type: Content type for the request
+        headers: Additional headers
+        body: Request body (dict, list, or str)
+        params: Query parameters
+        context: Optional RouteContext object containing session, debug_api, debug_num_stacks_to_drop, parent_class
+        debug_api: Enable API debugging (overridden by context if provided)
+        session: HTTP client session (overridden by context if provided)
+        return_raw: Return raw response without processing
+        is_follow_redirects: Follow HTTP redirects
+        timeout: Request timeout in seconds
+        parent_class: Name of calling class (overridden by context if provided)
+        debug_num_stacks_to_drop: Stack frames to drop for debugging (overridden by context if provided)
+        is_verify: Verify SSL certificates
+        
+    Returns:
+        ResponseGetData object containing the API response
+    """
+    # Extract context parameters if context is provided
+    if context is not None:
+        debug_api = context.debug_api
+        session = context.session
+        parent_class = context.parent_class
+        debug_num_stacks_to_drop = context.debug_num_stacks_to_drop
 
     if debug_api:
         print(f"🐛 Debugging get_data: {method} {url}")
