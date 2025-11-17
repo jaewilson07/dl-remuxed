@@ -1,3 +1,5 @@
+"""Default stream configuration mapping for unknown provider types."""
+
 from dataclasses import dataclass
 
 from ..stream_config import StreamConfig_Mapping, register_mapping
