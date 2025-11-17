@@ -23,6 +23,7 @@ from ..base.exceptions import DomoError
 from ..utils import chunk_execution as dmce
 from ..utils.logging import ResponseGetDataProcessor, get_colored_logger
 from . import response as rgd
+from .context import RouteContext
 
 # Initialize colored logger
 logger = get_colored_logger()
@@ -98,6 +99,7 @@ async def get_data(
     headers: dict = None,
     body: dict | list | str | None = None,
     params: dict = None,
+    context: Optional[RouteContext] = None,
     debug_api: bool = False,
     session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
@@ -107,7 +109,36 @@ async def get_data(
     debug_num_stacks_to_drop: int = 2,  # noqa: ARG001
     is_verify: bool = False,
 ) -> rgd.ResponseGetData:
-    """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint."""
+    """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint.
+
+    Args:
+        url: API endpoint URL
+        method: HTTP method (GET, POST, PUT, DELETE, etc.)
+        auth: Authentication object
+        content_type: Content type for the request
+        headers: Additional headers
+        body: Request body
+        params: Query parameters
+        context: Optional RouteContext containing session, debug_api, etc.
+                 If provided, overrides individual parameters
+        debug_api: Enable detailed API logging (overridden by context)
+        session: HTTPX client session (overridden by context)
+        return_raw: Return raw response without processing
+        is_follow_redirects: Follow HTTP redirects
+        timeout: Request timeout in seconds
+        parent_class: Parent class name for debugging (overridden by context)
+        debug_num_stacks_to_drop: Stack frames to drop in debug (overridden by context)
+        is_verify: SSL verification flag
+
+    Returns:
+        ResponseGetData object containing the response
+    """
+    # Extract parameters from context if provided
+    if context is not None:
+        session = context.session if context.session is not None else session
+        debug_api = context.debug_api
+        debug_num_stacks_to_drop = context.debug_num_stacks_to_drop
+        parent_class = context.parent_class if context.parent_class is not None else parent_class
 
     if debug_api:
         print(f"🐛 Debugging get_data: {method} {url}")
@@ -529,6 +560,10 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
     Decorator for route functions to ensure they receive certain arguments.
     If these arguments are not provided, default values are used.
 
+    This decorator supports both the legacy parameter style (individual parameters)
+    and the new RouteContext style. When a context parameter is provided, it takes
+    precedence over individual parameters for backward compatibility.
+
     Args:
         func (Callable[..., Any]): The function to decorate.
 
@@ -537,6 +572,7 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
 
     The decorated function takes the following arguments:
         *args (Any): Positional arguments for the decorated function.
+        context (RouteContext, optional): Context object containing session, debug_api, etc.
         parent_class (str, optional): The parent class. Defaults to None.
         debug_num_stacks_to_drop (int, optional): The number of stacks to drop for debugging. Defaults to 1.
         debug_api (bool, optional): Whether to debug the API. Defaults to False.
@@ -547,6 +583,7 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(func)
     async def wrapper(
         *args: Any,
+        context: Optional[RouteContext] = None,
         parent_class: Optional[str] = None,
         debug_num_stacks_to_drop: int = 1,
         debug_api: bool = False,
@@ -555,6 +592,7 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
     ) -> Any:
         result = await func(
             *args,
+            context=context,
             parent_class=parent_class,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
             debug_api=debug_api,

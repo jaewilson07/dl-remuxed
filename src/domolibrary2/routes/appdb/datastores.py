@@ -27,12 +27,15 @@ from ...client import (
     get_data as gd,
     response as rgd,
 )
+from ...client.context import RouteContext
 from .exceptions import AppDb_CRUD_Error, AppDb_GET_Error, SearchAppDb_NotFound
 
 
 @gd.route_function
 async def get_datastores(
     auth: DomoAuth,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -43,6 +46,7 @@ async def get_datastores(
 
     Args:
         auth: Authentication object containing credentials and instance info
+        context: Optional RouteContext containing session, debug_api, etc.
         session: Optional httpx client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to drop in debug output
@@ -55,16 +59,21 @@ async def get_datastores(
     Raises:
         AppDb_GET_Error: If datastores retrieval fails
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/datastores/v1/"
 
     res = await gd.get_data(
         auth=auth,
         method="GET",
         url=url,
-        parent_class=parent_class,
-        debug_api=debug_api,
-        session=session,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
@@ -80,6 +89,8 @@ async def get_datastores(
 async def get_datastore_by_id(
     auth: DomoAuth,
     datastore_id: str,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -91,6 +102,7 @@ async def get_datastore_by_id(
     Args:
         auth: Authentication object containing credentials and instance info
         datastore_id: Unique identifier for the datastore
+        context: Optional RouteContext containing session, debug_api, etc.
         session: Optional httpx client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to drop in debug output
@@ -104,16 +116,21 @@ async def get_datastore_by_id(
         AppDb_GET_Error: If datastore retrieval fails
         SearchAppDb_NotFound: If datastore with specified ID doesn't exist
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/datastores/v1/{datastore_id}"
 
     res = await gd.get_data(
         auth=auth,
         method="GET",
         url=url,
-        parent_class=parent_class,
-        debug_api=debug_api,
-        session=session,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
