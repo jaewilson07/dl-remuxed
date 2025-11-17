@@ -23,6 +23,7 @@ from ..base.exceptions import DomoError
 from ..utils import chunk_execution as dmce
 from ..utils.logging import ResponseGetDataProcessor, get_colored_logger
 from . import response as rgd
+from .context import RouteContext
 
 # Initialize colored logger
 logger = get_colored_logger()
@@ -98,6 +99,7 @@ async def get_data(
     headers: dict = None,
     body: dict | list | str | None = None,
     params: dict = None,
+    context: RouteContext | None = None,
     debug_api: bool = False,
     session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
@@ -108,6 +110,13 @@ async def get_data(
     is_verify: bool = False,
 ) -> rgd.ResponseGetData:
     """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint."""
+
+    # Extract values from context if provided
+    if context is not None:
+        session = session or context.session
+        debug_api = debug_api or context.debug_api
+        parent_class = parent_class or context.parent_class
+        debug_num_stacks_to_drop = context.debug_num_stacks_to_drop
 
     if debug_api:
         print(f"🐛 Debugging get_data: {method} {url}")
