@@ -1,3 +1,5 @@
+> Last updated: 2025-10-30
+
 # Utils Library
 
 A comprehensive collection of utility functions for data processing, file operations, image handling, and common programming tasks. This library is designed to be standalone and reusable across different projects.
