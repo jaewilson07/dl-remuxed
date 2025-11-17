@@ -1,3 +1,5 @@
+> Last updated: 2025-11-17
+
 # Domolibrary
 
 A Python library for interacting with Domo APIs.

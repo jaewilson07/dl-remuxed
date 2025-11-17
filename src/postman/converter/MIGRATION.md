@@ -1,3 +1,5 @@
+> Last updated: 2025-11-06
+
 # Converter Module Migration (2025-11-06)
 
 ## Overview

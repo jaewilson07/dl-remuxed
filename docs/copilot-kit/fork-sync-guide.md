@@ -1,3 +1,5 @@
+> Last updated: 2025-11-17
+
 # Fork Synchronization Guide
 
 This repository is a fork of [`ikcode-dev/copilot-kit`](https://github.com/ikcode-dev/copilot-kit) and is automatically kept up to date with the upstream repository.

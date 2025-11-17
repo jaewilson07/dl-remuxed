@@ -5,6 +5,8 @@ agent: agent
 argument-hint: "Optional: specify doc type (README, API, guide, comments) or target file"
 ---
 
+> Last updated: 2025-11-17
+
 ## Goal
 
 Create production-grade documentation that is exceptionally readable, comprehensive, and tailored to the audience. Documentation should follow best practices, use visual aids (Mermaid diagrams) for complex flows, include practical examples, and maintain consistency with existing project documentation style.

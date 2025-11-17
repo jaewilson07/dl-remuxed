@@ -20,10 +20,11 @@ from ...utils import (
 class DomoAccessToken(DomoEntity):
     auth: DomoAuth = field(repr=False)
     id: str
-    name: str
-    owner: Any  # DomoUser
-    expiration_date: dt.datetime
-    token: str = field(repr=False)
+    raw: dict = field(repr=False)
+    name: str = ""
+    owner: Any = None  # DomoUser
+    expiration_date: dt.datetime | None = None
+    token: str = field(repr=False, default="")
 
     def __post_init__(self):
         if not isinstance(self.expiration_date, dt.datetime):
@@ -54,7 +55,6 @@ class DomoAccessToken(DomoEntity):
             auth=auth,
             token=obj.get("token") or "",
             raw=obj,
-            Relations=None,  # type: ignore
         )
 
     @staticmethod

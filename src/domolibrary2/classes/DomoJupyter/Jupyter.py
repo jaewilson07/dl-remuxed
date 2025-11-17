@@ -185,7 +185,6 @@ class DomoJupyterWorkspace(DomoEntity):
             cpu=obj["cpu"],
             fileshare_configuration=obj["collectionConfiguration"],
             raw=obj,
-            Relations=None,
         )
 
         if jupyter_token:

@@ -1,6 +1,11 @@
 ---
 applyTo: '/src/domolibrary2/routes/*'
+name: route_instructions
+description: Standards for route modules, decorators, exceptions, and logging.
 ---
+
+> Last updated: 2025-11-10
+
 # Route Function Standards
 
 ## Route Module Organization

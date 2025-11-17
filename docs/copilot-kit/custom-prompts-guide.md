@@ -1,3 +1,5 @@
+> Last updated: 2025-11-17
+
 # Custom Prompts Guide
 
 > A comprehensive guide to using VS Code and GitHub Copilot custom prompts for enhanced development workflows

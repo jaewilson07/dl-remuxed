@@ -1,3 +1,5 @@
+> Last updated: 2025-11-17
+
 # Contributing to Copilot Kit
 
 Thank you for your interest in contributing to Copilot Kit! This repository thrives on community contributions of battle-tested prompts, instructions, and configurations.
