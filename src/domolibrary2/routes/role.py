@@ -22,6 +22,7 @@ from ..base.exceptions import RouteError
 from ..client import (
     get_data as gd,
 )
+from ..client.context import RouteContext
 from ..client.response import ResponseGetData
 
 
@@ -47,21 +48,28 @@ class Role_CRUD_Error(RouteError):
 @gd.route_function
 async def get_roles(
     auth: DomoAuth,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
 ) -> ResponseGetData:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/authorization/v1/roles"
 
     res = await gd.get_data(
         auth=auth,
         url=url,
         method="GET",
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-        session=session,
+        context=context,
     )
 
     if not res.is_success:
@@ -74,21 +82,28 @@ async def get_roles(
 async def get_role_by_id(
     auth: DomoAuth,
     role_id: str,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
+    debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
 ) -> ResponseGetData:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/authorization/v1/roles/{role_id}"
 
     res = await gd.get_data(
         auth=auth,
         url=url,
         method="GET",
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if not res.is_success:
@@ -103,25 +118,32 @@ async def get_role_by_id(
 async def get_role_grants(
     auth: DomoAuth,
     role_id: str,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
+    debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
 ) -> ResponseGetData:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/authorization/v1/roles/{role_id}/authorities"
 
     res = await gd.get_data(
         auth=auth,
         url=url,
         method="GET",
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if len(res.response) == 0:
-        role_res = await get_roles(auth=auth)
+        role_res = await get_roles(auth=auth, context=context)
 
         domo_role = [role for role in role_res.response if role.get("id") == role_id]
 
@@ -138,26 +160,33 @@ async def get_role_grants(
 async def get_role_membership(
     auth: DomoAuth,
     role_id: str,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
 ) -> ResponseGetData:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/authorization/v1/roles/{role_id}/users"
 
     res = await gd.get_data(
         auth=auth,
         url=url,
         method="GET",
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if len(res.response.get("users")) == 0:
-        role_res = await get_roles(auth)
+        role_res = await get_roles(auth, context=context)
 
         domo_role = next(
             (role for role in role_res.response if role.get("id") == role_id), None
@@ -182,11 +211,21 @@ async def create_role(
     auth: DomoAuth,
     name: str,
     description: str,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
 ) -> ResponseGetData:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/authorization/v1/roles"
 
     body = {"name": name, "description": description}
@@ -196,10 +235,7 @@ async def create_role(
         url=url,
         method="POST",
         body=body,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if not res.is_success:
@@ -212,22 +248,29 @@ async def create_role(
 async def delete_role(
     auth: DomoAuth,
     role_id: int,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
     return_raw: bool = False,
 ) -> ResponseGetData:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/authorization/v1/roles/{role_id}"
 
     res = await gd.get_data(
         auth=auth,
         url=url,
         method="DELETE",
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if return_raw:
@@ -249,12 +292,22 @@ async def delete_role(
 
 @gd.route_function
 async def get_default_role(
-    auth,
+    auth: DomoAuth,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
-):
+) -> ResponseGetData:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/customer-states/user.roleid.default"
 
     params = {"defaultValue": 2, "ignoreCache": True}
@@ -264,10 +317,7 @@ async def get_default_role(
         method="GET",
         url=url,
         params=params,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if not res.is_success:
@@ -282,11 +332,21 @@ async def get_default_role(
 async def set_default_role(
     auth: DomoAuth,
     role_id: str,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class=None,
+    parent_class: str = None,
 ) -> ResponseGetData:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     # url = f"https://{auth.domo_instance}.domo.com/api/content/v1/customer-states/user.roleid.default"
     # body = {"name": "user.roleid.default", "value": role_id}
 
@@ -297,11 +357,8 @@ async def set_default_role(
         auth=auth,
         url=url,
         method="PUT",
-        debug_api=debug_api,
         body=body,
-        session=session,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if not res.is_success:
@@ -313,15 +370,25 @@ async def set_default_role(
 @gd.route_function
 async def update_role_metadata(
     auth: DomoAuth,
-    role_id,
-    role_name,
+    role_id: str,
+    role_name: str,
     role_description: str = None,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
     return_raw: bool = False,
-):
+) -> ResponseGetData:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/authorization/v1/roles/{role_id}"
 
     body = {"name": role_name, "description": role_description, "id": role_id}
@@ -331,10 +398,7 @@ async def update_role_metadata(
         url=url,
         method="PUT",
         body=body,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if return_raw:
@@ -357,12 +421,22 @@ async def set_role_grants(
     auth: DomoAuth,
     role_id: str,
     grants: list[str],
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
     return_raw: bool = False,
 ) -> ResponseGetData:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/authorization/v1/roles/{role_id}/authorities"
 
     res = await gd.get_data(
@@ -370,10 +444,7 @@ async def set_role_grants(
         url=url,
         method="PUT",
         body=grants,
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
@@ -396,11 +467,21 @@ async def role_membership_add_users(
     auth: DomoAuth,
     role_id: str,
     user_ids: list[str],  # list of user ids
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str = None,
 ) -> ResponseGetData:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/authorization/v1/roles/{role_id}/users"
 
     res = await gd.get_data(
@@ -408,10 +489,7 @@ async def role_membership_add_users(
         url=url,
         method="PUT",
         body=user_ids,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if not res.is_success:
