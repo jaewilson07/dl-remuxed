@@ -27,6 +27,7 @@ from ..client import (
     get_data as gd,
     response as rgd,
 )
+from ..client.context import RouteContext
 
 
 class GET_Publish_Error(de.RouteError):
@@ -45,6 +46,8 @@ async def search_publications(
     search_term: str = None,
     limit=100,
     offset=0,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient = None,
     debug_loop: bool = False,
     debug_api: bool = False,
@@ -52,6 +55,14 @@ async def search_publications(
     parent_class: str = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+    
     url = f"https://{auth.domo_instance}.domo.com/api/publish/v2/publication/summaries"
 
     offset_params = {"limit": "limit", "offset": "offset"}
@@ -74,10 +85,7 @@ async def search_publications(
         loop_until_end=True,
         debug_loop=debug_loop,
         url=url,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
         return_raw=return_raw,
     )
 
@@ -94,6 +102,8 @@ async def search_publications(
 async def get_publication_by_id(
     auth: DomoAuth,
     publication_id: str,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
@@ -101,17 +111,22 @@ async def get_publication_by_id(
     timeout=10,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+    
     url = f"https://{auth.domo_instance}.domo.com/api/publish/v2/publication/{publication_id}"
 
     res = await gd.get_data(
         auth=auth,
         method="GET",
         url=url,
-        session=session,
+        context=context,
         timeout=timeout,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
     )
 
     if return_raw:
@@ -127,6 +142,8 @@ async def get_publication_by_id(
 async def get_subscription_by_id(
     auth: DomoAuth,
     subscription_id: str,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
@@ -134,6 +151,14 @@ async def get_subscription_by_id(
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Retrieves a subscription by its ID"""
+    
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/publish/v2/subscription/{subscription_id}"
 
@@ -141,10 +166,7 @@ async def get_subscription_by_id(
         auth=auth,
         method="GET",
         url=url,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if return_raw:
@@ -192,12 +214,22 @@ def generate_publish_body(
 async def create_publish_job(
     auth: DomoAuth,
     body: dict,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     parent_class: str = None,
     debug_num_stacks_to_drop=1,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+    
     url = f"https://{auth.domo_instance}.domo.com/api/publish/v2/publication"
 
     res = await gd.get_data(
@@ -205,10 +237,7 @@ async def create_publish_job(
         method="POST",
         url=url,
         body=body,
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
@@ -226,12 +255,22 @@ async def update_publish_job(
     auth: DomoAuth,
     publication_id: str,
     body: dict,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
     parent_class: str = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+    
     url = f"https://{auth.domo_instance}.domo.com/api/publish/v2/publication/{publication_id}"
 
     res = await gd.get_data(
@@ -239,10 +278,7 @@ async def update_publish_job(
         method="PUT",
         url=url,
         body=body,
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
@@ -257,6 +293,8 @@ async def update_publish_job(
 async def get_publish_subscriptions(
     auth: DomoAuth,
     publish_id: str,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
@@ -264,6 +302,14 @@ async def get_publish_subscriptions(
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """retrieves a summary of existing subscriptions"""
+    
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/publish/v2/publications/summaries/{publish_id}/subscriptions"
 
@@ -271,10 +317,7 @@ async def get_publish_subscriptions(
         auth=auth,
         method="GET",
         url=url,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if return_raw:
@@ -289,6 +332,8 @@ async def get_publish_subscriptions(
 @gd.route_function
 async def get_subscription_summaries(
     auth: DomoAuth,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
@@ -296,6 +341,14 @@ async def get_subscription_summaries(
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """retrieves a summary of existing subscriptions"""
+    
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/publish/v2/subscription/summaries"
 
@@ -303,10 +356,7 @@ async def get_subscription_summaries(
         auth=auth,
         method="GET",
         url=url,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if return_raw:
