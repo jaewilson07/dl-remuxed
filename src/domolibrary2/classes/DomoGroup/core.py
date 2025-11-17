@@ -66,7 +66,6 @@ class DomoGroup(DomoEntity):
             members_id_ls=obj.get("userIds"),
             owner_ls=obj.get("owners"),
             raw=obj,
-            Relations=None,
         )
 
     @classmethod
@@ -82,7 +81,6 @@ class DomoGroup(DomoEntity):
             members_ls=obj.get("groupMembers", []),
             members_id_ls=[member.id for member in obj.get("groupMembers", [])],
             raw=obj,
-            Relations=None,
         )
 
     @staticmethod

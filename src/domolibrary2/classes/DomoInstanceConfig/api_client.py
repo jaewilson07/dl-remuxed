@@ -74,7 +74,6 @@ class ApiClient(DomoEntity):
             # authorization_grant_types=obj["authorizedGrantTypes"],
             scopes=[ApiClient_ScopeEnum[sc.upper()] for sc in obj["scopes"]],
             description=obj.get("description"),
-            Relations=None,  # type: ignore
         )
 
     @classmethod
