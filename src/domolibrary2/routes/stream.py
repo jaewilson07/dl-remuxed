@@ -18,6 +18,7 @@ from ..client import (
     get_data as gd,
     response as rgd,
 )
+from ..client.context import RouteContext
 
 
 class Stream_GET_Error(RouteError):
@@ -61,6 +62,8 @@ class Stream_CRUD_Error(RouteError):
 async def get_streams(
     auth: DomoAuth,
     loop_until_end: bool = True,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -74,6 +77,13 @@ async def get_streams(
     streams do not appear to be recycled, not recommended for use as will return a virtually limitless number of streams
     instead use get_stream_by_id
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/streams/"
 
@@ -82,7 +92,6 @@ async def get_streams(
 
     res = await gd.looper(
         auth=auth,
-        session=session,
         url=url,
         offset_params={"limit": "limit", "offset": "offet"},
         arr_fn=arr_fn,
@@ -92,10 +101,8 @@ async def get_streams(
         limit=500,
         skip=skip,
         maximum=maximum,
-        debug_api=debug_api,
+        context=context,
         debug_loop=debug_loop,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
         return_raw=return_raw,
     )
 
@@ -112,6 +119,8 @@ async def get_streams(
 async def get_stream_by_id(
     auth: DomoAuth,
     stream_id: str,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -123,6 +132,7 @@ async def get_stream_by_id(
     Args:
         auth: Authentication object
         stream_id: Unique stream identifier
+        context: Optional route context for common parameters
         session: HTTP client session
         debug_api: Enable API debugging
         debug_num_stacks_to_drop: Stack frames to drop for debugging
@@ -135,16 +145,21 @@ async def get_stream_by_id(
     Raises:
         Stream_GET_Error: If retrieval fails
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/streams/{stream_id}"
 
     res = await gd.get_data(
         auth=auth,
         url=url,
         method="GET",
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
@@ -161,6 +176,8 @@ async def update_stream(
     auth: DomoAuth,
     stream_id: str,
     body: dict,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_num_stacks_to_drop: int = 1,
     debug_api: bool = False,
@@ -173,6 +190,7 @@ async def update_stream(
         auth: Authentication object
         stream_id: Unique stream identifier
         body: Stream configuration data
+        context: Optional route context for common parameters
         session: HTTP client session
         debug_num_stacks_to_drop: Stack frames to drop for debugging
         debug_api: Enable API debugging
@@ -185,6 +203,14 @@ async def update_stream(
     Raises:
         Stream_CRUD_Error: If update operation fails
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/streams/{stream_id}"
 
     res = await gd.get_data(
@@ -192,10 +218,7 @@ async def update_stream(
         url=url,
         body=body,
         method="PUT",
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
@@ -211,6 +234,8 @@ async def update_stream(
 async def create_stream(
     auth: DomoAuth,
     body: dict,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -222,6 +247,7 @@ async def create_stream(
     Args:
         auth: Authentication object
         body: Stream configuration data
+        context: Optional route context for common parameters
         session: HTTP client session
         debug_api: Enable API debugging
         debug_num_stacks_to_drop: Stack frames to drop for debugging
@@ -234,6 +260,14 @@ async def create_stream(
     Raises:
         Stream_CRUD_Error: If create operation fails
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/streams"
 
     res = await gd.get_data(
@@ -241,10 +275,7 @@ async def create_stream(
         url=url,
         body=body,
         method="POST",
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
@@ -260,6 +291,8 @@ async def create_stream(
 async def execute_stream(
     auth: DomoAuth,
     stream_id: str,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
@@ -271,6 +304,7 @@ async def execute_stream(
     Args:
         auth: Authentication object
         stream_id: Unique stream identifier
+        context: Optional route context for common parameters
         session: HTTP client session
         debug_api: Enable API debugging
         parent_class: Name of the calling class
@@ -283,16 +317,21 @@ async def execute_stream(
     Raises:
         Stream_CRUD_Error: If execute operation fails
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/streams/{stream_id}/executions"
 
     res = await gd.get_data(
         auth=auth,
         url=url,
         method="POST",
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
