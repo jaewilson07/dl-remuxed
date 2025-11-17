@@ -17,6 +17,8 @@ __all__ = [
 ]
 
 
+from typing import Optional
+
 import httpx
 
 from ..auth import DomoAuth
@@ -25,6 +27,7 @@ from ..client import (
     get_data as gd,
     response as rgd,
 )
+from ..client.context import RouteContext
 
 
 class GET_Dataflow_Error(dmde.RouteError):
@@ -40,24 +43,33 @@ class CRUD_Dataflow_Error(dmde.RouteError):
 @gd.route_function
 async def get_dataflows(
     auth: DomoAuth,
+    *,
+    context: RouteContext | None = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-    parent_class: str = None,
-    debug_num_stacks_to_drop=1,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
-    domo_instance = auth.domo_instance
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
-    url = f"https://{domo_instance}.domo.com/api/dataprocessing/v1/dataflows"
+    url = f"https://{auth.domo_instance}.domo.com/api/dataprocessing/v1/dataflows"
 
     res = await gd.get_data(
         auth=auth,
         url=url,
         method="GET",
-        debug_api=debug_api,
-        session=session,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
+
+    if return_raw:
+        return res
 
     if not res.is_success:
         raise GET_Dataflow_Error(res)
@@ -67,26 +79,35 @@ async def get_dataflows(
 
 @gd.route_function
 async def get_dataflow_by_id(
-    dataflow_id: int,
     auth: DomoAuth,
+    dataflow_id: int,
+    *,
+    context: RouteContext | None = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-    parent_class: str = None,
-    debug_num_stacks_to_drop=1,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
-    domo_instance = auth.domo_instance
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
-    url = f"https://{domo_instance}.domo.com/api/dataprocessing/v1/dataflows/{dataflow_id}"
+    url = f"https://{auth.domo_instance}.domo.com/api/dataprocessing/v1/dataflows/{dataflow_id}"
 
     res = await gd.get_data(
         auth=auth,
         url=url,
         method="GET",
-        debug_api=debug_api,
-        session=session,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
+
+    if return_raw:
+        return res
 
     if not res.is_success:
         raise GET_Dataflow_Error(res)
@@ -99,27 +120,35 @@ async def update_dataflow_definition(
     auth: DomoAuth,
     dataflow_id: int,
     dataflow_definition: dict,
+    *,
+    context: RouteContext | None = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class: str = None,
-    session: httpx.AsyncClient = None,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
-    # Construct the URL
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/dataprocessing/v1/dataflows/{dataflow_id}"
 
-    # Make the API call
     res = await gd.get_data(
         auth=auth,
         url=url,
         method="PUT",
         body=dataflow_definition,
-        debug_api=debug_api,
-        session=session,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
-    # Check for successful response
+    if return_raw:
+        return res
+
     if not res.is_success:
         raise dmde.RouteError(res=res)
 
@@ -130,26 +159,34 @@ async def update_dataflow_definition(
 async def get_dataflow_tags_by_id(
     auth: DomoAuth,
     dataflow_id: int,
+    *,
+    context: RouteContext | None = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop: bool = False,
-    session: httpx.AsyncClient = None,
-    parent_class: str = None,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
-    # Construct the URL for the GET request
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/dataprocessing/v1/dataflows/{dataflow_id}/tags"
 
-    # Make the GET request
     res = await gd.get_data(
         auth=auth,
         url=url,
         method="GET",
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-        session=session,
+        context=context,
     )
 
-    # Check if the request was successful
+    if return_raw:
+        return res
+
     if not res.is_success:
         raise dmde.RouteError(res=res)
 
@@ -165,30 +202,37 @@ async def put_dataflow_tags_by_id(
     auth: DomoAuth,
     dataflow_id: int,
     tag_ls: list[str],
+    *,
+    context: RouteContext | None = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class: str = None,
-    session: httpx.AsyncClient = None,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
-    # Construct the URL
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/dataprocessing/v1/dataflows/{dataflow_id}/tags"
 
-    # Generate the request body
     body = generate_tag_body(dataflow_id=dataflow_id, tag_ls=tag_ls)
 
-    # Make the API call
     res = await gd.get_data(
         auth=auth,
         url=url,
         method="PUT",
         body=body,
-        debug_api=debug_api,
-        session=session,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
-    # Check for successful response
+    if return_raw:
+        return res
+
     if not res.is_success:
         raise dmde.RouteError(res=res)
 
@@ -197,24 +241,35 @@ async def put_dataflow_tags_by_id(
 
 @gd.route_function
 async def get_dataflow_versions(
-    dataflow_id: int,
     auth: DomoAuth,
-    parent_class: str = None,
-    session: httpx.AsyncClient = None,
-    debug_num_stacks_to_drop=1,
+    dataflow_id: int,
+    *,
+    context: RouteContext | None = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-):
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/dataprocessing/v1/dataflows/{dataflow_id}/versions"
 
     res = await gd.get_data(
         auth=auth,
-        session=session,
         url=url,
         method="GET",
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-        debug_api=debug_api,
+        context=context,
     )
+
+    if return_raw:
+        return res
 
     if not res.is_success:
         raise GET_Dataflow_Error(res=res)
@@ -224,25 +279,36 @@ async def get_dataflow_versions(
 
 @gd.route_function
 async def get_dataflow_by_id_and_version(
+    auth: DomoAuth,
     dataflow_id: int,
     version_id: int,
-    auth: DomoAuth,
-    parent_class: str = None,
-    session: httpx.AsyncClient = None,
-    debug_num_stacks_to_drop=1,
+    *,
+    context: RouteContext | None = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-):
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/dataprocessing/v2/dataflows/{dataflow_id}/versions/{version_id}"
 
     res = await gd.get_data(
         auth=auth,
-        session=session,
         url=url,
         method="GET",
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-        debug_api=debug_api,
+        context=context,
     )
+
+    if return_raw:
+        return res
 
     if not res.is_success:
         raise GET_Dataflow_Error(res)
@@ -252,15 +318,26 @@ async def get_dataflow_by_id_and_version(
 
 @gd.route_function
 async def get_dataflow_execution_history(
-    dataflow_id: int,
     auth: DomoAuth,
-    maximum: int = None,
-    parent_class: str = None,
-    session: httpx.AsyncClient = None,
-    debug_num_stacks_to_drop=1,
-    debug_loop: bool = False,
+    dataflow_id: int,
+    maximum: int | None = None,
+    *,
+    context: RouteContext | None = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-):
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+    debug_loop: bool = False,
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/dataprocessing/v1/dataflows/{dataflow_id}/executions"
 
     def arr_fn(res):
@@ -268,7 +345,7 @@ async def get_dataflow_execution_history(
 
     res = await gd.looper(
         auth=auth,
-        session=session,
+        session=context.session,
         url=url,
         loop_until_end=True if not maximum else False,
         method="GET",
@@ -277,11 +354,14 @@ async def get_dataflow_execution_history(
         arr_fn=arr_fn,
         maximum=maximum,
         limit=100,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-        debug_api=debug_api,
+        debug_num_stacks_to_drop=context.debug_num_stacks_to_drop,
+        parent_class=context.parent_class,
+        debug_api=context.debug_api,
         debug_loop=debug_loop,
     )
+
+    if return_raw:
+        return res
 
     if not res.is_success:
         raise GET_Dataflow_Error(res)
@@ -294,22 +374,33 @@ async def get_dataflow_execution_by_id(
     auth: DomoAuth,
     dataflow_id: int,
     execution_id: int,
+    *,
+    context: RouteContext | None = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class: str = None,
-    session: httpx.AsyncClient = None,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/dataprocessing/v1/dataflows/{dataflow_id}/executions/{execution_id}"
 
     res = await gd.get_data(
         auth=auth,
         url=url,
         method="GET",
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-        debug_api=debug_api,
-        session=session,
+        context=context,
     )
+
+    if return_raw:
+        return res
 
     if not res.is_success:
         raise GET_Dataflow_Error(res)
@@ -321,22 +412,34 @@ async def get_dataflow_execution_by_id(
 async def execute_dataflow(
     auth: DomoAuth,
     dataflow_id: int,
+    *,
+    context: RouteContext | None = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class: str = None,
-    session: httpx.AsyncClient = None,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/dataprocessing/v1/dataflows/{dataflow_id}/executions"
 
     res = await gd.get_data(
         auth=auth,
         url=url,
         method="POST",
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-        debug_api=debug_api,
-        session=session,
+        context=context,
     )
+
+    if return_raw:
+        return res
+
     if not res.is_success:
         raise CRUD_Dataflow_Error(res)
 
@@ -380,14 +483,24 @@ def generate_search_dataflows_to_jupyter_workspaces_body(
 @gd.route_function
 async def search_dataflows_to_jupyter_workspaces(
     auth: DomoAuth,
-    dataflow_id: int = None,
-    return_raw: bool = False,
+    dataflow_id: int | None = None,
+    filter_body: dict | None = None,
+    *,
+    context: RouteContext | None = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    session: httpx.AsyncClient = None,
-    parent_class: str = None,
-    filter_body: dict = None,
-):
+    parent_class: Optional[str] = None,
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     filter_body = generate_search_dataflows_to_jupyter_workspaces_body(
         filter_body=filter_body, dataflow_id=dataflow_id
     )
@@ -397,10 +510,7 @@ async def search_dataflows_to_jupyter_workspaces(
         auth=auth,
         method="POST",
         body=filter_body,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if return_raw:
