@@ -7,9 +7,10 @@ debug and session parameters across route functions.
 __all__ = ["RouteContext"]
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
-import httpx
+if TYPE_CHECKING:
+    import httpx
 
 
 @dataclass
@@ -26,7 +27,7 @@ class RouteContext:
         parent_class: Optional parent class name for debugging context
     """
 
-    session: httpx.AsyncClient | None = None
+    session: "httpx.AsyncClient | None" = None
     debug_api: bool = False
     debug_num_stacks_to_drop: int = 1
     parent_class: Optional[str] = None
