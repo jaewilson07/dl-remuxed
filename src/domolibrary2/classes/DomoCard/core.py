@@ -30,7 +30,7 @@ class FederatedDomoCard(DomoCard_Default, DomoFederatedEntity):
         parent_auth: None = None,
         parent_auth_retrieval_fn: Optional[Callable] = None,
     ):
-        from ...classes.publish import DomoEverywhere
+        from ...classes.DomoEverywhere import DomoEverywhere
 
         domo_everywhere = DomoEverywhere(
             auth=self.auth,
@@ -139,7 +139,6 @@ class DomoCard(DomoCard_Default):
             auth=auth,
             id=obj.get("id"),
             raw=obj,
-            Relations=None,  # type: ignore
             title=obj.get("title"),
             description=obj.get("description"),
             type=obj.get("type"),
@@ -153,7 +152,6 @@ class DomoCard(DomoCard_Default):
             ),
             owners=owners or [],
             datastore_id=obj.get("domoapp", {}).get("id"),
-            Lineage=None,  # type: ignore
         )
 
         return card

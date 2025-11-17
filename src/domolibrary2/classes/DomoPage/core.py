@@ -151,7 +151,6 @@ class DomoPage(DomoEntity_w_Lineage):
             parent_page_id=int(dd.page.parentPageId) if dd.page.parentPageId else None,
             collections=dd.collections,
             auth=auth,
-            Lineage=None,
         )
 
         if hasattr(dd, "pageLayoutV4") and dd.pageLayoutV4 is not None:
@@ -248,7 +247,6 @@ class DomoPage(DomoEntity_w_Lineage):
             collections=dd.collections,
             is_locked=dd.locked,
             auth=auth,
-            Lineage=None,
         )
 
         if dd.page and dd.page.owners and len(dd.page.owners) > 0:
@@ -281,7 +279,12 @@ class DomoPage(DomoEntity_w_Lineage):
         if isinstance(page_obj, dict):
             dd = util_dd.DictDot(page_obj)
 
-        pg = cls(id=int(dd.id), title=dd.title, raw=page_obj, auth=auth, Lineage=None)
+        pg = cls(
+            id=int(dd.id),
+            title=dd.title,
+            raw=page_obj,
+            auth=auth,
+        )
 
         if isinstance(dd.owners, list) and len(dd.owners) > 0:
             pg.owners = await pg._get_domo_owners_from_dd(

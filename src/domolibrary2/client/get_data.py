@@ -21,8 +21,12 @@ from ..auth import (
 )
 from ..base.exceptions import DomoError
 from ..utils import chunk_execution as dmce
-from ..utils.logging import ResponseGetDataProcessor
+from ..utils.logging import ResponseGetDataProcessor, get_colored_logger
 from . import response as rgd
+from .context import RouteContext
+
+# Initialize colored logger
+logger = get_colored_logger()
 
 # Constants
 DEFAULT_TIMEOUT = 20
@@ -83,6 +87,7 @@ def create_httpx_session(
 @log_call(
     action_name="get_data",
     level_name="client",
+    log_level="DEBUG",
     config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
     color="light_blue",
 )
@@ -99,21 +104,31 @@ async def get_data(
     return_raw: bool = False,
     is_follow_redirects: bool = False,
     timeout: int = DEFAULT_TIMEOUT,
-    parent_class: Optional[str] = None,  # noqa: ARG001
-    num_stacks_to_drop: int = 2,  # noqa: ARG001
+    parent_class: Optional[str] = None,
+    debug_num_stacks_to_drop: int = 2,
     is_verify: bool = False,
+    context: RouteContext | None = None,
 ) -> rgd.ResponseGetData:
     """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint."""
 
-    if debug_api:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
+    if context.debug_api:
         print(f"🐛 Debugging get_data: {method} {url}")
+        await logger.debug(f"🐛 Debugging get_data: {method} {url}")
 
     headers = create_headers(
         auth=auth, content_type=content_type, headers=headers or {}
     )
 
     session, is_close_session = create_httpx_session(
-        session=session, is_verify=is_verify
+        session=context.session, is_verify=is_verify
     )
 
     # Create request metadata
@@ -124,15 +139,18 @@ async def get_data(
         params=params,
     )
 
-    if debug_api:
+    if context.debug_api:
         from pprint import pprint
 
         pprint(request_metadata.to_dict())
 
     # Create additional information with parent_class
     additional_information = {}
-    if parent_class:
-        additional_information["parent_class"] = parent_class
+    if context.parent_class:
+        additional_information["parent_class"] = context.parent_class
+
+    if context.log_level:
+        additional_information["log_level"] = context.log_level
 
     try:
         # Build request kwargs
@@ -153,23 +171,34 @@ async def get_data(
 
         response = await session.request(**request_kwargs)
 
-        if debug_api:
+        if context.debug_api:
             print(f"Response Status: {response.status_code}")
+            await logger.debug(f"Response Status: {response.status_code}")
 
+        res = None
         # Check for VPN block in response text
         if "<title>Domo - Blocked</title>" in response.text:
             ip_address = rgd.find_ip(response.text)
-            vpn_response = rgd.ResponseGetData(
-                status=403,
+            res = rgd.ResponseGetData(
+                status=response.status_code,
                 response=f"Blocked by VPN: {ip_address}",
                 is_success=False,
                 request_metadata=request_metadata,
                 additional_information=additional_information,
             )
-            return vpn_response
+
+        elif response.status_code == 303 and "whitelist/blocked" in response.text:
+            ip_address = rgd.find_ip(response.text)
+            res = rgd.ResponseGetData(
+                status=response.status_code,
+                response=f"Blocked by Allowlist: {ip_address}",
+                is_success=False,
+                request_metadata=request_metadata,
+                additional_information=additional_information,
+            )
 
         # Return raw response if requested
-        if return_raw:
+        elif return_raw:
             res = rgd.ResponseGetData(
                 status=response.status_code,
                 response=response,  # type: ignore
@@ -177,16 +206,18 @@ async def get_data(
                 request_metadata=request_metadata,
                 additional_information=additional_information,
             )
+
+        if res:
+            if not res.is_success:
+                raise GetDataError(url=url, message=res.response)
             return res
 
         # Process response into ResponseGetData using from_httpx_response
-        res = rgd.ResponseGetData.from_httpx_response(
+        return rgd.ResponseGetData.from_httpx_response(
             res=response,
             request_metadata=request_metadata,
             additional_information=additional_information,
         )
-
-        return res
 
     finally:
         if is_close_session:
@@ -197,6 +228,7 @@ async def get_data(
 @log_call(
     action_name="get_data_stream",
     level_name="client",
+    log_level="DEBUG",
     config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
 )
 async def get_data_stream(
@@ -209,7 +241,7 @@ async def get_data_stream(
     debug_api: bool = False,
     timeout: int = DEFAULT_STREAM_TIMEOUT,
     parent_class: Optional[str] = None,
-    num_stacks_to_drop: int = 2,  # noqa: ARG001
+    debug_num_stacks_to_drop: int = 2,  # noqa: ARG001
     debug_traceback: bool = False,  # noqa: ARG001
     session: httpx.AsyncClient | None = None,
     is_verify: bool = False,
@@ -227,7 +259,7 @@ async def get_data_stream(
         debug_api: Enable debugging information.
         timeout: Maximum time to wait for a response (in seconds).
         parent_class: (Optional) Name of the calling class.
-        num_stacks_to_drop: Number of stack frames to drop in the traceback.
+        debug_num_stacks_to_drop: Number of stack frames to drop in the traceback.
         debug_traceback: Enable detailed traceback debugging.
         session: Optional HTTPX session to be used.
         is_verify: SSL verification flag.
@@ -239,6 +271,7 @@ async def get_data_stream(
 
     if debug_api:
         print(f"🐛 Debugging get_data_stream: {method} {url}")
+        await logger.debug(f"🐛 Debugging get_data_stream: {method} {url}")
 
     if auth and not auth.token:
         await auth.get_auth_token()
@@ -321,7 +354,7 @@ class LooperError(DomoError):
         super().__init__(message=f"{loop_stage} - {message}")
 
 
-@log_call(action_name="looper", level_name="client")
+@log_call(action_name="looper", level_name="client", log_level="DEBUG")
 async def looper(
     auth: dmda.DomoAuth,
     session: httpx.AsyncClient | None,
@@ -345,6 +378,7 @@ async def looper(
     wait_sleep: int = 0,
     is_verify: bool = False,
     return_raw: bool = False,
+    context: RouteContext | None = None,
 ) -> rgd.ResponseGetData:
     """Iteratively retrieves paginated data from a Domo API endpoint.
 
@@ -377,7 +411,17 @@ async def looper(
     """
     is_close_session = False
 
-    session, is_close_session = create_httpx_session(session, is_verify=is_verify)
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
+    session, is_close_session = create_httpx_session(
+        context.session, is_verify=is_verify
+    )
 
     all_rows = []
     is_loop = True
@@ -415,6 +459,9 @@ async def looper(
 
         if debug_loop:
             print(f"\n🚀 Retrieving records {skip} through {skip + limit} via {url}")
+            await logger.debug(
+                f"\n🚀 Retrieving records {skip} through {skip + limit} via {url}"
+            )
             # pprint(params)
 
             message = {
@@ -430,12 +477,10 @@ async def looper(
             url=url,
             method=method,
             params=params,
-            session=session,
             body=body,
-            debug_api=debug_api,
             timeout=timeout,
-            parent_class=parent_class,
-            num_stacks_to_drop=debug_num_stacks_to_drop,
+            is_verify=is_verify,
+            context=context,
         )
 
         if not res or not res.is_success:
@@ -469,6 +514,7 @@ async def looper(
 
         if debug_loop:
             print(message)
+            await logger.debug(message)
 
         if maximum and skip + limit > maximum and not loop_until_end:
             limit = maximum - len(all_rows)
@@ -478,6 +524,8 @@ async def looper(
 
     if debug_loop:
         message = f"\n🎉 Success - {len(all_rows)} records retrieved from {url} in query looper\n"
+        print(message)
+        await logger.info(message)
 
     if is_close_session:
         await session.aclose()
@@ -525,14 +573,24 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
         debug_num_stacks_to_drop: int = 1,
         debug_api: bool = False,
         session: httpx.AsyncClient | None = None,
+        context: RouteContext | None = None,
         **kwargs: Any,
     ) -> Any:
+        if context is None:
+            context = RouteContext(
+                session=session,
+                debug_api=debug_api,
+                debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+                parent_class=parent_class,
+            )
+
         result = await func(
             *args,
             parent_class=parent_class,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
             debug_api=debug_api,
             session=session,
+            context=context,
             **kwargs,
         )
 

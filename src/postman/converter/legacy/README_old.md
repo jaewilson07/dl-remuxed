@@ -1,3 +1,5 @@
+> Last updated: 2025-11-06
+
 # Postman API Client Generator
 
 A comprehensive Python library for converting Postman collections into fully functional Python API client code with complete structure validation and type safety.

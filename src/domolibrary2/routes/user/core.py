@@ -118,7 +118,7 @@ async def get_all_users(
         method="GET",
         auth=auth,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
     )
@@ -449,7 +449,7 @@ async def _get_by_id(
             debug_api=debug_api,
             session=session,
             params=params,
-            num_stacks_to_drop=debug_num_stacks_to_drop,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
             parent_class=parent_class,
         ),
         gd.get_data(
@@ -459,7 +459,7 @@ async def _get_by_id(
             debug_api=debug_api,
             session=session,
             params=params,
-            num_stacks_to_drop=debug_num_stacks_to_drop,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
             parent_class=parent_class,
         ),
     )
@@ -617,7 +617,7 @@ async def search_virtual_user_by_subscriber_instance(
         auth=auth,
         body=body,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
     )
@@ -686,7 +686,7 @@ async def create_user(
         body=body,
         auth=auth,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
     )
@@ -754,7 +754,7 @@ async def delete_user(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -810,7 +810,7 @@ async def toggle_is_enable_user_direct_signon(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:

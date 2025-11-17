@@ -267,7 +267,7 @@ async def get_account_accesslist(
         method="GET",
         debug_api=debug_api,
         session=session,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -323,7 +323,7 @@ async def get_oauth_account_accesslist(
         method="GET",
         debug_api=debug_api,
         session=session,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -440,7 +440,7 @@ async def share_account(
         method=method,
         body=share_payload,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         debug_api=debug_api,
         session=session,
     )
@@ -534,7 +534,7 @@ async def share_oauth_account(
         method="PUT",
         body=share_payload,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         debug_api=debug_api,
         session=session,
     )
@@ -628,7 +628,7 @@ async def share_account_v1(
         url=url,
         method="PUT",
         body=share_payload,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         debug_api=debug_api,
         session=session,

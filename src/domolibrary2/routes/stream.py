@@ -62,6 +62,7 @@ async def get_streams(
     auth: DomoAuth,
     loop_until_end: bool = True,
     session: httpx.AsyncClient | None = None,
+    context=None,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
     debug_api: bool = False,
@@ -113,6 +114,7 @@ async def get_stream_by_id(
     auth: DomoAuth,
     stream_id: str,
     session: httpx.AsyncClient | None = None,
+    context=None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -144,7 +146,7 @@ async def get_stream_by_id(
         session=session,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -162,6 +164,7 @@ async def update_stream(
     stream_id: str,
     body: dict,
     session: httpx.AsyncClient | None = None,
+    context=None,
     debug_num_stacks_to_drop: int = 1,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
@@ -195,7 +198,7 @@ async def update_stream(
         session=session,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -212,6 +215,7 @@ async def create_stream(
     auth: DomoAuth,
     body: dict,
     session: httpx.AsyncClient | None = None,
+    context=None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -244,7 +248,7 @@ async def create_stream(
         session=session,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -261,6 +265,7 @@ async def execute_stream(
     auth: DomoAuth,
     stream_id: str,
     session: httpx.AsyncClient | None = None,
+    context=None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
@@ -292,7 +297,7 @@ async def execute_stream(
         session=session,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:

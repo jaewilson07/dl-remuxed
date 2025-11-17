@@ -198,8 +198,6 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
             row_count=int(obj.get("rowCount") or 0),
             column_count=int(obj.get("columnCount") or 0),
             formulas=formulas,
-            Lineage=None,
-            Relations=None,  # type: ignore
             **kwargs,
         )
 
@@ -216,7 +214,8 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
         debug_num_stacks_to_drop: int = 2,
         is_use_default_dataset_class: bool = False,
         parent_class: Optional[str] = None,
-        is_suppress_no_config: bool = False,
+        is_get_account: bool = True,
+        is_suppress_no_account_config: bool = True,
     ):
         """retrieves dataset metadata"""
         parent_class = parent_class or cls.__name__
@@ -245,7 +244,10 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
         )
 
         if ds.Stream:
-            await ds.Stream.refresh(is_suppress_no_config=is_suppress_no_config)
+            await ds.Stream.refresh(
+                is_get_account=is_get_account,
+                is_suppress_no_account_config=is_suppress_no_account_config,
+            )
 
         return ds
 

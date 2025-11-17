@@ -699,46 +699,38 @@ class AccountConfig(DomoEnumMixin, Enum):
     snowflake_writeback = DomoAccount_Config_SnowflakeWriteback
     snowflake_federated = DomoAccount_Config_SnowflakeFederated
 
-    _uses_oauth = ["google_spreadsheets"]
-
-    _config_oauth = DomoAccount_NoConfig_OAuthError
-    _config_notdefined = DomoAccount_NoConfig
-
     @staticmethod
     def generate_alt_search_str(raw_value):
         return raw_value.lower().replace("-", "_")
 
     @classmethod
     def _missing_(cls, value):
-        try:
-            alt_search_str = cls.generate_alt_search_str(value)
+        _uses_oauth = ["google_spreadsheets"]
 
-            config_match = next(
-                (member for member in cls if member.name in [value, alt_search_str]),
-                None,
-            )
+        alt_search_str = cls.generate_alt_search_str(value)
 
-            # best case scenario alt_search yields a result
-            if config_match:
-                return config_match
+        config_match = next(
+            (member for member in cls if member.name in [value, alt_search_str]),
+            None,
+        )
 
-            # second best case, display_type is an oauth and therefore has no matching config
-            oauth_match = next(
-                (
-                    oauth_str
-                    for oauth_str in cls._uses_oauth
-                    if oauth_str in [value, alt_search_str]
-                ),
-                None,
-            )
-            if oauth_match:
-                raise AccountConfig_UsesOauthError(value)
+        # best case scenario alt_search yields a result
+        if config_match:
+            return config_match
 
-            # worst case, unencountered display_type
-            raise AccountConfig_ProviderTypeNotDefinedError(value)
-        except AccountConfig_UsesOauthError as e:
-            print(e)
-            return cls._config_oauth
-        except AccountConfig_ProviderTypeNotDefinedError as e:
-            print(e)
-            return cls._config_notdefined
+        # second best case, display_type is an oauth and therefore has no matching config
+        oauth_match = next(
+            (
+                oauth_str
+                for oauth_str in _uses_oauth
+                if oauth_str in [value, alt_search_str]
+            ),
+            None,
+        )
+        if oauth_match:
+            print(AccountConfig_UsesOauthError(cls, value))
+            return None
+
+        # worst case, unencountered display_type
+        print(AccountConfig_ProviderTypeNotDefinedError(cls, value))
+        return None

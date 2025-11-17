@@ -28,7 +28,7 @@ class FederatedDomoDataset(DomoDataset_Default, DomoFederatedEntity):
         parent_auth: None = None,
         parent_auth_retrieval_fn: Optional[Callable] = None,
     ):
-        from ...classes.DomoInstanceConfig.publish import DomoEverywhere
+        from ...classes.DomoEverywhere import DomoEverywhere
 
         domo_everywhere = DomoEverywhere(
             auth=self.auth,
@@ -81,7 +81,7 @@ class FederatedDomoDataset(DomoDataset_Default, DomoFederatedEntity):
         debug_num_stacks_to_drop: int = 2,
         is_use_default_dataset_class: bool = False,
         parent_class: Optional[str] = None,
-        is_suppress_no_config: bool = False,
+        is_suppress_no_account_config: bool = True,
     ):
         """retrieves federated dataset metadata"""
         # Use parent implementation to avoid code duplication
@@ -94,7 +94,7 @@ class FederatedDomoDataset(DomoDataset_Default, DomoFederatedEntity):
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
             is_use_default_dataset_class=is_use_default_dataset_class,
             parent_class=parent_class or cls.__name__,
-            is_suppress_no_config=is_suppress_no_config,
+            is_suppress_no_account_config=is_suppress_no_account_config,
         )
 
 

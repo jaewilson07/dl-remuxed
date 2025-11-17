@@ -1,6 +1,12 @@
 ---
 applyTo: '**/*'
+name: general_instructions
+description: Project-wide conventions, imports, testing, and workflow guidance for domolibrary2.
 ---
+
+> Last updated: 2025-11-17
+
+# Domolibrary2 General Instructions
 # Domolibrary2 General Instructions
 
 ## Project Overview
@@ -16,16 +22,33 @@ Domolibrary2 is a Python library for interacting with Domo APIs. The project use
 
 ```
 src/domolibrary2/
-├── classes/          # Domo entity classes (DomoUser, DomoDataset, etc.)
-├── routes/           # API route handlers grouped by domain
-├── client/           # Core client classes (DomoAuth, entities, exceptions)
-├── utils/            # Utility functions and helpers
-└── integrations/     # Higher-level integration patterns
+├── auth/              # Authentication classes (DomoAuth, DomoFullAuth, etc.)
+│   ├── __init__.py    # Re-exports all auth classes
+│   ├── base.py        # DomoAuth base class
+│   ├── full.py        # Username/password auth
+│   ├── token.py       # Access token auth
+│   ├── developer.py   # OAuth2 client credentials
+│   ├── jupyter.py     # Jupyter-specific auth
+│   └── utils.py       # Auth utilities
+├── base/              # Base classes and exceptions
+│   ├── base.py        # DomoEnumMixin and base utilities
+│   ├── entities.py    # DomoEntity, DomoManager base classes
+│   ├── exceptions.py  # DomoError, RouteError, ClassError, AuthError
+│   └── relationships.py # Relationship utilities
+├── classes/           # Domo entity classes (DomoUser, DomoDataset, etc.)
+├── routes/            # API route handlers grouped by domain
+│   ├── Single-file modules (simple routes)
+│   └── Folder modules (complex routes with submodules)
+├── client/            # HTTP client utilities
+│   ├── get_data.py    # Core HTTP request handler
+│   └── response.py    # Response classes
+├── utils/             # Utility functions and helpers
+└── integrations/      # Higher-level integration patterns
 
 tests/
-├── classes/          # Class tests (test_50_*.py)
-├── routes/           # Route tests
-└── client/           # Client tests
+├── classes/           # Class tests (test_50_*.py)
+├── routes/            # Route tests
+└── client/            # Client tests
 ```
 
 ## Key Design Principles
@@ -51,16 +74,28 @@ tests/
 
 5. **Error Design**:
    - Route-specific exceptions (User_GET_Error, Dataset_CRUD_Error)
-   - Exceptions in `routes/[domain]/exceptions.py`
-   - Inherit from DomoError base class
+   - Exceptions in `routes/[domain]/exceptions.py` (folder modules) or at top of file (single-file modules)
+   - All exceptions inherit from base classes in `base/exceptions.py`:
+     - **DomoError**: Base for all Domo-related errors
+     - **RouteError**: API route/endpoint errors
+     - **ClassError**: Class instance errors
+     - **AuthError**: Authentication-specific errors
+
+6. **Authentication Architecture**:
+   - All auth classes in `auth/` module
+   - **DomoAuth**: Base authentication class (abstract)
+   - **DomoFullAuth**: Username/password authentication
+   - **DomoTokenAuth**: Access token authentication
+   - **DomoDeveloperAuth**: OAuth2 client credentials
+   - **DomoJupyterAuth**: Jupyter-specific authentication variants
 
 ## Import Conventions
 
 ### Standard Aliases:
 ```python
-import domolibrary2.client.auth as dmda
-import domolibrary2.client.entities as dmde
-import domolibrary2.client.exceptions as dmex
+import domolibrary2.auth as dmda
+import domolibrary2.base.entities as dmde
+import domolibrary2.base.exceptions as dmex
 import domolibrary2.utils.DictDot as util_dd
 ```
 
@@ -71,42 +106,32 @@ import domolibrary2.utils.DictDot as util_dd
 
 ### Relative Import Pattern:
 ```python
+# From routes to auth
+from ..auth import DomoAuth  # Single-file module
+from ...auth import DomoAuth  # Folder module
+
 # From routes to client
-from ..client.auth import DomoAuth
 from ..client import get_data as gd
+from ..client import response as rgd
+
+# From routes to base exceptions
+from ..base.exceptions import RouteError  # Single-file module
+from ...base.exceptions import RouteError  # Folder module
 
 # From classes to routes
 from ...routes import user as user_routes
+from ...routes.dataset import get_dataset_by_id  # Folder module
 from ...routes.user.exceptions import User_GET_Error
 
 # From classes to subentities
 from ..subentity import DomoTags as dmtg  # Note: class name is plural
 ```
 
-### User attributes imports (re-export pattern)
-User attributes are implemented in `routes/instance_config/user_attributes.py` but are re-exported via `routes/user/__init__.py`. Prefer importing from `routes.user` for simplicity:
+### User attributes imports (high-level)
+User attributes are implemented in `routes/instance_config/user_attributes.py` and re-exported via `routes/user/__init__.py`.
 
-```python
-# Recommended (re-exported)
-from ...routes.user import (
-    create_user_attribute,
-    delete_user_attribute,
-    get_user_attribute_by_id,
-    get_user_attributes,
-    update_user_attribute,
-    UserAttributes_IssuerType,
-)
-
-# Alternative (direct implementation path)
-from ...routes.instance_config.user_attributes import (
-    create_user_attribute,
-    delete_user_attribute,
-    get_user_attribute_by_id,
-    get_user_attributes,
-    update_user_attribute,
-    UserAttributes_IssuerType,
-)
-```
+- **Preferred**: import via `routes.user` re-exports.
+- **Details**: see `.github/instructions/classes.instructions.md` for the full class-level import pattern.
 
 ## Code Style
 
@@ -143,7 +168,7 @@ def function_name(param1: str, param2: int = 10) -> ReturnType:
 ```
 
 ### Entity URLs
-- In classes, `display_url` MUST be a `@property` that returns the entity's Domo web URL. This matches the abstract definition in the base entity class.
+- In classes, `display_url` MUST be a `@property` that returns the entity's Domo web URL. See `.github/instructions/classes.instructions.md` for the full entity pattern.
 
 ## Testing Standards
 
@@ -269,14 +294,42 @@ class CustomError(DomoError):
 
 ## Documentation
 
-### Project Documentation:
-- [Testing Guide](../../docs/testing-guide.md)
-- [Type Hints Guide](../../docs/type-hints-implementation-guide.md)
-- [Trigger System Guide](../../docs/trigger-system-guide.md)
-- [Card Datasets Manager](../../docs/card-datasets-manager.md)
+### What belongs in `docs/`
 
-### API Documentation:
-Generated from docstrings using Sphinx or similar tool.
+The top-level `docs/` folder is for **user-facing documentation** only:
+
+- How to install and use domolibrary2
+- How to configure auth and environment variables
+- How to interpret logs and control log levels (for example
+    `docs/log-level-quick-ref.md`)
+- How to use specific features and behaviors in notebooks and scripts
+- Stable conceptual guides (for example circular import explanations)
+
+These docs are expected to be maintained over time as part of the
+public-facing surface area of the library.
+
+### What does *not* belong in `docs/`
+
+Docs that are primarily for **code development, feature implementation,
+or internal refactors** should live outside `docs/` (for example under
+`local_work/` or a dedicated `dev_docs/` folder) and are generally
+expected to be:
+
+- Temporary design notes
+- Migration checklists (for example, adopting a new logger implementation)
+- One-off PR planning docs
+
+Those documents should be merged into PR descriptions or inline comments
+as appropriate and then deleted once the feature is complete. They should
+not be treated as long-lived project documentation.
+
+### Finding user-facing docs
+
+See the `docs/` directory for additional reference material. Key documents include:
+- `docs/version-management.md` (release/versioning strategy)
+- Logging and circular import guides in `docs/` for advanced topics
+
+API documentation is generated from docstrings using Sphinx or a similar tool.
 
 ## Development Workflow
 
@@ -290,10 +343,9 @@ Generated from docstrings using Sphinx or similar tool.
 
 ## Reference Implementations
 
-- **Class**: `src/domolibrary2/classes/DomoUser.py`
-- **Route**: `src/domolibrary2/routes/user/`
-- **Test**: `tests/classes/DomoUser.py`
-- **Manager**: `src/domolibrary2/classes/DomoUser.py` (DomoUsers class)
+- **Class patterns**: See `.github/instructions/classes.instructions.md` (reference: `src/domolibrary2/classes/DomoUser.py`).
+- **Route patterns**: See `.github/instructions/routes.instructions.md`.
+- **Test patterns**: See `.github/instructions/tests.instructions.md`.
 
 ## Getting Help
 
