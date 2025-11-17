@@ -98,6 +98,7 @@ async def get_data(
     headers: dict = None,
     body: dict | list | str | None = None,
     params: dict = None,
+    context: Optional[Any] = None,  # RouteContext object
     debug_api: bool = False,
     session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
@@ -107,7 +108,18 @@ async def get_data(
     debug_num_stacks_to_drop: int = 2,  # noqa: ARG001
     is_verify: bool = False,
 ) -> rgd.ResponseGetData:
-    """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint."""
+    """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint.
+    
+    If context is provided, its values will override the individual parameters
+    (session, debug_api, debug_num_stacks_to_drop, parent_class).
+    """
+
+    # Extract values from context if provided
+    if context is not None:
+        session = context.session if session is None else session
+        debug_api = context.debug_api if not debug_api else debug_api
+        debug_num_stacks_to_drop = context.debug_num_stacks_to_drop
+        parent_class = context.parent_class if parent_class is None else parent_class
 
     if debug_api:
         print(f"🐛 Debugging get_data: {method} {url}")
