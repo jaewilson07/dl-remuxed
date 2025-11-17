@@ -104,7 +104,7 @@ class PythonTypeToSchemaType(dmen.DomoEnumMixin, Enum):
     ANY = "Any"
 
     @property
-    def code_engine_schema_type(self):
+    def codeengine_schema_type(self):
         mapping = {
             PythonTypeToSchemaType.STR: "text",
             PythonTypeToSchemaType.STRING: "text",
@@ -135,7 +135,7 @@ class PythonTypeToSchemaType(dmen.DomoEnumMixin, Enum):
 
     @classmethod
     def map_python_type_to_schema(cls, type_str: str, default="OBJECT") -> str:
-        return cls.get(type_str, default=default).code_engine_schema_type
+        return cls.get(type_str, default=default).codeengine_schema_type
 
 
 @dataclass
@@ -166,7 +166,7 @@ class CodeEngine_Argument:
 
     def to_dict(self, is_map_type_to_codeengine: bool = True) -> dict[str, Any]:
         schema_type = (
-            self.schema_type.code_engine_schema_type
+            self.schema_type.codeengine_schema_type
             if is_map_type_to_codeengine
             else self.schema_type.value
         )

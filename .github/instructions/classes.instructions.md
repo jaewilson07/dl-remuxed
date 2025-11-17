@@ -1,6 +1,11 @@
 ---
 applyTo: 'src/domolibrary2/classes/**/*'
+name: class_instructions
+description: Standards for entity and manager class design, imports, and patterns.
 ---
+
+> Last updated: 2025-11-10
+
 # Class Validation and Structure Standards
 
 ## Entity Hierarchy
@@ -34,8 +39,8 @@ DomoSubEntity (for composition - entities that belong to parents)
 
 ```python
 from dataclasses import dataclass, field
-from ..client.auth import DomoAuth
-from ..client.entities import DomoEntity
+from ...auth import DomoAuth
+from ...base.entities import DomoEntity
 
 @dataclass
 class DomoExample(DomoEntity):
@@ -176,7 +181,7 @@ async def method_name(
 4. **Docstrings**: All public methods must have docstrings
 5. **return_raw**: Include on methods that call route functions
 
-### from_dict signature standard
+### from_dict signature standard (authoritative)
 
 All entity classes must implement a classmethod:
 
@@ -191,11 +196,19 @@ def from_dict(cls, auth: DomoAuth, obj: dict):
 
 Note on legacy deviations: a few older implementations (for example, some classes in DomoPublish and user attributes) use `from_dict(cls, obj, auth)` with `obj` first. Prefer the `auth, obj` ordering for all new work and migrate legacy callsites when those files are touched.
 
+For a high-level overview of async patterns and return_raw usage, see `.github/instructions/general.instructions.md`.
+
 ## Import Standards
 
 ### Correct Imports:
 
 ```python
+# ✅ Import auth
+from ...auth import DomoAuth
+
+# ✅ Import base entities
+from ...base.entities import DomoEntity, DomoManager
+
 # ✅ Import route functions from routes module
 from ...routes import user as user_routes
 from ...routes.user import UserProperty_Type, UserProperty
@@ -205,20 +218,34 @@ from ...routes.user.exceptions import (
     SearchUserNotFoundError,
 )
 
+# ✅ Import dataset route functions (folder module)
+from ...routes.dataset import (
+    get_dataset_by_id,
+    query_dataset_private,
+    upload_dataset_stage_1,
+)
+from ...routes.dataset.exceptions import (
+    Dataset_GET_Error,
+    Dataset_CRUD_Error,
+)
+
 # ✅ Import subentities
 from ..subentity import DomoTags as dmtg, DomoLineage as dmdl
-
-# ✅ Import client entities
-from ...client.entities import DomoEntity, DomoManager
-from ...client.auth import DomoAuth
 ```
 
 ### Incorrect Imports:
 
 ```python
-# ❌ DO NOT import exceptions from client
-from ...client.auth import InvalidAuthTypeError  # Wrong!
-# Should be: from ...routes.auth import InvalidAuthTypeError
+# ❌ DO NOT use old import paths
+from ...client.entities import DomoEntity  # Old path
+from ...client.auth import DomoAuth  # Old path
+# Should be:
+from ...base.entities import DomoEntity  # ✓ Correct
+from ...auth import DomoAuth  # ✓ Correct
+
+# ❌ DO NOT import auth exceptions from routes.auth
+from ...routes.auth import InvalidAuthTypeError  # Wrong!
+# Should be: from ...base.exceptions import AuthError
 
 # ❌ DO NOT implement API logic in class
 import httpx  # Only if absolutely necessary
@@ -390,7 +417,6 @@ See `src/domolibrary2/classes/DomoUser.py` as the reference implementation that 
 
 ## Documentation
 
-For detailed guidance, see:
-- [Testing Guide](../../docs/testing-guide.md)
-- [Type Hints Guide](../../docs/type-hints-implementation-guide.md)
-- [Trigger System Guide](../../docs/trigger-system-guide.md)
+For additional guidance, see the `docs/` directory. Key references include:
+- `docs/version-management.md` for release/versioning strategy
+- Logging and circular import guides in `docs/` for advanced topics

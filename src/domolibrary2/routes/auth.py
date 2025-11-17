@@ -166,7 +166,7 @@ async def get_full_auth(
         url=url,
         body=body,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
         return_raw=return_raw,
@@ -260,7 +260,7 @@ async def get_developer_auth(
         session=session,
         debug_api=debug_api,
         auth=auth,  # type: ignore  # Auth can be None for authentication endpoints
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         return_raw=return_raw,
     )
@@ -323,7 +323,7 @@ async def who_am_i(
         url=url,
         method="GET",
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
         return_raw=return_raw,
@@ -405,7 +405,7 @@ async def elevate_user_otp(
         url=url,
         body=body,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
     )

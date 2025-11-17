@@ -18,14 +18,12 @@ from ...routes.instance_config import (
     authorized_domains as domains_routes,
     toggle as toggle_routes,
 )
-from ..DomoDataset.connector import DomoConnectors
 from .access_token import DomoAccessTokens
 from .allowlist import DomoAllowlist
 from .api_client import ApiClients
 from .bootstrap import DomoBootstrap
 from .instance_switcher import InstanceSwitcher
 from .mfa import MFA_Config
-from .publish import DomoEverywhere
 from .role import DomoRoles
 from .role_grant import DomoGrants
 from .sso import SSO as SSO_Class
@@ -45,7 +43,7 @@ class DomoInstanceConfig:
     ApiClients: "ApiClients" = field(default=None)
     Bootstrap: DomoBootstrap = field(default=None)
 
-    Connectors: DomoConnectors = field(default=None)
+    Connectors: Any = field(default=None)  # DomoConnectors
     InstanceSwitcher: "InstanceSwitcher" = field(default=None)
 
     Grants: DomoGrants = field(default=None)
@@ -54,12 +52,16 @@ class DomoInstanceConfig:
     Roles: DomoRoles = field(default=None)
 
     SSO: SSO_Class = field(default=None)
-    Everywhere: DomoEverywhere = field(default=None)
+    Everywhere: Any = field(
+        default=None
+    )  # DomoEverywhere - imported lazily to avoid circular import
     UserAttributes: "UserAttributes" = field(default=None)
     Toggle: DomoToggle = field(default=None)
 
     def __post_init__(self):
         from ..DomoAccount import DomoAccounts
+        from ..DomoDataset.connector import DomoConnectors
+        from ..DomoEverywhere import DomoEverywhere
         from .api_client import ApiClients
         from .instance_switcher import InstanceSwitcher
         from .user_attributes import UserAttributes

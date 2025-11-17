@@ -56,7 +56,7 @@ async def get_allowlist(
         debug_api=debug_api,
         is_follow_redirects=True,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -101,7 +101,7 @@ async def set_allowlist(
         session=session,
         headers={"accept": "text/plain"},
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
     if return_raw:
         return res
@@ -139,7 +139,7 @@ async def get_allowlist_is_filter_all_traffic_enabled(
         debug_api=debug_api,
         is_follow_redirects=True,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -191,7 +191,7 @@ async def toggle_allowlist_is_filter_all_traffic_enabled(
         debug_api=debug_api,
         is_follow_redirects=True,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if not res.is_success:

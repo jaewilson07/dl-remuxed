@@ -161,7 +161,6 @@ class DomoUser(DomoEntity):
                 obj.get("lastActivity"),
             ),
             raw=obj,
-            Relations=None,  # type: ignore
         )
 
     @classmethod
@@ -177,7 +176,6 @@ class DomoUser(DomoEntity):
             subscriber_domain=obj.get("subscriberDomain"),
             virtual_user_id=obj.get("virtualUserId"),
             raw=obj,
-            Relations=None,  # type: ignore
         )
 
     @classmethod
@@ -186,7 +184,6 @@ class DomoUser(DomoEntity):
             id=obj["id"],
             display_name=obj.get("displayName"),
             auth=auth,
-            Relations=None,  # type: ignore
             raw=obj,
         )
 

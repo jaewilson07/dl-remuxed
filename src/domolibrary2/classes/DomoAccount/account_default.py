@@ -124,7 +124,6 @@ class DomoAccount_Default(DomoEntity):
             is_admin_summary=is_admin_summary,
             owners=obj.get("owners"),
             raw=obj,
-            Relations=None,
             **kwargs,
         )
 

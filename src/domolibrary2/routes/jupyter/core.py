@@ -127,7 +127,7 @@ async def get_jupyter_workspace_by_id(
         method="GET",
         auth=auth,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
     )
@@ -221,7 +221,7 @@ async def start_jupyter_workspace(
             auth=auth,
             parent_class=parent_class,
             session=session,
-            num_stacks_to_drop=debug_num_stacks_to_drop,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
             debug_api=debug_api,
         )
 

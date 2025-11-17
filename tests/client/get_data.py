@@ -416,7 +416,9 @@ async def manual_test_with_logging():
             print(f"✅ Real test passed: {result.is_success}")
 
         except Exception as e:
-            await logger.error(message="Real test failed", data={"error": str(e)})
+            await logger.error(
+                message="Real test failed", data={"error": str(e)}, color="red"
+            )
             print(f"❌ Real test failed: {e}")
     else:
         await logger.info(
