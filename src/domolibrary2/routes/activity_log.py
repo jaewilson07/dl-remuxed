@@ -16,6 +16,7 @@ from ..client import (
     get_data as gd,
     response as rgd,
 )
+from ..client.context import RouteContext
 
 
 class ActivityLog_GET_Error(RouteError):
@@ -32,6 +33,8 @@ class ActivityLog_GET_Error(RouteError):
 @gd.route_function
 async def get_activity_log_object_types(
     auth: DomoAuth,
+    *,
+    context: RouteContext | None = None,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
     debug_api: bool = False,
@@ -39,16 +42,21 @@ async def get_activity_log_object_types(
 ) -> rgd.ResponseGetData:
     """retrieves a list of valid objectTypes that can be used to search the activity_log API"""
 
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/audit/v1/user-audits/objectTypes"
 
     res = await gd.get_data(
         url=url,
         method="GET",
         auth=auth,
-        parent_class=parent_class,
-        debug_api=debug_api,
-        session=session,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if not res.is_success:
@@ -64,8 +72,10 @@ async def search_activity_log(
     auth: DomoAuth,
     start_time: int,  # epoch time in milliseconds
     end_time: int,  # epoch time in milliseconds
+    *,
     maximum: Optional[int] = None,
     object_type: Optional[str] = None,
+    context: RouteContext | None = None,
     debug_api: bool = False,
     debug_loop: bool = False,
     parent_class: Optional[str] = None,
@@ -74,10 +84,18 @@ async def search_activity_log(
 ) -> rgd.ResponseGetData:
     """loops over activity log api to retrieve audit logs"""
 
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     is_close_session = False
 
-    if not session:
-        session = httpx.AsyncClient()
+    if not context.session:
+        context.session = httpx.AsyncClient()
         is_close_session = True
 
     url = f"https://{auth.domo_instance}.domo.com/api/audit/v1/user-audits"
@@ -102,19 +120,16 @@ async def search_activity_log(
         arr_fn=arr_fn,
         fixed_params=fixed_params,
         offset_params=offset_params,
-        session=session,
+        context=context,
         maximum=maximum,
         limit=1000,
         debug_loop=debug_loop,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
     )
 
     if not res.is_success:
         raise ActivityLog_GET_Error(res=res)
 
     if is_close_session:
-        await session.aclose()
+        await context.session.aclose()
 
     return res

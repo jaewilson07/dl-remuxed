@@ -23,6 +23,7 @@ from ..base.exceptions import DomoError
 from ..utils import chunk_execution as dmce
 from ..utils.logging import ResponseGetDataProcessor, get_colored_logger
 from . import response as rgd
+from .context import RouteContext
 
 # Initialize colored logger
 logger = get_colored_logger()
@@ -98,6 +99,7 @@ async def get_data(
     headers: dict = None,
     body: dict | list | str | None = None,
     params: dict = None,
+    context: RouteContext | None = None,
     debug_api: bool = False,
     session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
@@ -107,7 +109,19 @@ async def get_data(
     debug_num_stacks_to_drop: int = 2,  # noqa: ARG001
     is_verify: bool = False,
 ) -> rgd.ResponseGetData:
-    """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint."""
+    """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint.
+
+    If context is provided, its values take precedence over individually provided parameters.
+    """
+
+    # Extract parameters from context if provided
+    if context is not None:
+        session = context.session if context.session is not None else session
+        debug_api = context.debug_api if context.debug_api else debug_api
+        debug_num_stacks_to_drop = context.debug_num_stacks_to_drop  # noqa: F841
+        parent_class = (
+            context.parent_class if context.parent_class is not None else parent_class
+        )
 
     if debug_api:
         print(f"🐛 Debugging get_data: {method} {url}")
@@ -357,6 +371,7 @@ async def looper(
     limit=1000,
     skip=0,
     maximum=0,
+    context: RouteContext | None = None,
     debug_api: bool = False,
     debug_loop: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -395,6 +410,16 @@ async def looper(
     Returns:
         An instance of ResponseGetData containing the aggregated data and pagination metadata.
     """
+
+    # Extract parameters from context if provided
+    if context is not None:
+        session = context.session if context.session is not None else session
+        debug_api = context.debug_api if context.debug_api else debug_api
+        debug_num_stacks_to_drop = context.debug_num_stacks_to_drop  # noqa: F841
+        parent_class = (
+            context.parent_class if context.parent_class is not None else parent_class
+        )
+
     is_close_session = False
 
     session, is_close_session = create_httpx_session(session, is_verify=is_verify)
