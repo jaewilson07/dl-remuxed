@@ -1,6 +1,7 @@
 """Dataset upload and data operations."""
 
 import io
+from typing import Optional
 
 import httpx
 import pandas as pd
@@ -11,6 +12,7 @@ from ...client import (
     get_data as gd,
     response as rgd,
 )
+from ...client.context import RouteContext
 from ...utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 from .exceptions import (
     Dataset_CRUD_Error,
@@ -33,13 +35,23 @@ async def upload_dataset_stage_1(
     dataset_id: str,
     #  restate_data_tag: str = None, # deprecated
     partition_tag: str | None = None,  # synonymous with data_tag
+    *,  # Make following params keyword-only
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     return_raw: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class=None,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
 ) -> rgd.ResponseGetData:
     """preps dataset for upload by creating an upload_id (upload session key) pass to stage 2 as a parameter"""
+
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/data/v3/datasources/{dataset_id}/uploads"
 
@@ -58,11 +70,8 @@ async def upload_dataset_stage_1(
         url=url,
         method="POST",
         body=body,
-        session=session,
-        debug_api=debug_api,
         params=params,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if not res.is_success:
@@ -99,13 +108,25 @@ async def upload_dataset_stage_2_file(
     dataset_id: str,
     upload_id: str,  # must originate from  a stage_1 upload response
     data_file: io.TextIOWrapper | None = None,
-    session: httpx.AsyncClient | None = None,
     # only necessary if streaming multiple files into the same partition (multi-part upload)
     part_id: int = 2,
+    *,  # Make following params keyword-only
+    context: RouteContext | None = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class=None,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
 ) -> rgd.ResponseGetData:
+    """Upload data file to dataset (stage 2 of upload process)."""
+
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/data/v3/datasources/{dataset_id}/uploads/{upload_id}/parts/{part_id}"
 
     body = data_file
@@ -116,10 +137,7 @@ async def upload_dataset_stage_2_file(
         auth=auth,
         content_type="text/csv",
         body=body,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if not res.is_success:
@@ -138,12 +156,24 @@ async def upload_dataset_stage_2_df(
     dataset_id: str,
     upload_id: str,  # must originate from  a stage_1 upload response
     upload_df: pd.DataFrame,
-    session: httpx.AsyncClient | None = None,
     part_id: int = 2,  # only necessary if streaming multiple files into the same partition (multi-part upload)
+    *,  # Make following params keyword-only
+    context: RouteContext | None = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class=None,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
 ) -> rgd.ResponseGetData:
+    """Upload pandas DataFrame to dataset (stage 2 of upload process)."""
+
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/data/v3/datasources/{dataset_id}/uploads/{upload_id}/parts/{part_id}"
 
     body = upload_df.to_csv(header=False, index=False)
@@ -156,10 +186,7 @@ async def upload_dataset_stage_2_df(
         auth=auth,
         content_type="text/csv",
         body=body,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if not res.is_success:
@@ -181,14 +208,24 @@ async def upload_dataset_stage_3(
     partition_tag: str | None = None,  # synonymous with data_tag
     is_index: bool = False,  # index after uploading
     #  restate_data_tag: str = None, # deprecated
+    *,  # Make following params keyword-only
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class=None,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
 ) -> rgd.ResponseGetData:
     """commit will close the upload session, upload_id.  this request defines how the data will be loaded into Adrenaline, update_method
     has optional flag for indexing dataset.
     """
+
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/data/v3/datasources/{dataset_id}/uploads/{upload_id}/commit"
 
@@ -211,10 +248,7 @@ async def upload_dataset_stage_3(
         method="PUT",
         url=url,
         body=body,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if not res.is_success:
@@ -230,12 +264,22 @@ async def upload_dataset_stage_3(
 async def index_dataset(
     auth: DomoAuth,
     dataset_id: str,
+    *,  # Make following params keyword-only
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
+    debug_num_stacks_to_drop: int = 1,
     parent_class: str | None = None,
 ) -> rgd.ResponseGetData:
     """manually index a dataset"""
+
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/data/v3/datasources/{dataset_id}/indexes"
 
@@ -246,10 +290,7 @@ async def index_dataset(
         method="POST",
         body=body,
         url=url,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if not res.is_success:
@@ -263,12 +304,22 @@ async def index_status(
     auth: DomoAuth,
     dataset_id: str,
     index_id: str,
+    *,  # Make following params keyword-only
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
+    debug_num_stacks_to_drop: int = 1,
     parent_class: str | None = None,
 ) -> rgd.ResponseGetData:
     """get the completion status of an index"""
+
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/data/v3/datasources/{dataset_id}/indexes/{index_id}/statuses"
 
@@ -276,10 +327,7 @@ async def index_status(
         auth=auth,
         method="GET",
         url=url,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if not res.is_success:
@@ -302,19 +350,29 @@ def generate_list_partitions_body(limit=100, offset=0):
     }
 
 
-gd.route_function
-
-
+@gd.route_function
 async def list_partitions(
     auth: DomoAuth,
     dataset_id: str,
     body: dict | None = None,
+    debug_loop: bool = False,
+    *,  # Make following params keyword-only
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    debug_loop: bool = False,
-    debug_num_stacks_to_drop=2,
+    debug_num_stacks_to_drop: int = 2,
     parent_class: str | None = None,
 ):
+    """List all partitions for a dataset."""
+
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     body = body or generate_list_partitions_body()
 
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/datasources/{dataset_id}/partition/list"
@@ -336,11 +394,8 @@ async def list_partitions(
         offset_params_in_body=True,
         offset_params=offset_params,
         loop_until_end=True,
-        session=session,
         debug_loop=debug_loop,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if res.status == 404 and res.response == "Not Found":
