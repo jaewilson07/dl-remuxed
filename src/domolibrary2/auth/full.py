@@ -106,7 +106,7 @@ class _DomoFullAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):  # noqa: N
         Raises:
             InvalidCredentialsError: If authentication fails or no token is returned
         """
-        from ...routes import auth as auth_routes
+        from ..routes import auth as auth_routes
 
         res = await auth_routes.get_full_auth(
             auth=None,

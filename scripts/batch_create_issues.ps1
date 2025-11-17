@@ -3,7 +3,7 @@
 
 param(
     [Parameter(Mandatory=$false)]
-    [string]$Filter = "high",  # "high", "routes", "classes", or "all"
+    [string]$Filter = "all",  # "high", "routes", "classes", or "all"
 
     [Parameter(Mandatory=$false)]
     [int]$Limit = 0,  # 0 = no limit, otherwise create only N issues
