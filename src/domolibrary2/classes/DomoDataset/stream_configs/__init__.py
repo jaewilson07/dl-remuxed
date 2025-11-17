@@ -21,9 +21,10 @@ Example:
 """
 
 # Import all platform-specific mappings to trigger registration
-from . import aws, domo, google, other, snowflake
+from . import _default, aws, domo, google, other, snowflake
 
 __all__ = [
+    "_default",
     "aws",
     "domo",
     "google",
