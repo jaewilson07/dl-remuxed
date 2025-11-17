@@ -47,7 +47,7 @@ def register_mapping(data_provider_type: str):
 
 @dataclass
 class StreamConfig_Mapping(DomoBase):
-    data_provider_type: str = None
+    data_provider_type: str | None = None
 
     sql: str = None
     warehouse: str = None
