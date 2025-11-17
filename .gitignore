@@ -137,7 +137,9 @@ ENV/
 # mypy
 .mypy_cache/
 
-.vscode
+# VS Code settings (but keep MCP configuration)
+.vscode/*
+!.vscode/mcp.json
 *.swp
 
 # osx generated files
@@ -169,3 +171,6 @@ checklink/cookies.txt
 
 # Logger
 LOGGER/
+
+# MCP memory file - contains local project context
+.mcp/memory.json
