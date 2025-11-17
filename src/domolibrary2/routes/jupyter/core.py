@@ -22,12 +22,15 @@ from ...client import (
     get_data as gd,
     response as rgd,
 )
+from ...client.context import RouteContext
 from .exceptions import Jupyter_GET_Error, JupyterWorkspace_Error
 
 
 @gd.route_function
 async def get_jupyter_workspaces(
     auth: DomoAuth,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_loop: bool = False,
@@ -39,6 +42,7 @@ async def get_jupyter_workspaces(
 
     Args:
         auth: Authentication object containing credentials and instance info
+        context: Optional RouteContext containing session and debug parameters
         session: Optional httpx client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_loop: Enable detailed loop debugging
@@ -52,6 +56,14 @@ async def get_jupyter_workspaces(
     Raises:
         Jupyter_GET_Error: If workspace retrieval fails
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/datascience/v1/search/workspaces"
 
     body = {
@@ -75,10 +87,7 @@ async def get_jupyter_workspaces(
         arr_fn=arr_fn,
         offset_params_in_body=True,
         offset_params=offset_params,
-        parent_class=parent_class,
-        session=session,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        debug_api=debug_api,
+        context=context,
         debug_loop=debug_loop,
     )
 
@@ -97,6 +106,8 @@ async def get_jupyter_workspaces(
 async def get_jupyter_workspace_by_id(
     auth: DomoAuth,
     workspace_id: str,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 2,
@@ -108,6 +119,7 @@ async def get_jupyter_workspace_by_id(
     Args:
         auth: Authentication object containing credentials and instance info
         workspace_id: Unique identifier for the workspace to retrieve
+        context: Optional RouteContext containing session and debug parameters
         session: Optional httpx client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to drop in debug output
@@ -120,16 +132,21 @@ async def get_jupyter_workspace_by_id(
     Raises:
         Jupyter_GET_Error: If workspace retrieval fails
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/datascience/v1/workspaces/{workspace_id}"
 
     res = await gd.get_data(
         url=url,
         method="GET",
         auth=auth,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-        session=session,
+        context=context,
     )
 
     if return_raw:
@@ -188,6 +205,8 @@ async def get_workspace_auth_token_params(workspace_id, auth, return_raw: bool =
 async def start_jupyter_workspace(
     auth: DomoAuth,
     workspace_id: str,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -199,6 +218,7 @@ async def start_jupyter_workspace(
     Args:
         auth: Authentication object containing credentials and instance info
         workspace_id: Unique identifier for the workspace to start
+        context: Optional RouteContext containing session and debug parameters
         session: Optional httpx client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to drop in debug output
@@ -212,6 +232,14 @@ async def start_jupyter_workspace(
         JupyterWorkspace_Error: If workspace start operation fails
         Jupyter_GET_Error: If workspace retrieval fails
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/datascience/v1/workspaces/{workspace_id}/instances"
 
     try:
@@ -219,10 +247,7 @@ async def start_jupyter_workspace(
             url=url,
             method="POST",
             auth=auth,
-            parent_class=parent_class,
-            session=session,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-            debug_api=debug_api,
+            context=context,
         )
 
         if return_raw:

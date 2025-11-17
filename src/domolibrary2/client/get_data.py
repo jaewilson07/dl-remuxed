@@ -23,6 +23,7 @@ from ..base.exceptions import DomoError
 from ..utils import chunk_execution as dmce
 from ..utils.logging import ResponseGetDataProcessor, get_colored_logger
 from . import response as rgd
+from .context import RouteContext
 
 # Initialize colored logger
 logger = get_colored_logger()
@@ -98,6 +99,7 @@ async def get_data(
     headers: dict = None,
     body: dict | list | str | None = None,
     params: dict = None,
+    context: RouteContext | None = None,
     debug_api: bool = False,
     session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
@@ -108,6 +110,13 @@ async def get_data(
     is_verify: bool = False,
 ) -> rgd.ResponseGetData:
     """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint."""
+
+    # If context is provided, extract parameters from it (context takes precedence)
+    if context is not None:
+        session = context.session
+        debug_api = context.debug_api
+        parent_class = context.parent_class
+        # Note: debug_num_stacks_to_drop from context is intentionally not used here
 
     if debug_api:
         print(f"🐛 Debugging get_data: {method} {url}")
@@ -357,6 +366,7 @@ async def looper(
     limit=1000,
     skip=0,
     maximum=0,
+    context: RouteContext | None = None,
     debug_api: bool = False,
     debug_loop: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -383,6 +393,7 @@ async def looper(
         limit: Number of records to retrieve per request.
         skip: Initial offset value.
         maximum: Maximum number of records to retrieve.
+        context: Optional RouteContext containing session and debug parameters.
         debug_api: Enable debugging output for API calls.
         debug_loop: Enable debugging output for the looping process.
         debug_num_stacks_to_drop: Number of stack frames to drop in traceback for debugging.
@@ -395,6 +406,13 @@ async def looper(
     Returns:
         An instance of ResponseGetData containing the aggregated data and pagination metadata.
     """
+    # If context is provided, extract parameters from it (context takes precedence)
+    if context is not None:
+        session = context.session
+        debug_api = context.debug_api
+        debug_num_stacks_to_drop = context.debug_num_stacks_to_drop
+        parent_class = context.parent_class
+
     is_close_session = False
 
     session, is_close_session = create_httpx_session(session, is_verify=is_verify)
@@ -547,14 +565,31 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(func)
     async def wrapper(
         *args: Any,
+        context: RouteContext | None = None,
         parent_class: Optional[str] = None,
         debug_num_stacks_to_drop: int = 1,
         debug_api: bool = False,
         session: httpx.AsyncClient | None = None,
         **kwargs: Any,
     ) -> Any:
+        # If no context provided but individual params are, create context from them
+        # This maintains backward compatibility
+        if context is None and (
+            session is not None
+            or debug_api
+            or debug_num_stacks_to_drop != 1
+            or parent_class is not None
+        ):
+            context = RouteContext(
+                session=session,
+                debug_api=debug_api,
+                debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+                parent_class=parent_class,
+            )
+
         result = await func(
             *args,
+            context=context,
             parent_class=parent_class,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
             debug_api=debug_api,
