@@ -7,7 +7,7 @@ Exception Classes:
     CodeEngine_GET_Error: Raised when codeengine retrieval operations fail
     SearchCodeEngine_NotFound: Raised when codeengine search returns no results
     CodeEngine_CRUD_Error: Raised when codeengine create/update/delete operations fail
-    CodeEngine_InvalidPackage: Raised when package validation fails
+    CodeEngine_InvalidPackageError: Raised when package validation fails
     CodeEngine_FunctionCallError: Raised when function call parameters are invalid
 """
 
