@@ -19,6 +19,7 @@ from ...client import (
     get_data as gd,
     response as rgd,
 )
+from ...client.context import RouteContext
 from ...utils.convert import convert_string_to_bool
 from .exceptions import Config_GET_Error
 
@@ -39,12 +40,39 @@ class AllowlistUnableToUpdate(dmde.RouteError):
 @gd.route_function
 async def get_allowlist(
     auth: DomoAuth,
+    *,  # Make following params keyword-only
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
     debug_api: bool = False,
-    parent_class=None,
-    debug_num_stacks_to_drop=1,
+    parent_class: Optional[str] = None,
+    debug_num_stacks_to_drop: int = 1,
 ) -> rgd.ResponseGetData:
+    """Get the IP allowlist for the Domo instance.
+
+    Args:
+        auth: Authentication object
+        context: Route context with execution parameters (overrides individual params if provided)
+        session: Optional httpx client session
+        return_raw: Return raw response without processing
+        debug_api: Enable API debugging
+        parent_class: Parent class name for logging
+        debug_num_stacks_to_drop: Stack frames to drop in logging
+
+    Returns:
+        ResponseGetData with list of allowed IP addresses
+
+    Raises:
+        Config_GET_Error: If retrieval fails
+    """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/admin/companysettings/whitelist"
 
     res = await gd.get_data(
@@ -52,11 +80,8 @@ async def get_allowlist(
         url=url,
         method="GET",
         headers={"accept": "*/*"},
-        session=session,
-        debug_api=debug_api,
+        context=context,
         is_follow_redirects=True,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -79,13 +104,42 @@ async def get_allowlist(
 async def set_allowlist(
     auth: DomoAuth,
     ip_address_ls: list[str],
+    *,  # Make following params keyword-only
+    context: RouteContext | None = None,
     debug_api: bool = False,
     return_raw: bool = False,
     session: httpx.AsyncClient | None = None,
-    parent_class=None,
-    debug_num_stacks_to_drop=1,
+    parent_class: Optional[str] = None,
+    debug_num_stacks_to_drop: int = 1,
 ) -> rgd.ResponseGetData:
-    """companysettings/whitelist API only allows users to SET the allowlist does not allow INSERT or UPDATE"""
+    """Set the IP allowlist for the Domo instance.
+
+    Note: companysettings/whitelist API only allows users to SET the allowlist,
+    does not allow INSERT or UPDATE operations.
+
+    Args:
+        auth: Authentication object
+        ip_address_ls: List of IP addresses or CIDR blocks to set as allowlist
+        context: Route context with execution parameters (overrides individual params if provided)
+        debug_api: Enable API debugging
+        return_raw: Return raw response without processing
+        session: Optional httpx client session
+        parent_class: Parent class name for logging
+        debug_num_stacks_to_drop: Stack frames to drop in logging
+
+    Returns:
+        ResponseGetData with operation result
+
+    Raises:
+        AllowlistUnableToUpdate: If update fails
+    """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/admin/companysettings/whitelist"
 
@@ -96,12 +150,9 @@ async def set_allowlist(
         url=url,
         method="PUT",
         body=body,
-        debug_api=debug_api,
+        context=context,
         is_follow_redirects=True,
-        session=session,
         headers={"accept": "text/plain"},
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
     if return_raw:
         return res
@@ -115,19 +166,43 @@ async def set_allowlist(
 @gd.route_function
 async def get_allowlist_is_filter_all_traffic_enabled(
     auth: DomoAuth,
+    *,  # Make following params keyword-only
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     return_raw: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
 ) -> rgd.ResponseGetData:
-    """this endpoint determines if ALL traffic is filtered through the allowlist or just browser traffic
-    Admin > Company Settings > Security > IP Allowlist
+    """Get whether ALL traffic is filtered through the allowlist or just browser traffic.
 
-    if True - all traffic is filtered
-    if False - only browser traffic is filtered
+    This endpoint determines if ALL traffic is filtered through the allowlist
+    or just browser traffic. Located at: Admin > Company Settings > Security > IP Allowlist
 
+    Args:
+        auth: Authentication object
+        context: Route context with execution parameters (overrides individual params if provided)
+        session: Optional httpx client session
+        debug_api: Enable API debugging
+        return_raw: Return raw response without processing
+        parent_class: Parent class name for logging
+        debug_num_stacks_to_drop: Stack frames to drop in logging
+
+    Returns:
+        ResponseGetData with is_enabled (bool) and feature name
+        - True: all traffic is filtered
+        - False: only browser traffic is filtered
+
+    Raises:
+        Config_GET_Error: If retrieval fails
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/customer/v1/properties/ip.whitelist.mobile.enabled"
 
@@ -135,11 +210,8 @@ async def get_allowlist_is_filter_all_traffic_enabled(
         auth=auth,
         url=url,
         method="GET",
-        session=session,
-        debug_api=debug_api,
+        context=context,
         is_follow_redirects=True,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -164,19 +236,42 @@ async def get_allowlist_is_filter_all_traffic_enabled(
 async def toggle_allowlist_is_filter_all_traffic_enabled(
     auth: dmda.DomoFullAuth,
     is_enabled: bool,
+    *,  # Make following params keyword-only
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     return_raw: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
 ) -> rgd.ResponseGetData:
-    """this endpoint determines if ALL traffic is filtered through the allowlist or just browser traffic
-    Admin > Company Settings > Security > IP Allowlist
+    """Toggle whether ALL traffic is filtered through the allowlist or just browser traffic.
 
-    if True - all traffic is filtered
-    if False - only browser traffic is filtered
+    This endpoint determines if ALL traffic is filtered through the allowlist
+    or just browser traffic. Located at: Admin > Company Settings > Security > IP Allowlist
 
+    Args:
+        auth: Full authentication object (requires admin credentials)
+        is_enabled: True to filter all traffic, False to filter only browser traffic
+        context: Route context with execution parameters (overrides individual params if provided)
+        session: Optional httpx client session
+        debug_api: Enable API debugging
+        return_raw: Return raw response without processing
+        parent_class: Parent class name for logging
+        debug_num_stacks_to_drop: Stack frames to drop in logging
+
+    Returns:
+        ResponseGetData with updated setting (or raw response if return_raw=True)
+
+    Raises:
+        AllowlistUnableToUpdate: If update fails
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/customer/v1/properties/ip.whitelist.mobile.enabled"
 
@@ -187,11 +282,8 @@ async def toggle_allowlist_is_filter_all_traffic_enabled(
         url=url,
         method="PUT",
         body=body,
-        session=session,
-        debug_api=debug_api,
+        context=context,
         is_follow_redirects=True,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if not res.is_success:
@@ -202,8 +294,5 @@ async def toggle_allowlist_is_filter_all_traffic_enabled(
 
     return await get_allowlist_is_filter_all_traffic_enabled(
         auth=auth,
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )

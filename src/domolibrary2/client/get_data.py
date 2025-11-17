@@ -4,6 +4,7 @@ __all__ = [
     "get_data_stream",
     "LooperError",
     "looper",
+    "RouteContext",
     "RouteFunctionResponseTypeError",
     "route_function",
 ]
@@ -23,6 +24,7 @@ from ..base.exceptions import DomoError
 from ..utils import chunk_execution as dmce
 from ..utils.logging import ResponseGetDataProcessor, get_colored_logger
 from . import response as rgd
+from .context import RouteContext
 
 # Initialize colored logger
 logger = get_colored_logger()
@@ -98,6 +100,7 @@ async def get_data(
     headers: dict = None,
     body: dict | list | str | None = None,
     params: dict = None,
+    context: RouteContext | None = None,
     debug_api: bool = False,
     session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
@@ -107,7 +110,37 @@ async def get_data(
     debug_num_stacks_to_drop: int = 2,  # noqa: ARG001
     is_verify: bool = False,
 ) -> rgd.ResponseGetData:
-    """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint."""
+    """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint.
+
+    Args:
+        url: API endpoint URL
+        method: HTTP method (GET, POST, PUT, DELETE, etc.)
+        auth: Authentication object
+        content_type: Content type for request
+        headers: Additional headers
+        body: Request body (dict, list, or string)
+        params: Query parameters
+        context: RouteContext object with execution context (if provided, overrides individual context params)
+        debug_api: Enable API debugging
+        session: HTTPX async client session
+        return_raw: Return raw response
+        is_follow_redirects: Follow HTTP redirects
+        timeout: Request timeout in seconds
+        parent_class: Parent class name for logging
+        debug_num_stacks_to_drop: Number of stack frames to drop in logging
+        is_verify: Verify SSL certificates
+
+    Returns:
+        ResponseGetData object with response details
+    """
+
+    # If context is provided, extract parameters from it
+    if context is not None:
+        session = context.session if context.session is not None else session
+        debug_api = context.debug_api if context.debug_api else debug_api
+        parent_class = (
+            context.parent_class if context.parent_class is not None else parent_class
+        )
 
     if debug_api:
         print(f"🐛 Debugging get_data: {method} {url}")
