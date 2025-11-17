@@ -27,7 +27,7 @@ Route Functions:
 from __future__ import annotations
 
 from enum import Enum
-from typing import TypedDict
+from typing import Optional, TypedDict
 
 import httpx
 
@@ -37,6 +37,7 @@ from ...client import (
     get_data as gd,
     response as rgd,
 )
+from ...client.context import RouteContext
 from .exceptions import (
     DatacenterGetError,
     SearchDatacenterNoResultsFoundError,
@@ -263,6 +264,8 @@ async def search_datacenter(
     entity_type: str | list = "dataset",  # can accept one value or a list of values
     additional_filters_ls: list | None = None,
     arr_fn: callable | None = None,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_loop: bool = False,
@@ -280,6 +283,7 @@ async def search_datacenter(
         entity_type: Type(s) of entities to search
         additional_filters_ls: Additional filters to apply
         arr_fn: Function to extract array from response
+        context: Route context containing session and debug settings
         session: HTTP client session (optional)
         debug_api: Enable API debugging
         debug_loop: Enable loop debugging
@@ -294,6 +298,14 @@ async def search_datacenter(
         SearchDatacenter_NoResultsFound: If search returns no results
         Datacenter_GET_Error: If search operation fails
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     limit = 100  # api enforced limit
 
     if not body:
@@ -314,7 +326,7 @@ async def search_datacenter(
 
     res = await gd.looper(
         auth=auth,
-        session=session,
+        session=context.session,
         url=url,
         loop_until_end=True if not maximum else False,
         body=body,
@@ -324,9 +336,9 @@ async def search_datacenter(
         method="POST",
         maximum=maximum,
         limit=limit,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        debug_api=context.debug_api,
+        debug_num_stacks_to_drop=context.debug_num_stacks_to_drop,
+        parent_class=context.parent_class,
         debug_loop=debug_loop,
     )
 
@@ -348,11 +360,13 @@ async def search_datacenter(
 async def get_connectors(
     auth: DomoAuth,
     search_text: str | None = None,
+    additional_filters_ls: list[dict] | None = None,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: str | None = None,
-    additional_filters_ls: list[dict] | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Retrieve available connectors from datacenter.
@@ -360,11 +374,12 @@ async def get_connectors(
     Args:
         auth: Authentication object
         search_text: Optional text to filter connectors
+        additional_filters_ls: Additional filters to apply
+        context: Route context containing session and debug settings
         session: HTTP client session (optional)
         debug_api: Enable API debugging
         debug_num_stacks_to_drop: Stack frames to drop for debugging
         parent_class: Name of calling class for debugging
-        additional_filters_ls: Additional filters to apply
         return_raw: Return raw response without processing
 
     Returns:
@@ -374,6 +389,14 @@ async def get_connectors(
         SearchDatacenter_NoResultsFound: If no connectors found
         Datacenter_GET_Error: If connector retrieval fails
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     additional_filters_ls = additional_filters_ls or []
 
     body = generate_search_datacenter_body(
@@ -385,10 +408,7 @@ async def get_connectors(
     res = await search_datacenter(
         auth=auth,
         body=body,
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
         return_raw=True,  # Get raw response first to avoid raising errors
     )
 
@@ -416,6 +436,8 @@ async def get_lineage_upstream(
     auth: DomoAuth,
     entity_type: str,
     entity_id: str,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: str | None = None,
@@ -428,6 +450,7 @@ async def get_lineage_upstream(
         auth: Authentication object
         entity_type: Type of entity (e.g., 'dataset', 'dataflow')
         entity_id: ID of the entity
+        context: Route context containing session and debug settings
         session: HTTP client session (optional)
         debug_api: Enable API debugging
         parent_class: Name of calling class for debugging
@@ -440,6 +463,14 @@ async def get_lineage_upstream(
     Raises:
         Datacenter_GET_Error: If lineage retrieval fails
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/lineage/{entity_type}/{entity_id}"
 
     params = {"traverseDown": "false"}
@@ -449,10 +480,7 @@ async def get_lineage_upstream(
         method="GET",
         url=url,
         params=params,
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
@@ -472,6 +500,8 @@ async def share_resource(
     group_ids: list | str | int | None = None,
     user_ids: list | str | int | None = None,
     message: str | None = None,  # email to user
+    *,
+    context: RouteContext | None = None,
     debug_api: bool = False,
     session: httpx.AsyncClient | None = None,
     parent_class: str | None = None,
@@ -487,6 +517,7 @@ async def share_resource(
         group_ids: ID(s) of groups to share with
         user_ids: ID(s) of users to share with
         message: Optional message to include in notification email
+        context: Route context containing session and debug settings
         debug_api: Enable API debugging
         session: HTTP client session (optional)
         parent_class: Name of calling class for debugging
@@ -516,6 +547,14 @@ async def share_resource(
             "message": "I thought you might find this page interesting."
         }
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     resource_ids = resource_ids if isinstance(resource_ids, list) else [resource_ids]
     if group_ids:
         group_ids = (
@@ -552,10 +591,7 @@ async def share_resource(
         method="POST",
         auth=auth,
         body=body,
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
@@ -565,7 +601,7 @@ async def share_resource(
         raise ShareResourceError(
             message=res.response,
             domo_instance=auth.domo_instance,
-            parent_class=parent_class,
+            parent_class=context.parent_class,
             function_name=res.traceback_details.function_name,
             res=res,
         )

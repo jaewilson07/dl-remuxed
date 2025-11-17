@@ -15,4 +15,6 @@ The client modules are still available via dot notation:
 # Import concrete classes directly from submodules (for example
 # ``from domolibrary2.auth import DomoAuth``) to avoid circular import problems.
 
-__all__ = []
+from .context import RouteContext
+
+__all__ = ["RouteContext"]
