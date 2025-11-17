@@ -110,16 +110,16 @@ async def get_data(
 ) -> rgd.ResponseGetData:
     """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint.
     
-    If context is provided, its values will override the individual parameters
-    (session, debug_api, debug_num_stacks_to_drop, parent_class).
+    If context is provided, its values will be used for session, debug_api,
+    debug_num_stacks_to_drop, and parent_class parameters.
     """
 
     # Extract values from context if provided
     if context is not None:
-        session = context.session if session is None else session
-        debug_api = context.debug_api if not debug_api else debug_api
+        session = context.session
+        debug_api = context.debug_api
         debug_num_stacks_to_drop = context.debug_num_stacks_to_drop
-        parent_class = context.parent_class if parent_class is None else parent_class
+        parent_class = context.parent_class
 
     if debug_api:
         print(f"🐛 Debugging get_data: {method} {url}")
