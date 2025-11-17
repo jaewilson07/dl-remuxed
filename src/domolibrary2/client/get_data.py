@@ -23,6 +23,7 @@ from ..base.exceptions import DomoError
 from ..utils import chunk_execution as dmce
 from ..utils.logging import ResponseGetDataProcessor, get_colored_logger
 from . import response as rgd
+from .context import RouteContext
 
 # Initialize colored logger
 logger = get_colored_logger()
@@ -98,6 +99,7 @@ async def get_data(
     headers: dict = None,
     body: dict | list | str | None = None,
     params: dict = None,
+    context: Optional[RouteContext] = None,
     debug_api: bool = False,
     session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
@@ -108,6 +110,17 @@ async def get_data(
     is_verify: bool = False,
 ) -> rgd.ResponseGetData:
     """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint."""
+
+    # Extract parameters from context if provided
+    if context is not None:
+        if session is None:
+            session = context.session
+        if not debug_api:
+            debug_api = context.debug_api
+        if parent_class is None:
+            parent_class = context.parent_class
+        if debug_num_stacks_to_drop == 2:  # default value
+            debug_num_stacks_to_drop = context.debug_num_stacks_to_drop
 
     if debug_api:
         print(f"🐛 Debugging get_data: {method} {url}")
@@ -357,6 +370,7 @@ async def looper(
     limit=1000,
     skip=0,
     maximum=0,
+    context: Optional[RouteContext] = None,
     debug_api: bool = False,
     debug_loop: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -395,6 +409,17 @@ async def looper(
     Returns:
         An instance of ResponseGetData containing the aggregated data and pagination metadata.
     """
+    # Extract parameters from context if provided
+    if context is not None:
+        if session is None:
+            session = context.session
+        if not debug_api:
+            debug_api = context.debug_api
+        if parent_class is None:
+            parent_class = context.parent_class
+        if debug_num_stacks_to_drop == 1:  # default value
+            debug_num_stacks_to_drop = context.debug_num_stacks_to_drop
+
     is_close_session = False
 
     session, is_close_session = create_httpx_session(session, is_verify=is_verify)
@@ -455,6 +480,7 @@ async def looper(
             params=params,
             session=session,
             body=body,
+            context=context,
             debug_api=debug_api,
             timeout=timeout,
             parent_class=parent_class,
