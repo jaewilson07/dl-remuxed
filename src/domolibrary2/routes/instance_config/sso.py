@@ -25,6 +25,7 @@ from ...client import (
     get_data as gd,
     response as rgd,
 )
+from ...client.context import RouteContext
 from .exceptions import Config_CRUD_Error, Config_GET_Error
 
 
@@ -59,11 +60,21 @@ async def toggle_user_direct_signon_access(
     auth: dmda.DomoAuth,
     user_id_ls: list[str],
     is_enable_direct_signon: bool = True,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class=None,
     debug_num_stacks_to_drop=1,
 ) -> rgd.ResponseGetData:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     user_id_ls = user_id_ls if isinstance(user_id_ls, list) else [user_id_ls]
 
     url = f"https://{auth.domo_instance}.domo.com/api/content/v3/users/directSignOn"
@@ -74,10 +85,7 @@ async def toggle_user_direct_signon_access(
         params={"value": is_enable_direct_signon},
         method="POST",
         body=user_id_ls,
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if not res.is_success:
@@ -91,6 +99,8 @@ async def toggle_user_direct_signon_access(
 @gd.route_function
 async def get_sso_oidc_config(
     auth: dmda.DomoAuth,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
@@ -98,16 +108,21 @@ async def get_sso_oidc_config(
 ):
     """Open ID Connect framework"""
 
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/identity/v1/authentication/oidc/std/settings"
 
     res = await gd.get_data(
         auth=auth,
         url=url,
         method="GET",
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if not res.is_success:
@@ -167,12 +182,22 @@ def generate_sso_oidc_body(
 async def _update_sso_oidc_temp_config(
     auth: dmda.DomoAuth,
     body_sso: dict,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
 ):
     """to successfully update the SSO Configuration, you must send all the parameters related to SSO Configuration"""
+
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/identity/v1/authentication/oidc/temp/settings"
 
@@ -181,10 +206,7 @@ async def _update_sso_oidc_temp_config(
         url=url,
         body=body_sso,
         method="PUT",
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if not res.is_success:
@@ -196,12 +218,22 @@ async def _update_sso_oidc_temp_config(
 async def _update_sso_oidc_standard_config(
     auth: dmda.DomoAuth,
     body_sso: dict,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
 ):
     """to successfully update the SSO Configuration, you must send all the parameters related to SSO Configuration"""
+
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/identity/v1/authentication/oidc/std/settings"
 
@@ -210,10 +242,7 @@ async def _update_sso_oidc_standard_config(
         url=url,
         body=body_sso,
         method="PUT",
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if not res.is_success:
@@ -232,6 +261,8 @@ async def _update_sso_oidc_standard_config(
 async def update_sso_oidc_config(
     auth: dmda.DomoAuth,
     body_sso: dict,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
@@ -242,28 +273,40 @@ async def update_sso_oidc_config(
     typically would hide under class functions, but b/c Domo won't update w/o it, pushing down to Route
     """
 
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
+    # Create context for nested calls with incremented stack depth
+    nested_context = RouteContext(
+        session=context.session,
+        debug_api=context.debug_api,
+        debug_num_stacks_to_drop=context.debug_num_stacks_to_drop + 1,
+        parent_class=context.parent_class,
+    )
+
     await _update_sso_oidc_temp_config(
         auth=auth,
         body_sso=body_sso,
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
+        context=nested_context,
     )
 
     return await _update_sso_oidc_standard_config(
         auth=auth,
         body_sso=body_sso,
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
+        context=nested_context,
     )
 
 
 @gd.route_function
 async def get_sso_saml_config(
     auth: dmda.DomoAuth,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
@@ -271,16 +314,21 @@ async def get_sso_saml_config(
 ):
     """Security Assertion Markup Language"""
 
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/identity/v1/authentication/saml/std/settings"
 
     res = await gd.get_data(
         auth=auth,
         url=url,
         method="GET",
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if not res.is_success:
@@ -292,17 +340,32 @@ async def get_sso_saml_config(
 @gd.route_function
 async def get_sso_saml_certificate(
     auth: dmda.DomoAuth,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
 ):
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
+    # Create context for nested call with incremented stack depth
+    nested_context = RouteContext(
+        session=context.session,
+        debug_api=context.debug_api,
+        debug_num_stacks_to_drop=context.debug_num_stacks_to_drop + 1,
+        parent_class=context.parent_class,
+    )
+
     res = await get_sso_saml_config(
         auth=auth,
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
+        context=nested_context,
     )
 
     res.response = res.response.get("idpCertificate")
@@ -373,11 +436,21 @@ def generate_sso_saml_body(
 async def _update_sso_saml_temp_config(
     auth: dmda.DomoAuth,
     body_sso: dict,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
 ):
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/identity/v1/authentication/saml/temp/settings"
 
     res = await gd.get_data(
@@ -385,10 +458,7 @@ async def _update_sso_saml_temp_config(
         url=url,
         method="PUT",
         body=body_sso,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if not res.is_success:
@@ -402,11 +472,21 @@ async def _update_sso_saml_temp_config(
 async def _update_sso_saml_standard_config(
     auth: dmda.DomoAuth,
     body_sso: dict,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
 ):
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/identity/v1/authentication/saml/std/settings"
 
     res = await gd.get_data(
@@ -414,10 +494,7 @@ async def _update_sso_saml_standard_config(
         url=url,
         method="PUT",
         body=body_sso,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if not res.is_success:
@@ -436,6 +513,8 @@ async def _update_sso_saml_standard_config(
 async def update_sso_saml_config(
     auth: dmda.DomoAuth,
     body_sso: dict,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
@@ -446,22 +525,32 @@ async def update_sso_saml_config(
     typically would hide under class functions, but b/c Domo won't update w/o it, pushing down to Route
     """
 
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
+    # Create context for nested calls with incremented stack depth
+    nested_context = RouteContext(
+        session=context.session,
+        debug_api=context.debug_api,
+        debug_num_stacks_to_drop=context.debug_num_stacks_to_drop + 1,
+        parent_class=context.parent_class,
+    )
+
     await _update_sso_saml_temp_config(
         auth=auth,
         body_sso=body_sso,
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
+        context=nested_context,
     )
 
     return await _update_sso_saml_standard_config(
         auth=auth,
         body_sso=body_sso,
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
+        context=nested_context,
     )
 
 
@@ -469,11 +558,21 @@ async def update_sso_saml_config(
 async def toggle_sso_skip_to_idp(
     auth: dmda.DomoAuth,
     is_skip_to_idp: bool,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
 ):
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/customer/v1/properties/domo.policy.sso.skip_to_idp"
 
     res = await gd.get_data(
@@ -481,10 +580,7 @@ async def toggle_sso_skip_to_idp(
         url=url,
         method="PUT",
         body={"value": str(is_skip_to_idp).lower()},
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if not res.is_success:
@@ -498,12 +594,22 @@ async def toggle_sso_skip_to_idp(
 async def toggle_sso_custom_attributes(
     auth: dmda.DomoAuth,
     is_custom_attributes: bool,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
 ):
     """unsure what this API does"""
+
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/customer/v1/properties/authentication.saml.custom_attributes"
 
@@ -512,10 +618,7 @@ async def toggle_sso_custom_attributes(
         url=url,
         method="PUT",
         body={"value": is_custom_attributes},
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if not res.is_success:
@@ -530,12 +633,22 @@ async def toggle_sso_custom_attributes(
 async def set_sso_certificate(
     auth: dmda.DomoAuth,
     idp_certificate: str,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop=1,
     return_raw: bool = False,
 ):
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/identity/v1/authentication/saml/validate/cert"
 
     res = await gd.get_data(
@@ -543,10 +656,7 @@ async def set_sso_certificate(
         url=url,
         method="PUT",
         body={"idpCertificate": idp_certificate},
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if return_raw:
