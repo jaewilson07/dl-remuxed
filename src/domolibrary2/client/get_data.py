@@ -106,8 +106,16 @@ async def get_data(
     parent_class: Optional[str] = None,  # noqa: ARG001
     debug_num_stacks_to_drop: int = 2,  # noqa: ARG001
     is_verify: bool = False,
+    context: Optional["RouteContext"] = None,  # noqa: F821
 ) -> rgd.ResponseGetData:
     """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint."""
+
+    # Extract parameters from context if provided
+    if context is not None:
+        session = session or context.session
+        debug_api = debug_api or context.debug_api
+        parent_class = parent_class or context.parent_class
+        debug_num_stacks_to_drop = context.debug_num_stacks_to_drop
 
     if debug_api:
         print(f"🐛 Debugging get_data: {method} {url}")

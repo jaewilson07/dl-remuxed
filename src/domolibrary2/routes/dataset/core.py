@@ -1,5 +1,7 @@
 """Dataset core CRUD operations."""
 
+from typing import Optional
+
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
 
@@ -8,6 +10,7 @@ from ...client import (
     get_data as gd,
     response as rgd,
 )
+from ...client.context import RouteContext
 from ...utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 from .exceptions import Dataset_CRUD_Error, Dataset_GET_Error, DatasetNotFoundError
 
@@ -23,12 +26,23 @@ from .exceptions import Dataset_CRUD_Error, Dataset_GET_Error, DatasetNotFoundEr
 async def get_dataset_by_id(
     dataset_id: str,  # dataset id from URL
     auth: DomoAuth | None = None,  # requires full authentication
+    *,  # Make following params keyword-only
+    context: RouteContext | None = None,
     debug_api: bool = False,  # for troubleshooting API request
     session: httpx.AsyncClient | None = None,
     parent_class: str | None = None,
-    debug_num_stacks_to_drop=1,
+    debug_num_stacks_to_drop: int = 1,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:  # returns metadata about a dataset
     """retrieve dataset metadata"""
+
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/data/v3/datasources/{dataset_id}"  # type: ignore
 
@@ -36,11 +50,11 @@ async def get_dataset_by_id(
         auth=auth,
         url=url,
         method="GET",
-        debug_api=debug_api,
-        session=session,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
+
+    if return_raw:
+        return res
 
     if res.status == 404 and res.response == "Not Found":
         raise DatasetNotFoundError(dataset_id=dataset_id, res=res)
@@ -74,11 +88,24 @@ async def create(
     dataset_name: str,
     dataset_type: str = "api",
     schema: dict | None = None,
+    *,  # Make following params keyword-only
+    context: RouteContext | None = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
+    debug_num_stacks_to_drop: int = 1,
     parent_class: str | None = None,
     session: httpx.AsyncClient | None = None,
-):
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
+    """Create a new dataset."""
+
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     body = generate_create_dataset_body(
         dataset_name=dataset_name, dataset_type=dataset_type, schema=schema
     )
@@ -90,11 +117,11 @@ async def create(
         method="POST",
         url=url,
         body=body,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
+
+    if return_raw:
+        return res
 
     if not res.is_success:
         raise Dataset_CRUD_Error(res=res)
@@ -129,11 +156,24 @@ def generate_remote_domostats_body(
 async def create_dataset_enterprise_tookit(
     auth: DomoAuth,
     payload: dict,  # call generate_enterprise_toolkit_body
+    *,  # Make following params keyword-only
+    context: RouteContext | None = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class=None,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: str | None = None,
     session: httpx.AsyncClient | None = None,
-):
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
+    """Create a dataset using the enterprise toolkit API."""
+
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/executor/v1/datasets"
 
     res = await gd.get_data(
@@ -141,11 +181,11 @@ async def create_dataset_enterprise_tookit(
         method="POST",
         url=url,
         body=payload,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
+
+    if return_raw:
+        return res
 
     if not res.is_success:
         raise Dataset_CRUD_Error(res=res)
@@ -158,16 +198,27 @@ async def delete_partition_stage_1(
     auth: DomoAuth,
     dataset_id: str,
     dataset_partition_id: str,
+    *,  # Make following params keyword-only
+    context: RouteContext | None = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class=None,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: str | None = None,
     session: httpx.AsyncClient | None = None,
-):
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
     """Delete partition has 3 stages
     # Stage 1. This marks the data version associated with the partition tag as deleted.
     It does not delete the partition tag or remove the association between the partition tag and data version.
     There should be no need to upload an empty file – step #3 will remove the data from Adrenaline.
     # update on 9/9/2022 based on the conversation with Greg Swensen"""
+
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/datasources/{dataset_id}/tag/{dataset_partition_id}/data"
 
@@ -175,11 +226,11 @@ async def delete_partition_stage_1(
         auth=auth,
         method="DELETE",
         url=url,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-        session=session,
+        context=context,
     )
+
+    if return_raw:
+        return res
 
     if not res.is_success:
         raise Dataset_CRUD_Error(dataset_id=dataset_id, res=res)
@@ -192,15 +243,26 @@ async def delete_partition_stage_2(
     auth: DomoAuth,
     dataset_id: str,
     dataset_partition_id: str,
+    *,  # Make following params keyword-only
+    context: RouteContext | None = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class=None,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: str | None = None,
     session: httpx.AsyncClient | None = None,
-):
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
     """This will remove the partition association so that it doesn't show up in the list call.
     Technically, this is not required as a partition against a deleted data version will not count against the 400 partition limit
     but as the current partitions api doesn't make that clear, cleaning these up will make it much easier for you to manage.
     """
+
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/datasources/{dataset_id}/partition/{dataset_partition_id}"
 
@@ -208,11 +270,11 @@ async def delete_partition_stage_2(
         auth=auth,
         method="DELETE",
         url=url,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        session=session,
-        parent_class=parent_class,
+        context=context,
     )
+
+    if return_raw:
+        return res
 
     if not res.is_success:
         raise Dataset_CRUD_Error(dataset_id=dataset_id, res=res)
@@ -224,22 +286,35 @@ async def delete_partition_stage_2(
 async def delete(
     auth: DomoAuth,
     dataset_id: str,
+    *,  # Make following params keyword-only
+    context: RouteContext | None = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class=None,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: str | None = None,
     session: httpx.AsyncClient | None = None,
-):
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
+    """Delete a dataset."""
+
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/data/v3/datasources/{dataset_id}?deleteMethod=hard"
 
     res = await gd.get_data(
         auth=auth,
         method="DELETE",
         url=url,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
+
+    if return_raw:
+        return res
 
     if not res.is_success:
         raise Dataset_CRUD_Error(dataset_id=dataset_id, res=res)
