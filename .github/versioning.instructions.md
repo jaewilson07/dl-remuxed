@@ -1,3 +1,5 @@
+> Last updated: 2025-10-22
+
 # Semantic Versioning Guide
 
 This repository uses automated semantic versioning via GitHub Actions. When a PR is merged to `main`, the version is automatically bumped based on PR labels.

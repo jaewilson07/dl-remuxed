@@ -5,6 +5,8 @@ agent: agent
 argument-hint: "Describe the workflow or task this prompt should automate."
 ---
 
+> Last updated: 2025-11-17
+
 ## Goal
 
 Create a production-ready Copilot prompt file that automates a specific development workflow. The generated prompt should follow VS Code conventions, be tech-stack agnostic (unless explicitly required), and include clear instructions, expected outputs, and context-gathering strategies.

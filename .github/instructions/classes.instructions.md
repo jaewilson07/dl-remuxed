@@ -1,6 +1,11 @@
 ---
 applyTo: 'src/domolibrary2/classes/**/*'
+name: class_instructions
+description: Standards for entity and manager class design, imports, and patterns.
 ---
+
+> Last updated: 2025-11-10
+
 # Class Validation and Structure Standards
 
 ## Entity Hierarchy
@@ -176,7 +181,7 @@ async def method_name(
 4. **Docstrings**: All public methods must have docstrings
 5. **return_raw**: Include on methods that call route functions
 
-### from_dict signature standard
+### from_dict signature standard (authoritative)
 
 All entity classes must implement a classmethod:
 
@@ -190,6 +195,8 @@ def from_dict(cls, auth: DomoAuth, obj: dict):
 - This matches the base-class expectations and all usage patterns across the codebase.
 
 Note on legacy deviations: a few older implementations (for example, some classes in DomoPublish and user attributes) use `from_dict(cls, obj, auth)` with `obj` first. Prefer the `auth, obj` ordering for all new work and migrate legacy callsites when those files are touched.
+
+For a high-level overview of async patterns and return_raw usage, see `.github/instructions/general.instructions.md`.
 
 ## Import Standards
 
@@ -410,7 +417,6 @@ See `src/domolibrary2/classes/DomoUser.py` as the reference implementation that 
 
 ## Documentation
 
-For detailed guidance, see:
-- [Testing Guide](../../docs/testing-guide.md)
-- [Type Hints Guide](../../docs/type-hints-implementation-guide.md)
-- [Trigger System Guide](../../docs/trigger-system-guide.md)
+For additional guidance, see the `docs/` directory. Key references include:
+- `docs/version-management.md` for release/versioning strategy
+- Logging and circular import guides in `docs/` for advanced topics
