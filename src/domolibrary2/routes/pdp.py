@@ -48,6 +48,7 @@ from ..client import (
     get_data as gd,
     response as rgd,
 )
+from ..client.context import RouteContext
 
 
 class PDP_GET_Error(RouteError):
@@ -171,6 +172,8 @@ async def get_pdp_policies(
     auth: DomoAuth,
     dataset_id: str,
     include_all_rows: bool = True,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -188,6 +191,7 @@ async def get_pdp_policies(
         auth: Authentication object containing instance and credentials
         dataset_id: Unique identifier for the dataset
         include_all_rows: Include policy associations, filters, and open policy (default: True)
+        context: Optional RouteContext object bundling session, debug_api, debug_num_stacks_to_drop, parent_class
         session: Optional HTTP client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to omit in debug output
@@ -205,6 +209,14 @@ async def get_pdp_policies(
         >>> for policy in policies_response.response:
         ...     print(f"Policy: {policy['name']}, ID: {policy['filterGroupId']}")
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"http://{auth.domo_instance}.domo.com/api/query/v1/data-control/{dataset_id}/filter-groups/"
 
     if include_all_rows:
@@ -214,10 +226,7 @@ async def get_pdp_policies(
         auth=auth,
         url=url,
         method="GET",
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
         is_follow_redirects=True,
     )
 
@@ -400,6 +409,8 @@ async def create_policy(
     body: dict,
     override_same_name: bool = False,
     is_suppress_errors: bool = False,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -419,6 +430,7 @@ async def create_policy(
         body: Policy request body (from generate_policy_body)
         override_same_name: If True, allow creating policy with duplicate name
         is_suppress_errors: If True, return existing policy instead of error for duplicates
+        context: Optional RouteContext object bundling session, debug_api, debug_num_stacks_to_drop, parent_class
         session: Optional HTTP client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to omit in debug output
@@ -441,16 +453,29 @@ async def create_policy(
         >>> response = await create_policy(auth, "abc123", body)
         >>> policy_id = response.response.get("filterGroupId")
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/data-control/{dataset_id}/filter-groups"
 
     if not override_same_name:
+        # Create a context with incremented debug_num_stacks_to_drop for nested call
+        nested_context = RouteContext(
+            session=context.session,
+            debug_api=context.debug_api,
+            debug_num_stacks_to_drop=context.debug_num_stacks_to_drop + 1,
+            parent_class=context.parent_class,
+        )
+
         existing_policies = await get_pdp_policies(
             auth=auth,
             dataset_id=dataset_id,
-            session=session,
-            debug_api=debug_api,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
-            parent_class=parent_class,
+            context=nested_context,
         )
 
         policy_exists = search_pdp_policies_by_name(
@@ -476,10 +501,7 @@ async def create_policy(
         url=url,
         method="POST",
         body=body,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if return_raw:
@@ -502,6 +524,8 @@ async def update_policy(
     dataset_id: str,
     policy_id: str,
     body: dict,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -519,6 +543,7 @@ async def update_policy(
         dataset_id: Unique identifier for the dataset
         policy_id: Unique identifier for the policy to update
         body: Policy request body (from generate_policy_body)
+        context: Optional RouteContext object bundling session, debug_api, debug_num_stacks_to_drop, parent_class
         session: Optional HTTP client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to omit in debug output
@@ -541,6 +566,14 @@ async def update_policy(
         ... )
         >>> response = await update_policy(auth, "abc123", "policy123", body)
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/data-control/{dataset_id}/filter-groups/{policy_id}"
 
     res = await gd.get_data(
@@ -548,10 +581,7 @@ async def update_policy(
         url=url,
         method="PUT",
         body=body,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if return_raw:
@@ -574,6 +604,8 @@ async def delete_policy(
     auth: DomoAuth,
     dataset_id: str,
     policy_id: str,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -590,6 +622,7 @@ async def delete_policy(
         auth: Authentication object containing instance and credentials
         dataset_id: Unique identifier for the dataset
         policy_id: Unique identifier for the policy to delete
+        context: Optional RouteContext object bundling session, debug_api, debug_num_stacks_to_drop, parent_class
         session: Optional HTTP client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to omit in debug output
@@ -606,16 +639,21 @@ async def delete_policy(
         >>> response = await delete_policy(auth, "abc123", "policy123")
         >>> print(f"Policy deleted: {response.response}")
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/data-control/{dataset_id}/filter-groups/{policy_id}"
 
     res = await gd.get_data(
         auth=auth,
         url=url,
         method="DELETE",
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if return_raw:
@@ -638,6 +676,8 @@ async def toggle_pdp(
     auth: DomoAuth,
     dataset_id: str,
     is_enable: bool = True,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -654,6 +694,7 @@ async def toggle_pdp(
         auth: Authentication object containing instance and credentials
         dataset_id: Unique identifier for the dataset
         is_enable: If True, enable PDP; if False, disable PDP (default: True)
+        context: Optional RouteContext object bundling session, debug_api, debug_num_stacks_to_drop, parent_class
         session: Optional HTTP client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to omit in debug output
@@ -672,6 +713,14 @@ async def toggle_pdp(
         >>> # Disable PDP for a dataset
         >>> response = await toggle_pdp(auth, "abc123", is_enable=False)
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = (
         f"https://{auth.domo_instance}.domo.com/api/query/v1/data-control/{dataset_id}"
     )
@@ -686,10 +735,7 @@ async def toggle_pdp(
         url=url,
         method="PUT",
         body=body,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if return_raw:
