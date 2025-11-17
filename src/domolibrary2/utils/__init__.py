@@ -11,7 +11,8 @@ Modules:
     convert: Data conversion utilities for various formats and types
     DictDot: Dot notation access for dictionaries
     files: File and folder operation utilities
-    Image: Image processing and manipulation utilities
+    images: Image processing and manipulation utilities
+    logging: Custom logging processors and utilities for domolibrary2
     read_creds_from_dotenv: Environment credential reading utilities
     upload_data: Data upload utilities (may require external dependencies)
     xkcd_password: Password generation utilities
@@ -44,15 +45,9 @@ from . import (
     convert,
     files,
     images,
+    logging,
     read_creds_from_dotenv,
     xkcd_password,
-)
-
-
-# Import legacy exception names from convert module for backwards compatibility
-from .convert import (
-    ConcatDataframe_InvalidElement,  # Legacy alias for ConcatDataframeError
-    InvalidEmail,  # Legacy alias for InvalidEmailError
 )
 from .exceptions import (
     ConcatDataframeError,
@@ -62,6 +57,9 @@ from .exceptions import (
     InvalidEmailError,
     UtilityError,
 )
+
+# Import legacy exception names from convert module for backwards compatibility
+
 
 # Conditional import for upload_data (may have external dependencies)
 # from . import upload_data
@@ -75,9 +73,6 @@ __all__ = [
     "FileOperationError",
     "ImageProcessingError",
     "CredentialsError",
-    # Legacy exception names
-    "InvalidEmail",
-    "ConcatDataframe_InvalidElement",
     # Utility modules
     "chunk_execution",
     "compare",
@@ -85,6 +80,7 @@ __all__ = [
     "DictDot",
     "files",
     "images",
+    "logging",
     "read_creds_from_dotenv",
     "xkcd_password",
 ]

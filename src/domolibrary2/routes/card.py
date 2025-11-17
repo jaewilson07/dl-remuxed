@@ -11,25 +11,26 @@ __all__ = [
 ]
 
 from enum import Enum
-from typing import List, Union
 
 import httpx
+from dc_logger.decorators import LogDecoratorConfig, log_call
 
+from ..auth import DomoAuth
+from ..base import exceptions as de
+from ..base.base import DomoEnumMixin
 from ..client import (
-    exceptions as de,
     get_data as gd,
     response as rgd,
 )
-from ..client.auth import DomoAuth
-from ..entities.base import DomoEnumMixin
+from ..utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 
 
-class Cards_API_Exception(de.DomoError):
+class Cards_API_Exception(de.DomoError):  # noqa: N801
     def __init__(self, res, message=None):
         super().__init__(res=res, message=message)
 
 
-class CardSearch_NotFoundError(de.DomoError):
+class CardSearch_NotFoundError(de.DomoError):  # noqa: N801
     def __init__(
         self,
         card_id,
@@ -49,6 +50,13 @@ class CardSearch_NotFoundError(de.DomoError):
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def get_card_by_id(
     card_id,
     auth: DomoAuth,
@@ -68,7 +76,7 @@ async def get_card_by_id(
         method="GET",
         url=url,
         session=session,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         debug_api=debug_api,
         params=params,
@@ -86,6 +94,13 @@ async def get_card_by_id(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def get_kpi_definition(
     auth: DomoAuth,
     card_id: str,
@@ -106,7 +121,7 @@ async def get_kpi_definition(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if not res.is_success and res.response == "Not Found":
@@ -120,7 +135,7 @@ async def get_kpi_definition(
     return res
 
 
-class Card_OptionalParts_Enum(DomoEnumMixin, Enum):
+class Card_OptionalParts_Enum(DomoEnumMixin, Enum):  # noqa: N801
     CERTIFICATION = "certification"
     DATASOURCES = "datasources"
     DOMOAPP = "domoapp"
@@ -133,6 +148,13 @@ class Card_OptionalParts_Enum(DomoEnumMixin, Enum):
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def get_card_metadata(
     auth: DomoAuth,
     card_id: str,
@@ -140,9 +162,9 @@ async def get_card_metadata(
     session: httpx.AsyncClient = None,
     parent_class: str = None,
     debug_num_stacks_to_drop=1,
-    optional_parts: Union[
-        List[Card_OptionalParts_Enum], str
-    ] = "metadata,certification,datasources,owners,problems,domoapp",
+    optional_parts: (
+        list[Card_OptionalParts_Enum] | str
+    ) = "metadata,certification,datasources,owners,problems,domoapp",
 ) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/cards"
 
@@ -156,7 +178,7 @@ async def get_card_metadata(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if not res.is_success:
@@ -186,7 +208,7 @@ def generate_body_search_cards_only_apps_filter():
 
 
 def generate_body_search_cards_admin_summary(
-    page_ids: List[str] = None,
+    page_ids: list[str] = None,
     #  searchPages: bool = True,
     card_search_text: str = None,
     page_search_text: str = None,
@@ -214,6 +236,13 @@ def generate_body_search_cards_admin_summary(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(
+        entity_extractor=DomoEntityExtractor(),
+        result_processor=DomoEntityResultProcessor(),
+    ),
+)
 async def search_cards_admin_summary(
     auth: DomoAuth,
     body: dict,
@@ -225,6 +254,7 @@ async def search_cards_admin_summary(
     wait_sleep: int = 3,
     parent_class: str = None,
     debug_num_stacks_to_drop: int = 1,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     limit = 100
     offset = 0

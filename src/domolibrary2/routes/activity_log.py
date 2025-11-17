@@ -10,12 +10,12 @@ from typing import Optional
 
 import httpx
 
+from ..auth import DomoAuth
+from ..base.exceptions import RouteError
 from ..client import (
     get_data as gd,
     response as rgd,
 )
-from ..client.auth import DomoAuth
-from ..client.exceptions import RouteError
 
 
 class ActivityLog_GET_Error(RouteError):
@@ -35,7 +35,7 @@ async def get_activity_log_object_types(
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
     debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ) -> rgd.ResponseGetData:
     """retrieves a list of valid objectTypes that can be used to search the activity_log API"""
 
@@ -48,7 +48,7 @@ async def get_activity_log_object_types(
         parent_class=parent_class,
         debug_api=debug_api,
         session=session,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if not res.is_success:
@@ -70,7 +70,7 @@ async def search_activity_log(
     debug_loop: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
 ) -> rgd.ResponseGetData:
     """loops over activity log api to retrieve audit logs"""
 

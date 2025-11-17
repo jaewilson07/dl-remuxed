@@ -3,11 +3,10 @@
 __all__ = ["get_cards", "get_datasets", "update_layout", "add_owner"]
 
 import datetime as dt
-from typing import List
 
 import httpx
 
-from ...client.auth import DomoAuth
+from ...auth import DomoAuth
 from ...routes import page as page_routes
 from ...utils import (
     chunk_execution as dmce,
@@ -103,8 +102,8 @@ async def update_layout(
 
 async def add_owner(
     self,
-    group_id_ls: List[int],  # DomoGroup IDs to share page with
-    user_id_ls: List[int],  # DomoUser IDs to share page with
+    group_id_ls: list[int],  # DomoGroup IDs to share page with
+    user_id_ls: list[int],  # DomoUser IDs to share page with
     note: str = None,  # message for automated email
     send_email: bool = False,  # send or not email to the new owners
     debug_api: bool = False,

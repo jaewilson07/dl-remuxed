@@ -12,12 +12,12 @@ from typing import Optional
 
 import httpx
 
+from ..auth import DomoAuth
+from ..base.exceptions import RouteError
 from ..client import (
     get_data as gd,
     response as rgd,
 )
-from ..client.auth import DomoAuth
-from ..client.exceptions import RouteError
 
 
 class Stream_GET_Error(RouteError):
@@ -61,7 +61,7 @@ class Stream_CRUD_Error(RouteError):
 async def get_streams(
     auth: DomoAuth,
     loop_until_end: bool = True,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
     debug_api: bool = False,
@@ -112,7 +112,7 @@ async def get_streams(
 async def get_stream_by_id(
     auth: DomoAuth,
     stream_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -144,7 +144,7 @@ async def get_stream_by_id(
         session=session,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -161,7 +161,7 @@ async def update_stream(
     auth: DomoAuth,
     stream_id: str,
     body: dict,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_num_stacks_to_drop: int = 1,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
@@ -195,7 +195,7 @@ async def update_stream(
         session=session,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -211,7 +211,7 @@ async def update_stream(
 async def create_stream(
     auth: DomoAuth,
     body: dict,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -244,7 +244,7 @@ async def create_stream(
         session=session,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -260,7 +260,7 @@ async def create_stream(
 async def execute_stream(
     auth: DomoAuth,
     stream_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
     debug_num_stacks_to_drop: int = 1,
@@ -292,7 +292,7 @@ async def execute_stream(
         session=session,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:

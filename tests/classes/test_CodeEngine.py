@@ -1,16 +1,17 @@
-"""
+r"""
 Test file generated from CodeEngine.ipynb
 Auto-generated - excludes cells starting with #
 Generated on: C:\GitHub\domolibrary
 """
 
 import os
+
 import domolibrary.client.DomoAuth as dmda
 
 # Setup authentication for tests
 token_auth = dmda.DomoTokenAuth(
-    domo_instance=os.environ['DOMO_INSTANCE'],
-    domo_access_token=os.environ['DOMO_ACCESS_TOKEN'],
+    domo_instance=os.environ["DOMO_INSTANCE"],
+    domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],
 )
 
 
@@ -35,11 +36,9 @@ async def test_cell_2(token_auth=token_auth):
     )
     # pprint(package)
 
-
     # package.Manifest
     await package.download_source_code(
-        download_folder="../../test/CodeEnginePackage_JS/",
-        debug_api=True
+        download_folder="../../test/CodeEnginePackage_JS/", debug_api=True
     )
 
     # package.functions
@@ -68,7 +67,7 @@ async def test_cell_4(token_auth=token_auth):
     version = "1.0.0"
 
     token_auth = dmda.DomoTokenAuth(
-        domo_instance=os.environ['DOMO_INSTANCE'],
+        domo_instance=os.environ["DOMO_INSTANCE"],
         domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],
     )
 
@@ -81,13 +80,13 @@ async def test_cell_4(token_auth=token_auth):
         # return_raw=True
     )
 
-    domo_version.export(output_folder="../test/code_engine")
+    domo_version.export(output_folder="../test/codeengine")
 
 
 async def test_cell_5(token_auth=token_auth):
     """Test case from cell 5"""
     token_auth = dmda.DomoTokenAuth(
-        domo_instance=os.environ['DOMO_INSTANCE'],
+        domo_instance=os.environ["DOMO_INSTANCE"],
         domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],
     )
 
@@ -106,10 +105,9 @@ async def test_cell_6(token_auth=token_auth):
     package_id = "0b628c44-0a1a-4e76-83ae-681cde27b129"
 
     token_auth = dmda.DomoTokenAuth(
-        domo_instance=os.environ['DOMO_INSTANCE'],
+        domo_instance=os.environ["DOMO_INSTANCE"],
         domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],
     )
-
 
     domo_codeengine_version = await DomoCodeEngine_Package.get_current_version_by_id(
         package_id=package_id,

@@ -1,31 +1,30 @@
 __all__ = [
-    "GetDomains_NotFound",
-    "GetAppDomains_NotFound",
+    "GetDomainsNotFoundError",
+    "GetAppDomainsNotFoundError",
     "get_authorized_domains",
     "set_authorized_domains",
     "get_authorized_custom_app_domains",
     "set_authorized_custom_app_domains",
 ]
 
-from typing import List, Optional
 
 import httpx
 
+from ...auth import DomoAuth
 from ...client import (
     get_data as gd,
     response as rgd,
 )
-from ...client.auth import DomoAuth
 from .. import user as user_routes
 from .exceptions import Config_CRUD_Error, Config_GET_Error
 
 
-class GetDomains_NotFound(Config_GET_Error):
+class GetDomainsNotFoundError(Config_GET_Error):
     def __init__(self, res: rgd.ResponseGetData, message: str = ""):
         super().__init__(res=res, message=message)
 
 
-class GetAppDomains_NotFound(Config_GET_Error):
+class GetAppDomainsNotFoundError(Config_GET_Error):
     def __init__(self, res: rgd.ResponseGetData, message: str = ""):
         super().__init__(res=res, message=message)
 
@@ -35,7 +34,7 @@ async def get_authorized_domains(
     auth: DomoAuth,
     return_raw: bool = False,
     debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     parent_class=None,
     debug_num_stacks_to_drop=1,
 ):
@@ -48,7 +47,7 @@ async def get_authorized_domains(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -59,7 +58,7 @@ async def get_authorized_domains(
         res_test = await user_routes.get_all_users(auth=auth)
 
         if not res_test.is_success:
-            raise GetDomains_NotFound(res=res)
+            raise GetDomainsNotFoundError(res=res)
 
         if res_test.is_success:
             res.status = 200
@@ -69,7 +68,7 @@ async def get_authorized_domains(
         return res
 
     if not res.is_success:
-        raise GetDomains_NotFound(res=res)
+        raise GetDomainsNotFoundError(res=res)
 
     res.response = [domain.strip() for domain in res.response.get("value").split(",")]  # type: ignore
     return res
@@ -78,9 +77,9 @@ async def get_authorized_domains(
 @gd.route_function
 async def set_authorized_domains(
     auth: DomoAuth,
-    authorized_domain_ls: List[str],
+    authorized_domain_ls: list[str],
     debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     parent_class=None,
     debug_num_stacks_to_drop=1,
 ):
@@ -96,7 +95,7 @@ async def set_authorized_domains(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if not res.is_success:
@@ -116,7 +115,7 @@ async def get_authorized_custom_app_domains(
     auth: DomoAuth,
     return_raw: bool = False,
     debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     parent_class=None,
     debug_num_stacks_to_drop=1,
 ):
@@ -129,7 +128,7 @@ async def get_authorized_custom_app_domains(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -140,7 +139,7 @@ async def get_authorized_custom_app_domains(
         res_test = await user_routes.get_all_users(auth=auth)
 
         if not res_test.is_success:
-            raise GetAppDomains_NotFound(res=res)
+            raise GetAppDomainsNotFoundError(res=res)
 
         if res_test.is_success:
             res.status = 200
@@ -150,7 +149,7 @@ async def get_authorized_custom_app_domains(
         return res
 
     if not res.is_success:
-        raise GetAppDomains_NotFound(res=res)
+        raise GetAppDomainsNotFoundError(res=res)
 
     res.response = [domain.strip() for domain in res.response.get("value").split(",")]  # type: ignore
     return res
@@ -159,9 +158,9 @@ async def get_authorized_custom_app_domains(
 @gd.route_function
 async def set_authorized_custom_app_domains(
     auth: DomoAuth,
-    authorized_custom_app_domain_ls: List[str],
+    authorized_custom_app_domain_ls: list[str],
     debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     parent_class=None,
     debug_num_stacks_to_drop=1,
 ):
@@ -180,7 +179,7 @@ async def set_authorized_custom_app_domains(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if not res.is_success:

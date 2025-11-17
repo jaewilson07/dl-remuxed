@@ -14,7 +14,7 @@ while supporting advanced features like lineage tracking and relationships.
 """
 
 # Import base classes and enums
-from .base import DomoBase, DomoEnum, DomoEnumMixin
+from .base import DomoEnum, DomoEnumMixin, DomoBase
 
 # Import entities from existing entities.py module
 from .entities import (
@@ -24,17 +24,12 @@ from .entities import (
     DomoSubEntity,
 )
 
-# Import federated entities
-from .entities_federated import (
-    DomoFederatedEntity,
-    DomoPublishedEntity,
-)
-
 # Import relationship system
 from .relationships import (
     DomoRelationship,
     DomoRelationshipController,
 )
+
 
 __all__ = [
     # Base classes and enums
@@ -46,9 +41,6 @@ __all__ = [
     "DomoEntity_w_Lineage",
     "DomoManager",
     "DomoSubEntity",
-    # Federated entities
-    "DomoFederatedEntity",
-    "DomoPublishedEntity",
     # Relationships
     "DomoRelationship",
     "DomoRelationshipController",

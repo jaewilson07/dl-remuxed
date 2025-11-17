@@ -11,14 +11,15 @@ Classes:
     DomoSubEntity: Entity that belongs to a parent entity
 """
 
+from ..client.auth import DomoAuth
+from .base import DomoBase
 import abc
 from dataclasses import dataclass, field, fields
+
 from typing import Any, Callable, Optional
 
-from ..client.auth import DomoAuth
 from ..utils.convert import convert_snake_to_pascal
-from .base import DomoBase
-from .relationships import DomoRelationshipController
+from ..client import auth as dmda
 
 
 @dataclass
@@ -41,11 +42,19 @@ class DomoEntity(DomoBase):
         'https://mycompany.domo.com/...'
     """
 
-    auth: DomoAuth = field(repr=False)
+    auth: dmda.DomoAuth = field(repr=False)
     id: str
     raw: dict = field(repr=False)  # api representation of the class
 
-    Relations: DomoRelationshipController = field(repr=False)
+    Relations: Any = field(repr=False, default=None)
+
+    # logger: Logger = field(repr=False) ## pass global logger
+
+    def __post_init__(self):
+        """Initialize entity with relationship controller."""
+        from .relationships import DomoRelationshipController
+
+        self.Relations = DomoRelationshipController(auth=self.auth, parent_entity=self)
 
     @property
     def _name(self) -> str:
@@ -58,18 +67,18 @@ class DomoEntity(DomoBase):
         return name
 
     def __eq__(self, other) -> bool:
-        """Check equality based on entity ID.
+        """Check equality based on entity ID and class type.
 
         Args:
             other: Object to compare with
 
         Returns:
-            bool: True if both are DomoEntity instances with the same ID
+            bool: True if both are the same class type with the same ID
         """
-        if isinstance(other, DomoEntity):
-            return self.id == other.id
+        if self.__class__.__name__ != other.__class__.__name__:
+            return False
 
-        return False
+        return self.id == other.id
 
     def to_dict(self, override_fn: Optional[Callable] = None) -> dict:
         """Convert all dataclass attributes to a dictionary in pascalCase.
@@ -134,7 +143,7 @@ class DomoEntity(DomoBase):
 
     @classmethod
     @abc.abstractmethod
-    async def get_entity_by_id(cls, auth: DomoAuth, entity_id: str):
+    async def get_entity_by_id(cls, auth: dmda.DomoAuth, entity_id: str):
         """Fetch an entity by its ID
 
         This method should be implemented by subclasses to fetch the specific
@@ -149,7 +158,6 @@ class DomoEntity(DomoBase):
         """
         raise NotImplementedError("This method should be implemented by subclasses.")
 
-    @property
     @abc.abstractmethod
     def display_url(self) -> str:
         """Generate the URL to display this entity in the Domo interface.
@@ -182,10 +190,12 @@ class DomoEntity_w_Lineage(DomoEntity):
 
     def __post_init__(self):
         """Initialize lineage tracking after entity creation."""
-        from ..classes.subentity.lineage import DomoLineage
+        from ..classes.subentity import DomoLineage as dmdl
 
         # Using protected method until public interface is available
         self.Lineage = DomoLineage.from_parent(auth=self.auth, parent=self)
+
+        super().__post_init__()
 
 
 @dataclass
@@ -199,7 +209,7 @@ class DomoManager(DomoBase):
         auth: Authentication object for API requests (hidden in repr)
     """
 
-    auth: DomoAuth = field(repr=False)
+    auth: dmda.DomoAuth = field(repr=False)
 
     @abc.abstractmethod
     async def get(self, *args, **kwargs):
@@ -219,7 +229,7 @@ class DomoManager(DomoBase):
 
 
 @dataclass
-class DomoSubEntity(DomoBase):
+class DomoSubEntity(DomoEntity):
     """Base class for entities that belong to a parent entity.
 
     Handles entities that are sub-components of other entities,
@@ -232,6 +242,7 @@ class DomoSubEntity(DomoBase):
     """
 
     parent: DomoEntity
+    auth: dmda.DomoAuth = field(repr=False)
 
     @property
     def parent_id(self):

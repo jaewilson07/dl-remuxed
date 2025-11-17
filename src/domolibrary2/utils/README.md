@@ -103,7 +103,7 @@ async def api_call():
 coroutines = [fetch_url(url) for url in urls]
 results = await chunk_execution.gather_with_concurrency(*coroutines, n=10)
 
-# List chunking
+# list chunking
 chunks = chunk_execution.chunk_list(large_list, chunk_size=100)
 ```
 

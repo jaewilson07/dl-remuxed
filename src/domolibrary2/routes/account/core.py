@@ -12,19 +12,25 @@ Functions:
 from typing import Optional, Union
 
 import httpx
+from dc_logger.decorators import LogDecoratorConfig, log_call
 
+from ...auth import DomoAuth
 from ...client import (
     get_data as gd,
     response as rgd,
 )
-from ...client.auth import DomoAuth
-from .exceptions import Account_GET_Error, Account_NoMatch
+from ...utils.logging import ResponseGetDataProcessor
+from .exceptions import Account_GET_Error, AccountNoMatchError
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def get_available_data_providers(
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -53,7 +59,7 @@ async def get_available_data_providers(
         url=url,
         method="GET",
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
     )
@@ -68,9 +74,13 @@ async def get_available_data_providers(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def get_accounts(
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -101,7 +111,7 @@ async def get_accounts(
         url=url,
         method="GET",
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
     )
@@ -115,11 +125,15 @@ async def get_accounts(
 
 
 @gd.route_function
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def get_account_by_id(
     auth: DomoAuth,
     account_id: Union[int, str],
     is_unmask: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -141,7 +155,7 @@ async def get_account_by_id(
         ResponseGetData object containing account metadata
 
     Raises:
-        Account_NoMatch: If account is not found or not accessible
+        AccountNoMatchError: If account is not found or not accessible
         Account_GET_Error: If account retrieval fails
     """
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/accounts/{account_id}"
@@ -153,7 +167,7 @@ async def get_account_by_id(
         debug_api=debug_api,
         session=session,
         timeout=20,  # occasionally this API has a long response time
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         params={"unmask": is_unmask},
     )
@@ -164,7 +178,7 @@ async def get_account_by_id(
     if not res.is_success and (
         res.response == "Forbidden" or res.response == "Not Found"
     ):
-        raise Account_NoMatch(account_id=str(account_id), res=res)
+        raise AccountNoMatchError(account_id=str(account_id), res=res)
 
     if not res.is_success:
         raise Account_GET_Error(entity_id=str(account_id), res=res)

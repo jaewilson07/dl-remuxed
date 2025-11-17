@@ -11,16 +11,16 @@ __all__ = [
     "share",
 ]
 
-from typing import List, Optional
+from typing import Optional
 
 import httpx
 
+from ..auth import DomoAuth
+from ..base import exceptions as dmde
 from ..client import (
-    exceptions as dmde,
     get_data as gd,
     response as rgd,
 )
-from ..client.auth import DomoAuth
 
 
 class AppStudio_GET_Error(dmde.RouteError):
@@ -82,7 +82,7 @@ class AppStudioSharing_Error(dmde.RouteError):
 async def get_appstudio_by_id(
     auth: DomoAuth,
     appstudio_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -114,7 +114,7 @@ async def get_appstudio_by_id(
         method="GET",
         debug_api=debug_api,
         session=session,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -134,7 +134,7 @@ async def get_appstudio_by_id(
 async def get_appstudio_access(
     auth: DomoAuth,
     appstudio_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -165,7 +165,7 @@ async def get_appstudio_access(
         auth=auth,
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 
@@ -185,7 +185,7 @@ async def get_appstudio_access(
 async def get_appstudios_adminsummary(
     auth: DomoAuth,
     limit: int = 35,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_loop: bool = False,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 2,
@@ -249,16 +249,16 @@ async def get_appstudios_adminsummary(
 
 
 def generate_body_add_page_owner_appstudios(
-    appstudio_id_ls: List[int],
-    group_id_ls: Optional[List[int]] = None,
-    user_id_ls: Optional[List[int]] = None,
+    appstudio_id_ls: list[int],
+    group_id_ls: Optional[list[int]] = None,
+    user_id_ls: Optional[list[int]] = None,
     note: str = "",
     send_email: bool = False,
 ) -> dict:
     """Generates request body for adding page owners to AppStudio pages.
 
     Args:
-        appstudio_id_ls: List of AppStudio IDs
+        appstudio_id_ls: list of AppStudio IDs
         group_id_ls: Optional list of group IDs
         user_id_ls: Optional list of user IDs
         note: Optional note to include
@@ -287,15 +287,15 @@ def generate_body_add_page_owner_appstudios(
 
 
 def generate_body_share_appstudio(
-    appstudio_ids: List[int],
-    group_ids: Optional[List[int]] = None,
-    user_ids: Optional[List[int]] = None,
+    appstudio_ids: list[int],
+    group_ids: Optional[list[int]] = None,
+    user_ids: Optional[list[int]] = None,
     message: Optional[str] = None,
 ) -> dict:
     """Generates request body for sharing AppStudio pages.
 
     Args:
-        appstudio_ids: List of AppStudio IDs to share
+        appstudio_ids: list of AppStudio IDs to share
         group_ids: Optional list of group IDs
         user_ids: Optional list of user IDs
         message: Optional message to include
@@ -339,12 +339,12 @@ def generate_body_share_appstudio(
 @gd.route_function
 async def add_page_owner(
     auth: DomoAuth,
-    appstudio_id_ls: List[int],
-    group_id_ls: Optional[List[int]] = None,
-    user_id_ls: Optional[List[int]] = None,
+    appstudio_id_ls: list[int],
+    group_id_ls: Optional[list[int]] = None,
+    user_id_ls: Optional[list[int]] = None,
     note: str = "",
     send_email: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -354,7 +354,7 @@ async def add_page_owner(
 
     Args:
         auth: Authentication object
-        appstudio_id_ls: List of AppStudio IDs
+        appstudio_id_ls: list of AppStudio IDs
         group_id_ls: Optional list of group IDs to add as owners
         user_id_ls: Optional list of user IDs to add as owners
         note: Optional note to include with the change
@@ -389,7 +389,7 @@ async def add_page_owner(
         session=session,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -406,11 +406,11 @@ async def add_page_owner(
 @gd.route_function
 async def share(
     auth: DomoAuth,
-    appstudio_ids: List[int],
-    group_ids: Optional[List[int]] = None,
-    user_ids: Optional[List[int]] = None,
+    appstudio_ids: list[int],
+    group_ids: Optional[list[int]] = None,
+    user_ids: Optional[list[int]] = None,
     message: Optional[str] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -420,7 +420,7 @@ async def share(
 
     Args:
         auth: Authentication object
-        appstudio_ids: List of AppStudio IDs to share
+        appstudio_ids: list of AppStudio IDs to share
         group_ids: Optional list of group IDs to share with
         user_ids: Optional list of user IDs to share with
         message: Optional message to include in email notification
@@ -453,7 +453,7 @@ async def share(
         session=session,
         debug_api=debug_api,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:

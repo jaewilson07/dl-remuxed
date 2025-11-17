@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "domolibrary2"
-version = "0.0.1-alpha"
+version = "2.1.2"
 description = "A Python library for interacting with Domo APIs"
 authors = [
     { name = "Jae Wilson", email = "jaewilson07@gmail.com" }
@@ -40,7 +40,11 @@ dependencies = [
     "xkcdpass",
     "sql_metadata",
     "dc-logger",
-    "beautifulsoup4"]
+    "beautifulsoup4",
+    "IPython",
+    "tomli; python_version < '3.11'",
+
+]
 
 [project.optional-dependencies]
 dev = [
@@ -56,9 +60,21 @@ dev = [
     "pre-commit",
 ]
 
+postman = ["requests", "pydantic-ai"]
+
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP"]
-ignore = ["E501"]  # Line too long (handled by black)
+ignore = [
+    "E501",  # Line too long (handled by black)
+    "N801",  # class name should use CapWords convention
+    "N802",  # function name should be lowercase (descriptive names)
+    "N803",  # argument name should be lowercase (API naming)
+    "N806",  # variable in function should be lowercase (acronyms)
+    "N811",  # constant imported as non-constant (intentional aliasing)
+    "N813",  # Camelcase imported as lowercase (intentional pattern)
+    "N815",  # variable in class scope should not be mixedCase (API fields)
+    "N999",  # Invalid module name (legacy module names)
+]
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
@@ -90,7 +106,5 @@ mypy_path = "src"
 module = "domolibrary2.*"
 ignore_missing_imports = true
 
-
-[tool.setuptools]
-packages = ["domolibrary2"]
-package-dir = {"" = "src"}
+[tool.setuptools.packages.find]
+where = ["src"]

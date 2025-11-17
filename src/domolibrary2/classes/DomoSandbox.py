@@ -8,13 +8,14 @@ __all__ = [
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Optional
 
 import dateutil.parser as dtut
 import httpx
 import pandas as pd
 
-from ..client.auth import DomoAuth
+from ..auth import DomoAuth
+from ..base.entities import DomoEntity_w_Lineage, DomoManager
 from ..routes import sandbox as sandbox_routes
 from ..routes.sandbox import Sandbox_CRUD_Error, Sandbox_GET_Error
 from .subentity import DomoLineage as dmdl
@@ -31,10 +32,10 @@ class DomoRepository(DomoEntity_w_Lineage):
     commit_dt: dt.datetime
     commit_version: str
 
-    content_page_id_ls: Optional[List[str]] = None
-    content_card_id_ls: Optional[List[str]] = None
-    content_dataflow_id_ls: Optional[List[str]] = None
-    content_view_id_ls: Optional[List[str]] = None
+    content_page_id_ls: Optional[list[str]] = None
+    content_card_id_ls: Optional[list[str]] = None
+    content_dataflow_id_ls: Optional[list[str]] = None
+    content_view_id_ls: Optional[list[str]] = None
 
     def __post_init__(self):
         """Initialize lineage tracking for the repository."""
@@ -75,7 +76,7 @@ class DomoRepository(DomoEntity_w_Lineage):
         cls,
         auth: DomoAuth,
         repository_id: str,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         return_raw: bool = False,
@@ -112,11 +113,11 @@ class DomoRepository(DomoEntity_w_Lineage):
         return cls.from_dict(obj=res.response, auth=auth)
 
     @classmethod
-    def get_entity_by_id(
+    async def get_entity_by_id(
         cls,
         auth: DomoAuth,
         entity_id: str,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
     ):
@@ -166,7 +167,7 @@ class DomoRepository(DomoEntity_w_Lineage):
 class DomoSandbox(DomoManager):
     auth: DomoAuth = field(repr=False)
 
-    repositories: Optional[List[DomoRepository]] = None
+    repositories: Optional[list[DomoRepository]] = None
 
     async def get_repositories(
         self, debug_api: bool = False, session: httpx.AsyncClient = None

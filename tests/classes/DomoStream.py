@@ -4,12 +4,12 @@ Tests the Stream class functionality including get_by_id and from_dict methods
 """
 
 import os
-from dotenv import load_dotenv
-import domolibrary2.client.auth as dmda
-import domolibrary2.routes.stream as stream_routes
-from domolibrary2.routes.stream import Stream_GET_Error
 
+from dotenv import load_dotenv
+
+import domolibrary2.auth as dmda
 from domolibrary2.classes.DomoDataset.stream import DomoStream
+from domolibrary2.routes.stream import Stream_GET_Error
 
 load_dotenv()
 
@@ -92,7 +92,7 @@ async def test_cell_3(token_auth=token_auth):
     assert hasattr(res, "is_success")
     assert hasattr(res, "response")
 
-    print(f"Raw response returned successfully")
+    print("Raw response returned successfully")
     print(f"Status: {res.status}")
 
     return res

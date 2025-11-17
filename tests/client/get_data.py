@@ -1,14 +1,15 @@
-import domolibrary2.client.auth as dmda
-from dotenv import load_dotenv
 import os
 
 from dc_logger.client.base import (
-    Logger,
-    HandlerInstance,
     Handler_BufferSettings,
+    HandlerInstance,
+    Logger,
     set_global_logger,
 )
-from dc_logger.logs.services.file import FileHandler, File_ServiceConfig
+from dc_logger.logs.services.file import File_ServiceConfig, FileHandler
+from dotenv import load_dotenv
+
+import domolibrary2.auth as dmda
 
 load_dotenv()
 
@@ -65,28 +66,25 @@ Tests for get_data functionality using test harness with logging integration.
 """
 
 import asyncio
-import pytest
 from unittest.mock import AsyncMock, patch
-from dotenv import load_dotenv
-import os
 
-import domolibrary2.client.auth as dmda
-import domolibrary2.client.get_data as gd
-from domolibrary2.client.exceptions import RouteError
-
+import pytest
 from dc_logger.client.base import (
-    Logger,
-    HandlerInstance,
     Handler_BufferSettings,
+    HandlerInstance,
+    Logger,
     set_global_logger,
 )
-from dc_logger.logs.services.file import FileHandler, File_ServiceConfig
+from dc_logger.logs.services.file import File_ServiceConfig, FileHandler
+from dotenv import load_dotenv
 
+import domolibrary2.client.get_data as gd
+from domolibrary2.base.exceptions import RouteError
 from tests.tools.test_harness import (
-    RouteTestHarness,
-    RouteTestBuilder,
-    PytestRouteTestCase,
     IntegrationTestHarness,
+    PytestRouteTestCase,
+    RouteTestBuilder,
+    RouteTestHarness,
 )
 
 load_dotenv()
@@ -418,7 +416,9 @@ async def manual_test_with_logging():
             print(f"✅ Real test passed: {result.is_success}")
 
         except Exception as e:
-            await logger.error(message="Real test failed", data={"error": str(e)})
+            await logger.error(
+                message="Real test failed", data={"error": str(e)}, color="red"
+            )
             print(f"❌ Real test failed: {e}")
     else:
         await logger.info(

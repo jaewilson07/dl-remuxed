@@ -16,11 +16,11 @@ __all__ = [
     "search_dataflows_to_jupyter_workspaces",
 ]
 
-from typing import List
 
 import httpx
 from ..client.auth import DomoAuth
 
+from ..auth import DomoAuth
 from ..client import (
     exceptions as dmde,
     get_data as gd,
@@ -57,7 +57,7 @@ async def get_dataflows(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if not res.is_success:
@@ -86,7 +86,7 @@ async def get_dataflow_by_id(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if not res.is_success:
@@ -117,7 +117,7 @@ async def update_dataflow_definition(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     # Check for successful response
@@ -145,7 +145,7 @@ async def get_dataflow_tags_by_id(
         url=url,
         method="GET",
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
     )
@@ -165,7 +165,7 @@ def generate_tag_body(dataflow_id, tag_ls) -> dict:
 async def put_dataflow_tags_by_id(
     auth: DomoAuth,
     dataflow_id: int,
-    tag_ls: List[str],
+    tag_ls: list[str],
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
     parent_class: str = None,
@@ -186,7 +186,7 @@ async def put_dataflow_tags_by_id(
         debug_api=debug_api,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     # Check for successful response
@@ -212,7 +212,7 @@ async def get_dataflow_versions(
         session=session,
         url=url,
         method="GET",
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         debug_api=debug_api,
     )
@@ -240,7 +240,7 @@ async def get_dataflow_by_id_and_version(
         session=session,
         url=url,
         method="GET",
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         debug_api=debug_api,
     )
@@ -306,7 +306,7 @@ async def get_dataflow_execution_by_id(
         auth=auth,
         url=url,
         method="GET",
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         debug_api=debug_api,
         session=session,
@@ -333,7 +333,7 @@ async def execute_dataflow(
         auth=auth,
         url=url,
         method="POST",
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         debug_api=debug_api,
         session=session,
@@ -400,7 +400,7 @@ async def search_dataflows_to_jupyter_workspaces(
         body=filter_body,
         session=session,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
     )
 

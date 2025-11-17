@@ -8,25 +8,28 @@ __all__ = [
     "route_function",
 ]
 
-import json
 import time
 from functools import wraps
 from pprint import pprint
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable, Optional
 
 import httpx
-from dc_logger.client.base import get_global_logger
-from dc_logger.decorators import log_call
+from dc_logger.decorators import LogDecoratorConfig, log_call
 
-from ..utils import chunk_execution as dmce
-from . import (
-    auth as dmda,
-    response as rgd,
+from ..auth import (
+    base as dmda,
 )
-from .exceptions import DomoError
+from ..base.exceptions import DomoError
+from ..utils import chunk_execution as dmce
+from ..utils.logging import ResponseGetDataProcessor, get_colored_logger
+from . import response as rgd
 
-# logger: Logger = get_global_logger()
-# assert logger, "A global logger must be set before using get_data functions."
+# Initialize colored logger
+logger = get_colored_logger()
+
+# Constants
+DEFAULT_TIMEOUT = 20
+DEFAULT_STREAM_TIMEOUT = 10
 
 
 class GetDataError(DomoError):
@@ -35,15 +38,11 @@ class GetDataError(DomoError):
 
 
 def create_headers(
-    auth: Optional[
-        "dmda.DomoAuth"
-    ],  # The authentication object containing the Domo API token.
+    auth: "dmda.DomoAuth" = None,  # The authentication object containing the Domo API token.
     content_type: Optional[
         str
     ] = None,  # The content type for the request. Defaults to None.
-    headers: Optional[
-        dict
-    ] = None,  # Any additional headers for the request. Defaults to None.
+    headers: dict = None,  # Any additional headers for the request. Defaults to None.
 ) -> dict:  # The headers for the request.
     """
     Creates default headers for interacting with Domo APIs.
@@ -64,7 +63,7 @@ def create_headers(
 
 
 def create_httpx_session(
-    session: Optional[httpx.AsyncClient] = None, is_verify: bool = False
+    session: httpx.AsyncClient = None, is_verify: bool = False
 ) -> tuple[httpx.AsyncClient, bool]:
     """Creates or reuses an asynchronous HTTPX session.
 
@@ -84,28 +83,35 @@ def create_httpx_session(
 
 
 @dmce.run_with_retry()
-@log_call(logger=get_global_logger(), action_name="get_data")
+@log_call(
+    action_name="get_data",
+    level_name="client",
+    log_level="DEBUG",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+    color="light_blue",
+)
 async def get_data(
     url: str,
     method: str,
-    auth: Optional["dmda.DomoAuth"] = None,
-    content_type: Optional[str] = None,
-    headers: Optional[dict] = None,
-    body: Union[dict, list, str, None] = None,
-    params: Optional[dict] = None,
+    auth: "dmda.DomoAuth" = None,
+    content_type: str = None,
+    headers: dict = None,
+    body: dict | list | str | None = None,
+    params: dict = None,
     debug_api: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
     is_follow_redirects: bool = False,
-    timeout: int = 20,
+    timeout: int = DEFAULT_TIMEOUT,
     parent_class: Optional[str] = None,  # noqa: ARG001
-    num_stacks_to_drop: int = 2,  # noqa: ARG001
+    debug_num_stacks_to_drop: int = 2,  # noqa: ARG001
     is_verify: bool = False,
 ) -> rgd.ResponseGetData:
     """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint."""
 
     if debug_api:
         print(f"🐛 Debugging get_data: {method} {url}")
+        await logger.debug(f"🐛 Debugging get_data: {method} {url}")
 
     headers = create_headers(
         auth=auth, content_type=content_type, headers=headers or {}
@@ -114,8 +120,6 @@ async def get_data(
     session, is_close_session = create_httpx_session(
         session=session, is_verify=is_verify
     )
-    if not isinstance(body, str):
-        body = json.dumps(body)
 
     # Create request metadata
     request_metadata = rgd.RequestMetadata(
@@ -126,81 +130,81 @@ async def get_data(
     )
 
     if debug_api:
-        print(request_metadata.to_dict())
+        from pprint import pprint
 
-    logger = get_global_logger()
-    if logger:
-        await logger.info(
-            message=request_metadata.to_dict(),
-            extra={"level_name": "get_data"},
-        )
+        pprint(request_metadata.to_dict())
 
-    # Create additional information with parent_class and traceback_details
+    # Create additional information with parent_class
     additional_information = {}
     if parent_class:
         additional_information["parent_class"] = parent_class
 
     try:
-        response = await session.request(
-            method=method,
-            url=url,
-            headers=headers,
-            json=body if isinstance(body, dict) else None,
-            content=body if isinstance(body, str) else None,
-            params=params,
-            follow_redirects=is_follow_redirects,
-            timeout=timeout,
-        )
+        # Build request kwargs
+        request_kwargs = {
+            "method": method,
+            "url": url,
+            "headers": headers,
+            "params": params,
+            "follow_redirects": is_follow_redirects,
+            "timeout": timeout,
+        }
+
+        # Add body based on type
+        if isinstance(body, dict):
+            request_kwargs["json"] = body
+        elif isinstance(body, str):
+            request_kwargs["content"] = body
+
+        response = await session.request(**request_kwargs)
 
         if debug_api:
             print(f"Response Status: {response.status_code}")
+            await logger.debug(f"Response Status: {response.status_code}")
 
-        # Check for VPN block
-        if response.status_code in range(200, 400):
-            if "<title>Domo - Blocked</title>" in response.text:
-                ip_address = rgd.find_ip(response.text)
-                # Create a custom response for VPN block with 403 status
-                vpn_response = rgd.ResponseGetData(
-                    status=403,  # Forbidden - blocked by VPN
-                    response=f"Blocked by VPN: {ip_address}",
-                    is_success=False,
-                    request_metadata=request_metadata,
-                    additional_information=additional_information,
-                )
-                return vpn_response
-
-        # Return raw response if requested
-        if return_raw:
+        res = None
+        # Check for VPN block in response text
+        if "<title>Domo - Blocked</title>" in response.text:
+            ip_address = rgd.find_ip(response.text)
             res = rgd.ResponseGetData(
                 status=response.status_code,
-                response=response,
+                response=f"Blocked by VPN: {ip_address}",
+                is_success=False,
+                request_metadata=request_metadata,
+                additional_information=additional_information,
+            )
+
+        elif response.status_code == 303 and "whitelist/blocked" in response.text:
+            ip_address = rgd.find_ip(response.text)
+            res = rgd.ResponseGetData(
+                status=response.status_code,
+                response=f"Blocked by Allowlist: {ip_address}",
+                is_success=False,
+                request_metadata=request_metadata,
+                additional_information=additional_information,
+            )
+
+        # Return raw response if requested
+        elif return_raw:
+            res = rgd.ResponseGetData(
+                status=response.status_code,
+                response=response,  # type: ignore
                 is_success=True,
                 request_metadata=request_metadata,
                 additional_information=additional_information,
             )
 
-            await logger.info(message=res.to_dict())
+        if res:
+            if not res.is_success:
+                raise GetDataError(url=url, message=res.response)
             return res
 
         # Process response into ResponseGetData using from_httpx_response
-        res = rgd.ResponseGetData.from_httpx_response(
+        return rgd.ResponseGetData.from_httpx_response(
             res=response,
             request_metadata=request_metadata,
             additional_information=additional_information,
         )
-
-        if logger:
-            await logger.info(message=res.response)
-
-        return res
-
-    except httpx.HTTPStatusError as http_err:
-        print(f"HTTP error occurred: {http_err}")
-        raise
-
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-        raise
 
     finally:
         if is_close_session:
@@ -208,21 +212,25 @@ async def get_data(
 
 
 @dmce.run_with_retry()
-@log_call(logger=get_global_logger(), action_name="get_data")
+@log_call(
+    action_name="get_data_stream",
+    level_name="client",
+    log_level="DEBUG",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 async def get_data_stream(
     url: str,
     auth: dmda.DomoAuth,
     method: str = "GET",
     content_type: Optional[str] = "application/json",
     headers: Optional[dict] = None,
-    # body: Union[dict, str, None] = None,
     params: Optional[dict] = None,
     debug_api: bool = False,
-    timeout: int = 10,  # noqa: ARG001
-    parent_class: Optional[str] = None,  # name of the parent calling class
-    num_stacks_to_drop: int = 2,  # number of stacks to drop from the stack trace.  see `domolibrary.client.Logger.TracebackDetails`.  use 2 with class > route structure.  use 1 with route based approach
-    debug_traceback: bool = False,
-    session: Optional[httpx.AsyncClient] = None,
+    timeout: int = DEFAULT_STREAM_TIMEOUT,
+    parent_class: Optional[str] = None,
+    debug_num_stacks_to_drop: int = 2,  # noqa: ARG001
+    debug_traceback: bool = False,  # noqa: ARG001
+    session: httpx.AsyncClient | None = None,
     is_verify: bool = False,
     is_follow_redirects: bool = True,
 ) -> rgd.ResponseGetData:
@@ -238,7 +246,7 @@ async def get_data_stream(
         debug_api: Enable debugging information.
         timeout: Maximum time to wait for a response (in seconds).
         parent_class: (Optional) Name of the calling class.
-        num_stacks_to_drop: Number of stack frames to drop in the traceback.
+        debug_num_stacks_to_drop: Number of stack frames to drop in the traceback.
         debug_traceback: Enable detailed traceback debugging.
         session: Optional HTTPX session to be used.
         is_verify: SSL verification flag.
@@ -248,31 +256,26 @@ async def get_data_stream(
         An instance of ResponseGetData containing the streamed response data.
     """
 
-    create_httpx_session(session=session, is_verify=is_verify)
     if debug_api:
-        print("🐛 debugging get_data")
+        print(f"🐛 Debugging get_data_stream: {method} {url}")
+        await logger.debug(f"🐛 Debugging get_data_stream: {method} {url}")
 
     if auth and not auth.token:
         await auth.get_auth_token()
 
     headers = headers or {}
-
-    headers.update(
-        {
-            "Connection": "keep-alive",
-        }
-    )
+    headers.update({"Connection": "keep-alive"})
     headers = create_headers(headers=headers, content_type=content_type, auth=auth)
 
     # Create request metadata
     request_metadata = rgd.RequestMetadata(
         url=url,
         headers=headers,
-        body=None,  # No body in stream function
+        body=None,
         params=params,
     )
 
-    # Create additional information with parent_class and traceback_details
+    # Create additional information with parent_class
     additional_information = {}
     if parent_class:
         additional_information["parent_class"] = parent_class
@@ -283,32 +286,15 @@ async def get_data_stream(
                 "method": method,
                 "url": url,
                 "headers": headers,
-                # "body": body,
                 "params": params,
-                # "traceback_details": traceback_details,
             }
         )
 
-    try:
-        async with session or httpx.AsyncClient(verify=is_verify) as client:
-            async with client.stream(
-                method,
-                url=url,
-                headers=headers,
-                follow_redirects=is_follow_redirects,
-                timeout=timeout,
-            ) as res:
-                if res.status_code != 200:
-                    res = rgd.ResponseGetData(
-                        status=res.status_code,
-                        response=res.text if hasattr(res, "text") else str(res.content),
-                        is_success=False,
-                        request_metadata=request_metadata,
-                        additional_information=additional_information,
-                    )
-        if not session:
-            session = httpx.AsyncClient(verify=is_verify)
+    session, is_close_session = create_httpx_session(
+        session=session, is_verify=is_verify
+    )
 
+    try:
         async with session.stream(
             method,
             url=url,
@@ -327,8 +313,6 @@ async def get_data_stream(
                     request_metadata=request_metadata,
                     additional_information=additional_information,
                 )
-                if logger:  # noqa: F821
-                    await logger.info(message=res_obj.to_dict())  # noqa: F821
                 return res_obj
 
             content = bytearray()
@@ -337,19 +321,19 @@ async def get_data_stream(
 
             res_obj = rgd.ResponseGetData(
                 status=res.status_code,
-                response=content,
+                response=content,  # type: ignore
                 is_success=True,
                 request_metadata=request_metadata,
                 additional_information=additional_information,
             )
-            if logger:  # noqa: F821
-                await logger.info(message=res_obj.to_dict())  # noqa: F821
-
             return res_obj
 
     except httpx.TransportError as e:
-        await logger.error(e)
-        raise GetDataError(url=url, message=e) from e
+        raise GetDataError(url=url, message=str(e)) from e
+
+    finally:
+        if is_close_session:
+            await session.aclose()
 
 
 class LooperError(DomoError):
@@ -357,10 +341,10 @@ class LooperError(DomoError):
         super().__init__(message=f"{loop_stage} - {message}")
 
 
-@log_call(action_name="looper")
+@log_call(action_name="looper", level_name="client", log_level="DEBUG")
 async def looper(
     auth: dmda.DomoAuth,
-    session: Optional[httpx.AsyncClient],
+    session: httpx.AsyncClient | None,
     url,
     offset_params,
     arr_fn: Callable,
@@ -447,23 +431,22 @@ async def looper(
 
                 message = f"processing body_fn {str(e)}"
 
-                logger.error(message)  # noqa: F821
-
-                raise LooperError(loop_stage=message) from e
+                raise LooperError(loop_stage=message, message=str(e)) from e
 
         if debug_loop:
             print(f"\n🚀 Retrieving records {skip} through {skip + limit} via {url}")
+            await logger.debug(
+                f"\n🚀 Retrieving records {skip} through {skip + limit} via {url}"
+            )
             # pprint(params)
 
-        await logger.info(  # noqa: F821
-            message={
+            message = {
                 "action": "looper_request",
                 "params": params,
                 "body": body,
                 "skip": skip,
                 "limit": limit,
             }
-        )
 
         res = await get_data(
             auth=auth,
@@ -475,7 +458,7 @@ async def looper(
             debug_api=debug_api,
             timeout=timeout,
             parent_class=parent_class,
-            num_stacks_to_drop=debug_num_stacks_to_drop,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         )
 
         if not res or not res.is_success:
@@ -495,8 +478,6 @@ async def looper(
         except Exception as e:
             await session.aclose()
 
-            logger.error(f"Error processing arr_fn: {e}")  # noqa: F821
-
             raise LooperError(loop_stage="processing arr_fn", message=str(e)) from e
 
         all_rows += new_records
@@ -511,9 +492,7 @@ async def looper(
 
         if debug_loop:
             print(message)
-
-        if logger:  # noqa: F821
-            await logger.info(message=message)  # noqa: F821
+            await logger.debug(message)
 
         if maximum and skip + limit > maximum and not loop_until_end:
             limit = maximum - len(all_rows)
@@ -523,9 +502,8 @@ async def looper(
 
     if debug_loop:
         message = f"\n🎉 Success - {len(all_rows)} records retrieved from {url} in query looper\n"
-
-    if logger:  # noqa: F821
-        await logger.info(message=message)  # noqa: F821
+        print(message)
+        await logger.info(message)
 
     if is_close_session:
         await session.aclose()
@@ -572,7 +550,7 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
         parent_class: Optional[str] = None,
         debug_num_stacks_to_drop: int = 1,
         debug_api: bool = False,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient | None = None,
         **kwargs: Any,
     ) -> Any:
         result = await func(

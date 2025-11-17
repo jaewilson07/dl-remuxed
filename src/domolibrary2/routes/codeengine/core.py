@@ -24,6 +24,7 @@ __all__ = [
     "get_codeengine_package_by_id_and_version",
     "test_package_is_released",
     "test_package_is_identical",
+    "execute_codeengine_function",
 ]
 
 from enum import Enum
@@ -31,12 +32,12 @@ from typing import Optional
 
 import httpx
 
+from ...auth import DomoAuth
+from ...base.base import DomoEnumMixin
 from ...client import (
     get_data as gd,
     response as rgd,
 )
-from ...client.auth import DomoAuth
-from ...entities.base import DomoEnumMixin
 from .exceptions import (
     CodeEngine_FunctionCallError,
     CodeEngine_GET_Error,
@@ -54,7 +55,7 @@ class CodeEngine_Package_Parts(DomoEnumMixin, Enum):
 @gd.route_function
 async def get_packages(
     auth: DomoAuth,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -84,7 +85,7 @@ async def get_packages(
         auth=auth,
         method="get",
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         session=session,
         parent_class=parent_class,
         is_follow_redirects=True,
@@ -104,7 +105,7 @@ async def get_codeengine_package_by_id(
     auth: DomoAuth,
     package_id: str,
     params: Optional[dict] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -150,7 +151,7 @@ async def get_codeengine_package_by_id(
         params=params,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -166,7 +167,7 @@ async def get_codeengine_package_by_id(
 async def get_package_versions(
     auth: DomoAuth,
     package_id: str,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -209,7 +210,7 @@ async def get_package_versions(
         auth=auth,
         params=params,
         debug_api=debug_api,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
         parent_class=parent_class,
         session=session,
     )
@@ -229,7 +230,7 @@ async def get_codeengine_package_by_id_and_version(
     package_id: str,
     version: str,
     params: Optional[dict] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -274,7 +275,7 @@ async def get_codeengine_package_by_id_and_version(
         params=params,
         session=session,
         parent_class=parent_class,
-        num_stacks_to_drop=debug_num_stacks_to_drop,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if return_raw:
@@ -292,7 +293,7 @@ async def test_package_is_released(
     auth: DomoAuth,
     existing_package=None,
     params: Optional[dict] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -341,7 +342,7 @@ async def test_package_is_identical(
     new_package=None,
     new_code=None,
     params: Optional[dict] = None,
-    session: Optional[httpx.AsyncClient] = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
@@ -383,3 +384,51 @@ async def test_package_is_identical(
     new_code = new_code or (new_package.get("code") if new_package else None)
 
     return existing_package.get("code") == new_code
+
+
+@gd.route_function
+async def execute_codeengine_function(
+    auth: DomoAuth,
+    package_id: str,
+    version: str,
+    function_name: str,
+    input_variables: dict,
+    is_get_logs: bool = True,
+    return_raw: bool = False,
+    debug_api: bool = False,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: str | None = None,
+    session: httpx.AsyncClient | None = None,
+):
+    url = f"https://{auth.domo_instance}.domo.com/api/codeengine/v2/packages/{package_id}/versions/{version}/functions/{function_name}"
+
+    res = await gd.get_data(
+        method="POST",
+        url=url,
+        auth=auth,
+        body={"inputVariables": input_variables, "settings": {"getLogs": is_get_logs}},
+        session=session,
+        parent_class=parent_class,
+        debug_api=debug_api,
+        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+    )
+
+    if not res.is_success:
+        raise CodeEngine_GET_Error(
+            entity_id=f"{package_id}/v{version}/function/{function_name}", res=res
+        )
+
+    if not res.response["status"] == "SUCCESS":
+        raise CodeEngine_FunctionCallError(
+            message=f"Function execution failed with status {res.response['status']}",
+            auth=auth,
+            res=res,
+        )
+
+    response = res.response.pop("result")
+
+    metadata = res.response
+
+    res.response = {**response, "_metadata": metadata}
+
+    return res

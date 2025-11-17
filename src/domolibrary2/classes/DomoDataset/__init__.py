@@ -18,7 +18,7 @@ Classes:
 Exceptions:
     DatasetNotFoundError: Raised when dataset cannot be found
     QueryRequestError: Raised when dataset query fails
-    DatasetSchema_InvalidSchema: Raised when schema validation fails
+    DatasetSchema_InvalidSchemaError: Raised when schema validation fails
     SearchPDP_NotFound: Raised when PDP policy search returns no results
 
 Enums:
@@ -37,7 +37,7 @@ from .core import (
 )
 from .pdp import DatasetPdpPolicies, PdpParameter, PDPPolicy
 from .schema import (
-    DatasetSchema_InvalidSchema,
+    DatasetSchema_InvalidSchemaError,
     DatasetSchema_Types,
     DomoDataset_Schema,
     DomoDataset_Schema_Column,
@@ -77,7 +77,7 @@ __all__ = [
     "DomoDataset_Schema",
     "DomoDataset_Schema_Column",
     "DatasetSchema_Types",
-    "DatasetSchema_InvalidSchema",
+    "DatasetSchema_InvalidSchemaError",
     # PDP functionality
     "PDPPolicy",
     "PdpParameter",

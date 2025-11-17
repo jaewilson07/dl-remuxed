@@ -4,15 +4,18 @@ from typing import Optional
 
 import httpx
 import pandas as pd
-from dc_logger import DC_Logger as Logger
+from dc_logger.client.base import Logger
 
-from ..classes import dataset as dmds
-from ..client.auth import DomoAuth
+from ..auth import DomoAuth
+from ..classes import DomoDataset
+from ..utils.logging import get_colored_logger
+
+logger = get_colored_logger()
 
 
 async def loop_upload(
     upload_df: pd.DataFrame,
-    consol_ds: dmds.DomoDataset,
+    consol_ds: DomoDataset,
     partition_key: str,
     upload_method: str,
     logger: Logger,
@@ -55,7 +58,7 @@ async def loop_upload(
             retry_attempt += 1
 
             message = f"⚠️ upload_data : unexpected error: {e} in {partition_key} during retry_attempt {retry_attempt}/{max_retry}"
-            logger.log_warning(message)
+            await logger.warning(message)
             if debug_fn:
                 print(message)
 
@@ -71,9 +74,9 @@ async def upload_data(
     # instance where the data_fn function will execute against
     data_fn,  # data function to execute
     instance_auth: DomoAuth,  # instance to run the data function against
-    consol_ds: dmds.DomoDataset,  # dataset where data should be accumulated
+    consol_ds: DomoDataset,  # dataset where data should be accumulated
     # if partition key supplied, will replace existing partition
-    partition_key: str = None,
+    partition_key: Optional[str] = None,
     upload_method: str = "REPLACE",
     is_index: bool = False,  # index dataset
     debug_prn: bool = False,
@@ -84,7 +87,7 @@ async def upload_data(
 ):
     try:
         message = f"🏁 starting {instance_auth.domo_instance} - {data_fn.__name__}"
-        logger.log_info(message)
+        await logger.info(message)
         print(message)
 
         instance_session = httpx.AsyncClient()
@@ -95,7 +98,7 @@ async def upload_data(
             isinstance(upload_df, pd.DataFrame) and len(upload_df.index) == 0
         ):
             message = f"no data to upload for {partition_key}: {consol_ds.id} in {consol_ds.auth.domo_instance}"
-            logger.log_info(message)
+            await logger.info(message)
             print(message)
             return None
 
@@ -105,7 +108,7 @@ async def upload_data(
         res = await loop_upload(
             upload_df=upload_df,
             consol_ds=consol_ds,
-            partition_key=partition_key,
+            partition_key=partition_key or "",
             upload_method=upload_method,
             debug_api=debug_api,
             debug_prn=debug_prn,
@@ -117,11 +120,11 @@ async def upload_data(
 
         if res.is_success:
             message = f"🚀 success upload of {partition_key} to {consol_ds.id} in {consol_ds.auth.domo_instance} in {data_fn.__name__}"
-            logger.log_info(message)
+            await logger.info(message)
 
         else:
             message = f"💣 upload_data successful status but failed to upload {partition_key} - {res.status} - {res.response} in {data_fn.__name__}"
-            logger.log_error(message)
+            await logger.error(message)
 
         print(message)
 
@@ -134,10 +137,10 @@ async def upload_data(
             )
             if res.is_success:
                 message = f"🥫 successfully indexed {consol_ds.name} in {consol_ds.auth.domo_instance}"
-                logger.log_info(message)
+                await logger.info(message)
             else:
                 message = f"💀⚠️ failure to index {consol_ds.name} in {consol_ds.auth.domo_instance}"
-                logger.log_error(message)
+                await logger.error(message)
 
             print(message)
 
