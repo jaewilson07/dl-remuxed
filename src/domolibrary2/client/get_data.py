@@ -23,6 +23,7 @@ from ..base.exceptions import DomoError
 from ..utils import chunk_execution as dmce
 from ..utils.logging import ResponseGetDataProcessor, get_colored_logger
 from . import response as rgd
+from .context import RouteContext
 
 # Initialize colored logger
 logger = get_colored_logger()
@@ -98,6 +99,7 @@ async def get_data(
     headers: dict = None,
     body: dict | list | str | None = None,
     params: dict = None,
+    context: Optional[RouteContext] = None,
     debug_api: bool = False,
     session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
@@ -107,7 +109,35 @@ async def get_data(
     debug_num_stacks_to_drop: int = 2,  # noqa: ARG001
     is_verify: bool = False,
 ) -> rgd.ResponseGetData:
-    """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint."""
+    """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint.
+    
+    Args:
+        url: API endpoint URL
+        method: HTTP method (GET, POST, PUT, DELETE, etc.)
+        auth: Authentication object containing credentials
+        content_type: Optional content type header
+        headers: Additional HTTP headers
+        body: Request body (dict, list, or string)
+        params: Query parameters
+        context: Optional RouteContext for consolidated parameters
+        debug_api: Enable detailed API logging
+        session: Optional httpx client session
+        return_raw: Return raw httpx response
+        is_follow_redirects: Follow HTTP redirects
+        timeout: Request timeout in seconds
+        parent_class: Parent class name for debugging
+        debug_num_stacks_to_drop: Stack frames to drop in debug output
+        is_verify: Enable SSL verification
+        
+    Returns:
+        ResponseGetData object with request/response information
+    """
+    # Extract parameters from context if provided
+    if context:
+        session = context.session or session
+        debug_api = context.debug_api or debug_api
+        debug_num_stacks_to_drop = context.debug_num_stacks_to_drop
+        parent_class = context.parent_class or parent_class
 
     if debug_api:
         print(f"🐛 Debugging get_data: {method} {url}")

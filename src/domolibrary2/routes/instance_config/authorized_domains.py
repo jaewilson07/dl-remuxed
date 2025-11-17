@@ -7,6 +7,7 @@ __all__ = [
     "set_authorized_custom_app_domains",
 ]
 
+from typing import Optional
 
 import httpx
 
@@ -15,6 +16,7 @@ from ...client import (
     get_data as gd,
     response as rgd,
 )
+from ...client.context import RouteContext
 from .. import user as user_routes
 from .exceptions import Config_CRUD_Error, Config_GET_Error
 
@@ -32,22 +34,46 @@ class GetAppDomainsNotFoundError(Config_GET_Error):
 @gd.route_function
 async def get_authorized_domains(
     auth: DomoAuth,
-    return_raw: bool = False,
-    debug_api: bool = False,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
-    parent_class=None,
-    debug_num_stacks_to_drop=1,
-):
+    debug_api: bool = False,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
+    """Get authorized domains for the Domo instance.
+
+    Args:
+        auth: Authentication object containing credentials and instance info
+        context: Optional RouteContext for consolidated parameters
+        session: Optional httpx client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to drop in debug output
+        parent_class: Optional parent class name for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing authorized domains list
+
+    Raises:
+        GetDomainsNotFoundError: If domains retrieval fails
+    """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/customer-states/authorized-domains"
 
     res = await gd.get_data(
         auth=auth,
         url=url,
         method="GET",
-        debug_api=debug_api,
-        session=session,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
@@ -78,11 +104,38 @@ async def get_authorized_domains(
 async def set_authorized_domains(
     auth: DomoAuth,
     authorized_domain_ls: list[str],
-    debug_api: bool = False,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
-    parent_class=None,
-    debug_num_stacks_to_drop=1,
-):
+    debug_api: bool = False,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+) -> rgd.ResponseGetData:
+    """Set authorized domains for the Domo instance.
+
+    Args:
+        auth: Authentication object containing credentials and instance info
+        authorized_domain_ls: List of domain strings to authorize
+        context: Optional RouteContext for consolidated parameters
+        session: Optional httpx client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to drop in debug output
+        parent_class: Optional parent class name for debugging context
+
+    Returns:
+        ResponseGetData object containing updated authorized domains list
+
+    Raises:
+        Config_CRUD_Error: If setting domains fails
+    """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/customer-states/authorized-domains"
 
     body = {"name": "authorized-domains", "value": ",".join(authorized_domain_ls)}
@@ -92,10 +145,7 @@ async def set_authorized_domains(
         url=url,
         method="PUT",
         body=body,
-        debug_api=debug_api,
-        session=session,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if not res.is_success:
@@ -103,32 +153,53 @@ async def set_authorized_domains(
 
     return await get_authorized_domains(
         auth=auth,
-        debug_api=debug_api,
-        session=session,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
 
 @gd.route_function
 async def get_authorized_custom_app_domains(
     auth: DomoAuth,
-    return_raw: bool = False,
-    debug_api: bool = False,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
-    parent_class=None,
-    debug_num_stacks_to_drop=1,
-):
+    debug_api: bool = False,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
+    """Get authorized custom app domains for the Domo instance.
+
+    Args:
+        auth: Authentication object containing credentials and instance info
+        context: Optional RouteContext for consolidated parameters
+        session: Optional httpx client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to drop in debug output
+        parent_class: Optional parent class name for debugging context
+        return_raw: Return raw API response without processing
+
+    Returns:
+        ResponseGetData object containing authorized custom app domains list
+
+    Raises:
+        GetAppDomainsNotFoundError: If app domains retrieval fails
+    """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/customer-states/authorized-app-domains"
 
     res = await gd.get_data(
         auth=auth,
         url=url,
         method="GET",
-        debug_api=debug_api,
-        session=session,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
@@ -159,11 +230,38 @@ async def get_authorized_custom_app_domains(
 async def set_authorized_custom_app_domains(
     auth: DomoAuth,
     authorized_custom_app_domain_ls: list[str],
-    debug_api: bool = False,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
-    parent_class=None,
-    debug_num_stacks_to_drop=1,
-):
+    debug_api: bool = False,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+) -> rgd.ResponseGetData:
+    """Set authorized custom app domains for the Domo instance.
+
+    Args:
+        auth: Authentication object containing credentials and instance info
+        authorized_custom_app_domain_ls: List of custom app domain strings to authorize
+        context: Optional RouteContext for consolidated parameters
+        session: Optional httpx client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to drop in debug output
+        parent_class: Optional parent class name for debugging context
+
+    Returns:
+        ResponseGetData object containing updated authorized custom app domains list
+
+    Raises:
+        Config_CRUD_Error: If setting custom app domains fails
+    """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/customer-states/authorized-app-domains"
 
     body = {
@@ -176,10 +274,7 @@ async def set_authorized_custom_app_domains(
         url=url,
         method="PUT",
         body=body,
-        debug_api=debug_api,
-        session=session,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if not res.is_success:
@@ -187,8 +282,5 @@ async def set_authorized_custom_app_domains(
 
     return await get_authorized_custom_app_domains(
         auth=auth,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        session=session,
+        context=context,
     )
