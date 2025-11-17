@@ -11,6 +11,7 @@ __all__ = [
 ]
 
 from enum import Enum
+from typing import Optional
 
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
@@ -22,6 +23,7 @@ from ..client import (
     get_data as gd,
     response as rgd,
 )
+from ..client.context import RouteContext
 from ..utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 
 
@@ -61,12 +63,41 @@ async def get_card_by_id(
     card_id,
     auth: DomoAuth,
     optional_parts="certification,datasources,drillPath,owners,properties,domoapp",
+    *,
+    context: RouteContext | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
     session: httpx.AsyncClient = None,
     parent_class: str = None,
     return_raw: bool = False,
 ):
+    """Get card by ID from Domo API.
+    
+    Args:
+        card_id: Card URN identifier
+        auth: Authentication object
+        optional_parts: Comma-separated list of optional parts to include
+        context: Optional RouteContext with session, debug_api, debug_num_stacks_to_drop, parent_class
+        debug_api: Enable API debugging (overridden by context if provided)
+        debug_num_stacks_to_drop: Stack frames to drop (overridden by context if provided)
+        session: HTTP session (overridden by context if provided)
+        parent_class: Parent class name (overridden by context if provided)
+        return_raw: Return raw response without processing
+        
+    Returns:
+        ResponseGetData object
+        
+    Raises:
+        Cards_API_Exception: If card retrieval fails
+    """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+    
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/cards/"
 
     params = {"parts": optional_parts, "urns": card_id}
@@ -75,10 +106,7 @@ async def get_card_by_id(
         auth=auth,
         method="GET",
         url=url,
-        session=session,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-        debug_api=debug_api,
+        context=context,
         params=params,
     )
 
@@ -104,11 +132,38 @@ async def get_card_by_id(
 async def get_kpi_definition(
     auth: DomoAuth,
     card_id: str,
+    *,
+    context: RouteContext | None = None,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
     parent_class: str = None,
     debug_num_stacks_to_drop=2,
 ) -> rgd.ResponseGetData:
+    """Get KPI definition for a card.
+    
+    Args:
+        auth: Authentication object
+        card_id: Card URN identifier
+        context: Optional RouteContext with session, debug_api, debug_num_stacks_to_drop, parent_class
+        debug_api: Enable API debugging (overridden by context if provided)
+        session: HTTP session (overridden by context if provided)
+        parent_class: Parent class name (overridden by context if provided)
+        debug_num_stacks_to_drop: Stack frames to drop (overridden by context if provided)
+        
+    Returns:
+        ResponseGetData object
+        
+    Raises:
+        CardSearch_NotFoundError: If card is not found
+    """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+    
     url = f"https://{auth.domo_instance}.domo.com/api/content/v3/cards/kpi/definition"
 
     body = {"urn": card_id}
@@ -118,10 +173,7 @@ async def get_kpi_definition(
         url=url,
         method="PUT",
         body=body,
-        debug_api=debug_api,
-        session=session,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if not res.is_success and res.response == "Not Found":
@@ -158,14 +210,43 @@ class Card_OptionalParts_Enum(DomoEnumMixin, Enum):  # noqa: N801
 async def get_card_metadata(
     auth: DomoAuth,
     card_id: str,
+    optional_parts: (
+        list[Card_OptionalParts_Enum] | str
+    ) = "metadata,certification,datasources,owners,problems,domoapp",
+    *,
+    context: RouteContext | None = None,
     debug_api: bool = False,
     session: httpx.AsyncClient = None,
     parent_class: str = None,
     debug_num_stacks_to_drop=1,
-    optional_parts: (
-        list[Card_OptionalParts_Enum] | str
-    ) = "metadata,certification,datasources,owners,problems,domoapp",
 ) -> rgd.ResponseGetData:
+    """Get card metadata from Domo API.
+    
+    Args:
+        auth: Authentication object
+        card_id: Card URN identifier
+        optional_parts: List or comma-separated string of optional parts to include
+        context: Optional RouteContext with session, debug_api, debug_num_stacks_to_drop, parent_class
+        debug_api: Enable API debugging (overridden by context if provided)
+        session: HTTP session (overridden by context if provided)
+        parent_class: Parent class name (overridden by context if provided)
+        debug_num_stacks_to_drop: Stack frames to drop (overridden by context if provided)
+        
+    Returns:
+        ResponseGetData object
+        
+    Raises:
+        Cards_API_Exception: If card retrieval fails
+        CardSearch_NotFoundError: If card is not found
+    """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+    
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/cards"
 
     params = {"urns": card_id, "parts": optional_parts}
@@ -175,10 +256,7 @@ async def get_card_metadata(
         url=url,
         method="GET",
         params=params,
-        debug_api=debug_api,
-        session=session,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if not res.is_success:
@@ -248,14 +326,46 @@ async def search_cards_admin_summary(
     body: dict,
     maximum: int = None,
     optional_parts: str = "certification,datasources,drillPath,owners,properties,domoapp",
+    wait_sleep: int = 3,
+    *,
+    context: RouteContext | None = None,
     debug_api: bool = False,
     debug_loop: bool = False,
     session: httpx.AsyncClient = None,
-    wait_sleep: int = 3,
     parent_class: str = None,
     debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
+    """Search cards using admin summary endpoint.
+    
+    Args:
+        auth: Authentication object
+        body: Search body/filter parameters
+        maximum: Maximum number of results to return
+        optional_parts: Comma-separated list of optional parts to include
+        wait_sleep: Time to wait between requests in seconds
+        context: Optional RouteContext with session, debug_api, debug_num_stacks_to_drop, parent_class
+        debug_api: Enable API debugging (overridden by context if provided)
+        debug_loop: Enable loop debugging
+        session: HTTP session (overridden by context if provided)
+        parent_class: Parent class name (overridden by context if provided)
+        debug_num_stacks_to_drop: Stack frames to drop (overridden by context if provided)
+        return_raw: Return raw response without processing
+        
+    Returns:
+        ResponseGetData object
+        
+    Raises:
+        Cards_API_Exception: If search fails
+    """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+    
     limit = 100
     offset = 0
     loop_until_end = False if maximum else True
@@ -284,13 +394,10 @@ async def search_cards_admin_summary(
         body=body,
         maximum=maximum,
         fixed_params=params,
-        session=session,
-        debug_api=debug_api,
+        context=context,
         debug_loop=debug_loop,
         loop_until_end=loop_until_end,
         wait_sleep=wait_sleep,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
     if not res.is_success:
