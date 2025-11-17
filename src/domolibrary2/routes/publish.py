@@ -19,6 +19,8 @@ __all__ = [
 ]
 
 
+from typing import Optional
+
 import httpx
 
 from ..auth import DomoAuth
@@ -42,14 +44,14 @@ class CRUD_Publish_Error(de.RouteError):
 @gd.route_function
 async def search_publications(
     auth: DomoAuth,
-    search_term: str = None,
-    limit=100,
-    offset=0,
-    session: httpx.AsyncClient = None,
+    search_term: Optional[str] = None,
+    limit: int = 100,
+    offset: int = 0,
+    session: httpx.AsyncClient | None = None,
     debug_loop: bool = False,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class: str = None,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/publish/v2/publication/summaries"
@@ -94,11 +96,11 @@ async def search_publications(
 async def get_publication_by_id(
     auth: DomoAuth,
     publication_id: str,
-    session: httpx.AsyncClient = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class: str = None,
-    timeout=10,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+    timeout: int = 10,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/publish/v2/publication/{publication_id}"
@@ -127,10 +129,10 @@ async def get_publication_by_id(
 async def get_subscription_by_id(
     auth: DomoAuth,
     subscription_id: str,
-    session: httpx.AsyncClient = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class: str = None,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Retrieves a subscription by its ID"""
@@ -192,10 +194,10 @@ def generate_publish_body(
 async def create_publish_job(
     auth: DomoAuth,
     body: dict,
-    session: httpx.AsyncClient = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    parent_class: str = None,
-    debug_num_stacks_to_drop=1,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/publish/v2/publication"
@@ -226,10 +228,10 @@ async def update_publish_job(
     auth: DomoAuth,
     publication_id: str,
     body: dict,
-    session: httpx.AsyncClient = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class: str = None,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/publish/v2/publication/{publication_id}"
@@ -257,10 +259,10 @@ async def update_publish_job(
 async def get_publish_subscriptions(
     auth: DomoAuth,
     publish_id: str,
-    session: httpx.AsyncClient = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class: str = None,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """retrieves a summary of existing subscriptions"""
@@ -289,10 +291,10 @@ async def get_publish_subscriptions(
 @gd.route_function
 async def get_subscription_summaries(
     auth: DomoAuth,
-    session: httpx.AsyncClient = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class: str = None,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """retrieves a summary of existing subscriptions"""
@@ -320,14 +322,14 @@ async def get_subscription_summaries(
 @gd.route_function
 async def get_subscriber_content_details(
     auth: DomoAuth,
-    publication_id,
+    publication_id: str,
     subscriber_instance: str,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    session: httpx.AsyncClient = None,
-    parent_class: str = None,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
     return_raw: bool = False,
-):
+) -> rgd.ResponseGetData:
     if not subscriber_instance.endswith(".domo.com"):
         subscriber_instance = f"{subscriber_instance}.domo.com"
 
@@ -355,10 +357,10 @@ async def get_subscriber_content_details(
 @gd.route_function
 async def get_subscription_invitations(
     auth: DomoAuth,
-    session: httpx.AsyncClient = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    parent_class: str = None,
-    debug_num_stacks_to_drop=1,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """retrieves a list of subscription invitations"""
@@ -386,10 +388,10 @@ async def get_subscription_invitations(
 @gd.route_function
 async def get_subscriber_domains(
     auth: DomoAuth,
-    session: httpx.AsyncClient = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    parent_class: str = None,
-    debug_num_stacks_to_drop=1,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """retrieves a list of subsriber domains"""
@@ -418,10 +420,11 @@ async def get_subscriber_domains(
 async def add_subscriber_domain(
     auth: DomoAuth,
     domain: str,
-    session: httpx.AsyncClient = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    parent_class: str = None,
-    debug_num_stacks_to_drop=1,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """adds subscriber domain to the list"""
     if ".domo.com" not in domain:
@@ -439,6 +442,9 @@ async def add_subscriber_domain(
         parent_class=parent_class,
     )
 
+    if return_raw:
+        return res
+
     if not res.is_success:
         raise GET_Publish_Error(res)
     return res
@@ -448,10 +454,11 @@ async def add_subscriber_domain(
 async def accept_invite_by_id(
     auth: DomoAuth,
     subscription_id: str,
-    session: httpx.AsyncClient = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class: str = None,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """this takes get_subscription_invites_list into account and accepts - not instant"""
 
@@ -467,6 +474,9 @@ async def accept_invite_by_id(
         debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
+    if return_raw:
+        return res
+
     if not res.is_success:
         raise CRUD_Publish_Error(res)
     return res
@@ -477,10 +487,11 @@ async def accept_invite_by_id_v2(
     auth: DomoAuth,
     publication_id: str,
     owner_id: str,
-    session: httpx.AsyncClient = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    parent_class: str = None,
-    debug_num_stacks_to_drop=1,
+    debug_num_stacks_to_drop: int = 1,
+    parent_class: Optional[str] = None,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """this takes get_subscription_invites_list into account and accepts - not instant"""
 
@@ -506,6 +517,9 @@ async def accept_invite_by_id_v2(
         debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
 
+    if return_raw:
+        return res
+
     if not res.is_success:
         raise CRUD_Publish_Error(res)
 
@@ -516,10 +530,11 @@ async def accept_invite_by_id_v2(
 async def refresh_publish_jobs(
     auth: DomoAuth,
     publish_ids: list,
-    session: httpx.AsyncClient = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: str = None,
+    parent_class: Optional[str] = None,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Refreshing list of publish jobs. Typically "instance" = publisher instance"""
 
@@ -537,6 +552,9 @@ async def refresh_publish_jobs(
         parent_class=parent_class,
         debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
+
+    if return_raw:
+        return res
 
     if not res.is_success:
         raise CRUD_Publish_Error(res)
