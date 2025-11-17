@@ -18,6 +18,7 @@ from ..client import (
     get_data as gd,
     response as rgd,
 )
+from ..client.context import RouteContext
 
 
 class Workflow_GET_Error(RouteError):
@@ -62,21 +63,52 @@ async def get_workflow(
     auth: DomoAuth,
     model_id: str,
     version_id: str,
+    *,  # Make following params keyword-only
+    context: RouteContext | None = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: httpx.AsyncClient | None = None,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
+    """Get a workflow by model ID and version ID.
+
+    Args:
+        auth: Authentication object
+        model_id: Workflow model identifier
+        version_id: Workflow version identifier
+        context: Optional RouteContext for request configuration
+        session: Optional httpx client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to drop in debug output
+        parent_class: Optional parent class name for debugging context
+        return_raw: Return raw response without processing
+
+    Returns:
+        ResponseGetData object containing workflow information
+
+    Raises:
+        Workflow_GET_Error: If workflow retrieval fails
+    """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/workflow/v1/models/{model_id}/versions/{version_id}"
+    
     res = await gd.get_data(
         auth=auth,
         method="GET",
         url=url,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-        session=session,
+        context=context,
     )
+
+    if return_raw:
+        return res
 
     if not res.is_success:
         raise Workflow_GET_Error(workflow_id=model_id, res=res)
@@ -102,11 +134,43 @@ async def trigger_workflow(
     model_id: str,
     version_id: str,
     execution_parameters: Optional[dict] = None,
+    *,  # Make following params keyword-only
+    context: RouteContext | None = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: httpx.AsyncClient | None = None,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
+    """Trigger a workflow execution.
+
+    Args:
+        auth: Authentication object
+        starting_tile: Name of the starting tile/node
+        model_id: Workflow model identifier
+        version_id: Workflow version identifier
+        execution_parameters: Optional parameters to pass to the workflow
+        context: Optional RouteContext for request configuration
+        session: Optional httpx client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to drop in debug output
+        parent_class: Optional parent class name for debugging context
+        return_raw: Return raw response without processing
+
+    Returns:
+        ResponseGetData object containing trigger response
+
+    Raises:
+        Workflow_CRUD_Error: If workflow trigger fails
+    """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     body = generate_trigger_workflow_body(
         starting_tile=starting_tile,
         model_id=model_id,
@@ -121,11 +185,11 @@ async def trigger_workflow(
         url=url,
         body=body,
         auth=auth,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-        session=session,
+        context=context,
     )
+
+    if return_raw:
+        return res
 
     if not res.is_success:
         raise Workflow_CRUD_Error(operation="trigger", workflow_id=model_id, res=res)
@@ -137,22 +201,51 @@ async def trigger_workflow(
 async def get_workflow_trigger_history(
     auth: DomoAuth,
     model_id: str,
+    *,  # Make following params keyword-only
+    context: RouteContext | None = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: httpx.AsyncClient | None = None,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
+    """Get the trigger history for a workflow.
+
+    Args:
+        auth: Authentication object
+        model_id: Workflow model identifier
+        context: Optional RouteContext for request configuration
+        session: Optional httpx client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to drop in debug output
+        parent_class: Optional parent class name for debugging context
+        return_raw: Return raw response without processing
+
+    Returns:
+        ResponseGetData object containing workflow trigger history
+
+    Raises:
+        Workflow_GET_Error: If trigger history retrieval fails
+    """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/workflow/v2/executions/{model_id}"
 
     res = await gd.get_data(
         auth=auth,
         method="GET",
         url=url,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-        session=session,
+        context=context,
     )
+
+    if return_raw:
+        return res
 
     if not res.is_success:
         raise Workflow_GET_Error(workflow_id=model_id, res=res)
@@ -165,11 +258,41 @@ async def get_workflow_executions(
     auth: DomoAuth,
     model_id: str,
     version_id: str,
+    *,  # Make following params keyword-only
+    context: RouteContext | None = None,
+    session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     parent_class: Optional[str] = None,
-    session: httpx.AsyncClient | None = None,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
+    """Get workflow executions by model and version.
+
+    Args:
+        auth: Authentication object
+        model_id: Workflow model identifier
+        version_id: Workflow version identifier
+        context: Optional RouteContext for request configuration
+        session: Optional httpx client session for connection reuse
+        debug_api: Enable detailed API request/response logging
+        debug_num_stacks_to_drop: Number of stack frames to drop in debug output
+        parent_class: Optional parent class name for debugging context
+        return_raw: Return raw response without processing
+
+    Returns:
+        ResponseGetData object containing workflow executions
+
+    Raises:
+        Workflow_GET_Error: If workflow executions retrieval fails
+    """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     params = {
         "modelId": model_id,
         #   "triggerTypes" : "ALERT,API,APP_STUDIO,CUSTOM_APP,MANUAL,TIMER,WORKFLOW"
@@ -183,12 +306,12 @@ async def get_workflow_executions(
         auth=auth,
         method="GET",
         url=url,
-        debug_api=debug_api,
         params=params,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-        session=session,
+        context=context,
     )
+
+    if return_raw:
+        return res
 
     if not res.is_success:
         raise Workflow_GET_Error(workflow_id=model_id, res=res)
