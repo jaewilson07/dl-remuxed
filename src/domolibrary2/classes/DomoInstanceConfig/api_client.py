@@ -34,14 +34,15 @@ from ..DomoUser import DomoUser
 @dataclass(eq=False)
 class ApiClient(DomoEntity):
     id: str
-    name: str
-    client_id: str  # will be masked in UI
-    client_secret: str
-    owner: DomoUser
+    raw: dict = field(repr=False)
+    name: str = ""
+    client_id: str = ""  # will be masked in UI
+    client_secret: str = ""
+    owner: DomoUser | None = None
 
     # authorization_grant_types: list[str] # no longer part of API 6/10/2025
 
-    scopes: list[ApiClient_ScopeEnum]
+    scopes: list[ApiClient_ScopeEnum] = field(default_factory=list)
     description: Optional[str] = None
 
     @property

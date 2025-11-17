@@ -27,6 +27,7 @@ async def get_dataset_by_id(
     session: httpx.AsyncClient | None = None,
     parent_class: str | None = None,
     debug_num_stacks_to_drop=1,
+    context=None,  # RouteContext from route_function decorator
 ) -> rgd.ResponseGetData:  # returns metadata about a dataset
     """retrieve dataset metadata"""
 
@@ -78,6 +79,7 @@ async def create(
     debug_num_stacks_to_drop=1,
     parent_class: str | None = None,
     session: httpx.AsyncClient | None = None,
+    context=None,
 ):
     body = generate_create_dataset_body(
         dataset_name=dataset_name, dataset_type=dataset_type, schema=schema
@@ -133,6 +135,7 @@ async def create_dataset_enterprise_tookit(
     debug_num_stacks_to_drop=1,
     parent_class=None,
     session: httpx.AsyncClient | None = None,
+    context=None,
 ):
     url = f"https://{auth.domo_instance}.domo.com/api/executor/v1/datasets"
 
@@ -162,6 +165,7 @@ async def delete_partition_stage_1(
     debug_num_stacks_to_drop=1,
     parent_class=None,
     session: httpx.AsyncClient | None = None,
+    context=None,
 ):
     """Delete partition has 3 stages
     # Stage 1. This marks the data version associated with the partition tag as deleted.
@@ -196,6 +200,7 @@ async def delete_partition_stage_2(
     debug_num_stacks_to_drop=1,
     parent_class=None,
     session: httpx.AsyncClient | None = None,
+    context=None,
 ):
     """This will remove the partition association so that it doesn't show up in the list call.
     Technically, this is not required as a partition against a deleted data version will not count against the 400 partition limit
@@ -228,6 +233,7 @@ async def delete(
     debug_num_stacks_to_drop=1,
     parent_class=None,
     session: httpx.AsyncClient | None = None,
+    context=None,
 ):
     url = f"https://{auth.domo_instance}.domo.com/api/data/v3/datasources/{dataset_id}?deleteMethod=hard"
 

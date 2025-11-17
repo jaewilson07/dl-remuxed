@@ -18,7 +18,6 @@ from ...routes.instance_config import (
     authorized_domains as domains_routes,
     toggle as toggle_routes,
 )
-from ..DomoDataset.connector import DomoConnectors
 from .access_token import DomoAccessTokens
 from .allowlist import DomoAllowlist
 from .api_client import ApiClients
@@ -44,7 +43,7 @@ class DomoInstanceConfig:
     ApiClients: "ApiClients" = field(default=None)
     Bootstrap: DomoBootstrap = field(default=None)
 
-    Connectors: DomoConnectors = field(default=None)
+    Connectors: Any = field(default=None)  # DomoConnectors
     InstanceSwitcher: "InstanceSwitcher" = field(default=None)
 
     Grants: DomoGrants = field(default=None)
@@ -61,6 +60,7 @@ class DomoInstanceConfig:
 
     def __post_init__(self):
         from ..DomoAccount import DomoAccounts
+        from ..DomoDataset.connector import DomoConnectors
         from ..DomoEverywhere import DomoEverywhere
         from .api_client import ApiClients
         from .instance_switcher import InstanceSwitcher
