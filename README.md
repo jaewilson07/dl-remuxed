@@ -138,6 +138,7 @@ Model Context Protocol (MCP) lets Copilot connect to external tool servers for e
 ### 📚 Documentation
 
 - **[Custom Prompts Guide](docs/copilot-kit/custom-prompts-guide.md)** - Comprehensive guide on using and creating prompts
+- **[Testing Guide](docs/copilot-kit/testing-guide.md)** - How to verify your setup is working correctly
 - **[Fork Sync Guide](docs/copilot-kit/fork-sync-guide.md)** - Information about keeping copilot-kit files updated
 
 ### Using Prompts

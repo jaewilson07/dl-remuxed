@@ -19,6 +19,13 @@ Information about:
 - Manual sync procedures
 - Handling merge conflicts
 
+### [Testing Guide](testing-guide.md)
+How to verify your setup:
+- Testing individual prompts
+- Verifying MCP servers work
+- Troubleshooting common issues
+- Success indicators
+
 ## 🎨 Custom Prompts
 
 The project includes these ready-to-use prompts in `.github/prompts/`:
