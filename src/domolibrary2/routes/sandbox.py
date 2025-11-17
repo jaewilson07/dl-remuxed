@@ -17,6 +17,7 @@ from ..client import (
     get_data as gd,
     response as rgd,
 )
+from ..client.context import RouteContext
 
 
 class Sandbox_GET_Error(RouteError):
@@ -59,22 +60,29 @@ class Sandbox_CRUD_Error(RouteError):
 @gd.route_function
 async def get_is_allow_same_instance_promotion_enabled(
     auth: DomoAuth,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
     debug_num_stacks_to_drop: int = 1,
     debug_api: bool = False,
     parent_class: Optional[str] = None,
 ) -> rgd.ResponseGetData:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/version/v1/settings"
 
     res = await gd.get_data(
         auth=auth,
         method="GET",
         url=url,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if return_raw:
@@ -95,6 +103,8 @@ async def get_is_allow_same_instance_promotion_enabled(
 async def toggle_allow_same_instance_promotion(
     auth: DomoAuth,
     is_enabled: bool,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -106,6 +116,7 @@ async def toggle_allow_same_instance_promotion(
     Args:
         auth: Authentication object
         is_enabled: Whether to enable same instance promotion
+        context: Optional route context for shared parameters
         session: Optional HTTP client session
         debug_api: Enable API debugging
         debug_num_stacks_to_drop: Stack frames to drop for debugging
@@ -118,6 +129,14 @@ async def toggle_allow_same_instance_promotion(
     Raises:
         Sandbox_CRUD_Error: If the operation fails
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/version/v1/settings"
 
     body = {"allowSelfPromotion": is_enabled}
@@ -127,10 +146,7 @@ async def toggle_allow_same_instance_promotion(
         method="POST",
         url=url,
         body=body,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if return_raw:
