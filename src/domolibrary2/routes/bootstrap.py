@@ -17,6 +17,7 @@ from ..client import (
     get_data as gd,
     response as rgd,
 )
+from ..client.context import RouteContext
 
 
 class Bootstrap_GET_Error(RouteError):
@@ -33,6 +34,8 @@ class Bootstrap_GET_Error(RouteError):
 @gd.route_function
 async def get_bootstrap(
     auth: DomoFullAuth,  ## only works with DomoFullAuth authentication, do not use TokenAuth
+    *,  # Make following params keyword-only
+    context: RouteContext | None = None,
     debug_api: bool = False,
     session: httpx.AsyncClient | None = None,
     parent_class: Optional[str] = None,
@@ -45,6 +48,14 @@ async def get_bootstrap(
 
     dmda.test_is_full_auth(auth, debug_num_stacks_to_drop=2)
 
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     # url = f"https://{auth.domo_instance}.domo.com/api/domoweb/bootstrap?v2Navigation=false"
     url = (
         f"https://{auth.domo_instance}.domo.com/api/domoweb/bootstrap?v2Navigation=true"
@@ -54,11 +65,8 @@ async def get_bootstrap(
         url=url,
         method="GET",
         auth=auth,
-        debug_api=debug_api,
-        session=session,
+        context=context,
         is_follow_redirects=True,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
     )
 
     if not res.is_success:
@@ -76,6 +84,8 @@ async def get_bootstrap(
 @gd.route_function
 async def get_bootstrap_customerid(
     auth: DomoFullAuth,  # this function requires the DomoFullAuth object to authenticate the bootstrap
+    *,  # Make following params keyword-only
+    context: RouteContext | None = None,
     session: Optional[
         httpx.AsyncClient
     ] = None,  # optional parameter to improve same instance query performance
@@ -90,12 +100,17 @@ async def get_bootstrap_customerid(
 ):  # the response contains the string representation of the customer_id
     """retrieves the domo_instance customer id"""
 
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     res = await get_bootstrap(
         auth=auth,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if return_raw:
@@ -108,18 +123,25 @@ async def get_bootstrap_customerid(
 @gd.route_function
 async def get_bootstrap_features(
     auth: DomoFullAuth,
+    *,  # Make following params keyword-only
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     return_raw: bool = False,
     debug_num_stacks_to_drop: int = 2,
     parent_class: Optional[str] = None,
 ) -> rgd.ResponseGetData:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     res = await get_bootstrap(
         auth=auth,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if return_raw:
@@ -132,18 +154,25 @@ async def get_bootstrap_features(
 @gd.route_function
 async def get_bootstrap_features_is_accountsv2_enabled(
     auth: DomoAuth,
+    *,  # Make following params keyword-only
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     return_raw: bool = False,
     debug_num_stacks_to_drop: int = 2,
     parent_class: Optional[str] = None,
 ) -> rgd.ResponseGetData:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     res = await get_bootstrap_features(
         auth=auth,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
         return_raw=False,
     )
 
@@ -166,6 +195,8 @@ async def get_bootstrap_features_is_accountsv2_enabled(
 @gd.route_function
 async def get_bootstrap_pages(
     auth: DomoFullAuth,
+    *,  # Make following params keyword-only
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     return_raw: bool = False,
@@ -173,12 +204,17 @@ async def get_bootstrap_pages(
     parent_class: Optional[str] = None,
 ) -> rgd.ResponseGetData:
     """this API will return the downstream (children) hierarchy of a page"""
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     res = await get_bootstrap(
         auth=auth,
-        session=session,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if return_raw:

@@ -23,6 +23,7 @@ from ..base.exceptions import DomoError
 from ..utils import chunk_execution as dmce
 from ..utils.logging import ResponseGetDataProcessor, get_colored_logger
 from . import response as rgd
+from .context import RouteContext
 
 # Initialize colored logger
 logger = get_colored_logger()
@@ -98,6 +99,7 @@ async def get_data(
     headers: dict = None,
     body: dict | list | str | None = None,
     params: dict = None,
+    context: Optional[RouteContext] = None,
     debug_api: bool = False,
     session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
@@ -108,6 +110,13 @@ async def get_data(
     is_verify: bool = False,
 ) -> rgd.ResponseGetData:
     """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint."""
+
+    # Extract parameters from context if provided (context takes precedence)
+    if context is not None:
+        session = context.session if context.session is not None else session
+        debug_api = context.debug_api if context.debug_api else debug_api
+        debug_num_stacks_to_drop = context.debug_num_stacks_to_drop
+        parent_class = context.parent_class if context.parent_class is not None else parent_class
 
     if debug_api:
         print(f"🐛 Debugging get_data: {method} {url}")
@@ -528,6 +537,8 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
     """
     Decorator for route functions to ensure they receive certain arguments.
     If these arguments are not provided, default values are used.
+    
+    Supports both legacy parameter passing and new RouteContext pattern.
 
     Args:
         func (Callable[..., Any]): The function to decorate.
@@ -537,6 +548,7 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
 
     The decorated function takes the following arguments:
         *args (Any): Positional arguments for the decorated function.
+        context (RouteContext, optional): Context object bundling common parameters.
         parent_class (str, optional): The parent class. Defaults to None.
         debug_num_stacks_to_drop (int, optional): The number of stacks to drop for debugging. Defaults to 1.
         debug_api (bool, optional): Whether to debug the API. Defaults to False.
@@ -547,6 +559,7 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(func)
     async def wrapper(
         *args: Any,
+        context: Optional[RouteContext] = None,
         parent_class: Optional[str] = None,
         debug_num_stacks_to_drop: int = 1,
         debug_api: bool = False,
@@ -555,6 +568,7 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
     ) -> Any:
         result = await func(
             *args,
+            context=context,
             parent_class=parent_class,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
             debug_api=debug_api,
