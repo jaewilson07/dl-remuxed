@@ -139,7 +139,6 @@ class DomoCard(DomoCard_Default):
             auth=auth,
             id=obj.get("id"),
             raw=obj,
-            Relations=None,  # type: ignore
             title=obj.get("title"),
             description=obj.get("description"),
             type=obj.get("type"),
@@ -153,7 +152,6 @@ class DomoCard(DomoCard_Default):
             ),
             owners=owners or [],
             datastore_id=obj.get("domoapp", {}).get("id"),
-            Lineage=None,  # type: ignore
         )
 
         return card

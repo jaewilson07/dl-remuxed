@@ -15,7 +15,6 @@ from ...routes import stream as stream_routes
 from ...routes.stream import Stream_CRUD_Error, Stream_GET_Error
 from ...utils import chunk_execution as dmce
 from ...utils.logging import get_colored_logger
-from ..DomoAccount import DomoAccount
 from ..subentity.schedule import DomoSchedule
 from .stream_config import StreamConfig
 
@@ -52,7 +51,9 @@ class DomoStream(DomoEntity):
     configuration_query: str = None
 
     Schedule: DomoSchedule = None  # DomoDataset_Schedule
-    Account: DomoAccount = field(default=None, repr=False)  # Connector account
+    Account: Any = field(
+        default=None, repr=False
+    )  # DomoAccount - set via get_account()
 
     def __post_init__(self):
         """Post-initialization to extract schedule if present"""
@@ -73,7 +74,6 @@ class DomoStream(DomoEntity):
             id=stream_id or parent.raw.get("streamId"),
             raw=parent.raw,
             auth=parent.auth,
-            Relations=None,
         )
 
     @property
@@ -107,7 +107,6 @@ class DomoStream(DomoEntity):
             data_provider_name=data_provider.get("name"),
             data_provider_key=data_provider.get("key"),
             raw=obj,
-            Relations=None,
             **{k: v for k, v in kwargs.items() if k != "stream_id"},
         )
 
@@ -253,7 +252,7 @@ class DomoStream(DomoEntity):
         debug_api: bool = False,
         force_refresh: bool = False,
         is_suppress_no_account_config: bool = True,
-    ) -> DomoAccount | None:
+    ) -> Any | None:  # DomoAccount
         """Retrieve the Account associated with this stream.
 
         Args:

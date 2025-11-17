@@ -23,6 +23,7 @@ from ..base.exceptions import DomoError
 from ..utils import chunk_execution as dmce
 from ..utils.logging import ResponseGetDataProcessor, get_colored_logger
 from . import response as rgd
+from .context import RouteContext
 
 # Initialize colored logger
 logger = get_colored_logger()
@@ -103,13 +104,22 @@ async def get_data(
     return_raw: bool = False,
     is_follow_redirects: bool = False,
     timeout: int = DEFAULT_TIMEOUT,
-    parent_class: Optional[str] = None,  # noqa: ARG001
-    debug_num_stacks_to_drop: int = 2,  # noqa: ARG001
+    parent_class: Optional[str] = None,
+    debug_num_stacks_to_drop: int = 2,
     is_verify: bool = False,
+    context: RouteContext | None = None,
 ) -> rgd.ResponseGetData:
     """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint."""
 
-    if debug_api:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
+    if context.debug_api:
         print(f"🐛 Debugging get_data: {method} {url}")
         await logger.debug(f"🐛 Debugging get_data: {method} {url}")
 
@@ -118,7 +128,7 @@ async def get_data(
     )
 
     session, is_close_session = create_httpx_session(
-        session=session, is_verify=is_verify
+        session=context.session, is_verify=is_verify
     )
 
     # Create request metadata
@@ -129,15 +139,18 @@ async def get_data(
         params=params,
     )
 
-    if debug_api:
+    if context.debug_api:
         from pprint import pprint
 
         pprint(request_metadata.to_dict())
 
     # Create additional information with parent_class
     additional_information = {}
-    if parent_class:
-        additional_information["parent_class"] = parent_class
+    if context.parent_class:
+        additional_information["parent_class"] = context.parent_class
+
+    if context.log_level:
+        additional_information["log_level"] = context.log_level
 
     try:
         # Build request kwargs
@@ -158,7 +171,7 @@ async def get_data(
 
         response = await session.request(**request_kwargs)
 
-        if debug_api:
+        if context.debug_api:
             print(f"Response Status: {response.status_code}")
             await logger.debug(f"Response Status: {response.status_code}")
 
@@ -365,6 +378,7 @@ async def looper(
     wait_sleep: int = 0,
     is_verify: bool = False,
     return_raw: bool = False,
+    context: RouteContext | None = None,
 ) -> rgd.ResponseGetData:
     """Iteratively retrieves paginated data from a Domo API endpoint.
 
@@ -397,7 +411,17 @@ async def looper(
     """
     is_close_session = False
 
-    session, is_close_session = create_httpx_session(session, is_verify=is_verify)
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
+    session, is_close_session = create_httpx_session(
+        context.session, is_verify=is_verify
+    )
 
     all_rows = []
     is_loop = True
@@ -453,12 +477,10 @@ async def looper(
             url=url,
             method=method,
             params=params,
-            session=session,
             body=body,
-            debug_api=debug_api,
             timeout=timeout,
-            parent_class=parent_class,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            is_verify=is_verify,
+            context=context,
         )
 
         if not res or not res.is_success:
@@ -551,14 +573,24 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
         debug_num_stacks_to_drop: int = 1,
         debug_api: bool = False,
         session: httpx.AsyncClient | None = None,
+        context: RouteContext | None = None,
         **kwargs: Any,
     ) -> Any:
+        if context is None:
+            context = RouteContext(
+                session=session,
+                debug_api=debug_api,
+                debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+                parent_class=parent_class,
+            )
+
         result = await func(
             *args,
             parent_class=parent_class,
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
             debug_api=debug_api,
             session=session,
+            context=context,
             **kwargs,
         )
 

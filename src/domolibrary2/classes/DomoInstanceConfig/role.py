@@ -113,7 +113,6 @@ class DomoRole(
             is_default_role=is_default_role,
             grants=obj.get("grants", []),
             raw=obj,
-            Relations=None,  # type: ignore
         )
 
     @classmethod

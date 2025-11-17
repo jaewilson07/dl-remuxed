@@ -76,6 +76,7 @@ async def query_dataset_private(
     return_raw: bool = False,
     timeout: int = 10,
     session: httpx.AsyncClient | None = None,
+    context=None,
     debug_api: bool = False,
     parent_class: str | None = None,
     debug_loop: bool = False,

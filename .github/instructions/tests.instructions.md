@@ -1,7 +1,11 @@
 ---
-applies-to: tests/**/*
-title: Domo Library Testing Standards
+applyTo: 'tests/**/*'
+name: tests_instructions
+description: Standards for test layout, async patterns, markers, and execution.
 ---
+
+> Last updated: 2025-11-05
+
 # Testing Standards
 
 ## Test Structure
@@ -310,4 +314,4 @@ pytest tests/classes/test_50_DomoUser.py::test_cell_1 -vv -s
 
 - Full test examples: `tests/classes/test_50_DomoUser.py`
 - Route tests: `tests/routes/access_token.py`
-- Testing guide: `docs/testing-guide.md`
+- Testing guide: `docs/testing-guide.md` (high-level overview)
