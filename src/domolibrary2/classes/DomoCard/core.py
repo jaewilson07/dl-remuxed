@@ -30,7 +30,7 @@ class FederatedDomoCard(DomoCard_Default, DomoFederatedEntity):
         parent_auth: None = None,
         parent_auth_retrieval_fn: Optional[Callable] = None,
     ):
-        from ...classes.publish import DomoEverywhere
+        from ...classes.DomoEverywhere import DomoEverywhere
 
         domo_everywhere = DomoEverywhere(
             auth=self.auth,

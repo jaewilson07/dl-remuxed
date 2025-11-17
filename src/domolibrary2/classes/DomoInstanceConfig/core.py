@@ -25,7 +25,6 @@ from .api_client import ApiClients
 from .bootstrap import DomoBootstrap
 from .instance_switcher import InstanceSwitcher
 from .mfa import MFA_Config
-from .publish import DomoEverywhere
 from .role import DomoRoles
 from .role_grant import DomoGrants
 from .sso import SSO as SSO_Class
@@ -54,12 +53,15 @@ class DomoInstanceConfig:
     Roles: DomoRoles = field(default=None)
 
     SSO: SSO_Class = field(default=None)
-    Everywhere: DomoEverywhere = field(default=None)
+    Everywhere: Any = field(
+        default=None
+    )  # DomoEverywhere - imported lazily to avoid circular import
     UserAttributes: "UserAttributes" = field(default=None)
     Toggle: DomoToggle = field(default=None)
 
     def __post_init__(self):
         from ..DomoAccount import DomoAccounts
+        from ..DomoEverywhere import DomoEverywhere
         from .api_client import ApiClients
         from .instance_switcher import InstanceSwitcher
         from .user_attributes import UserAttributes
