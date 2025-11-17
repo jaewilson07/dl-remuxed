@@ -74,7 +74,6 @@ class DomoStream(DomoEntity):
             id=stream_id or parent.raw.get("streamId"),
             raw=parent.raw,
             auth=parent.auth,
-            Relations=None,
         )
 
     @property
@@ -108,7 +107,6 @@ class DomoStream(DomoEntity):
             data_provider_name=data_provider.get("name"),
             data_provider_key=data_provider.get("key"),
             raw=obj,
-            Relations=None,
             **{k: v for k, v in kwargs.items() if k != "stream_id"},
         )
 

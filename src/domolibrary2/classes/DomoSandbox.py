@@ -68,7 +68,6 @@ class DomoRepository(DomoEntity_w_Lineage):
             last_updated_dt=dtut.parse(obj["updated"]).replace(tzinfo=None),
             commit_dt=dtut.parse(obj["lastCommit"]["completed"]).replace(tzinfo=None),
             commit_version=obj["lastCommit"]["commitName"],
-            lineage=None,
         )
 
     @classmethod

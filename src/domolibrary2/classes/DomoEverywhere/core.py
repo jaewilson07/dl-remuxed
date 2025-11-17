@@ -201,9 +201,7 @@ class DomoPublication(DomoEntity_w_Lineage):
             ),
             is_v2=obj["isV2"],
             auth=auth,
-            Relations=None,
             raw=obj,
-            Lineage=None,
         )
 
         if (
@@ -502,7 +500,6 @@ class DomoSubscription(dmen.DomoEntity):
     def from_dict(cls, obj, auth: DomoAuth, parent_publication: Any = None):
         return cls(
             auth=auth,
-            Relations=None,
             id=obj.get("id") or obj.get("subscriptionId"),
             publication_id=obj["publicationId"],
             subscriber_domain=obj.get("domain") or obj.get("subscriberDomain"),

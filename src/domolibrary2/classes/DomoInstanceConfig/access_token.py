@@ -55,7 +55,6 @@ class DomoAccessToken(DomoEntity):
             auth=auth,
             token=obj.get("token") or "",
             raw=obj,
-            Relations=None,  # type: ignore
         )
 
     @staticmethod
