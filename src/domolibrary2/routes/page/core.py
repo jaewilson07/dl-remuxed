@@ -25,6 +25,7 @@ from ...client import (
     get_data as gd,
     response as rgd,
 )
+from ...client.context import RouteContext
 from ...utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 from .exceptions import Page_GET_Error, SearchPageNotFoundError
 
@@ -44,6 +45,8 @@ async def get_pages_adminsummary(
     body: Optional[dict] = None,
     limit: int = 35,
     debug_loop: bool = False,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -59,6 +62,7 @@ async def get_pages_adminsummary(
         body: Optional custom request body
         limit: Maximum number of results per request (default: 35)
         debug_loop: Enable loop debugging output
+        context: Optional RouteContext object containing common parameters
         session: Optional httpx client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to drop in debug output
@@ -71,6 +75,13 @@ async def get_pages_adminsummary(
     Raises:
         Page_GET_Error: If page retrieval fails
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/pages/adminsummary"
 
@@ -100,14 +111,11 @@ async def get_pages_adminsummary(
         url=url,
         arr_fn=arr_fn,
         offset_params=offset_params,
-        session=session,
         loop_until_end=True,
         body=body,
         limit=limit,
         debug_loop=debug_loop,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if return_raw:
@@ -131,6 +139,8 @@ async def get_page_by_id(
     auth: DomoAuth,
     page_id: str,
     include_layout: bool = False,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -143,6 +153,7 @@ async def get_page_by_id(
         auth: Authentication object containing credentials and instance info
         page_id: Unique identifier for the page
         include_layout: Include page layout information in response
+        context: Optional RouteContext object containing common parameters
         session: Optional httpx client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to drop in debug output
@@ -156,6 +167,13 @@ async def get_page_by_id(
         Page_GET_Error: If page retrieval fails
         SearchPageNotFoundError: If page with specified ID doesn't exist
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     # 9/21/2023 - the domo UI uses /cards to get page info
     url = f"https://{auth.domo_instance}.domo.com/api/content/v3/stacks/{page_id}/cards"
@@ -167,10 +185,7 @@ async def get_page_by_id(
         auth=auth,
         url=url,
         method="GET",
-        debug_api=debug_api,
-        session=session,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if return_raw:
@@ -205,6 +220,8 @@ async def get_page_by_id(
 async def get_page_definition(
     auth: DomoAuth,
     page_id: int | str,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -216,6 +233,7 @@ async def get_page_definition(
     Args:
         auth: Authentication object containing credentials and instance info
         page_id: Unique identifier for the page
+        context: Optional RouteContext object containing common parameters
         session: Optional httpx client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to drop in debug output
@@ -229,6 +247,14 @@ async def get_page_definition(
         Page_GET_Error: If page definition retrieval fails
         SearchPageNotFoundError: If page with specified ID doesn't exist
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/content/v3/stacks/{page_id}/cards"
 
     params = {
@@ -240,11 +266,8 @@ async def get_page_definition(
         url,
         method="GET",
         auth=auth,
-        session=session,
         params=params,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
+        context=context,
     )
 
     if return_raw:
