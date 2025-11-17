@@ -34,19 +34,19 @@ async def test_cell_1(token_auth=token_auth) -> DomoStream:
     if not TEST_STREAM_ID_1:
         print("WARNING: STREAM_ID_1 not set in .env file - test will be skipped")
         return None
-    
+
     domo_stream = await DomoStream.get_by_id(
         auth=token_auth,
         stream_id=TEST_STREAM_ID_1,
         return_raw=False,
         debug_api=False
     )
-    
+
     print(f"Stream ID: {domo_stream.id}")
     print(f"Dataset ID: {domo_stream.dataset_id}")
     print(f"Data Provider: {domo_stream.data_provider_name}")
     print(f"Display URL: {domo_stream.display_url}")
-    
+
     return domo_stream
 
 
@@ -75,19 +75,19 @@ async def test_cell_2(token_auth=token_auth):
             }
         ]
     }
-    
+
     domo_stream = DomoStream.from_dict(auth=token_auth, obj=sample_stream_data)
-    
+
     assert domo_stream.id == "test-stream-123"
     assert domo_stream.dataset_id == "test-dataset-456"
     assert domo_stream.data_provider_name == "Snowflake"
     assert domo_stream.data_provider_key == "snowflake"
     assert len(domo_stream.configuration) == 1
-    
+
     print("from_dict test passed!")
     print(f"Stream ID: {domo_stream.id}")
     print(f"Dataset ID: {domo_stream.dataset_id}")
-    
+
     return domo_stream
 
 
@@ -96,20 +96,20 @@ async def test_cell_3(token_auth=token_auth):
     if not TEST_STREAM_ID_1:
         print("WARNING: STREAM_ID_1 not set in .env file - test will be skipped")
         return None
-    
+
     res = await DomoStream.get_by_id(
         auth=token_auth,
         stream_id=TEST_STREAM_ID_1,
         return_raw=True
     )
-    
+
     # Should be ResponseGetData, not DomoStream
     assert hasattr(res, 'is_success')
     assert hasattr(res, 'response')
-    
+
     print(f"Raw response returned successfully")
     print(f"Status: {res.status}")
-    
+
     return res
 
 
@@ -118,17 +118,17 @@ async def test_cell_4(token_auth=token_auth):
     if not TEST_STREAM_ID_1:
         print("WARNING: STREAM_ID_1 not set in .env file - test will be skipped")
         return None
-    
+
     # Test deprecated method
     domo_stream = await DomoStream.get_stream_by_id(
         auth=token_auth,
         stream_id=TEST_STREAM_ID_1,
         return_raw=False
     )
-    
+
     assert domo_stream.id == TEST_STREAM_ID_1
     print("Legacy get_stream_by_id method works correctly")
-    
+
     return domo_stream
 
 
@@ -153,26 +153,26 @@ async def test_cell_6(token_auth=token_auth):
     if not TEST_STREAM_ID_1:
         print("WARNING: STREAM_ID_1 not set in .env file - test will be skipped")
         return None
-    
+
     domo_stream = await DomoStream.get_by_id(
         auth=token_auth,
         stream_id=TEST_STREAM_ID_1,
         return_raw=False
     )
-    
+
     # Test configuration report generation
     config_report = domo_stream.generate_config_rpt()
-    
+
     print(f"Has mapping: {domo_stream.has_mapping}")
     print(f"Configuration count: {len(domo_stream.configuration)}")
     print(f"Configuration report: {config_report}")
-    
+
     if domo_stream.configuration_query:
         print(f"Query detected: {domo_stream.configuration_query[:100]}...")
-    
+
     if domo_stream.configuration_tables:
         print(f"Tables: {domo_stream.configuration_tables}")
-    
+
     return config_report
 
 

@@ -5,23 +5,19 @@ from typing import Any
 
 import httpx
 
-from ...utils.logging import get_colored_logger
-from ...utils import chunk_execution as dmce
-
-from ...base import exceptions as dmde
-
 from ...auth import DomoAuth
-from ...base import DomoEntity, DomoManager
+from ...base import (
+    DomoEntity,
+    DomoManager,
+    exceptions as dmde,
+)
 from ...routes import stream as stream_routes
 from ...routes.stream import Stream_CRUD_Error, Stream_GET_Error
-
+from ...utils import chunk_execution as dmce
+from ...utils.logging import get_colored_logger
+from ..DomoAccount import DomoAccount
 from ..subentity.schedule import DomoSchedule
 from .stream_config import StreamConfig
-
-
-# TYPE_CHECKING imports to avoid circular dependencies
-if TYPE_CHECKING:
-    from ..DomoAccount import DomoAccount
 
 __all__ = [
     "DomoStream",
@@ -32,6 +28,7 @@ __all__ = [
 ]
 
 logger = get_colored_logger()
+
 
 @dataclass(eq=False)
 class DomoStream(DomoEntity):
@@ -289,11 +286,13 @@ class DomoStream(DomoEntity):
                 session=session,
                 debug_api=debug_api,
                 is_use_default_account_class=False,
-                is_suppress_no_config=is_suppress_no_config,
+                is_suppress_no_config=is_suppress_no_account_config,
             )
         except dmde.DomoError as e:
-            if is_suppress_no_config:
-                await logger.warning(f"Warning: Could not retrieve account {self.account_id}: {e}")
+            if is_suppress_no_account_config:
+                await logger.warning(
+                    f"Warning: Could not retrieve account {self.account_id}: {e}"
+                )
                 self.Account = None
             else:
                 raise e from e

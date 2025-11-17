@@ -6,41 +6,48 @@ from typing import Any
 
 from sqlglot import exp, parse_one
 
-from ...base.base import DomoEnumMixin,DomoBase
+from ...base.base import DomoBase, DomoEnumMixin
 from ...routes.stream import Stream_CRUD_Error, Stream_GET_Error
 
 __all__ = [
-    "StreamConfig_Mapping_snowflake",
-    "StreamConfig_Mapping_snowflake_federated",
-    "StreamConfig_Mapping_snowflake_internal_unload",
-    "StreamConfig_Mapping_snowflakekeypairauthentication",
-    "StreamConfig_Mapping_snowflake_keypair_internal_managed_unload",
-    "StreamConfig_Mapping_snowflake_unload_v2",
-    "StreamConfig_Mapping_snowflake_writeback",
-    "StreamConfig_Mapping_aws_athena",
-    "StreamConfig_Mapping_amazon_athena_high_bandwidth",
-    "StreamConfig_Mapping_amazon_s3_assumerole",
-    "StreamConfig_Mapping_adobe_analytics_v2",
-    "StreamConfig_Mapping_dataset_copy",
-    "StreamConfig_Mapping_default",
-    "StreamConfig_Mapping_domo_csv",
-    "StreamConfig_Mapping_google_sheets",
-    "StreamConfig_Mapping_google_spreadsheets",
-    "StreamConfig_Mapping_postgresql",
-    "StreamConfig_Mapping_qualtrics",
-    "StreamConfig_Mapping_sharepointonline",
     "StreamConfig_Mapping",
     "StreamConfig_Mappings",
     "StreamConfig",
+    "register_mapping",
     # Route exceptions
     "Stream_GET_Error",
     "Stream_CRUD_Error",
 ]
 
+# Registry to store mapping classes
+_MAPPING_REGISTRY: dict[str, type["StreamConfig_Mapping"]] = {}
+
+
+def register_mapping(data_provider_type: str):
+    """Decorator to register a StreamConfig_Mapping subclass.
+
+    Args:
+        data_provider_type: The data provider type identifier (e.g., 'snowflake')
+
+    Example:
+        @register_mapping('snowflake')
+        @dataclass
+        class SnowflakeMapping(StreamConfig_Mapping):
+            sql: str = "query"
+            warehouse: str = "warehouseName"
+            database_name: str = "databaseName"
+    """
+
+    def decorator(cls: type[StreamConfig_Mapping]) -> type[StreamConfig_Mapping]:
+        _MAPPING_REGISTRY[data_provider_type] = cls
+        return cls
+
+    return decorator
+
 
 @dataclass
 class StreamConfig_Mapping(DomoBase):
-    data_provider_type: str
+    data_provider_type: str | None = None
 
     sql: str = None
     warehouse: str = None
@@ -69,159 +76,75 @@ class StreamConfig_Mapping(DomoBase):
         )
 
 
-StreamConfig_Mapping_snowflake = StreamConfig_Mapping(
-    data_provider_type="snowflake",
-    sql="query",
-    warehouse="warehouseName",
-    database_name="databaseName",
-    s3_bucket_category=None,
-)
-StreamConfig_Mapping_snowflake_federated = StreamConfig_Mapping(
-    data_provider_type="snowflake_federated", sql=None
-)
+# ============================================================================
+# Import platform-specific mappings to trigger registration
+# ============================================================================
 
+# Import all mappings from the stream_configs subfolder
+# This triggers the @register_mapping decorators and populates _MAPPING_REGISTRY
+import domolibrary2.classes.DomoDataset.stream_configs  # noqa: E402, F401
 
-StreamConfig_Mapping_snowflake_internal_unload = StreamConfig_Mapping(
-    data_provider_type="snowflake-internal-unload",
-    sql="customQuery",
-    database_name="databaseName",
-    warehouse="warehouseName",
-)
-
-StreamConfig_Mapping_snowflakekeypairauthentication = StreamConfig_Mapping(
-    data_provider_type="snowflakekeypairauthentication",
-    sql="query",
-    database_name="databaseName",
-    warehouse="warehouseName",
-)
-
-StreamConfig_Mapping_snowflake_keypair_internal_managed_unload = StreamConfig_Mapping(
-    data_provider_type="snowflake-keypair-internal-managed-unload",
-    sql="customQuery",
-    database_name="databaseName",
-    warehouse="warehouseName",
-)
-
-StreamConfig_Mapping_snowflake_unload_v2 = StreamConfig_Mapping(
-    data_provider_type="snowflake_unload_v2",
-    sql="query",
-    warehouse="warehouseName",
-    database_name="databaseName",
-)
-
-StreamConfig_Mapping_snowflake_writeback = StreamConfig_Mapping(
-    data_provider_type="snowflake-writeback",
-    table_name="enterTableName",
-    database_name="databaseName",
-    warehouse="warehouseName",
-)
-
-StreamConfig_Mapping_aws_athena = StreamConfig_Mapping(
-    data_provider_type="aws-athena",
-    sql="query",
-    database_name="databaseName",
-    table_name="tableName",
-)
-
-StreamConfig_Mapping_amazon_athena_high_bandwidth = StreamConfig_Mapping(
-    data_provider_type="amazon-athena-high-bandwidth",
-    sql="enteredCustomQuery",
-    database_name="databaseName",
-)
-
-
-StreamConfig_Mapping_amazon_s3_assumerole = StreamConfig_Mapping(
-    data_provider_type="amazon_s3_assumerole", s3_bucket_category="filesDiscovery"
-)
-
-StreamConfig_Mapping_adobe_analytics_v2 = StreamConfig_Mapping(
-    data_provider_type="adobe-analytics-v2",
-    sql="query",
-    adobe_report_suite_id="report_suite_id",
-)
-
-
-StreamConfig_Mapping_dataset_copy = StreamConfig_Mapping(
-    data_provider_type="dataset-copy", src_url="datasourceUrl"
-)
-
-StreamConfig_Mapping_default = StreamConfig_Mapping(
-    data_provider_type="default", is_default=True
-)
-
-StreamConfig_Mapping_domo_csv = StreamConfig_Mapping(
-    data_provider_type="domo-csv", src_url="datasourceUrl"
-)
-
-StreamConfig_Mapping_google_sheets = StreamConfig_Mapping(
-    data_provider_type="google-sheets", google_sheets_file_name="spreadsheetIDFileName"
-)
-
-StreamConfig_Mapping_google_spreadsheets = StreamConfig_Mapping(
-    data_provider_type="google-spreadsheets",
-    google_sheets_file_name="spreadsheetIDFileName",
-)
-
-StreamConfig_Mapping_postgresql = StreamConfig_Mapping(
-    data_provider_type="postgresql",
-    sql="query",
-)
-
-StreamConfig_Mapping_qualtrics = StreamConfig_Mapping(
-    data_provider_type="qualtrics",
-    qualtrics_survey_id="survey_id",
-)
-
-StreamConfig_Mapping_sharepointonline = StreamConfig_Mapping(
-    data_provider_type="sharepointonline",
-    src_url="relativeURL",
-)
+# ============================================================================
+# StreamConfig_Mappings Enum (Auto-generated from registry)
+# ============================================================================
 
 
 class StreamConfig_Mappings(DomoEnumMixin, Enum):
-    snowflake = StreamConfig_Mapping_snowflake
-    snowflake_federated = StreamConfig_Mapping_snowflake_federated
-    snowflake_internal_unload = StreamConfig_Mapping_snowflake_internal_unload
-    snowflakekeypairauthentication = StreamConfig_Mapping_snowflakekeypairauthentication
-    snowflake_keypair_internal_managed_unload = (
-        StreamConfig_Mapping_snowflake_keypair_internal_managed_unload
-    )
-    snowflake_unload_v2 = StreamConfig_Mapping_snowflake_unload_v2
-    snowflake_writeback = StreamConfig_Mapping_snowflake_writeback
-    amazon_athena_high_bandwidth = StreamConfig_Mapping_amazon_athena_high_bandwidth
-    amazon_s3_assumerole = StreamConfig_Mapping_amazon_s3_assumerole
-    adobe_analytics_v2 = StreamConfig_Mapping_adobe_analytics_v2
-    aws_athena = StreamConfig_Mapping_aws_athena
-    dataset_copy = StreamConfig_Mapping_dataset_copy
-    domo_csv = StreamConfig_Mapping_domo_csv
-    google_sheets = StreamConfig_Mapping_google_sheets
-    google_spreadsheets = StreamConfig_Mapping_google_spreadsheets
-    postgresql = StreamConfig_Mapping_postgresql
-    qualtrics = StreamConfig_Mapping_qualtrics
-    sharepointonline = StreamConfig_Mapping_sharepointonline
+    """Enum of all registered stream config mappings.
 
-    default = StreamConfig_Mapping_default
+    This enum is automatically populated from the registry created by
+    @register_mapping decorators. To add a new mapping, simply create a
+    new subclass with the @register_mapping decorator above.
+    """
+
+    # Explicit default member to prevent AttributeError
+    default = None  # Will be set dynamically via _missing_
 
     @classmethod
     def _missing_(cls, value):
+        """Handle missing enum values by searching the registry."""
         alt_search = value.lower().replace("-", "_")
 
-        return next(
-            (member for member in cls if member.name.lower() == alt_search),
-            cls.default,
-        )
+        # Try direct registry lookup
+        if value in _MAPPING_REGISTRY:
+            mapping_cls = _MAPPING_REGISTRY[value]
+            return cls._create_pseudo_member_(value, mapping_cls())
+
+        # Try normalized search
+        for key, mapping_cls in _MAPPING_REGISTRY.items():
+            if key.lower().replace("-", "_") == alt_search:
+                return cls._create_pseudo_member_(key, mapping_cls())
+
+        # Return default
+        return cls.default
 
     @classmethod
-    def search(cls, value, debug_api: bool = False) -> StreamConfig_Mappings | None:
+    def search(cls, value, debug_api: bool = False) -> StreamConfig_Mapping:
+        """Search for a mapping by data provider type.
+
+        Args:
+            value: The data provider type to search for
+            debug_api: Whether to print debug messages
+
+        Returns:
+            StreamConfig_Mapping instance or default mapping
+        """
         alt_search = value.lower().replace("-", "_")
 
-        try:
-            return cls[alt_search]
+        # Direct registry lookup
+        if value in _MAPPING_REGISTRY:
+            return _MAPPING_REGISTRY[value]()
 
-        except KeyError:
-            if debug_api:
-                print(f"{value} has not been added to enum config, must implement")
-            return cls.default
+        # Normalized search
+        for key, mapping_cls in _MAPPING_REGISTRY.items():
+            if key.lower().replace("-", "_") == alt_search:
+                return mapping_cls()
+
+        # Default fallback
+        if debug_api:
+            print(f"{value} has not been added to registry, using default")
+
+        return _MAPPING_REGISTRY.get("default", StreamConfig_Mapping)()
 
 
 @dataclass

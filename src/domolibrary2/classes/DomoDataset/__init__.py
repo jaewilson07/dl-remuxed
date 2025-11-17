@@ -48,11 +48,6 @@ from .stream import (
 )
 from .stream_config import (
     StreamConfig,
-    StreamConfig_Mapping_snowflake,
-    StreamConfig_Mapping_snowflake_federated,
-    StreamConfig_Mapping_snowflake_internal_unload,
-    StreamConfig_Mapping_snowflake_keypair_internal_managed_unload,
-    StreamConfig_Mapping_snowflakekeypairauthentication,
     StreamConfig_Mappings,
 )
 
