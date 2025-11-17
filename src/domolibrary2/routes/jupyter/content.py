@@ -35,6 +35,7 @@ from ...client import (
     get_data as gd,
     response as rgd,
 )
+from ...client.context import RouteContext
 from ...utils import chunk_execution as dmce
 from .exceptions import (
     Jupyter_CRUD_Error,
@@ -142,6 +143,8 @@ def generate_update_jupyter_body(
 async def get_jupyter_content(
     auth: dmda.DomoJupyterAuth,
     content_path: str = "",
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -154,10 +157,12 @@ async def get_jupyter_content(
         Args:
             auth: Jupyter authentication object with workspace credentials
             content_path: Path to content within the workspace (default: root)
+            context: Optional RouteContext for common parameters
             session: Optional httpx client session for connection reuse
             debug_api: Enable detailed API request/response logging
             debug_num_stacks_to_drop: Number of stack frames to drop in debug output
             parent_class: Optional parent class name for debugging context
+            is_run_test_jupyter_auth: Test jupyter auth before making API call
             return_raw: Return raw API response without processing
 
         Returns:
@@ -168,6 +173,14 @@ async def get_jupyter_content(
             SearchJupyterNotFoundError
     : If content path doesn't exist
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     if is_run_test_jupyter_auth:
         dmda.test_is_jupyter_auth(auth)
 
@@ -178,10 +191,7 @@ async def get_jupyter_content(
         method="GET",
         auth=auth,
         headers={"authorization": f"Token {auth.jupyter_token}"},
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-        session=session,
+        context=context,
     )
 
     if return_raw:
@@ -208,6 +218,8 @@ async def create_jupyter_obj(
     auth: dmda.DomoJupyterAuth,
     new_content: Any = "",
     content_path: str = "",
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -220,6 +232,7 @@ async def create_jupyter_obj(
         auth: Jupyter authentication object with workspace credentials
         new_content: Content to create (text, notebook data, etc.)
         content_path: File name and location within the workspace
+        context: Optional RouteContext for common parameters
         session: Optional httpx client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to drop in debug output
@@ -232,6 +245,14 @@ async def create_jupyter_obj(
     Raises:
         Jupyter_CRUD_Error: If content creation fails
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     dmda.test_is_jupyter_auth(auth)
 
     # removes ./ jic
@@ -254,10 +275,7 @@ async def create_jupyter_obj(
         method="POST",
         auth=auth,
         body=body,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        session=session,
+        context=context,
     )
 
     if return_raw:
@@ -287,10 +305,7 @@ async def create_jupyter_obj(
         method="PATCH",
         auth=auth,
         body={"path": content_path, "content": new_content},
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        session=session,
+        context=context,
     )
 
     if res.status == 403:
@@ -321,6 +336,8 @@ async def create_jupyter_obj(
 async def delete_jupyter_content(
     auth: dmda.DomoJupyterAuth,
     content_path: str,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -332,6 +349,7 @@ async def delete_jupyter_content(
         Args:
             auth: Jupyter authentication object with workspace credentials
             content_path: File name and location within the workspace
+            context: Optional RouteContext for common parameters
             session: Optional httpx client session for connection reuse
             debug_api: Enable detailed API request/response logging
             debug_num_stacks_to_drop: Number of stack frames to drop in debug output
@@ -346,6 +364,14 @@ async def delete_jupyter_content(
             SearchJupyterNotFoundError
     : If content path doesn't exist
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     dmda.test_is_jupyter_auth(auth)
 
     base_url = f"https://{auth.domo_instance}.{auth.service_location}{auth.service_prefix}api/contents/"
@@ -357,10 +383,7 @@ async def delete_jupyter_content(
         url=url,
         method="DELETE",
         auth=auth,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        session=session,
+        context=context,
     )
 
     if return_raw:
@@ -391,6 +414,8 @@ async def update_jupyter_file(
     new_content: Any,
     content_path: str = "",
     body: Optional[dict] = None,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -404,6 +429,7 @@ async def update_jupyter_file(
             new_content: New content to update the file with
             content_path: File name and location within the workspace
             body: Optional custom body for the request
+            context: Optional RouteContext for common parameters
             session: Optional httpx client session for connection reuse
             debug_api: Enable detailed API request/response logging
             debug_num_stacks_to_drop: Number of stack frames to drop in debug output
@@ -418,6 +444,14 @@ async def update_jupyter_file(
             SearchJupyterNotFoundError
     : If content path doesn't exist
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     dmda.test_is_jupyter_auth(auth)
 
     body = body or generate_update_jupyter_body(new_content, content_path)
@@ -434,10 +468,7 @@ async def update_jupyter_file(
         method="PUT",
         auth=auth,
         body=body,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        session=session,
+        context=context,
     )
 
     if return_raw:
@@ -620,6 +651,8 @@ async def get_content(
     ignore_folders: list[str] = None,
     included_filetypes: list[str] = None,
     is_recursive: bool = True,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 2,
@@ -634,6 +667,7 @@ async def get_content(
         ignore_folders: Folder names to exclude (matches path segments)
         included_filetypes: File extensions to include (e.g., ['.ipynb', '.py', '.md'])
         is_recursive: Whether to recursively get nested directory content
+        context: Optional RouteContext for common parameters
         session: Optional httpx client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to drop in debug output
@@ -647,6 +681,14 @@ async def get_content(
         Jupyter_GET_Error: If content retrieval fails
         SearchJupyterNotFoundError: If content path doesn't exist
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     dmda.test_is_jupyter_auth(auth)
 
     all_rows = []
@@ -664,8 +706,8 @@ async def get_content(
         is_recursive=is_recursive,
         is_run_test_jupyter_auth=False,
         return_raw=return_raw,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-        session=session,
+        debug_api=context.debug_api,
+        debug_num_stacks_to_drop=context.debug_num_stacks_to_drop,
+        parent_class=context.parent_class,
+        session=context.session,
     )
