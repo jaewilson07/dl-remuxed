@@ -55,6 +55,7 @@ from ...client import (
     get_data as gd,
     response as rgd,
 )
+from ...client.context import RouteContext
 from ...utils import images
 from ...utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 from .exceptions import (
@@ -144,6 +145,8 @@ async def update_user(
     user_id: str,
     user_property_ls: list[UserProperty],
     auth: DomoAuth,
+    *,
+    context: RouteContext | None = None,
     debug_api: bool = False,
     session: httpx.AsyncClient | None = None,
     parent_class: Optional[str] = None,
@@ -156,6 +159,7 @@ async def update_user(
         user_id: ID of the user to update
         user_property_ls: list of UserProperty objects with updates
         auth: Authentication object
+        context: Optional RouteContext for bundled parameters
         debug_api: Enable API debugging
         session: HTTP client session
         parent_class: Name of calling class for debugging
@@ -168,6 +172,14 @@ async def update_user(
     Raises:
         User_CRUD_Error: If property update fails
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/identity/v1/users/{user_id}"
 
     body = {}
@@ -189,10 +201,7 @@ async def update_user(
         method="PATCH",
         auth=auth,
         body=body,
-        debug_api=debug_api,
-        session=session,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
