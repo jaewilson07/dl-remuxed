@@ -1145,7 +1145,7 @@ wheels = [
 
 [[package]]
 name = "domolibrary2"
-version = "2.1.1"
+version = "2.1.2"
 source = { editable = "." }
 dependencies = [
     { name = "aenum" },
@@ -1155,6 +1155,9 @@ dependencies = [
     { name = "bs4" },
     { name = "dc-logger" },
     { name = "httpx" },
+    { name = "ipython", version = "8.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "ipython", version = "8.37.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*'" },
+    { name = "ipython", version = "9.6.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "nbqa" },
     { name = "orjson" },
     { name = "pandas" },
@@ -1202,6 +1205,7 @@ requires-dist = [
     { name = "bs4" },
     { name = "dc-logger" },
     { name = "httpx" },
+    { name = "ipython" },
     { name = "isort", marker = "extra == 'dev'" },
     { name = "mypy", marker = "extra == 'dev'" },
     { name = "nbqa" },

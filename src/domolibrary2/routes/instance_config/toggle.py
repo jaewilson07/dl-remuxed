@@ -20,6 +20,7 @@ from ...client import (
     get_data as gd,
     response as rgd,
 )
+from ...client.context import RouteContext
 from ...utils.convert import convert_string_to_bool
 from .exceptions import Config_CRUD_Error, Config_GET_Error
 
@@ -33,12 +34,37 @@ class ToggleConfig_CRUD_Error(Config_CRUD_Error):
 async def get_is_invite_social_users_enabled(
     auth: DomoAuth,
     customer_id: str,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
+    debug_num_stacks_to_drop: int = 1,
     parent_class=None,
     return_raw: bool = False,
-    debug_num_stacks_to_drop=1,
 ) -> rgd.ResponseGetData:
+    """Get whether social user invites are enabled.
+
+    Args:
+        auth: Authentication object
+        customer_id: Customer ID for the instance
+        context: Optional RouteContext for consolidated parameters
+        session: Optional httpx session
+        debug_api: Enable debug output
+        debug_num_stacks_to_drop: Stack frames to drop in error messages
+        parent_class: Name of calling class
+        return_raw: Return raw response without processing
+
+    Returns:
+        ResponseGetData with invite configuration
+    """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     # must pass the customer as the short form API endpoint (without customer_id) does not support a GET request
     # url = f"https://{auth.domo_instance}.domo.com/api/content/v3/customers/features/free-invite"
 
@@ -48,10 +74,7 @@ async def get_is_invite_social_users_enabled(
         auth=auth,
         url=url,
         method="GET",
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
@@ -72,28 +95,38 @@ async def toggle_is_invite_social_users_enabled(
     auth: DomoAuth,
     customer_id: str,
     is_enabled: bool,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    return_raw: bool = False,
+    debug_num_stacks_to_drop: int = 1,
     parent_class=None,
-    debug_num_stacks_to_drop=1,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
-    """
-    Toggle whether social users can be invited to the instance.
+    """Toggle whether social users can be invited to the instance.
 
     Args:
         auth: Authentication object
         customer_id: Customer ID for the instance
         is_enabled: True to enable social user invites, False to disable
+        context: Optional RouteContext for consolidated parameters
         session: Optional httpx session
         debug_api: Enable debug output
-        return_raw: Return raw response without processing
-        parent_class: Name of calling class
         debug_num_stacks_to_drop: Stack frames to drop in error messages
+        parent_class: Name of calling class
+        return_raw: Return raw response without processing
 
     Returns:
         ResponseGetData with the updated configuration
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/content/v3/customers/{customer_id}/features/free-invite"
 
     body = {"enabled": is_enabled}
@@ -103,10 +136,7 @@ async def toggle_is_invite_social_users_enabled(
         url=url,
         method="PUT",
         body=body,
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
@@ -126,22 +156,43 @@ async def toggle_is_invite_social_users_enabled(
 @gd.route_function
 async def get_is_user_invite_notifications_enabled(
     auth: DomoAuth,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
+    debug_num_stacks_to_drop: int = 1,
     parent_class=None,
-    debug_num_stacks_to_drop=1,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
+    """Get whether user invite notifications are enabled.
+
+    Args:
+        auth: Authentication object
+        context: Optional RouteContext for consolidated parameters
+        session: Optional httpx session
+        debug_api: Enable debug output
+        debug_num_stacks_to_drop: Stack frames to drop in error messages
+        parent_class: Name of calling class
+        return_raw: Return raw response without processing
+
+    Returns:
+        ResponseGetData with notification configuration
+    """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/customer/v1/properties/user.invite.email.enabled"
 
     res = await gd.get_data(
         auth=auth,
         url=url,
         method="GET",
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
@@ -166,15 +217,38 @@ async def get_is_user_invite_notifications_enabled(
 async def toggle_is_user_invite_enabled(
     auth: DomoAuth,
     is_enabled: bool,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    return_raw: bool = False,
+    debug_num_stacks_to_drop: int = 1,
     parent_class=None,
-    debug_num_stacks_to_drop=1,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
-    """
+    """Toggle user invite notifications.
+
     Admin > Company Settings > Notifications
+
+    Args:
+        auth: Authentication object
+        is_enabled: True to enable notifications, False to disable
+        context: Optional RouteContext for consolidated parameters
+        session: Optional httpx session
+        debug_api: Enable debug output
+        debug_num_stacks_to_drop: Stack frames to drop in error messages
+        parent_class: Name of calling class
+        return_raw: Return raw response without processing
+
+    Returns:
+        ResponseGetData with updated configuration
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/customer/v1/properties/user.invite.email.enabled"
 
@@ -185,10 +259,7 @@ async def toggle_is_user_invite_enabled(
         url=url,
         method="PUT",
         body=body,
-        session=session,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if not res.is_success:
@@ -199,32 +270,50 @@ async def toggle_is_user_invite_enabled(
 
     return await get_is_user_invite_notifications_enabled(
         auth=auth,
-        debug_api=debug_api,
-        session=session,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
 
 @gd.route_function
 async def get_is_weekly_digest_enabled(
     auth: DomoAuth,
-    return_raw: bool = False,
-    debug_api: bool = False,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
+    debug_api: bool = False,
+    debug_num_stacks_to_drop: int = 1,
     parent_class=None,
-    debug_num_stacks_to_drop=1,
-):
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
+    """Get whether weekly digest emails are enabled.
+
+    Args:
+        auth: Authentication object
+        context: Optional RouteContext for consolidated parameters
+        session: Optional httpx session
+        debug_api: Enable debug output
+        debug_num_stacks_to_drop: Stack frames to drop in error messages
+        parent_class: Name of calling class
+        return_raw: Return raw response without processing
+
+    Returns:
+        ResponseGetData with weekly digest configuration
+    """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/customer-states/come-back-to-domo-all-users"
 
     res = await gd.get_data(
         auth=auth,
         url=url,
         method="GET",
-        debug_api=debug_api,
-        session=session,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
@@ -247,13 +336,38 @@ async def get_is_weekly_digest_enabled(
 @gd.route_function
 async def toggle_is_weekly_digest_enabled(
     auth: DomoAuth,
-    return_raw: bool = False,
-    debug_api: bool = False,
     is_enabled: bool = True,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
+    debug_api: bool = False,
+    debug_num_stacks_to_drop: int = 1,
     parent_class=None,
-    debug_num_stacks_to_drop=1,
-):
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
+    """Toggle weekly digest emails.
+
+    Args:
+        auth: Authentication object
+        is_enabled: True to enable weekly digest, False to disable
+        context: Optional RouteContext for consolidated parameters
+        session: Optional httpx session
+        debug_api: Enable debug output
+        debug_num_stacks_to_drop: Stack frames to drop in error messages
+        parent_class: Name of calling class
+        return_raw: Return raw response without processing
+
+    Returns:
+        ResponseGetData with updated configuration
+    """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/customer-states/come-back-to-domo-all-users"
 
     body = {"name": "come-back-to-domo-all-users", "value": is_enabled}
@@ -263,10 +377,7 @@ async def toggle_is_weekly_digest_enabled(
         url=url,
         method="PUT",
         body=body,
-        debug_api=debug_api,
-        session=session,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
@@ -277,25 +388,44 @@ async def toggle_is_weekly_digest_enabled(
 
     return await get_is_weekly_digest_enabled(
         auth=auth,
-        debug_api=debug_api,
-        parent_class=parent_class,
-        session=session,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
 
 @gd.route_function
 async def get_is_left_nav_enabled_v1(
     auth: DomoAuth,
-    return_raw: bool = False,
-    debug_api: bool = False,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
+    debug_api: bool = False,
+    debug_num_stacks_to_drop: int = 1,
     parent_class=None,
-    debug_num_stacks_to_drop=1,
-):
-    """
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
+    """Get whether left navigation is enabled (deprecated v1 API).
+
     2025-09-15 -- deprecated
+
+    Args:
+        auth: Authentication object
+        context: Optional RouteContext for consolidated parameters
+        session: Optional httpx session
+        debug_api: Enable debug output
+        debug_num_stacks_to_drop: Stack frames to drop in error messages
+        parent_class: Name of calling class
+        return_raw: Return raw response without processing
+
+    Returns:
+        ResponseGetData with left nav configuration
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/nav/v1/leftnav/customer"
 
@@ -303,10 +433,7 @@ async def get_is_left_nav_enabled_v1(
         auth=auth,
         url=url,
         method="GET",
-        debug_api=debug_api,
-        session=session,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
@@ -326,15 +453,37 @@ async def get_is_left_nav_enabled_v1(
 @gd.route_function
 async def get_is_left_nav_enabled(
     auth: DomoAuth,
-    return_raw: bool = False,
-    debug_api: bool = False,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
+    debug_api: bool = False,
+    debug_num_stacks_to_drop: int = 1,
     parent_class=None,
-    debug_num_stacks_to_drop=1,
-):
-    """
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
+    """Get whether left navigation is enabled (current API).
+
     2025-09-15 current version of leftnav enabled
+
+    Args:
+        auth: Authentication object
+        context: Optional RouteContext for consolidated parameters
+        session: Optional httpx session
+        debug_api: Enable debug output
+        debug_num_stacks_to_drop: Stack frames to drop in error messages
+        parent_class: Name of calling class
+        return_raw: Return raw response without processing
+
+    Returns:
+        ResponseGetData with left nav configuration
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/nav/v1/leftnav/enabled"
 
@@ -342,10 +491,7 @@ async def get_is_left_nav_enabled(
         auth=auth,
         url=url,
         method="GET",
-        debug_api=debug_api,
-        session=session,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
@@ -366,15 +512,38 @@ async def get_is_left_nav_enabled(
 async def toggle_is_left_nav_enabled_v1(
     auth: DomoAuth,
     is_use_left_nav: bool = True,
-    return_raw: bool = False,
-    debug_api: bool = False,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
+    debug_api: bool = False,
+    debug_num_stacks_to_drop: int = 1,
     parent_class=None,
-    debug_num_stacks_to_drop=1,
-):
-    """
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
+    """Toggle left navigation (deprecated v1 API).
+
     2025-09-15 -- deprecated
+
+    Args:
+        auth: Authentication object
+        is_use_left_nav: True to enable left nav, False to disable
+        context: Optional RouteContext for consolidated parameters
+        session: Optional httpx session
+        debug_api: Enable debug output
+        debug_num_stacks_to_drop: Stack frames to drop in error messages
+        parent_class: Name of calling class
+        return_raw: Return raw response without processing
+
+    Returns:
+        ResponseGetData with updated configuration
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/nav/v1/leftnav/customer"
 
@@ -385,10 +554,7 @@ async def toggle_is_left_nav_enabled_v1(
         url=url,
         method="POST",
         params=params,
-        debug_api=debug_api,
-        session=session,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
@@ -409,15 +575,38 @@ async def toggle_is_left_nav_enabled_v1(
 async def toggle_is_left_nav_enabled(
     auth: DomoAuth,
     is_use_left_nav: bool = True,
-    return_raw: bool = False,
-    debug_api: bool = False,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
+    debug_api: bool = False,
+    debug_num_stacks_to_drop: int = 1,
     parent_class=None,
-    debug_num_stacks_to_drop=1,
-):
-    """
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
+    """Toggle left navigation (current API).
+
     2025-09-15 -- switched to new leftnav API
+
+    Args:
+        auth: Authentication object
+        is_use_left_nav: True to enable left nav, False to disable
+        context: Optional RouteContext for consolidated parameters
+        session: Optional httpx session
+        debug_api: Enable debug output
+        debug_num_stacks_to_drop: Stack frames to drop in error messages
+        parent_class: Name of calling class
+        return_raw: Return raw response without processing
+
+    Returns:
+        ResponseGetData with updated configuration
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/nav/v1/leftnav/customer-settings"
 
@@ -431,10 +620,7 @@ async def toggle_is_left_nav_enabled(
         url=url,
         method="POST",
         body=body,
-        debug_api=debug_api,
-        session=session,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
