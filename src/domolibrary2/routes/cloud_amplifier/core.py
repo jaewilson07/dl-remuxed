@@ -25,6 +25,7 @@ from ...client import (
     get_data as gd,
     response as rgd,
 )
+from ...client.context import RouteContext
 from .exceptions import (
     CloudAmplifier_CRUD_Error,
     CloudAmplifier_GET_Error,
@@ -37,6 +38,8 @@ from .utils import ENGINES, create_integration_body
 async def get_integrations(
     auth: DomoAuth,
     integration_engine: Optional[ENGINES] = None,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -52,6 +55,7 @@ async def get_integrations(
     Args:
         auth: Authentication object containing instance and credentials
         integration_engine: Optional filter by engine type (SNOWFLAKE or BIGQUERY)
+        context: Optional RouteContext for passing session and debug parameters
         session: Optional HTTP client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to omit in debug output
@@ -69,6 +73,13 @@ async def get_integrations(
         >>> for integration in integrations_response.response:
         ...     print(f"Integration: {integration['id']}")
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     api_type = "data"
     params = None
@@ -83,11 +94,8 @@ async def get_integrations(
         auth=auth,
         url=url,
         method="GET",
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-        session=session,
         params=params,
+        context=context,
     )
 
     if return_raw:
@@ -103,6 +111,8 @@ async def get_integrations(
 async def get_integration_by_id(
     auth: DomoAuth,
     integration_id: str,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -115,6 +125,7 @@ async def get_integration_by_id(
     Args:
         auth: Authentication object containing instance and credentials
         integration_id: Unique identifier for the integration
+        context: Optional RouteContext for passing session and debug parameters
         session: Optional HTTP client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to omit in debug output
@@ -132,6 +143,13 @@ async def get_integration_by_id(
         >>> integration = await get_integration_by_id(auth, "12345")
         >>> print(integration.response)
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/byos/accounts/{integration_id}"
 
@@ -139,10 +157,7 @@ async def get_integration_by_id(
         auth=auth,
         url=url,
         method="GET",
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-        session=session,
+        context=context,
     )
 
     if return_raw:
@@ -165,6 +180,8 @@ async def get_integration_permissions(
     auth: DomoAuth,
     user_id: Optional[str] = None,
     integration_ids: Optional[list[str]] = None,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -180,6 +197,7 @@ async def get_integration_permissions(
         auth: Authentication object containing instance and credentials
         user_id: Optional user ID to filter permissions
         integration_ids: Optional list of integration IDs to check permissions for
+        context: Optional RouteContext for passing session and debug parameters
         session: Optional HTTP client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to omit in debug output
@@ -196,6 +214,13 @@ async def get_integration_permissions(
         >>> permissions = await get_integration_permissions(auth, user_id="123")
         >>> print(permissions.response)
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/byos/accounts/permissions/list"
 
@@ -212,10 +237,7 @@ async def get_integration_permissions(
         url=url,
         method="POST",
         body=body,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-        session=session,
+        context=context,
     )
 
     if return_raw:
@@ -231,6 +253,8 @@ async def get_integration_permissions(
 async def get_integration_warehouses(
     auth: DomoAuth,
     integration_id: str,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -245,6 +269,7 @@ async def get_integration_warehouses(
     Args:
         auth: Authentication object containing instance and credentials
         integration_id: Integration ID to list warehouses for
+        context: Optional RouteContext for passing session and debug parameters
         session: Optional HTTP client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to omit in debug output
@@ -262,6 +287,13 @@ async def get_integration_warehouses(
         >>> for warehouse in warehouses.response:
         ...     print(warehouse['name'])
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/byos/warehouses/{integration_id}"
 
@@ -269,10 +301,7 @@ async def get_integration_warehouses(
         auth=auth,
         url=url,
         method="GET",
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-        session=session,
+        context=context,
     )
 
     if return_raw:
@@ -300,6 +329,8 @@ async def create_integration(
     auth_method: str,
     description: str = "",
     admin_auth_method: Optional[str] = None,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -317,6 +348,7 @@ async def create_integration(
         auth_method: Authentication method
         description: Optional description for the integration (default: "")
         admin_auth_method: Admin authentication method (defaults to auth_method)
+        context: Optional RouteContext for passing session and debug parameters
         session: Optional HTTP client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to omit in debug output
@@ -339,6 +371,13 @@ async def create_integration(
         ... )
         >>> print(result.response)
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     if admin_auth_method is None:
         admin_auth_method = auth_method
@@ -359,10 +398,7 @@ async def create_integration(
         url=url,
         method="POST",
         body=body,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-        session=session,
+        context=context,
     )
 
     if return_raw:
@@ -382,6 +418,8 @@ async def update_integration(
     auth: DomoAuth,
     integration_id: str,
     update_body: dict[str, Any],
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -395,6 +433,7 @@ async def update_integration(
         auth: Authentication object containing instance and credentials
         integration_id: Integration ID to update
         update_body: Dictionary containing fields to update
+        context: Optional RouteContext for passing session and debug parameters
         session: Optional HTTP client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to omit in debug output
@@ -412,6 +451,13 @@ async def update_integration(
         >>> result = await update_integration(auth, "integration-123", update_body)
         >>> print(result.response)
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/byos/accounts/{integration_id}"
 
@@ -420,10 +466,7 @@ async def update_integration(
         url=url,
         method="PUT",
         body=update_body,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-        session=session,
+        context=context,
     )
 
     if return_raw:
@@ -444,6 +487,8 @@ async def update_integration_warehouses(
     auth: DomoAuth,
     integration_id: str,
     warehouses: list[dict[str, Any]],
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -459,6 +504,7 @@ async def update_integration_warehouses(
         auth: Authentication object containing instance and credentials
         integration_id: Integration ID to update warehouses for
         warehouses: list of warehouse configuration dictionaries
+        context: Optional RouteContext for passing session and debug parameters
         session: Optional HTTP client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to omit in debug output
@@ -478,6 +524,13 @@ async def update_integration_warehouses(
         ... )
         >>> print(result.response)
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/query/v1/byos/warehouses/{integration_id}"
 
@@ -486,10 +539,7 @@ async def update_integration_warehouses(
         url=url,
         method="PUT",
         body=warehouses,
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-        session=session,
+        context=context,
     )
 
     if return_raw:
@@ -509,6 +559,8 @@ async def update_integration_warehouses(
 async def delete_integration(
     auth: DomoAuth,
     integration_id: str,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -521,6 +573,7 @@ async def delete_integration(
     Args:
         auth: Authentication object containing instance and credentials
         integration_id: Integration ID to delete
+        context: Optional RouteContext for passing session and debug parameters
         session: Optional HTTP client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to omit in debug output
@@ -537,6 +590,13 @@ async def delete_integration(
         >>> result = await delete_integration(auth, "integration-123")
         >>> print(result.response)
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/data/v1/byos/accounts/{integration_id}"
 
@@ -544,10 +604,7 @@ async def delete_integration(
         auth=auth,
         url=url,
         method="DELETE",
-        debug_api=debug_api,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        parent_class=parent_class,
-        session=session,
+        context=context,
     )
 
     if return_raw:

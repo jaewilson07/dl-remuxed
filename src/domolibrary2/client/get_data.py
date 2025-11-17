@@ -11,7 +11,7 @@ __all__ = [
 import time
 from functools import wraps
 from pprint import pprint
-from typing import Any, Callable, Optional
+from typing import TYPE_CHECKING, Any, Callable, Optional
 
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
@@ -23,6 +23,9 @@ from ..base.exceptions import DomoError
 from ..utils import chunk_execution as dmce
 from ..utils.logging import ResponseGetDataProcessor, get_colored_logger
 from . import response as rgd
+
+if TYPE_CHECKING:
+    from .context import RouteContext
 
 # Initialize colored logger
 logger = get_colored_logger()
@@ -106,8 +109,22 @@ async def get_data(
     parent_class: Optional[str] = None,  # noqa: ARG001
     debug_num_stacks_to_drop: int = 2,  # noqa: ARG001
     is_verify: bool = False,
+    context: Optional["RouteContext"] = None,
 ) -> rgd.ResponseGetData:
-    """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint."""
+    """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint.
+    
+    Args:
+        context: Optional RouteContext object containing session, debug_api, 
+                debug_num_stacks_to_drop, and parent_class. If provided, these
+                values override individual parameters.
+    """
+    
+    # Extract values from context if provided
+    if context is not None:
+        session = context.session if context.session is not None else session
+        debug_api = context.debug_api
+        debug_num_stacks_to_drop = context.debug_num_stacks_to_drop
+        parent_class = context.parent_class if context.parent_class is not None else parent_class
 
     if debug_api:
         print(f"🐛 Debugging get_data: {method} {url}")
