@@ -15,6 +15,7 @@ from ...client import (
     get_data as gd,
     response as rgd,
 )
+from ...client.context import RouteContext
 
 
 class InstanceSwitcher_GET_Error(RouteError):
@@ -60,6 +61,8 @@ class InstanceSwitcher_CRUD_Error(RouteError):
 @gd.route_function
 async def get_instance_switcher_mapping(
     auth: DomoAuth,
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -75,6 +78,7 @@ async def get_instance_switcher_mapping(
 
     Args:
         auth: Authentication object containing instance and credentials
+        context: Optional RouteContext bundling common parameters
         session: Optional HTTP client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to omit in debug output
@@ -88,16 +92,21 @@ async def get_instance_switcher_mapping(
     Raises:
         InstanceSwitcher_GET_Error: If retrieval operation fails
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/everywhere/admin/userattributeinstances"
 
     res = await gd.get_data(
         auth=auth,
         url=url,
         method="GET",
-        debug_api=debug_api,
-        session=session,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
         timeout=timeout,
     )
 
@@ -118,6 +127,8 @@ async def get_instance_switcher_mapping(
 async def set_instance_switcher_mapping(
     auth: DomoAuth,
     mapping_payloads: list[dict],
+    *,
+    context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
@@ -135,6 +146,7 @@ async def set_instance_switcher_mapping(
         auth: Authentication object containing instance and credentials
         mapping_payloads: list of mapping configurations, each with format:
             {'userAttribute': 'attribute_name', 'instance': 'instance.domo.com'}
+        context: Optional RouteContext bundling common parameters
         session: Optional HTTP client session for connection reuse
         debug_api: Enable detailed API request/response logging
         debug_num_stacks_to_drop: Number of stack frames to omit in debug output
@@ -155,6 +167,13 @@ async def set_instance_switcher_mapping(
         ... ]
         >>> await set_instance_switcher_mapping(auth, mapping_payloads)
     """
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
 
     url = f"https://{auth.domo_instance}.domo.com/api/content/v1/everywhere/admin/userattributeinstances"
 
@@ -162,11 +181,8 @@ async def set_instance_switcher_mapping(
         auth=auth,
         url=url,
         method="POST",
-        debug_api=debug_api,
-        session=session,
         body=mapping_payloads,
-        parent_class=parent_class,
-        debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
         timeout=timeout,
     )
 
