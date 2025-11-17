@@ -153,7 +153,7 @@ async def get_user_attributes(
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
             parent_class=parent_class,
         )
-    
+
     issuer_type_ls = issuer_type_ls or [member for member in UserAttributes_IssuerType]
 
     issuer_types = ",".join([member.value for member in issuer_type_ls])
@@ -304,7 +304,7 @@ async def create_user_attribute(
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
             parent_class=parent_class,
         )
-    
+
     name = name or attribute_id
     attribute_id = clean_attribute_id(attribute_id)
     description = (
@@ -495,7 +495,7 @@ async def delete_user_attribute(
             debug_num_stacks_to_drop=debug_num_stacks_to_drop,
             parent_class=parent_class,
         )
-    
+
     url = f"https://{auth.domo_instance}.domo.com/api/user/v1/properties/meta/keys/{attribute_id}"
 
     res = await gd.get_data(

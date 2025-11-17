@@ -110,7 +110,7 @@ async def get_data(
     is_verify: bool = False,
 ) -> rgd.ResponseGetData:
     """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint."""
-    
+
     # Extract parameters from context if provided
     if context is not None:
         session = session or context.session
