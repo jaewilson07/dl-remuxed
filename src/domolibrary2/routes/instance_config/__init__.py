@@ -8,6 +8,7 @@ Modules:
     exceptions: Exception classes for instance config operations
     api_client: API client (developer token) management functions
     allowlist_routes: Allowlist management functions
+    authentication_policies: Authentication policy management functions
     authorized_domains: Authorized domain management functions
     instance_switcher: Instance switcher configuration functions
     mfa: MFA configuration functions
@@ -19,6 +20,7 @@ Modules:
 from . import (
     allowlist,
     api_client,
+    authentication_policies,
     authorized_domains,
     exceptions,
     instance_switcher,
@@ -32,6 +34,7 @@ __all__ = [
     "api_client",
     "exceptions",
     "allowlist",
+    "authentication_policies",
     "authorized_domains",
     "instance_switcher",
     "mfa",
