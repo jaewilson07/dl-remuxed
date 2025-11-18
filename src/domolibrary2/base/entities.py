@@ -18,6 +18,7 @@ from typing import Any, Callable, Optional
 import httpx
 
 from ..auth.base import DomoAuth
+from ..client.context import RouteContext
 from .base import DomoBase
 from .relationships import DomoRelationshipController
 
@@ -82,6 +83,35 @@ class DomoEntity(DomoBase):
             int: Hash of the entity ID
         """
         return hash(self.id)
+
+    def _build_route_context(
+        self,
+        *,
+        session: httpx.AsyncClient | None = None,
+        debug_api: bool | None = None,
+        log_level: str | None = None,
+        debug_num_stacks_to_drop: int | None = None,
+    ) -> RouteContext:
+        """Construct a RouteContext for route calls.
+
+        Entity and manager methods should use this helper to build the context
+        they pass into route functions, so that shared defaults and per-entity
+        settings are applied consistently.
+        """
+
+        base = self._default_route_context or RouteContext()
+
+        return RouteContext(
+            session=session or base.session,
+            debug_api=debug_api if debug_api is not None else base.debug_api,
+            debug_num_stacks_to_drop=(
+                debug_num_stacks_to_drop
+                if debug_num_stacks_to_drop is not None
+                else base.debug_num_stacks_to_drop
+            ),
+            parent_class=self.__class__.__name__,
+            log_level=log_level or base.log_level,
+        )
 
     def to_dict(
         self, override_fn: Optional[Callable] = None, return_snake_case: bool = False

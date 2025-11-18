@@ -109,6 +109,7 @@ async def get_data(
     debug_num_stacks_to_drop: int = 2,
     log_level: Optional[str] = None,
     is_verify: bool = False,
+    context: RouteContext | None = None,
 ) -> rgd.ResponseGetData:
     """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint.
 
@@ -144,7 +145,15 @@ async def get_data(
         log_level = log_level or context.log_level
         debug_api = debug_api or context.debug_api
 
-    if debug_api:
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
+    if context.debug_api:
         print(f"🐛 Debugging get_data: {method} {url}")
         await logger.debug(f"🐛 Debugging get_data: {method} {url}")
 
@@ -153,7 +162,7 @@ async def get_data(
     )
 
     session, is_close_session = create_httpx_session(
-        session=session, is_verify=is_verify
+        session=context.session, is_verify=is_verify
     )
 
     # Create request metadata
@@ -164,15 +173,18 @@ async def get_data(
         params=params,
     )
 
-    if debug_api:
+    if context.debug_api:
         from pprint import pprint
 
         pprint(request_metadata.to_dict())
 
     # Create additional information with parent_class
     additional_information = {}
-    if parent_class:
-        additional_information["parent_class"] = parent_class
+    if context.parent_class:
+        additional_information["parent_class"] = context.parent_class
+
+    if context.log_level:
+        additional_information["log_level"] = context.log_level
 
     if log_level:
         additional_information["log_level"] = log_level
@@ -196,7 +208,7 @@ async def get_data(
 
         response = await session.request(**request_kwargs)
 
-        if debug_api:
+        if context.debug_api:
             print(f"Response Status: {response.status_code}")
             await logger.debug(f"Response Status: {response.status_code}")
 
@@ -408,6 +420,7 @@ async def looper(
     wait_sleep: int = 0,
     is_verify: bool = False,
     return_raw: bool = False,
+    context: RouteContext | None = None,
 ) -> rgd.ResponseGetData:
     """Iteratively retrieves paginated data from a Domo API endpoint.
 
@@ -450,7 +463,17 @@ async def looper(
 
     is_close_session = False
 
-    session, is_close_session = create_httpx_session(session, is_verify=is_verify)
+    if context is None:
+        context = RouteContext(
+            session=session,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            parent_class=parent_class,
+        )
+
+    session, is_close_session = create_httpx_session(
+        context.session, is_verify=is_verify
+    )
 
     all_rows = []
     is_loop = True
