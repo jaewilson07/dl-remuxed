@@ -49,10 +49,6 @@ class DomoEntity(DomoBase):
 
     Relations: DomoRelationshipController = field(repr=False, init=False, default=None)
 
-    _default_route_context: RouteContext | None = field(
-        init=False, default=None, repr=False
-    )
-
     @property
     def _name(self) -> str:
         name = getattr(self, "name", None)

@@ -4,7 +4,7 @@ This folder contains automatically generated TODO files for the RouteContext mig
 
 ## What This Is
 
-The domolibrary2 codebase is migrating from individual `session`, `debug_api`, `debug_num_stacks_to_drop`, and `parent_class` parameters to a unified `RouteContext` object. This migration:
+The domolibrary2 codebase is migrating from individual `session`, `debug_num_stacks_to_drop`, and `parent_class` parameters to a unified `RouteContext` object. This migration:
 
 - **Reduces signature bloat** across ~287 route functions and ~325 class methods
 - **Enables per-call log level control** via `context.log_level`
@@ -119,12 +119,10 @@ async def method_name(
     self,
     param: str,
     session: httpx.AsyncClient | None = None,
-    debug_api: bool = False,
     return_raw: bool = False,
 ) -> ResultType:
     context = self._build_route_context(
         session=session,
-        debug_api=debug_api,
         # log_level="WARNING",  # optional per-call override
     )
 

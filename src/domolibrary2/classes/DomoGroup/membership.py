@@ -3,8 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-import httpx
-
 from ...base.relationships import ShareAccount
 from ...routes import group as group_routes
 from ...utils import chunk_execution as dmce
@@ -30,23 +28,19 @@ class DomoMembership_Group(DomoMembership):
     async def get_owners(
         self,
         return_raw: bool = False,
-        debug_api: bool = False,
-        session: httpx.AsyncClient = None,
-        debug_num_stacks_to_drop: int = 2,
+        **context_kwargs,
     ) -> list[MembershipRelationship]:
         """Get all owner relationships for this group."""
         res = await group_routes.get_group_owners(
             group_id=self.parent_id,
             auth=self.auth,
-            debug_api=debug_api,
-            session=session,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            **context_kwargs,
         )
         if return_raw:
             return res
 
         owner_relationships = await self._extract_domo_entities_from_list(
-            res.response, relation_type="OWNER", session=session
+            res.response, relation_type="OWNER", **context_kwargs
         )
 
         # Update relationships list - replace existing owners
@@ -61,24 +55,20 @@ class DomoMembership_Group(DomoMembership):
     async def get_members(
         self,
         return_raw: bool = False,
-        session: httpx.AsyncClient = None,
-        debug_api: bool = False,
-        debug_num_stacks_to_drop: int = 2,
+        **context_kwargs,
     ) -> list[MembershipRelationship]:
         """Get all member relationships for this group."""
         res = await group_routes.get_group_membership(
             group_id=self.parent_id,
             auth=self.auth,
-            debug_api=debug_api,
-            session=session,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            **context_kwargs,
         )
 
         if return_raw:
             return res
 
         member_relationships = await self._extract_domo_entities_from_list(
-            res.response, relation_type="MEMBER", session=session
+            res.response, relation_type="MEMBER", **context_kwargs
         )
 
         # Update relationships list - replace existing members
@@ -124,9 +114,7 @@ class DomoMembership_Group(DomoMembership):
     async def update(
         self,
         update_payload: dict = None,
-        debug_api: bool = False,
-        session: httpx.AsyncClient = None,
-        debug_num_stacks_to_drop: int = 2,
+        **context_kwargs,
     ):
         """Update group membership with pending changes."""
         res = await group_routes.update_group_membership(
@@ -137,9 +125,7 @@ class DomoMembership_Group(DomoMembership):
             remove_member_arr=self._list_to_dict(self._remove_member_ls),
             add_owner_arr=self._list_to_dict(self._add_owner_ls),
             remove_owner_arr=self._list_to_dict(self._remove_owner_ls),
-            debug_api=debug_api,
-            session=session,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            **context_kwargs,
         )
 
         self._reset_obj()
@@ -203,9 +189,7 @@ class DomoMembership_Group(DomoMembership):
         self._add_owner_ls = []
         self._remove_owner_ls = []
 
-    async def _extract_domo_groups_from_list(
-        self, entity_ls, session: httpx.AsyncClient
-    ):
+    async def _extract_domo_groups_from_list(self, entity_ls, **context_kwargs):
         """Extract DomoGroup objects from API response list."""
         from ..DomoGroup import core as dmg
 
@@ -214,7 +198,7 @@ class DomoMembership_Group(DomoMembership):
                 dmg.DomoGroup.get_by_id(
                     group_id=obj.get("groupId") or obj.get("id"),
                     auth=self.auth,
-                    session=session,
+                    **context_kwargs,
                 )
                 for obj in entity_ls
                 if obj.get("type") == "GROUP" or obj.get("groupId")
@@ -222,9 +206,7 @@ class DomoMembership_Group(DomoMembership):
             n=60,
         )
 
-    async def _extract_domo_users_from_list(
-        self, entity_ls, session: httpx.AsyncClient = None
-    ):
+    async def _extract_domo_users_from_list(self, entity_ls, **context_kwargs):
         """Extract DomoUser objects from API response list."""
         from .. import DomoUser as dmu
 
@@ -232,8 +214,8 @@ class DomoMembership_Group(DomoMembership):
             *[
                 dmu.DomoUser.get_by_id(
                     user_id=obj.get("userId") or obj.get("id"),
-                    session=session,
                     auth=self.auth,
+                    **context_kwargs,
                 )
                 for obj in entity_ls
                 if obj.get("type") == "USER" or obj.get("userId")
@@ -242,16 +224,14 @@ class DomoMembership_Group(DomoMembership):
         )
 
     async def _extract_domo_entities_from_list(
-        self, entity_ls, relation_type, session: httpx.AsyncClient = None
+        self, entity_ls, relation_type, **context_kwargs
     ) -> list[MembershipRelationship]:
         """Extract all entities from API response and create MembershipRelationship objects."""
-        session = session or httpx.AsyncClient()
-
         domo_groups = await self._extract_domo_groups_from_list(
-            entity_ls, session=session
+            entity_ls, **context_kwargs
         )
         domo_users = await self._extract_domo_users_from_list(
-            entity_ls, session=session
+            entity_ls, **context_kwargs
         )
 
         membership_entities = []
@@ -276,9 +256,7 @@ class DomoMembership_Group(DomoMembership):
         self,
         add_user_ls: list[Any],
         return_raw: bool = False,
-        debug_api: bool = False,
-        session: httpx.AsyncClient = None,
-        debug_num_stacks_to_drop: int = 2,
+        **context_kwargs,
     ):
         """Add multiple members to the group."""
         self._reset_obj()
@@ -286,28 +264,25 @@ class DomoMembership_Group(DomoMembership):
         for domo_user in add_user_ls:
             self._add_member(domo_user)
 
-        res = await self.update(
-            debug_api=debug_api,
-            session=session,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
-        )
+        # Adjust debug_num_stacks_to_drop for nested calls
+        nested_kwargs = context_kwargs.copy()
+        if "debug_num_stacks_to_drop" in nested_kwargs:
+            nested_kwargs["debug_num_stacks_to_drop"] += 1
+        elif context_kwargs.get("debug_api"):
+            nested_kwargs["debug_num_stacks_to_drop"] = 3
+
+        res = await self.update(**nested_kwargs)
 
         if return_raw:
             return res
 
-        return await self.get_members(
-            debug_api=debug_api,
-            session=session,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
-        )
+        return await self.get_members(**nested_kwargs)
 
     async def remove_members(
         self,
         remove_user_ls: list[Any],
         return_raw: bool = False,
-        debug_api: bool = False,
-        session: httpx.AsyncClient = None,
-        debug_num_stacks_to_drop: int = 2,
+        **context_kwargs,
     ):
         """Remove multiple members from the group."""
         self._reset_obj()
@@ -315,31 +290,35 @@ class DomoMembership_Group(DomoMembership):
         for domo_user in remove_user_ls:
             self._remove_member(domo_user)
 
-        res = await self.update(
-            debug_api=debug_api,
-            session=session,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
-        )
+        # Adjust debug_num_stacks_to_drop for nested calls
+        nested_kwargs = context_kwargs.copy()
+        if "debug_num_stacks_to_drop" in nested_kwargs:
+            nested_kwargs["debug_num_stacks_to_drop"] += 1
+        elif context_kwargs.get("debug_api"):
+            nested_kwargs["debug_num_stacks_to_drop"] = 3
+
+        res = await self.update(**nested_kwargs)
 
         if return_raw:
             return res
 
-        return await self.get_members(
-            debug_api=debug_api,
-            session=session,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
-        )
+        return await self.get_members(**nested_kwargs)
 
     async def set_members(
         self,
         user_ls: list[Any],
         return_raw: bool = False,
-        debug_api: bool = False,
-        session: httpx.AsyncClient = None,
-        debug_num_stacks_to_drop: int = 2,
+        **context_kwargs,
     ):
         """Set the exact member list for the group, removing others."""
         self._reset_obj()
+
+        # Adjust debug_num_stacks_to_drop for nested calls
+        nested_kwargs = context_kwargs.copy()
+        if "debug_num_stacks_to_drop" in nested_kwargs:
+            nested_kwargs["debug_num_stacks_to_drop"] += 1
+        elif context_kwargs.get("debug_api"):
+            nested_kwargs["debug_num_stacks_to_drop"] = 3
 
         # Convert users to Membership_Entity instances
         user_entities = []
@@ -353,11 +332,7 @@ class DomoMembership_Group(DomoMembership):
 
         user_ls = user_entities
 
-        memberships = await self.get_members(
-            debug_api=debug_api,
-            session=session,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
-        )
+        memberships = await self.get_members(**nested_kwargs)
 
         for domo_user in user_ls:
             self._add_member(domo_user)
@@ -366,27 +341,17 @@ class DomoMembership_Group(DomoMembership):
             if me not in user_ls:
                 self._remove_member(me)
 
-        res = await self.update(
-            debug_api=debug_api,
-            session=session,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
-        )
+        res = await self.update(**nested_kwargs)
         if return_raw:
             return res
 
-        return await self.get_members(
-            debug_api=debug_api,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
-            session=session,
-        )
+        return await self.get_members(**nested_kwargs)
 
     async def add_owners(
         self,
         add_owner_ls: list[Any],
         return_raw: bool = False,
-        debug_api: bool = False,
-        session: httpx.AsyncClient = None,
-        debug_num_stacks_to_drop: int = 2,
+        **context_kwargs,
     ):
         """Add multiple owners to the group."""
         self._reset_obj()
@@ -394,28 +359,25 @@ class DomoMembership_Group(DomoMembership):
         for domo_user in add_owner_ls:
             self._add_owner(domo_user)
 
-        res = await self.update(
-            debug_api=debug_api,
-            session=session,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        )
+        # Adjust debug_num_stacks_to_drop for nested calls
+        nested_kwargs = context_kwargs.copy()
+        if "debug_num_stacks_to_drop" in nested_kwargs:
+            nested_kwargs["debug_num_stacks_to_drop"] += 1
+        elif context_kwargs.get("debug_api"):
+            nested_kwargs["debug_num_stacks_to_drop"] = 3
+
+        res = await self.update(**context_kwargs)
 
         if return_raw:
             return res
 
-        return await self.get_owners(
-            session=session,
-            debug_api=debug_api,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
-        )
+        return await self.get_owners(**nested_kwargs)
 
     async def remove_owners(
         self,
         remove_owner_ls: list[Any],
         return_raw: bool = False,
-        debug_api: bool = False,
-        session: httpx.AsyncClient = None,
-        debug_num_stacks_to_drop: int = 2,
+        **context_kwargs,
     ):
         """Remove multiple owners from the group."""
         self._reset_obj()
@@ -423,33 +385,37 @@ class DomoMembership_Group(DomoMembership):
         for domo_user in remove_owner_ls:
             self._remove_owner(domo_user)
 
-        res = await self.update(
-            debug_api=debug_api,
-            session=session,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
-        )
+        # Adjust debug_num_stacks_to_drop for nested calls
+        nested_kwargs = context_kwargs.copy()
+        if "debug_num_stacks_to_drop" in nested_kwargs:
+            nested_kwargs["debug_num_stacks_to_drop"] += 1
+        elif context_kwargs.get("debug_api"):
+            nested_kwargs["debug_num_stacks_to_drop"] = 3
+
+        res = await self.update(**nested_kwargs)
 
         if return_raw:
             return res
 
-        return await self.get_owners(
-            session=session,
-            debug_api=debug_api,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
-        )
+        return await self.get_owners(**nested_kwargs)
 
     async def set_owners(
         self,
         owner_ls: list[Any],
         return_raw: bool = False,
-        debug_api: bool = False,
-        debug_num_stacks_to_drop: int = 2,
-        session: httpx.AsyncClient = None,
+        **context_kwargs,
     ):
         """Set the exact owner list for the group, removing others."""
         from ..DomoGroup import core as dmdg
 
         self._reset_obj()
+
+        # Adjust debug_num_stacks_to_drop for nested calls
+        nested_kwargs = context_kwargs.copy()
+        if "debug_num_stacks_to_drop" in nested_kwargs:
+            nested_kwargs["debug_num_stacks_to_drop"] += 1
+        elif context_kwargs.get("debug_api"):
+            nested_kwargs["debug_num_stacks_to_drop"] = 3
 
         # Convert owners to Membership_Entity instances
         [
@@ -484,25 +450,16 @@ class DomoMembership_Group(DomoMembership):
             if oe.entity not in owner_ls:
                 self._remove_owner(oe)
 
-        res = await self.update(
-            debug_api=debug_api,
-            session=session,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
-        )
+        res = await self.update(**nested_kwargs)
 
         if return_raw:
             return res
 
-        return await self.get_owners(
-            session=session,
-            debug_api=debug_api,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop + 1,
-        )
+        return await self.get_owners(**nested_kwargs)
 
     async def add_owner_manage_all_groups_role(
         self,
-        debug_api: bool = False,
-        session: httpx.AsyncClient = None,
+        **context_kwargs,
     ):
         """Add the Grant: Manage all groups role as an owner."""
         from ..DomoGroup import core as dmg
@@ -512,12 +469,9 @@ class DomoMembership_Group(DomoMembership):
         grant_group = await domo_groups.search_by_name(
             group_name="Grant: Manage all groups",
             is_hide_system_groups=False,
-            session=session,
-            debug_api=debug_api,
+            **context_kwargs,
         )
 
-        await self.add_owners(
-            add_owner_ls=[grant_group], session=session, debug_api=debug_api
-        )
+        await self.add_owners(add_owner_ls=[grant_group], **context_kwargs)
 
-        return await self.get_owners(session=session)
+        return await self.get_owners(**context_kwargs)
