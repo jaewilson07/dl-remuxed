@@ -198,8 +198,6 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
             row_count=int(obj.get("rowCount") or 0),
             column_count=int(obj.get("columnCount") or 0),
             formulas=formulas,
-            Lineage=None,
-            Relations=None,  # type: ignore
             **kwargs,
         )
 

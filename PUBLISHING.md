@@ -1,3 +1,5 @@
+> Last updated: 2025-10-20
+
 # Publishing domolibrary to PyPI
 
 This document describes how to publish `domolibrary` to PyPI using the configured GitHub Actions workflow.

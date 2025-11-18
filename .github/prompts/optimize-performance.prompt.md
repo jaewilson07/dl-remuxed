@@ -6,6 +6,8 @@ argument-hint: "Optional: specify performance target (latency, throughput, memor
 tools: ['edit', 'search', 'runCommands', 'sequentialthinking/*', 'usages', 'problems', 'changes', 'testFailure', 'fetch', 'todos', 'runSubagent', 'runTests']
 ---
 
+> Last updated: 2025-11-17
+
 ## Goal
 
 Systematically analyze code for performance issues using pattern recognition and static analysis. Identify known anti-patterns, algorithmic inefficiencies, and opportunities for language-idiomatic optimizations. Suggests improvements following best practices for the detected language/framework, and implements changes only after user approval. Explicitly identifies breaking vs. non-breaking changes and validates that optimizations improve performance through testing.
