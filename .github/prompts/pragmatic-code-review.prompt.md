@@ -5,6 +5,8 @@ agent: agent
 argument-hint: "Optional: specify focus area (security, performance, maintainability, etc.)"
 ---
 
+> Last updated: 2025-11-17
+
 ## Goal
 
 Conduct an exceptionally thorough, pragmatic code review that balances engineering rigor with real-world constraints. Act as a seasoned pragmatic engineer who prioritizes shipping quality code over theoretical perfection, focusing on issues that truly matter for production systems.

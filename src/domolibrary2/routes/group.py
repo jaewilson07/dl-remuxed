@@ -21,9 +21,7 @@ __all__ = [
 ]
 
 from enum import Enum
-from typing import Optional, Union
-
-import httpx
+from typing import Union
 
 from ..auth import DomoAuth
 from ..base import exceptions as dmde
@@ -61,19 +59,10 @@ async def search_groups_by_name(
     is_exact_match: bool = True,
     *,
     context: RouteContext | None = None,
-    debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-    debug_num_stacks_to_drop=1,
-    parent_class: str = None,
+    **context_kwargs,
 ) -> rgd.ResponseGetData:
     """uses /content/v2/groups/grouplist api -- includes user details"""
-    if context is None:
-        context = RouteContext(
-            session=session,
-            debug_api=debug_api,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-            parent_class=parent_class,
-        )
+    context = RouteContext.build_context(context, **context_kwargs)
 
     url = f"https://{auth.domo_instance}.domo.com/api/content/v2/groups/grouplist?ascending=true&search={search_name}&sort=name "
 
@@ -109,22 +98,13 @@ async def get_all_groups(
     auth: DomoAuth,
     *,
     context: RouteContext | None = None,
-    session: httpx.AsyncClient = None,
-    debug_api: bool = False,
     debug_loop: bool = False,
-    debug_num_stacks_to_drop: int = 1,
-    parent_class: str = None,
     return_raw: bool = False,
     maximum=None,
+    **context_kwargs,
 ) -> rgd.ResponseGetData:
     """uses /content/v2/groups/grouplist api -- includes user details"""
-    if context is None:
-        context = RouteContext(
-            session=session,
-            debug_api=debug_api,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-            parent_class=parent_class,
-        )
+    context = RouteContext.build_context(context, **context_kwargs)
 
     url = f"https://{auth.domo_instance}.domo.com/api/content/v2/groups/grouplist"
 
@@ -160,19 +140,10 @@ async def get_group_by_id(
     group_id: str,
     *,
     context: RouteContext | None = None,
-    debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-    parent_class: str = None,
-    debug_num_stacks_to_drop: int = 1,
+    **context_kwargs,
 ) -> rgd.ResponseGetData:
     """uses /content/v2/groups/ api -- does not return details"""
-    if context is None:
-        context = RouteContext(
-            session=session,
-            debug_api=debug_api,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-            parent_class=parent_class,
-        )
+    context = RouteContext.build_context(context, **context_kwargs)
 
     url = f"https://{auth.domo_instance}.domo.com/api/content/v2/groups/{group_id}"
 
@@ -205,19 +176,10 @@ async def is_system_groups_visible(
     auth: DomoAuth,
     *,
     context: RouteContext | None = None,
-    session: httpx.AsyncClient = None,
-    debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class: str = None,
     return_raw: bool = False,
+    **context_kwargs,
 ):
-    if context is None:
-        context = RouteContext(
-            session=session,
-            debug_api=debug_api,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-            parent_class=parent_class,
-        )
+    context = RouteContext.build_context(context, **context_kwargs)
 
     url = f"https://{auth.domo_instance}.domo.com/api/customer/v1/properties/groups.system.enabled"
 
@@ -246,19 +208,10 @@ async def toggle_system_group_visibility(
     is_hide_system_groups: bool,
     *,
     context: RouteContext | None = None,
-    debug_api: bool = False,
     debug_prn: bool = False,
-    debug_num_stacks_to_drop=1,
-    parent_class: str = None,
-    session: httpx.AsyncClient = None,
+    **context_kwargs,
 ):
-    if context is None:
-        context = RouteContext(
-            session=session,
-            debug_api=debug_api,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-            parent_class=parent_class,
-        )
+    context = RouteContext.build_context(context, **context_kwargs)
 
     if debug_prn:
         print(
@@ -315,20 +268,11 @@ async def create_group(
     description: str = "",
     *,
     context: RouteContext | None = None,
-    session: httpx.AsyncClient = None,
-    debug_api: bool = False,
-    debug_num_stacks_to_drop: int = 1,
-    parent_class: str = None,
     return_raw: bool = False,
+    **context_kwargs,
 ) -> rgd.ResponseGetData:
     # body : {"name": "GROUP_NAME", "type": "open", "description": ""}
-    if context is None:
-        context = RouteContext(
-            session=session,
-            debug_api=debug_api,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-            parent_class=parent_class,
-        )
+    context = RouteContext.build_context(context, **context_kwargs)
 
     if isinstance(group_type, GroupType_Enum):
         group_type = group_type.value
@@ -380,18 +324,9 @@ async def update_group(
     additional_params: dict = None,
     *,
     context: RouteContext | None = None,
-    debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-    debug_num_stacks_to_drop=1,
-    parent_class: str = None,
+    **context_kwargs,
 ) -> rgd.ResponseGetData:
-    if context is None:
-        context = RouteContext(
-            session=session,
-            debug_api=debug_api,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-            parent_class=parent_class,
-        )
+    context = RouteContext.build_context(context, **context_kwargs)
 
     if isinstance(group_type, GroupType_Enum):
         group_type = group_type.value
@@ -443,19 +378,10 @@ async def delete_groups(
     group_ids: list[str],  # list of group_ids
     *,
     context: RouteContext | None = None,
-    session: httpx.AsyncClient = None,
-    debug_api: bool = False,
-    debug_num_stacks_to_drop: int = 1,
-    parent_class: str = None,
     return_raw: bool = False,
+    **context_kwargs,
 ) -> rgd.ResponseGetData:
-    if context is None:
-        context = RouteContext(
-            session=session,
-            debug_api=debug_api,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-            parent_class=parent_class,
-        )
+    context = RouteContext.build_context(context, **context_kwargs)
 
     group_ids = group_ids if isinstance(group_ids, list) else [str(group_ids)]
 
@@ -488,22 +414,13 @@ async def get_group_owners(
     group_id: str,
     *,
     context: RouteContext | None = None,
-    debug_api: bool = False,
-    debug_num_stacks_to_drop=1,
-    session: httpx.AsyncClient = None,
-    parent_class: str = None,
     return_raw: bool = False,
     # maximum: int = None,
     # skip: int = 0,
     # debug_loop: bool = False,
+    **context_kwargs,
 ) -> rgd.ResponseGetData:
-    if context is None:
-        context = RouteContext(
-            session=session,
-            debug_api=debug_api,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-            parent_class=parent_class,
-        )
+    context = RouteContext.build_context(context, **context_kwargs)
 
     # url = f"https://{auth.domo_instance}.domo.com/api/content/v2/groups/access"
     # url = f"https://{auth.domo_instance}.domo.com/api/content/v2/groups/users?group={group_id}"
@@ -563,19 +480,10 @@ async def get_group_membership(
     maximum=None,
     *,
     context: RouteContext | None = None,
-    debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-    parent_class: str = None,
-    debug_num_stacks_to_drop: int = 1,
     debug_loop: bool = False,
+    **context_kwargs,
 ) -> rgd.ResponseGetData:
-    if context is None:
-        context = RouteContext(
-            session=session,
-            debug_api=debug_api,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-            parent_class=parent_class,
-        )
+    context = RouteContext.build_context(context, **context_kwargs)
 
     # url = f"https://{auth.domo_instance}.domo.com/api/content/v2/groups/access"
     url = f"https://{auth.domo_instance}.domo.com/api/content/v2/groups/users"
@@ -663,21 +571,12 @@ async def update_group_membership(
     remove_owner_arr: list[dict] = None,
     *,
     context: RouteContext | None = None,
-    debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-    parent_class: str = None,
-    debug_num_stacks_to_drop: int = 1,
+    **context_kwargs,
 ) -> rgd.ResponseGetData:
     """
     each member or owner obj should be an object of shape {"type", "id"}
     """
-    if context is None:
-        context = RouteContext(
-            session=session,
-            debug_api=debug_api,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-            parent_class=parent_class,
-        )
+    context = RouteContext.build_context(context, **context_kwargs)
 
     update_payload = update_payload or generate_body_update_group_membership(
         group_id=group_id,
@@ -711,21 +610,12 @@ async def update_group_members(
     remove_member_arr: list[dict] = None,
     *,
     context: RouteContext | None = None,
-    debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-    parent_class: str = None,
-    debug_num_stacks_to_drop: int = 1,
+    **context_kwargs,
 ) -> rgd.ResponseGetData:
     """
     each member or owner obj should be an object of shape {"type", "id"}
     """
-    if context is None:
-        context = RouteContext(
-            session=session,
-            debug_api=debug_api,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-            parent_class=parent_class,
-        )
+    context = RouteContext.build_context(context, **context_kwargs)
 
     body = generate_body_update_group_membership(
         group_id=group_id,
@@ -757,21 +647,12 @@ async def update_group_owners(
     remove_owner_arr: list[dict] = None,
     *,
     context: RouteContext | None = None,
-    debug_api: bool = False,
-    session: httpx.AsyncClient = None,
-    parent_class: str = None,
-    debug_num_stacks_to_drop: int = 1,
+    **context_kwargs,
 ) -> rgd.ResponseGetData:
     """
     each member or owner obj should be an object of shape {"type", "id"}
     """
-    if context is None:
-        context = RouteContext(
-            session=session,
-            debug_api=debug_api,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-            parent_class=parent_class,
-        )
+    context = RouteContext.build_context(context, **context_kwargs)
 
     body = generate_body_update_group_membership(
         group_id=group_id,

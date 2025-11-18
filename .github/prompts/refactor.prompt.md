@@ -6,6 +6,8 @@ argument-hint: "Optional: specify refactoring goals (e.g., simplify, performance
 tools: ['edit', 'search', 'runCommands', 'sequentialthinking/*', 'usages', 'problems', 'changes', 'testFailure', 'fetch', 'todos', 'runSubagent', 'runTests']
 ---
 
+> Last updated: 2025-11-17
+
 ## Goal
 
 Intelligently refactor selected code following user instructions or applying software engineering best practices when no specific guidance is given. Uses sequential thinking for complex refactoring decisions. If the code is already well-structured and requires no refactoring, explicitly state this with supporting rationale.

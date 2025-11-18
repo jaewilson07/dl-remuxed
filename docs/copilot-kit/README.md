@@ -1,3 +1,5 @@
+> Last updated: 2025-11-17
+
 # GitHub Copilot Kit Documentation
 
 This directory contains documentation and guides for using GitHub Copilot custom prompts and MCP (Model Context Protocol) servers in this project.

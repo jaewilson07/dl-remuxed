@@ -46,7 +46,7 @@ class DomoEntity(DomoBase):
     id: str
     raw: dict = field(repr=False)  # api representation of the class
 
-    Relations: DomoRelationshipController = field(repr=False)
+    Relations: DomoRelationshipController = field(repr=False, init=False, default=None)
 
     @property
     def _name(self) -> str:
@@ -225,7 +225,7 @@ class DomoEntity_w_Lineage(DomoEntity):
         Lineage: Lineage tracking object for dependency management (hidden in repr)
     """
 
-    Lineage: Any = field(repr=False)
+    Lineage: Any = field(repr=False, init=False, default=None)
 
     def __post_init__(self):
         """Initialize lineage tracking after entity creation."""

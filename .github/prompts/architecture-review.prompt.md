@@ -6,6 +6,8 @@ argument-hint: "Optional: specify focus area (scalability, security, maintainabi
 tools: ['search', 'sequentialthinking/*', 'usages', 'changes', 'fetch', 'todos']
 ---
 
+> Last updated: 2025-11-17
+
 ## Goal
 
 Perform a focused architectural review of a proposed or existing solution to identify potential issues, validate design decisions, and suggest improvements. This prompt provides a critical but constructive analysis to help developers catch architectural problems early and explore better approaches when appropriate.

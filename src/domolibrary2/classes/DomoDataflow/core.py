@@ -73,8 +73,6 @@ class DomoDataflow(DomoEntity_w_Lineage):
             tags=obj.get("tags"),
             version_id=version_id,
             version_number=version_number,
-            Lineage=None,
-            Relations=None,
             TriggerSettings=None,  # Will be initialized in __post_init__
         )
 

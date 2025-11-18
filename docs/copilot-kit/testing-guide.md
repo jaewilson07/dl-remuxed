@@ -1,3 +1,5 @@
+> Last updated: 2025-11-17
+
 # Testing GitHub Copilot Custom Prompts
 
 This guide helps you verify that the custom prompts are working correctly in your VS Code environment.

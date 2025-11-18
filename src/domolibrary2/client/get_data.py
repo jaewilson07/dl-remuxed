@@ -105,12 +105,13 @@ async def get_data(
     return_raw: bool = False,
     is_follow_redirects: bool = False,
     timeout: int = DEFAULT_TIMEOUT,
-    parent_class: Optional[str] = None,  # noqa: ARG001
-    debug_num_stacks_to_drop: int = 2,  # noqa: ARG001
+    parent_class: Optional[str] = None,
+    debug_num_stacks_to_drop: int = 2,
+    log_level: Optional[str] = None,
     is_verify: bool = False,
 ) -> rgd.ResponseGetData:
     """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint.
-    
+
     Args:
         url: API endpoint URL
         method: HTTP method (GET, POST, PUT, DELETE, etc.)
@@ -127,17 +128,21 @@ async def get_data(
         timeout: Request timeout in seconds
         parent_class: Optional parent class name for debugging (overridden by context if provided)
         debug_num_stacks_to_drop: Number of stack frames to drop in debug output (overridden by context if provided)
+        log_level: Optional log level for the request (overridden by context if provided)
         is_verify: SSL verification flag
-        
+
     Returns:
         ResponseGetData object containing the response
     """
     # Extract parameters from context if provided
-    if context is not None:
-        session = context.session if context.session is not None else session
-        debug_api = context.debug_api
-        debug_num_stacks_to_drop = context.debug_num_stacks_to_drop
-        parent_class = context.parent_class if context.parent_class is not None else parent_class
+    if isinstance(context, RouteContext):
+        session = session or context.session
+        debug_num_stacks_to_drop = (
+            debug_num_stacks_to_drop or context.debug_num_stacks_to_drop
+        )
+        parent_class = parent_class or context.parent_class
+        log_level = log_level or context.log_level
+        debug_api = debug_api or context.debug_api
 
     if debug_api:
         print(f"🐛 Debugging get_data: {method} {url}")
@@ -168,6 +173,9 @@ async def get_data(
     additional_information = {}
     if parent_class:
         additional_information["parent_class"] = parent_class
+
+    if log_level:
+        additional_information["log_level"] = log_level
 
     try:
         # Build request kwargs
@@ -255,11 +263,10 @@ async def get_data_stream(
     content_type: Optional[str] = "application/json",
     headers: Optional[dict] = None,
     params: Optional[dict] = None,
+    context: RouteContext | None = None,
     debug_api: bool = False,
     timeout: int = DEFAULT_STREAM_TIMEOUT,
     parent_class: Optional[str] = None,
-    debug_num_stacks_to_drop: int = 2,  # noqa: ARG001
-    debug_traceback: bool = False,  # noqa: ARG001
     session: httpx.AsyncClient | None = None,
     is_verify: bool = False,
     is_follow_redirects: bool = True,
@@ -273,18 +280,23 @@ async def get_data_stream(
         content_type: Optional content type header.
         headers: Additional HTTP headers.
         params: Query parameters for the request.
-        debug_api: Enable debugging information.
+        context: Optional RouteContext with debug/session settings (takes precedence over individual params)
+        debug_api: Enable debugging information (overridden by context if provided).
         timeout: Maximum time to wait for a response (in seconds).
-        parent_class: (Optional) Name of the calling class.
-        debug_num_stacks_to_drop: Number of stack frames to drop in the traceback.
-        debug_traceback: Enable detailed traceback debugging.
-        session: Optional HTTPX session to be used.
+        parent_class: (Optional) Name of the calling class (overridden by context if provided).
+        session: Optional HTTPX session to be used (overridden by context if provided).
         is_verify: SSL verification flag.
         is_follow_redirects: Follow HTTP redirects if True.
 
     Returns:
         An instance of ResponseGetData containing the streamed response data.
     """
+    # Extract parameters from context if provided
+    if context is not None:
+        session = context.session if context.session is not None else session
+        parent_class = (
+            context.parent_class if context.parent_class is not None else parent_class
+        )
 
     if debug_api:
         print(f"🐛 Debugging get_data_stream: {method} {url}")
@@ -374,10 +386,10 @@ class LooperError(DomoError):
 @log_call(action_name="looper", level_name="client", log_level="DEBUG")
 async def looper(
     auth: dmda.DomoAuth,
-    session: httpx.AsyncClient | None,
-    url,
-    offset_params,
-    arr_fn: Callable,
+    session: httpx.AsyncClient | None = None,
+    url: str = None,
+    offset_params: dict = None,
+    arr_fn: Callable = None,
     loop_until_end: bool = False,  # usually you'll set this to true.  it will override maximum
     method="POST",
     body: Optional[dict] = None,
@@ -401,7 +413,7 @@ async def looper(
 
     Args:
         auth: Authentication object for Domo APIs.
-        session: HTTPX AsyncClient session used for making requests.
+        session: HTTPX AsyncClient session used for making requests (overridden by context if provided).
         url: API endpoint URL for data retrieval.
         offset_params: Dictionary specifying the pagination keys (e.g., 'offset', 'limit').
         arr_fn: Function to extract records from the API response.
@@ -415,7 +427,7 @@ async def looper(
         skip: Initial offset value.
         maximum: Maximum number of records to retrieve.
         context: Optional RouteContext with debug/session settings (takes precedence over individual params)
-        debug_api: Enable debugging output for API calls (overridden by context if provided).
+        debug_api: Enable debugging output for API calls.
         debug_loop: Enable debugging output for the looping process.
         debug_num_stacks_to_drop: Number of stack frames to drop in traceback for debugging (overridden by context if provided).
         parent_class: (Optional) Name of the calling class (overridden by context if provided).
@@ -428,12 +440,14 @@ async def looper(
         An instance of ResponseGetData containing the aggregated data and pagination metadata.
     """
     # Extract parameters from context if provided
-    if context is not None:
-        session = context.session if context.session is not None else session
-        debug_api = context.debug_api
-        debug_num_stacks_to_drop = context.debug_num_stacks_to_drop
-        parent_class = context.parent_class if context.parent_class is not None else parent_class
-    
+    if isinstance(context, RouteContext):
+        session = session or context.session
+        debug_num_stacks_to_drop = (
+            debug_num_stacks_to_drop or context.debug_num_stacks_to_drop
+        )
+        parent_class = parent_class or context.parent_class
+        debug_api = debug_api or context.debug_api
+
     is_close_session = False
 
     session, is_close_session = create_httpx_session(session, is_verify=is_verify)
@@ -494,12 +508,10 @@ async def looper(
             params=params,
             body=body,
             timeout=timeout,
-            context=RouteContext(
-                session=session,
-                debug_api=debug_api,
-                debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-                parent_class=parent_class,
-            ) if context is None else context,
+            debug_api=debug_api,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+            session=session,
+            context=context,
         )
 
         if not res or not res.is_success:
@@ -564,7 +576,6 @@ class RouteFunctionResponseTypeError(TypeError):
         )
 
 
-# @log_call(logger=logger, action_name="route_function")
 def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
     """
     Decorator for route functions to ensure they receive certain arguments.
@@ -582,8 +593,16 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
         debug_num_stacks_to_drop (int, optional): The number of stacks to drop for debugging. Defaults to 1.
         debug_api (bool, optional): Whether to debug the API. Defaults to False.
         session (httpx.AsyncClient, optional): The HTTPX client session. Defaults to None.
+        context (RouteContext, optional): The route context object. Defaults to None.
         **kwargs (Any): Additional keyword arguments for the decorated function.
     """
+    import inspect
+
+    # Check if the function accepts 'context' parameter
+    sig = inspect.signature(func)
+    accepts_context = "context" in sig.parameters or any(
+        param.kind == inspect.Parameter.VAR_KEYWORD for param in sig.parameters.values()
+    )
 
     @wraps(func)
     async def wrapper(
@@ -592,16 +611,27 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
         debug_num_stacks_to_drop: int = 1,
         debug_api: bool = False,
         session: httpx.AsyncClient | None = None,
+        context: RouteContext | None = None,
         **kwargs: Any,
     ) -> Any:
-        result = await func(
-            *args,
-            parent_class=parent_class,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-            debug_api=debug_api,
-            session=session,
+        if context is None:
+            context = RouteContext(
+                session=session,
+                debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+                parent_class=parent_class,
+            )
+
+        # Build kwargs for the function call
+        call_kwargs = {
+            "debug_api": debug_api,
             **kwargs,
-        )
+        }
+
+        # Only pass context if the function accepts it
+        if accepts_context:
+            call_kwargs["context"] = context
+
+        result = await func(*args, **call_kwargs)
 
         if not isinstance(result, rgd.ResponseGetData):
             raise RouteFunctionResponseTypeError(result)

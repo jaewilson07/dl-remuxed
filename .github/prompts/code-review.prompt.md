@@ -5,6 +5,8 @@ agent: agent
 argument-hint: "Optional: describe focus areas, risks, or files to prioritize."
 ---
 
+> Last updated: 2025-11-17
+
 ## Goal
 Perform an uncompromising code review that emulates a senior reviewer: reconstruct the intent of the change, cross-check it against project expectations, and report actionable findings ordered by severity.
 
