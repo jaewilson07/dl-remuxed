@@ -1,10 +1,16 @@
 """Snowflake stream configuration mappings."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
-from ._base import StreamConfig_Mapping, register_mapping
+from ._base import (
+    StreamConfig_Base,
+    StreamConfig_Mapping,
+    register_mapping,
+    register_stream_config,
+)
 
 __all__ = [
+    # Old pattern (mappings - deprecated but kept for compatibility)
     "SnowflakeMapping",
     "SnowflakeFederatedMapping",
     "SnowflakeInternalUnloadMapping",
@@ -12,6 +18,9 @@ __all__ = [
     "SnowflakeKeypairInternalManagedUnloadMapping",
     "SnowflakeUnloadV2Mapping",
     "SnowflakeWritebackMapping",
+    # New pattern (typed configs - recommended)
+    "Snowflake_StreamConfig",
+    "SnowflakeKeyPairAuth_StreamConfig",
 ]
 
 
@@ -94,3 +103,114 @@ class SnowflakeWritebackMapping(StreamConfig_Mapping):
     table_name: str = "enterTableName"
     database_name: str = "databaseName"
     warehouse: str = "warehouseName"
+
+
+# ============================================================================
+# NEW PATTERN: Typed Stream Config Classes (Recommended)
+# ============================================================================
+
+
+@register_stream_config("snowflake")
+@dataclass
+class Snowflake_StreamConfig(StreamConfig_Base):
+    """Snowflake stream configuration (typed, follows AccountConfig pattern).
+
+    Provides type-safe access to Snowflake stream parameters.
+
+    Example:
+        >>> config = Snowflake_StreamConfig.from_dict({
+        ...     "query": "SELECT * FROM table",
+        ...     "databaseName": "SA_PRD",
+        ...     "warehouseName": "COMPUTE_WH"
+        ... })
+        >>> config.query  # Type-safe attribute access
+        "SELECT * FROM table"
+        >>> config.database_name
+        "SA_PRD"
+    """
+
+    data_provider_type: str = "snowflake"
+
+    # Stream configuration parameters
+    query: str = None
+    database_name: str = None
+    warehouse: str = None
+    schema_name: str = None
+
+    _field_map: dict = field(
+        default_factory=lambda: {
+            "warehouseName": "warehouse",  # Special case - avoid warehouse_name
+        },
+        repr=False,
+        init=False,
+    )
+
+    _fields_for_export: list[str] = field(
+        default_factory=lambda: [
+            "query",
+            "database_name",
+            "warehouse",
+            "schema_name",
+        ],
+        repr=False,
+        init=False,
+    )
+
+
+@register_stream_config("snowflakekeypairauthentication")
+@dataclass
+class SnowflakeKeyPairAuth_StreamConfig(StreamConfig_Base):
+    """Snowflake keypair authentication stream configuration.
+
+    Includes additional fields for keypair auth (query tags, fetch size, etc.).
+
+    Example:
+        >>> config = SnowflakeKeyPairAuth_StreamConfig.from_dict({
+        ...     "query": "SELECT * FROM table",
+        ...     "databaseName": "SA_PRD",
+        ...     "queryTag": "domoD2C123",
+        ...     "fetchSize": "1000"
+        ... })
+        >>> config.query_tag
+        "domoD2C123"
+    """
+
+    data_provider_type: str = "snowflakekeypairauthentication"
+
+    # Stream configuration parameters
+    query: str = None
+    database_name: str = None
+    schema_name: str = None
+    warehouse: str = None
+    report_type: str = None
+    query_tag: str = None
+    fetch_size: str = None
+    update_mode: str = None
+    convert_timezone: str = None
+    cloud: str = None
+
+    _field_map: dict = field(
+        default_factory=lambda: {
+            "warehouseName": "warehouse",  # Special case - avoid warehouse_name
+            "updatemode.mode": "update_mode",  # Special case with dot notation
+        },
+        repr=False,
+        init=False,
+    )
+
+    _fields_for_export: list[str] = field(
+        default_factory=lambda: [
+            "query",
+            "database_name",
+            "schema_name",
+            "warehouse",
+            "report_type",
+            "query_tag",
+            "fetch_size",
+            "update_mode",
+            "convert_timezone",
+            "cloud",
+        ],
+        repr=False,
+        init=False,
+    )
