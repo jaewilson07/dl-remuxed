@@ -29,9 +29,6 @@ __all__ = [
 ]
 
 from enum import Enum
-from typing import Optional
-
-import httpx
 
 from ...auth import DomoAuth
 from ...base.base import DomoEnumMixin
@@ -100,7 +97,7 @@ async def get_packages(
 async def get_codeengine_package_by_id(
     auth: DomoAuth,
     package_id: str,
-    params: Optional[dict] = None,
+    params: dict | None = None,
     *,
     context: RouteContext | None = None,
     return_raw: bool = False,
@@ -278,7 +275,7 @@ async def get_codeengine_package_by_id_and_version(
     auth: DomoAuth,
     package_id: str,
     version: str,
-    params: Optional[dict] = None,
+    params: dict | None = None,
     *,
     context: RouteContext | None = None,
     return_raw: bool = False,
@@ -335,7 +332,7 @@ async def test_package_is_released(
     version: str,
     auth: DomoAuth,
     existing_package=None,
-    params: Optional[dict] = None,
+    params: dict | None = None,
     *,
     context: RouteContext | None = None,
     **context_kwargs,
@@ -378,7 +375,7 @@ async def test_package_is_identical(
     existing_package=None,
     new_package=None,
     new_code=None,
-    params: Optional[dict] = None,
+    params: dict | None = None,
     *,
     context: RouteContext | None = None,
     **context_kwargs,

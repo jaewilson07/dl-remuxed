@@ -44,17 +44,17 @@ from ..config import register_account_config
 class DomoAccount_Config_MyConnector(DomoAccount_Config):
     data_provider_type: str = "my-connector"
     is_oauth: bool = False
-    
+
     # Define your attributes (snake_case)
     username: str = None
     password: str = field(repr=False, default=None)
     account: str = None
-    
+
     # List Python attribute names (not API keys)
     _fields_for_serialization: list[str] = field(
         default_factory=lambda: [
             "username",
-            "password", 
+            "password",
             "account",
         ]
     )
@@ -77,7 +77,7 @@ config = DomoAccount_Config_MyConnector.from_dict(api_response)
 # config.password == "secret"
 
 api_dict = config.to_dict()
-# Returns: {"username": "user@example.com", "password": "secret", 
+# Returns: {"username": "user@example.com", "password": "secret",
 #           "account": "myaccount", "allowExternalUse": true}
 ```
 
@@ -91,12 +91,12 @@ When API keys don't follow standard camelCase or need special mapping, use `_fie
 class DomoAccount_Config_SnowflakeKeyPair(DomoAccount_Config):
     data_provider_type: str = "snowflake-keypair"
     is_oauth: bool = False
-    
+
     private_key: str = field(repr=False, default=None)
     account: str = None
     passphrase: str = field(repr=False, default=None)  # Note: NOT pass_phrase
     username: str = None
-    
+
     # Map API keys to Python attributes
     _field_map: dict = field(
         default_factory=lambda: {
@@ -105,7 +105,7 @@ class DomoAccount_Config_SnowflakeKeyPair(DomoAccount_Config):
         repr=False,
         init=False,
     )
-    
+
     _fields_for_serialization: list[str] = field(
         default_factory=lambda: [
             "private_key",
@@ -143,17 +143,17 @@ For configs that need custom initialization or transformation:
 class DomoAccount_Config_AmazonS3(DomoAccount_Config):
     data_provider_type: str = "amazon-s3"
     is_oauth: bool = False
-    
+
     access_key: str = None
     secret_key: str = field(repr=False, default=None)
     bucket: str = None
     region: str = "us-west-2"
-    
+
     def __post_init__(self):
         # Custom logic: clean s3:// prefix from bucket
         self.bucket = self._clean_bucket()
         super().__post_init__()  # IMPORTANT: Call parent's __post_init__
-    
+
     _fields_for_serialization: list[str] = field(
         default_factory=lambda: [
             "access_key",
@@ -162,7 +162,7 @@ class DomoAccount_Config_AmazonS3(DomoAccount_Config):
             "region",
         ]
     )
-    
+
     def _clean_bucket(self):
         bucket = self.bucket
         if bucket and bucket.lower().startswith("s3://"):

@@ -16,7 +16,6 @@ Enums:
 
 import datetime as dt
 from enum import Enum
-from typing import Optional
 
 import httpx
 
@@ -59,7 +58,7 @@ async def get_api_clients(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -113,7 +112,7 @@ async def get_client_by_id(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -159,11 +158,11 @@ async def create_api_client(
     auth: DomoFullAuth,  # username and password (full) auth required for this API
     client_name: str,
     client_description: str = f"generated via DL {str(dt.date.today()).replace('-', '')}",
-    scope: Optional[list[ApiClient_ScopeEnum]] = None,  # defaults to [data, audit]
+    scope: list[ApiClient_ScopeEnum] | None = None,  # defaults to [data, audit]
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -242,7 +241,7 @@ async def revoke_api_client(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """

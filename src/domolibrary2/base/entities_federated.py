@@ -1,6 +1,6 @@
 import abc
 from dataclasses import dataclass, field
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 from .entities import DomoEntity_w_Lineage
 
@@ -16,13 +16,13 @@ class DomoFederatedEntity(DomoEntity_w_Lineage):
 
     @abc.abstractmethod
     async def get_federated_parent(
-        self, parent_auth=None, parent_auth_retrieval_fn: Optional[Callable] = None
+        self, parent_auth=None, parent_auth_retrieval_fn: Callable | None = None
     ):
         """Retrieve the parent entity from a federated Domo instance.
 
         Args:
             parent_auth: Authentication object for the parent instance
-            parent_auth_retrieval_fn (Optional[Callable]): Function to retrieve parent auth
+            parent_auth_retrieval_fn (Callable | None): Function to retrieve parent auth
 
         Raises:
             NotImplementedError: Must be implemented by subclasses
@@ -104,13 +104,13 @@ class DomoPublishedEntity(DomoFederatedEntity):
         raise NotImplementedError("This method should be implemented by subclasses.")
 
     async def get_federated_parent(
-        self, parent_auth=None, parent_auth_retrieval_fn: Optional[Callable] = None
+        self, parent_auth=None, parent_auth_retrieval_fn: Callable | None = None
     ):
         """Get the federated parent entity.
 
         Args:
             parent_auth: Authentication object for the parent instance
-            parent_auth_retrieval_fn (Optional[Callable]): Function to retrieve parent auth
+            parent_auth_retrieval_fn (Callable | None): Function to retrieve parent auth
 
         Raises:
             NotImplementedError: Must be implemented by subclasses

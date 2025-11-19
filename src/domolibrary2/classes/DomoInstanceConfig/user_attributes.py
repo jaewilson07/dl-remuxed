@@ -2,7 +2,7 @@ __all__ = ["UserAttribute", "UserAttributes"]
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -84,8 +84,8 @@ class UserAttribute(DomoEntity):
         self,
         name=None,
         description=None,
-        issuer_type: Optional[user_attribute_routes.UserAttributes_IssuerType] = None,
-        data_type: Optional[str] = None,
+        issuer_type: user_attribute_routes.UserAttributes_IssuerType | None = None,
+        data_type: str | None = None,
         security_voter=None,
         session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
@@ -116,8 +116,8 @@ async def update(
     self: UserAttribute,
     name=None,
     description=None,
-    issuer_type: Optional[user_attribute_routes.UserAttributes_IssuerType] = None,
-    data_type: Optional[str] = None,
+    issuer_type: user_attribute_routes.UserAttributes_IssuerType | None = None,
+    data_type: str | None = None,
     security_voter=None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
@@ -186,9 +186,9 @@ class UserAttributes(DomoManager):
         description=f"updated via domolibrary {dt.datetime.now().strftime('%Y-%m-%d - %H:%M')}",
         data_type: str = "ANY_VALUE",
         security_voter="FULL_VIS_ADMIN_IDP",
-        issuer_type: Optional[
-            user_attribute_routes.UserAttributes_IssuerType
-        ] = user_attribute_routes.UserAttributes_IssuerType.CUSTOM,
+        issuer_type: (
+            user_attribute_routes.UserAttributes_IssuerType | None
+        ) = user_attribute_routes.UserAttributes_IssuerType.CUSTOM,
         session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop=2,
@@ -226,9 +226,9 @@ async def create(
     description=f"updated via domolibrary {dt.datetime.now().strftime('%Y-%m-%d - %H:%M')}",
     data_type: str = "ANY_VALUE",
     security_voter="FULL_VIS_ADMIN_IDP",
-    issuer_type: Optional[
-        user_attribute_routes.UserAttributes_IssuerType
-    ] = user_attribute_routes.UserAttributes_IssuerType.CUSTOM,
+    issuer_type: (
+        user_attribute_routes.UserAttributes_IssuerType | None
+    ) = user_attribute_routes.UserAttributes_IssuerType.CUSTOM,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop=2,
@@ -264,8 +264,8 @@ async def upsert(
     attribute_id,
     name=None,
     description=None,
-    issuer_type: Optional[user_attribute_routes.UserAttributes_IssuerType] = None,
-    data_type: Optional[str] = None,
+    issuer_type: user_attribute_routes.UserAttributes_IssuerType | None = None,
+    data_type: str | None = None,
     security_voter=None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,

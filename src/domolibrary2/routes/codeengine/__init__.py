@@ -10,6 +10,8 @@ Modules:
     crud: Create, read, update, delete operations
 """
 
+from . import core, crud, packages
+
 # Import all exception classes
 # Import core functions
 from .core import (
@@ -23,8 +25,6 @@ from .core import (
     test_package_is_identical,
     test_package_is_released,
 )
-
-from . import crud, core, packages
 
 # Import CRUD functions
 from .crud import (
@@ -43,7 +43,6 @@ from .exceptions import (
     CodeEngine_InvalidPackageError,
     SearchCodeEngineNotFoundError,
 )
-
 from .packages import generate_share_account_package
 
 # Backward compatibility alias
@@ -52,7 +51,7 @@ CodeEngine_API_Error = CodeEngine_GET_Error
 __all__ = [
     "crud",
     "core",
-    "packages"
+    "packages",
     # Exception classes
     "CodeEngine_GET_Error",
     "SearchCodeEngineNotFoundError",

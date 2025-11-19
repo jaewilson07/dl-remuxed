@@ -5,7 +5,7 @@ This module contains result processors and extractors specifically designed
 for domolibrary2 components to provide better logging integration.
 """
 
-from typing import Any, Optional
+from typing import Any
 
 from dc_logger.client.extractors import EntityExtractor, ResultProcessor
 from dc_logger.client.models import HTTPDetails, LogEntity
@@ -16,7 +16,7 @@ from ...client import response as rgd
 class NoOpEntityExtractor(EntityExtractor):
     """No-op entity extractor that returns None to avoid conflicts."""
 
-    def extract(self, func: Any, args: tuple, kwargs: dict) -> Optional[LogEntity]:
+    def extract(self, func: Any, args: tuple, kwargs: dict) -> LogEntity | None:
         """Return None to avoid entity conflicts."""
         return None
 
@@ -24,7 +24,7 @@ class NoOpEntityExtractor(EntityExtractor):
 class DomoEntityExtractor(EntityExtractor):
     """Custom entity extractor for Domo routes that extracts entity info from function parameters."""
 
-    def extract(self, func: Any, args: tuple, kwargs: dict) -> Optional[LogEntity]:
+    def extract(self, func: Any, args: tuple, kwargs: dict) -> LogEntity | None:
         """Extract entity information from function parameters.
 
         This extractor looks at the function parameters to determine what type of entity
@@ -47,7 +47,7 @@ class DomoEntityExtractor(EntityExtractor):
 
         return None
 
-    def _extract_dataset_entity(self, kwargs: dict) -> Optional[LogEntity]:
+    def _extract_dataset_entity(self, kwargs: dict) -> LogEntity | None:
         """Extract rich dataset entity information."""
         dataset_id = kwargs.get("dataset_id")
         if not dataset_id:
@@ -73,7 +73,7 @@ class DomoEntityExtractor(EntityExtractor):
             additional_info=additional_info,
         )
 
-    def _extract_card_entity(self, kwargs: dict) -> Optional[LogEntity]:
+    def _extract_card_entity(self, kwargs: dict) -> LogEntity | None:
         """Extract rich card entity information."""
         card_id = kwargs.get("card_id")
         if not card_id:
@@ -101,7 +101,7 @@ class DomoEntityExtractor(EntityExtractor):
             additional_info=additional_info,
         )
 
-    def _extract_user_entity(self, kwargs: dict) -> Optional[LogEntity]:
+    def _extract_user_entity(self, kwargs: dict) -> LogEntity | None:
         """Extract user entity information."""
         user_id = kwargs.get("user_id")
         if not user_id:
@@ -114,7 +114,7 @@ class DomoEntityExtractor(EntityExtractor):
             additional_info={"auth_instance": self._get_auth_instance(kwargs)},
         )
 
-    def _extract_page_entity(self, kwargs: dict) -> Optional[LogEntity]:
+    def _extract_page_entity(self, kwargs: dict) -> LogEntity | None:
         """Extract page entity information."""
         page_id = kwargs.get("page_id")
         if not page_id:
@@ -127,7 +127,7 @@ class DomoEntityExtractor(EntityExtractor):
             additional_info={"auth_instance": self._get_auth_instance(kwargs)},
         )
 
-    def _extract_auth_entity(self, kwargs: dict) -> Optional[LogEntity]:
+    def _extract_auth_entity(self, kwargs: dict) -> LogEntity | None:
         """Extract auth entity information."""
         auth_instance = self._get_auth_instance(kwargs)
         if not auth_instance:
@@ -140,7 +140,7 @@ class DomoEntityExtractor(EntityExtractor):
             additional_info={"auth_instance": auth_instance},
         )
 
-    def _get_auth_instance(self, kwargs: dict) -> Optional[str]:
+    def _get_auth_instance(self, kwargs: dict) -> str | None:
         """Extract Domo instance from auth object."""
         auth = kwargs.get("auth")
         if auth and hasattr(auth, "domo_instance"):
@@ -152,8 +152,8 @@ class DomoEntityResultProcessor(ResultProcessor):
     """Enhanced result processor that extracts rich entity information from DomoEntity objects."""
 
     def process(
-        self, result: Any, http_details: Optional[HTTPDetails] = None
-    ) -> tuple[dict[str, Any], Optional[HTTPDetails]]:
+        self, result: Any, http_details: HTTPDetails | None = None
+    ) -> tuple[dict[str, Any], HTTPDetails | None]:
         """Process the result to extract rich entity information from DomoEntity objects."""
         result_context = {}
 
@@ -169,7 +169,7 @@ class DomoEntityResultProcessor(ResultProcessor):
 
         return result_context, http_details
 
-    def _extract_rich_entity_info(self, result: Any) -> Optional[dict]:
+    def _extract_rich_entity_info(self, result: Any) -> dict | None:
         """Extract rich entity information from DomoEntity objects or ResponseGetData."""
 
         # Case 1: Direct DomoEntity object
@@ -239,7 +239,7 @@ class DomoEntityResultProcessor(ResultProcessor):
 
     def _extract_from_response_data(
         self, response_data: dict, result: rgd.ResponseGetData
-    ) -> Optional[dict]:
+    ) -> dict | None:
         """Extract entity information from API response data."""
         # Try to determine entity type from URL or response structure
         url = (
@@ -458,7 +458,7 @@ class DomoEntityResultProcessor(ResultProcessor):
 class DomoEntityObjectProcessor(ResultProcessor):
     """Custom result processor for DomoEntity objects returned from class methods."""
 
-    def _extract_entity_from_domo_object(self, result: Any) -> Optional[LogEntity]:
+    def _extract_entity_from_domo_object(self, result: Any) -> LogEntity | None:
         """Extract entity information from DomoEntity objects.
 
         Args:
@@ -518,8 +518,8 @@ class DomoEntityObjectProcessor(ResultProcessor):
         return LogEntity.from_any(entity_info) if entity_info else None
 
     def process(
-        self, result: Any, http_details: Optional[HTTPDetails] = None
-    ) -> tuple[dict[str, Any], Optional[HTTPDetails]]:
+        self, result: Any, http_details: HTTPDetails | None = None
+    ) -> tuple[dict[str, Any], HTTPDetails | None]:
         """Process DomoEntity result and extract entity information.
 
         Args:
@@ -549,7 +549,7 @@ class DomoEntityObjectProcessor(ResultProcessor):
 class DomoEntityProcessor(ResultProcessor):
     """Custom result processor for DomoEntity objects from route responses."""
 
-    def _extract_entity_info(self, result: Any) -> Optional[LogEntity]:
+    def _extract_entity_info(self, result: Any) -> LogEntity | None:
         """Extract entity information from route response.
 
         Args:
@@ -642,8 +642,8 @@ class DomoEntityProcessor(ResultProcessor):
         return LogEntity.from_any(entity_info) if entity_info else None
 
     def process(
-        self, result: Any, http_details: Optional[HTTPDetails] = None
-    ) -> tuple[dict[str, Any], Optional[HTTPDetails]]:
+        self, result: Any, http_details: HTTPDetails | None = None
+    ) -> tuple[dict[str, Any], HTTPDetails | None]:
         """Process route result and extract entity information.
 
         Args:
@@ -779,8 +779,8 @@ class ResponseGetDataProcessor(ResultProcessor):
             return f"<{type(response).__name__}>"
 
     def process(
-        self, result: Any, http_details: Optional[HTTPDetails] = None
-    ) -> tuple[dict[str, Any], Optional[HTTPDetails]]:
+        self, result: Any, http_details: HTTPDetails | None = None
+    ) -> tuple[dict[str, Any], HTTPDetails | None]:
         """Process ResponseGetData result and update HTTP details.
 
         Args:

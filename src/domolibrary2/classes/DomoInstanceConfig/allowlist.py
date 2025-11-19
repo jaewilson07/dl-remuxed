@@ -5,7 +5,6 @@ __all__ = [
 
 import ipaddress
 from dataclasses import dataclass, field
-from typing import Optional
 
 import httpx
 
@@ -40,7 +39,7 @@ class DomoAllowlist:
 
     auth: DomoAuth = field(repr=False)
     allowlist: list[str] = field(default_factory=list)
-    is_filter_all_traffic_enabled: Optional[bool] = None
+    is_filter_all_traffic_enabled: bool | None = None
     raw: dict = field(default_factory=dict, repr=False)
 
     @property

@@ -38,7 +38,6 @@ __all__ = [
     "CreatePolicy_Error",
 ]
 
-from typing import Optional
 
 import httpx
 
@@ -60,9 +59,9 @@ class PDP_GET_Error(RouteError):
 
     def __init__(
         self,
-        dataset_id: Optional[str] = None,
-        res: Optional[rgd.ResponseGetData] = None,
-        message: Optional[str] = None,
+        dataset_id: str | None = None,
+        res: rgd.ResponseGetData | None = None,
+        message: str | None = None,
         **kwargs,
     ):
         if not message:
@@ -85,7 +84,7 @@ class SearchPDPNotFoundError(RouteError):
     def __init__(
         self,
         search_criteria: str,
-        res: Optional[rgd.ResponseGetData] = None,
+        res: rgd.ResponseGetData | None = None,
         **kwargs,
     ):
         message = f"No PDP policies found matching: {search_criteria}"
@@ -107,10 +106,10 @@ class PDP_CRUD_Error(RouteError):
     def __init__(
         self,
         operation: str,
-        dataset_id: Optional[str] = None,
-        policy_id: Optional[str] = None,
-        res: Optional[rgd.ResponseGetData] = None,
-        message: Optional[str] = None,
+        dataset_id: str | None = None,
+        policy_id: str | None = None,
+        res: rgd.ResponseGetData | None = None,
+        message: str | None = None,
         **kwargs,
     ):
         if not message:
@@ -174,7 +173,7 @@ async def get_pdp_policies(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -288,7 +287,7 @@ def search_pdp_policies_by_name(
 def generate_policy_parameter_simple(
     column_name: str,
     type: str = "COLUMN",
-    column_values_ls: Optional[list[str]] = None,
+    column_values_ls: list[str] | None = None,
     operator: str = "EQUALS",
     ignore_case: bool = True,
 ) -> dict:
@@ -332,10 +331,10 @@ def generate_policy_body(
     policy_name: str,
     dataset_id: str,
     parameters_ls: list[dict],
-    policy_id: Optional[str] = None,
-    user_ids: Optional[list[str]] = None,
-    group_ids: Optional[list[str]] = None,
-    virtual_user_ids: Optional[list[str]] = None,
+    policy_id: str | None = None,
+    user_ids: list[str] | None = None,
+    group_ids: list[str] | None = None,
+    virtual_user_ids: list[str] | None = None,
 ) -> dict:
     """
     Generate a policy body for PDP policy creation or update.
@@ -403,7 +402,7 @@ async def create_policy(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -505,7 +504,7 @@ async def update_policy(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -577,7 +576,7 @@ async def delete_policy(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -641,7 +640,7 @@ async def toggle_pdp(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """

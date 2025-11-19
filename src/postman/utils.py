@@ -66,10 +66,10 @@ def gd_requests(
     Args:
         method (str): HTTP method (GET, POST, etc.)
         url (str): The URL to make the request to
-        auth (Dict[str, str]): Authentication credentials
-        headers (Optional[Dict[str, str]]): Request headers
-        params (Optional[Dict[str, str]]): Query parameters
-        body (Optional[Union[str, Dict[str, Any]]]): Request body
+        auth (dict[str, str]): Authentication credentials
+        headers (Optional[dict[str, str]]): Request headers
+        params (Optional[dict[str, str]]): Query parameters
+        body (Optional[Union[str, dict[str, Any]]]): Request body
 
     Returns:
         requests.Response: The response from the request

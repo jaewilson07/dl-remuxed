@@ -17,7 +17,7 @@ def test_exports(
         update_files (bool): Whether to update source files with test results
 
     Returns:
-        Dict[str, Any]: Dictionary with test results where keys are function names
+        dict[str, Any]: Dictionary with test results where keys are function names
                        and values are either responses or exceptions
     """
     results = {}

@@ -8,7 +8,7 @@ Functions:
     get_oauth_account_by_id: Retrieve specific OAuth account by ID
 """
 
-from typing import Optional, Union
+from typing import Union
 
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
@@ -32,7 +32,7 @@ async def get_oauth_accounts(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Retrieve all OAuth accounts the user has access to.
@@ -82,7 +82,7 @@ async def get_oauth_account_by_id(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Retrieve a specific OAuth account by ID.

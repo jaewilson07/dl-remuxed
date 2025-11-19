@@ -2,7 +2,7 @@
 
 __all__ = ["test_page_access", "get_accesslist", "share"]
 
-from typing import Optional, Union
+from typing import Union
 
 import httpx
 
@@ -80,7 +80,7 @@ async def test_page_access(
 
 async def get_accesslist(
     self,
-    auth: Optional[DomoAuth] = None,
+    auth: DomoAuth | None = None,
     return_raw: bool = False,
     debug_api: bool = False,
     session: httpx.AsyncClient | None = None,
@@ -243,10 +243,10 @@ async def get_accesslist(
 
 async def share(
     self,
-    auth: Optional[DomoAuth] = None,
-    domo_users: Optional[Union[list, object]] = None,
-    domo_groups: Optional[Union[list, object]] = None,
-    message: Optional[str] = None,
+    auth: DomoAuth | None = None,
+    domo_users: Union[list, object] | None = None,
+    domo_groups: Union[list, object] | None = None,
+    message: str | None = None,
     debug_api: bool = False,
     session: httpx.AsyncClient | None = None,
 ) -> ResponseGetData:

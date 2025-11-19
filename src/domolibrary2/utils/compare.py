@@ -32,7 +32,7 @@ def compare_dicts(dict1: object, dict2: object, path: str = "") -> list[dict[str
         path (str): Current path in the data structure (used for recursion)
 
     Returns:
-        list[Dict[str, str]]: list of difference dictionaries, each containing:
+        list[dict[str, str]]: list of difference dictionaries, each containing:
             - 'key': The path to the difference
             - 'message': Description of the difference
 

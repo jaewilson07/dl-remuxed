@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Optional
+from typing import Any, Optional
 
 __all__ = ["generate_share_account_package"]
 
@@ -8,11 +8,11 @@ def generate_share_account_package(
     package_id: str,
     version: str,
     name: str,
-    account_mappings: List[Dict[str, Any]],
+    account_mappings: list[dict[str, Any]],
     environment: str = "LAMBDA",
     language: str = "PYTHON",
-    functions: Optional[List[Dict[str, Any]]] = None,
-) -> Dict[str, Any]:
+    functions: Optional[list[dict[str, Any]]] = None,
+) -> dict[str, Any]:
     """
     Generate a CodeEngine package dictionary structure.
 

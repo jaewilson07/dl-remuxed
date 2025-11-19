@@ -29,7 +29,6 @@ __all__ = [
 ]
 
 import asyncio
-from typing import Optional
 
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
@@ -84,7 +83,7 @@ async def get_all_users(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -580,7 +579,7 @@ async def search_virtual_user_by_subscriber_instance(
     subscriber_instance_ls: list[str],  # list of subscriber domo instances
     debug_api: bool = False,  # debug API requests
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:  # list of virtual domo users
@@ -647,7 +646,7 @@ async def create_user(
     debug_api: bool = False,
     session: httpx.AsyncClient | None = None,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Create a new user in the Domo instance.
@@ -721,7 +720,7 @@ async def delete_user(
     user_id: str,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
@@ -773,7 +772,7 @@ async def toggle_is_enable_user_direct_signon(
     is_allow_dso: bool = True,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:

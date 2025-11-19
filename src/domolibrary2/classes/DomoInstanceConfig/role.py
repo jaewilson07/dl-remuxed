@@ -9,7 +9,7 @@ __all__ = [
 
 
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -28,8 +28,8 @@ class SetRoleGrants_MissingGrants(ClassError):  # noqa: N801, N818
     def __init__(
         self,
         cls_instance,
-        message: Optional[str] = None,
-        missing_grants: Optional[list[str]] = None,
+        message: str | None = None,
+        missing_grants: list[str] | None = None,
     ):
         if missing_grants:
             message = f"role {cls_instance.name} is missing the following grants: {missing_grants}"
@@ -59,10 +59,10 @@ class DomoRole(
     DomoEntity,
 ):
     id: str
-    name: Optional[str] = field(default=None)
-    description: Optional[str] = field(default=None)
-    is_system_role: Optional[bool] = field(default=None)
-    is_default_role: Optional[bool] = field(default=None)
+    name: str | None = field(default=None)
+    description: str | None = field(default=None)
+    is_system_role: bool | None = field(default=None)
+    is_default_role: bool | None = field(default=None)
 
     grants: list[Any] = field(default_factory=list)  # Will be DomoGrant objects
     membership: list = field(default_factory=list)
@@ -101,9 +101,7 @@ class DomoRole(
             return []
 
     @classmethod
-    def from_dict(
-        cls, auth: DomoAuth, obj: dict, is_default_role: Optional[bool] = None
-    ):
+    def from_dict(cls, auth: DomoAuth, obj: dict, is_default_role: bool | None = None):
         return cls(
             auth=auth,
             id=obj.get("id", ""),
@@ -151,8 +149,8 @@ class DomoRole(
     async def update(
         self,
         name=None,
-        description: Optional[str] = None,
-        grants: Optional[list["DomoGrant"]] = None,
+        description: str | None = None,
+        grants: list["DomoGrant"] | None = None,
         debug_api: bool = False,
         session: httpx.AsyncClient | None = None,
         return_raw: bool = False,
@@ -185,7 +183,7 @@ class DomoRole(
     async def get_grants(
         self,
         auth: DomoAuth,
-        role_id: Optional[str] = None,
+        role_id: str | None = None,
         debug_api: bool = False,
         session: httpx.AsyncClient | None = None,
     ) -> list[DomoGrant]:
@@ -203,7 +201,7 @@ class DomoRole(
     async def set_grants(
         self,
         grants: list[DomoGrant],
-        role_id: Optional[str] = None,
+        role_id: str | None = None,
         is_replace: bool = True,
         session: httpx.AsyncClient | None = None,
     ):
@@ -235,8 +233,8 @@ class DomoRole(
     async def add_user(
         self,
         auth: DomoAuth,
-        user_id: Optional[str] = None,
-        user: Optional[DomoUser] = None,
+        user_id: str | None = None,
+        user: DomoUser | None = None,
         session: httpx.AsyncClient | None = None,
     ):
         if user_id is None:
@@ -306,7 +304,7 @@ class DomoRole(
     async def get_membership(
         self,
         role_id=None,
-        auth: Optional[DomoAuth] = None,
+        auth: DomoAuth | None = None,
         return_raw: bool = False,
         debug_api: bool = False,
         session: httpx.AsyncClient | None = None,
@@ -351,8 +349,8 @@ class DomoRole(
 
 @dataclass
 class DomoRoles(DomoManager):
-    default_role: Optional[DomoRole] = None
-    roles: Optional[list[DomoRole]] = field(default=None)
+    default_role: DomoRole | None = None
+    roles: list[DomoRole] | None = field(default=None)
 
     async def get(
         self,
@@ -408,8 +406,8 @@ class DomoRoles(DomoManager):
     async def upsert(
         self,
         name: str,
-        description: Optional[str] = None,
-        grants: Optional[list["DomoGrant"]] = None,
+        description: str | None = None,
+        grants: list["DomoGrant"] | None = None,
         session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_prn: bool = False,

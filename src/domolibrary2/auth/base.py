@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Optional, Union
+from typing import Union
 
 import httpx
 from dc_logger.decorators import LogDecoratorConfig
@@ -55,27 +55,27 @@ class _DomoAuth_Optional(ABC):  # noqa: N801
 
     Attributes:
         domo_instance (str): The Domo instance identifier
-        token_name (Optional[str]): Name identifier for the token
-        token (Optional[str]): The authentication token
-        user_id (Optional[str]): The authenticated user's ID
+        token_name (str | None): Name identifier for the token
+        token (str | None): The authentication token
+        user_id (str | None): The authenticated user's ID
         is_valid_token (bool): Whether the current token is valid
     """
 
     def __init__(
         self,
         domo_instance: str,
-        token_name: Optional[str] = None,
-        token: Optional[str] = None,
-        user_id: Optional[str] = None,
+        token_name: str | None = None,
+        token: str | None = None,
+        user_id: str | None = None,
         is_valid_token: bool = False,
     ):
         """Initialize optional authentication parameters.
 
         Args:
             domo_instance (str): The Domo instance identifier
-            token_name (Optional[str]): Name identifier for the token
-            token (Optional[str]): The authentication token
-            user_id (Optional[str]): The authenticated user's ID
+            token_name (str | None): Name identifier for the token
+            token (str | None): The authentication token
+            user_id (str | None): The authenticated user's ID
             is_valid_token (bool): Whether the current token is valid
 
         Raises:
@@ -242,7 +242,7 @@ class _DomoAuth_Optional(ABC):  # noqa: N801
     async def print_is_token(
         self,
         debug_api: bool = False,
-        token_name: Optional[str] = None,
+        token_name: str | None = None,
         session: httpx.AsyncClient | None = None,
     ) -> bool:
         """Print token status and return True if token is valid, otherwise False.
@@ -252,7 +252,7 @@ class _DomoAuth_Optional(ABC):  # noqa: N801
 
         Args:
             debug_api (bool): Whether to enable API debugging
-            token_name (Optional[str]): Override token name for display purposes
+            token_name (str | None): Override token name for display purposes
             session (httpx.AsyncClient | None): HTTP client session to use
 
         Returns:

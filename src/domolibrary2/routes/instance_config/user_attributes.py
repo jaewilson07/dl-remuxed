@@ -70,11 +70,11 @@ def clean_attribute_id(text: str) -> str:
 
 def generate_create_user_attribute_body(
     attribute_id: str,
-    name: Optional[str] = None,
-    description: Optional[str] = None,
-    issuer_type: Optional[UserAttributes_IssuerType] = None,
-    security_voter: Optional[str] = None,
-    data_type: Optional[str] = None,
+    name: str | None = None,
+    description: str | None = None,
+    issuer_type: UserAttributes_IssuerType | None = None,
+    security_voter: str | None = None,
+    data_type: str | None = None,
 ) -> dict:
     """Generate request body for creating user attributes.
 
@@ -117,7 +117,7 @@ async def get_user_attributes(
     ] = None,  # use `UserAttributes_IssuerType` enum
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
@@ -182,7 +182,7 @@ async def get_user_attribute_by_id(
     attribute_id: str,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
@@ -237,14 +237,14 @@ async def get_user_attribute_by_id(
 async def create_user_attribute(
     auth: DomoAuth,
     attribute_id: str,
-    name: Optional[str] = None,
-    description: Optional[str] = None,
-    data_type: Optional[str] = None,
-    security_voter: Optional[str] = None,
-    issuer_type: Optional[UserAttributes_IssuerType] = None,
+    name: str | None = None,
+    description: str | None = None,
+    data_type: str | None = None,
+    security_voter: str | None = None,
+    issuer_type: UserAttributes_IssuerType | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
@@ -322,14 +322,14 @@ async def create_user_attribute(
 async def update_user_attribute(
     auth: DomoAuth,
     attribute_id: str,
-    name: Optional[str] = None,
-    description: Optional[str] = None,
+    name: str | None = None,
+    description: str | None = None,
     issuer_type: UserAttributes_IssuerType = UserAttributes_IssuerType.CUSTOM,
-    data_type: Optional[str] = None,
-    security_voter: Optional[str] = None,
+    data_type: str | None = None,
+    security_voter: str | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
@@ -420,7 +420,7 @@ async def delete_user_attribute(
     attribute_id: str,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:

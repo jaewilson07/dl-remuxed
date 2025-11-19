@@ -15,7 +15,6 @@ __all__ = [
     "AppDb_CRUD_Error",
 ]
 
-from typing import Optional
 
 from ...base.exceptions import RouteError
 
@@ -25,8 +24,8 @@ class AppDb_GET_Error(RouteError):
 
     def __init__(
         self,
-        appdb_id: Optional[str] = None,
-        message: Optional[str] = None,
+        appdb_id: str | None = None,
+        message: str | None = None,
         res=None,
         **kwargs,
     ):
@@ -44,7 +43,7 @@ class SearchAppDbNotFoundError(RouteError):
     def __init__(
         self,
         search_criteria: str,
-        message: Optional[str] = None,
+        message: str | None = None,
         res=None,
         **kwargs,
     ):
@@ -61,8 +60,8 @@ class AppDb_CRUD_Error(RouteError):
     def __init__(
         self,
         operation: str,
-        appdb_id: Optional[str] = None,
-        message: Optional[str] = None,
+        appdb_id: str | None = None,
+        message: str | None = None,
         res=None,
         **kwargs,
     ):

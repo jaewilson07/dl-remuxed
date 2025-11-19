@@ -3,7 +3,7 @@
 __all__ = ["DomoPage"]
 
 from dataclasses import dataclass, field
-from typing import Any, ClassVar, Optional
+from typing import Any, ClassVar
 
 import httpx
 
@@ -27,7 +27,7 @@ from .pages import DomoPages
 class DomoPage(DomoEntity_w_Lineage):
     id: int
     auth: DomoAuth = field(repr=False)
-    Lineage: Optional[DomoLineage] = field(repr=False, default=None)
+    Lineage: DomoLineage | None = field(repr=False, default=None)
 
     title: str = None
     top_page_id: int = None

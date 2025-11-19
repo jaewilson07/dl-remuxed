@@ -1,7 +1,6 @@
 """Jupyter authentication classes for Domo."""
 
 from dataclasses import dataclass, field
-from typing import Optional
 
 from .base import _DomoAuth_Optional, _DomoAuth_Required
 from .full import DomoFullAuth, _DomoFullAuth_Required
@@ -22,9 +21,9 @@ class _DomoJupyter_Required:  # noqa: N801
 
     def __init__(
         self,
-        jupyter_token: Optional[str] = None,
-        service_location: Optional[str] = None,
-        service_prefix: Optional[str] = None,
+        jupyter_token: str | None = None,
+        service_location: str | None = None,
+        service_prefix: str | None = None,
     ):
         """Initialize Jupyter authentication parameters.
 
@@ -33,9 +32,9 @@ class _DomoJupyter_Required:  # noqa: N801
         Jupyter network traffic.
 
         Args:
-            jupyter_token (Optional[str]): Authorization token from network traffic
-            service_location (Optional[str]): Service location from environment
-            service_prefix (Optional[str]): Service prefix from environment
+            jupyter_token (str | None): Authorization token from network traffic
+            service_location (str | None): Service location from environment
+            service_prefix (str | None): Service prefix from environment
 
         Raises:
             ValueError: If any required parameters are missing after initialization
@@ -106,9 +105,9 @@ class DomoJupyterFullAuth(
         domo_instance (str): The Domo instance identifier
         domo_username (str): Domo username for authentication
         domo_password (str): Domo password for authentication (not shown in repr)
-        token_name (Optional[str]): Name identifier for the token
-        token (Optional[str]): The authentication token (not shown in repr)
-        user_id (Optional[str]): The authenticated user's ID
+        token_name (str | None): Name identifier for the token
+        token (str | None): The authentication token (not shown in repr)
+        user_id (str | None): The authenticated user's ID
         is_valid_token (bool): Whether the current token is valid
 
     Example:
@@ -130,9 +129,9 @@ class DomoJupyterFullAuth(
     domo_username: str
     domo_password: str = field(repr=False)
 
-    token_name: Optional[str] = None
-    token: Optional[str] = field(default=None, repr=False)
-    user_id: Optional[str] = None
+    token_name: str | None = None
+    token: str | None = field(default=None, repr=False)
+    user_id: str | None = None
     is_valid_token: bool = False
 
     def __post_init__(self):
@@ -216,9 +215,9 @@ class DomoJupyterTokenAuth(
         service_prefix (str): Service prefix from Jupyter environment
         domo_instance (str): The Domo instance identifier
         domo_access_token (str): Pre-generated access token (not shown in repr)
-        token_name (Optional[str]): Name identifier for the token
-        token (Optional[str]): The authentication token (not shown in repr)
-        user_id (Optional[str]): The authenticated user's ID
+        token_name (str | None): Name identifier for the token
+        token (str | None): The authentication token (not shown in repr)
+        user_id (str | None): The authenticated user's ID
         is_valid_token (bool): Whether the current token is valid
 
     Example:
@@ -239,9 +238,9 @@ class DomoJupyterTokenAuth(
 
     domo_access_token: str = field(repr=False)
 
-    token_name: Optional[str] = None
-    token: Optional[str] = field(default=None, repr=False)
-    user_id: Optional[str] = None
+    token_name: str | None = None
+    token: str | None = field(default=None, repr=False)
+    user_id: str | None = None
     is_valid_token: bool = False
 
     def __post_init__(self):
