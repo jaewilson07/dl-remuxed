@@ -52,7 +52,21 @@ async def get_datasets(
 
     stream = await ds.Stream.refresh()
 
-    print(stream)
+    print("Stream Info:")
+    print(f"  Provider: {stream.data_provider_name}")
+    print(f"  Account: {stream.account_display_name}")
+    print(f"  Update Method: {stream.update_method}")
+
+    # NEW: Use typed config for type-safe access
+    if stream.typed_config:
+        print(f"\nTyped Config ({type(stream.typed_config).__name__}):")
+        print(f"  Database: {stream.typed_config.database_name}")
+        print(f"  Schema: {stream.typed_config.schema_name}")
+        print(f"  Warehouse: {stream.typed_config.warehouse}")
+
+        # NEW: Convenient sql property
+        if stream.sql:
+            print(f"  SQL: {stream.sql[:100]}...")
 
     return ds
 
@@ -70,6 +84,23 @@ async def main(
 
     # Stream was already refreshed in get_datasets(), so just access it
     stream = ds.Stream
+
+    # Additional demonstration of new features
+    print("\n" + "="*80)
+    print("Stream Configuration Access Patterns:")
+    print("="*80)
+
+    # OLD Pattern: Search through list of StreamConfig objects
+    print("\nOLD Pattern (list-based):")
+    query_config = next((c for c in stream.configuration if c.name == 'query'), None)
+    if query_config:
+        print(f"  Found query via list search: {query_config.value[:50]}...")
+
+    # NEW Pattern: Type-safe attribute access
+    print("\nNEW Pattern (typed config):")
+    if stream.typed_config:
+        print(f"  Type-safe access: {stream.typed_config.query[:50]}...")
+        print(f"  Convenience property: {stream.sql[:50]}...")
 
     print(stream)
 

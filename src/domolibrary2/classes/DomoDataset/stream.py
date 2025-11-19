@@ -89,6 +89,65 @@ class DomoStream(DomoEntity):
         """Generate URL to view this stream in the Domo UI"""
         return f"https://{self.auth.domo_instance}.domo.com/datasources/{self.dataset_id}/details/data/table"
 
+    @property
+    def typed_config(self):
+        """Convert list-based configuration to typed StreamConfig object.
+
+        Returns the appropriate typed config class based on data_provider_key:
+        - SnowflakeKeyPairAuth_StreamConfig for 'snowflakekeypairauthentication'
+        - Snowflake_StreamConfig for 'snowflake'
+        - AWSAthena_StreamConfig for 'aws-athena'
+        - etc.
+
+        Provides type-safe access to config parameters:
+            stream.typed_config.query
+            stream.typed_config.database_name
+            stream.typed_config.warehouse
+
+        Returns None if provider type is not recognized or config is empty.
+        """
+        from .stream_configs._base import _CONFIG_REGISTRY
+
+        if not self.configuration or not self.data_provider_key:
+            return None
+
+        # Get the typed config class for this provider
+        config_class = _CONFIG_REGISTRY.get(self.data_provider_key)
+        if not config_class:
+            return None
+
+        # Convert list of StreamConfig to dict
+        config_dict = {
+            cfg.name: cfg.value
+            for cfg in self.configuration
+            if cfg.name and cfg.value is not None
+        }
+
+        # Create typed config instance
+        return config_class.from_dict(config_dict)
+
+    @property
+    def sql(self) -> str | None:
+        """Get SQL query from stream configuration.
+
+        Convenience property that extracts the query/SQL from typed_config.
+        Works for providers that have a 'query' field (Snowflake, AWS Athena, PostgreSQL, etc.)
+
+        Returns:
+            SQL query string or None if not available
+
+        Example:
+            >>> stream = await DomoStream.get_by_id(auth, stream_id)
+            >>> print(stream.sql)
+            "SELECT * FROM my_table"
+        """
+        typed = self.typed_config
+        if typed is None:
+            return None
+
+        # Try to get query attribute (most providers use this)
+        return getattr(typed, "query", None)
+
     @classmethod
     def from_dict(cls, auth, obj, parent: Any | None = None, **kwargs):  # DomoDataset
         data_provider = obj.get("dataProvider", {})
