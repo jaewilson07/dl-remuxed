@@ -10,13 +10,13 @@ from importlib import import_module
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-# Import the stream_config module directly to avoid circular imports
-stream_config = import_module("domolibrary2.classes.DomoDataset.stream_config")
+# Import the stream_configs module directly to avoid circular imports
+stream_configs = import_module("domolibrary2.classes.DomoDataset.stream_configs")
 
-StreamConfig_Mapping = stream_config.StreamConfig_Mapping
-StreamConfig_Mappings = stream_config.StreamConfig_Mappings
-register_mapping = stream_config.register_mapping
-_MAPPING_REGISTRY = stream_config._MAPPING_REGISTRY
+StreamConfig_Mapping = stream_configs.StreamConfig_Mapping
+StreamConfig_Mappings = stream_configs.StreamConfig_Mappings
+register_mapping = stream_configs.register_mapping
+_MAPPING_REGISTRY = stream_configs._MAPPING_REGISTRY
 
 
 # ============================================================================

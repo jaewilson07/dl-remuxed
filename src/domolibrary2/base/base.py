@@ -6,10 +6,11 @@ the building blocks for all Domo entities and relationships.
 """
 
 import abc
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, field, fields
 from enum import Enum
 from typing import Any, Callable, ClassVar, Optional
 
+from ..client.context import RouteContext
 from ..utils.convert import convert_snake_to_pascal
 
 
@@ -49,6 +50,30 @@ class DomoEnumMixin:
                 return member
 
         return getattr(cls, "default", None)
+
+    @classmethod
+    def _create_pseudo_member(cls, member_name: str, member_value: Any):
+        """Create a pseudo enum member dynamically.
+
+        This is used by _missing_() implementations to create enum members
+        on-the-fly when they are accessed but not explicitly defined.
+
+        Args:
+            member_name: The name for the enum member (will be normalized)
+            member_value: The value to assign to the enum member
+
+        Returns:
+            A pseudo enum member with _name_ and _value_ attributes set
+        """
+        # Normalize the member name (replace hyphens with underscores)
+        normalized_name = member_name.replace("-", "_")
+
+        # Create a raw enum instance
+        pseudo_member = object.__new__(cls)
+        pseudo_member._name_ = normalized_name
+        pseudo_member._value_ = member_value
+
+        return pseudo_member
 
     @classmethod
     def _missing_(cls, value):
@@ -120,6 +145,39 @@ class DomoBase(abc.ABC):
     """
 
     __serialize_properties__: ClassVar[tuple[str, ...]] = ()
+
+    _default_route_context: "RouteContext | None" = field(
+        init=False, default=None, repr=False
+    )
+
+    def _build_route_context(
+        self,
+        **context_kwargs,
+    ) -> "RouteContext":
+        """Construct a RouteContext for route calls.
+
+        Automatically sets parent_class to the class name if not provided.
+        Uses _default_route_context for base defaults if set.
+        """
+        context_kwargs.setdefault("parent_class", self.__class__.__name__)
+
+        base = self._default_route_context or RouteContext()
+
+        return RouteContext(
+            session=context_kwargs.get("session") or base.session,
+            debug_api=(
+                context_kwargs.get("debug_api")
+                if context_kwargs.get("debug_api") is not None
+                else base.debug_api
+            ),
+            debug_num_stacks_to_drop=(
+                context_kwargs.get("debug_num_stacks_to_drop")
+                if context_kwargs.get("debug_num_stacks_to_drop") is not None
+                else base.debug_num_stacks_to_drop
+            ),
+            parent_class=context_kwargs.get("parent_class"),
+            log_level=context_kwargs.get("log_level") or base.log_level,
+        )
 
     def to_dict(
         self, override_fn: Optional[Callable] = None, return_snake_case: bool = False
