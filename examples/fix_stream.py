@@ -50,7 +50,7 @@ async def get_datasets(
 ):
     ds = await dmds.DomoDataset.get_by_id(auth=target_auth, dataset_id=dataset_id)
 
-    stream = await ds.Stream.get()
+    stream = await ds.Stream.refresh()
 
     print(stream)
 
@@ -68,7 +68,8 @@ async def main(
 
     ds = await get_datasets(target_auth=target_auth, dataset_id=dataset_id)
 
-    stream = await ds.Stream.get()
+    # Stream was already refreshed in get_datasets(), so just access it
+    stream = ds.Stream
 
     print(stream)
 
