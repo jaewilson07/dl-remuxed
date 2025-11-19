@@ -46,7 +46,9 @@ from .stream import (
     DomoStream,
     DomoStreams,
 )
-from .stream_config import (
+from .stream_configs import (
+    CONFORMED_PROPERTIES,
+    ConformedProperty,
     StreamConfig,
     StreamConfig_Mappings,
 )
@@ -82,6 +84,9 @@ __all__ = [
     "DomoStreams",
     "StreamConfig",
     "StreamConfig_Mappings",
+    # Conformed properties (NEW)
+    "ConformedProperty",
+    "CONFORMED_PROPERTIES",
     "StreamConfig_Mapping_snowflake",
     "StreamConfig_Mapping_snowflake_federated",
     "StreamConfig_Mapping_snowflake_internal_unload",
