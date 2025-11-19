@@ -43,6 +43,20 @@ from ._base import (
 )
 
 # Import new typed config classes
+from ._default import Default_StreamConfig
+from .aws import (
+    AmazonAthenaHighBandwidth_StreamConfig,
+    AmazonS3AssumeRole_StreamConfig,
+    AWSAthena_StreamConfig,
+)
+from .domo import DatasetCopy_StreamConfig, DomoCSV_StreamConfig
+from .google import GoogleSheets_StreamConfig, GoogleSpreadsheets_StreamConfig
+from .other import (
+    AdobeAnalyticsV2_StreamConfig,
+    PostgreSQL_StreamConfig,
+    Qualtrics_StreamConfig,
+    SharePointOnline_StreamConfig,
+)
 from .snowflake import (
     Snowflake_StreamConfig,
     SnowflakeKeyPairAuth_StreamConfig,
@@ -55,6 +69,23 @@ __all__ = [
     # NEW: Snowflake configs
     "Snowflake_StreamConfig",
     "SnowflakeKeyPairAuth_StreamConfig",
+    # NEW: AWS configs
+    "AWSAthena_StreamConfig",
+    "AmazonAthenaHighBandwidth_StreamConfig",
+    "AmazonS3AssumeRole_StreamConfig",
+    # NEW: Domo configs
+    "DatasetCopy_StreamConfig",
+    "DomoCSV_StreamConfig",
+    # NEW: Google configs
+    "GoogleSheets_StreamConfig",
+    "GoogleSpreadsheets_StreamConfig",
+    # NEW: Other configs
+    "AdobeAnalyticsV2_StreamConfig",
+    "PostgreSQL_StreamConfig",
+    "Qualtrics_StreamConfig",
+    "SharePointOnline_StreamConfig",
+    # NEW: Default config
+    "Default_StreamConfig",
     # OLD PATTERN (Deprecated but kept for compatibility)
     "StreamConfig_Mapping",
     "StreamConfig_Mappings",

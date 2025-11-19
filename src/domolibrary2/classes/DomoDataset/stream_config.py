@@ -23,6 +23,18 @@ UPDATED: This module now supports two patterns:
 
 # Re-export everything from stream_configs for backward compatibility
 from .stream_configs import (
+    AdobeAnalyticsV2_StreamConfig,
+    AmazonAthenaHighBandwidth_StreamConfig,
+    AmazonS3AssumeRole_StreamConfig,
+    AWSAthena_StreamConfig,
+    DatasetCopy_StreamConfig,
+    Default_StreamConfig,
+    DomoCSV_StreamConfig,
+    GoogleSheets_StreamConfig,
+    GoogleSpreadsheets_StreamConfig,
+    PostgreSQL_StreamConfig,
+    Qualtrics_StreamConfig,
+    SharePointOnline_StreamConfig,
     Snowflake_StreamConfig,
     SnowflakeKeyPairAuth_StreamConfig,
     Stream_CRUD_Error,
@@ -39,8 +51,26 @@ __all__ = [
     # NEW PATTERN (Recommended)
     "StreamConfig_Base",
     "register_stream_config",
+    # Snowflake
     "Snowflake_StreamConfig",
     "SnowflakeKeyPairAuth_StreamConfig",
+    # AWS
+    "AWSAthena_StreamConfig",
+    "AmazonAthenaHighBandwidth_StreamConfig",
+    "AmazonS3AssumeRole_StreamConfig",
+    # Domo
+    "DatasetCopy_StreamConfig",
+    "DomoCSV_StreamConfig",
+    # Google
+    "GoogleSheets_StreamConfig",
+    "GoogleSpreadsheets_StreamConfig",
+    # Other
+    "AdobeAnalyticsV2_StreamConfig",
+    "PostgreSQL_StreamConfig",
+    "Qualtrics_StreamConfig",
+    "SharePointOnline_StreamConfig",
+    # Default
+    "Default_StreamConfig",
     # OLD PATTERN (Deprecated)
     "StreamConfig_Mapping",
     "StreamConfig_Mappings",
