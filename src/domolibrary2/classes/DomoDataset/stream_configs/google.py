@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 
-from ..stream_config import StreamConfig_Mapping, register_mapping
+from ._base import StreamConfig_Mapping, register_mapping
 
 __all__ = [
     "GoogleSheetsMapping",

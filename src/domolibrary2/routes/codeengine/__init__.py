@@ -17,11 +17,14 @@ from .core import (
     execute_codeengine_function,
     get_codeengine_package_by_id,
     get_codeengine_package_by_id_and_version,
+    get_current_package_version,
     get_package_versions,
     get_packages,
     test_package_is_identical,
     test_package_is_released,
 )
+
+from . import crud, core, packages
 
 # Import CRUD functions
 from .crud import (
@@ -29,6 +32,7 @@ from .crud import (
     create_codeengine_package,
     deploy_codeengine_package,
     increment_version,
+    share_accounts_with_package,
     upsert_codeengine_package_version,
     upsert_package,
 )
@@ -40,10 +44,15 @@ from .exceptions import (
     SearchCodeEngineNotFoundError,
 )
 
+from .packages import generate_share_account_package
+
 # Backward compatibility alias
 CodeEngine_API_Error = CodeEngine_GET_Error
 
 __all__ = [
+    "crud",
+    "core",
+    "packages"
     # Exception classes
     "CodeEngine_GET_Error",
     "SearchCodeEngineNotFoundError",
@@ -56,6 +65,7 @@ __all__ = [
     "CodeEngine_Package_Parts",
     "get_codeengine_package_by_id",
     "get_package_versions",
+    "get_current_package_version",
     "get_codeengine_package_by_id_and_version",
     "test_package_is_released",
     "test_package_is_identical",
@@ -67,4 +77,6 @@ __all__ = [
     "increment_version",
     "upsert_codeengine_package_version",
     "upsert_package",
+    "share_accounts_with_package",
+    "generate_share_account_package",
 ]

@@ -5,10 +5,10 @@ from dataclasses import dataclass
 from typing import Optional, Union
 
 import httpx
-from dc_logger.decorators import LogDecoratorConfig, log_call
+from dc_logger.decorators import LogDecoratorConfig
 
 from ..client.response import ResponseGetData
-from ..utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
+from ..utils.logging import DomoEntityExtractor, DomoEntityResultProcessor, log_call
 
 
 class _DomoAuth_Required(ABC):  # noqa: N801
@@ -120,6 +120,7 @@ class _DomoAuth_Optional(ABC):  # noqa: N801
             entity_extractor=DomoEntityExtractor(),
             result_processor=DomoEntityResultProcessor(),
         ),
+        color="cyan",
     )
     async def who_am_i(
         self,

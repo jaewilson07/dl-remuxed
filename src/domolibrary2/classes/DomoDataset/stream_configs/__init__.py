@@ -8,10 +8,11 @@ To add a new mapping:
 1. Choose the appropriate platform file (or create a new one)
 2. Define a subclass of StreamConfig_Mapping
 3. Decorate it with @register_mapping("provider-name")
-4. Import it in this __init__.py file
+4. The mapping will be automatically registered
 
 Example:
-    from ..stream_config import StreamConfig_Mapping, register_mapping
+    from ._base import StreamConfig_Mapping, register_mapping
+    from dataclasses import dataclass
 
     @register_mapping("my-provider")
     @dataclass
@@ -20,14 +21,23 @@ Example:
         sql: str = "query"
 """
 
-# Import all platform-specific mappings to trigger registration
-from . import _default, aws, domo, google, other, snowflake
+# Import and re-export base classes and utilities
+from ._base import (
+    StreamConfig,
+    StreamConfig_Mapping,
+    StreamConfig_Mappings,
+    register_mapping,
+    Stream_CRUD_Error,
+    Stream_GET_Error,
+)
 
 __all__ = [
-    "_default",
-    "aws",
-    "domo",
-    "google",
-    "snowflake",
-    "other",
+    # Base classes
+    "StreamConfig_Mapping",
+    "StreamConfig_Mappings",
+    "StreamConfig",
+    "register_mapping",
+    # Route exceptions
+    "Stream_GET_Error",
+    "Stream_CRUD_Error",
 ]
