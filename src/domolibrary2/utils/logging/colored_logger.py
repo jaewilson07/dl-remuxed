@@ -10,6 +10,14 @@ from typing import Any, Optional
 
 from dc_logger.client.base import Logger, get_global_logger, set_global_logger
 from dc_logger.color_utils import colorize
+from dc_logger.decorators import log_call
+
+__all__ = [
+    "ColoredLogger",
+    "get_colored_logger",
+    "set_domolibrary_logger",
+    "log_call",
+]
 
 
 class ColoredLogger(Logger):

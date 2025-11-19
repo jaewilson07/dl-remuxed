@@ -21,11 +21,11 @@ __all__ = [
 from typing import Any, Optional
 
 import httpx
-from dc_logger.decorators import LogDecoratorConfig, log_call
+from dc_logger.decorators import LogDecoratorConfig
 
 from ..base.exceptions import AuthError, RouteError
 from ..client import response as rgd
-from ..utils.logging import ResponseGetDataProcessor
+from ..utils.logging import ResponseGetDataProcessor, log_call
 
 
 class InvalidCredentialsError(RouteError):
@@ -284,6 +284,7 @@ async def get_developer_auth(
 @log_call(
     level_name="route",
     config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+    color="cyan",
 )
 async def who_am_i(
     auth: Any,
