@@ -17,7 +17,6 @@ __all__ = [
     "delete_writelock",
 ]
 
-from typing import Optional
 
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
@@ -46,7 +45,7 @@ async def update_page_layout(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Update page layout configuration.
@@ -110,7 +109,7 @@ async def put_writelock(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Set write lock on a page layout.
@@ -179,7 +178,7 @@ async def delete_writelock(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Remove write lock from a page layout.

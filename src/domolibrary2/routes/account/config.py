@@ -10,7 +10,7 @@ Functions:
     update_oauth_account_config: Update OAuth account configuration
 """
 
-from typing import Optional, Union
+from typing import Union
 
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
@@ -34,12 +34,12 @@ from .oauth import get_oauth_account_by_id
 async def get_account_config(
     auth: DomoAuth,
     account_id: Union[int, str],
-    data_provider_type: Optional[str] = None,
+    data_provider_type: str | None = None,
     is_unmask: bool = True,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Retrieve configuration for a specific account.
@@ -121,7 +121,7 @@ async def get_oauth_account_config(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Retrieve configuration for a specific OAuth account.
@@ -188,11 +188,11 @@ async def update_account_config(
     auth: DomoAuth,
     account_id: Union[int, str],
     config_body: dict,
-    data_provider_type: Optional[str] = None,
+    data_provider_type: str | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Update configuration for an account.
@@ -264,11 +264,11 @@ async def update_oauth_account_config(
     auth: DomoAuth,
     account_id: Union[int, str],
     config_body: dict,
-    data_provider_type: Optional[str] = None,
+    data_provider_type: str | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Update configuration for an OAuth account.

@@ -14,27 +14,27 @@ from typing import Any
 @dataclass
 class StreamConfig_Base:
     """Base class for stream configurations.
-    
+
     Similar to DomoAccount_Config, this provides a consistent interface
     for handling stream execution parameters across different data providers.
     """
-    
+
     data_provider_type: str = None
     parent: Any = field(repr=False, default=None)
     raw: dict = field(default_factory=dict, repr=False)
-    
+
     # Internal fields
     _field_map: dict = field(default_factory=dict, repr=False, init=False)
     _fields_for_export: list[str] = field(default_factory=list, repr=False, init=False)
-    
+
     @classmethod
     def from_dict(cls, obj: dict, parent: Any = None):
         """Create StreamConfig from dictionary of config parameters.
-        
+
         Args:
             obj: Dict with config parameter names as keys
             parent: Parent stream object
-            
+
         Returns:
             StreamConfig instance
         """
@@ -44,7 +44,7 @@ class StreamConfig_Base:
             field_map_field = cls.__dataclass_fields__["_field_map"]
             if hasattr(field_map_field, "default_factory"):
                 field_map = field_map_field.default_factory()
-        
+
         # Convert keys using field_map
         init_kwargs = {}
         for api_key, api_value in obj.items():
@@ -53,30 +53,30 @@ class StreamConfig_Base:
             if not python_attr:
                 # Auto-convert camelCase to snake_case
                 python_attr = _camel_to_snake(api_key)
-            
+
             # Only set if it's a field on the class
             if python_attr in cls.__dataclass_fields__:
                 init_kwargs[python_attr] = api_value
-        
+
         return cls(parent=parent, raw=obj, **init_kwargs)
-    
+
     def to_dict(self) -> list[dict]:
         """Convert to list of config dictionaries for API submission.
-        
+
         Returns:
             List of dicts with 'name', 'type', 'value' keys
         """
         result = []
-        
+
         # Get reverse field map
         reverse_map = {v: k for k, v in self._field_map.items()}
-        
+
         # Get fields to export
         export_fields = self._fields_for_export or [
             f for f in self.__dataclass_fields__.keys()
             if not f.startswith('_') and f not in ['data_provider_type', 'parent', 'raw']
         ]
-        
+
         for attr_name in export_fields:
             value = getattr(self, attr_name, None)
             if value is not None:
@@ -87,7 +87,7 @@ class StreamConfig_Base:
                     "type": "string",
                     "value": str(value)
                 })
-        
+
         return result
 
 
@@ -111,16 +111,16 @@ def _snake_to_camel(name: str) -> str:
 @dataclass
 class Snowflake_StreamConfig(StreamConfig_Base):
     """Snowflake stream configuration."""
-    
+
     data_provider_type: str = "snowflake"
-    
+
     # Stream configuration parameters
     query: str = None
     database_name: str = None
     warehouse: str = None
     schema_name: str = None
     report_type: str = None
-    
+
     _fields_for_export: list[str] = field(
         default_factory=lambda: [
             "query",
@@ -137,9 +137,9 @@ class Snowflake_StreamConfig(StreamConfig_Base):
 @dataclass
 class SnowflakeKeyPair_StreamConfig(StreamConfig_Base):
     """Snowflake keypair authentication stream configuration."""
-    
+
     data_provider_type: str = "snowflakekeypairauthentication"
-    
+
     # Stream configuration parameters
     query: str = None
     database_name: str = None
@@ -151,7 +151,7 @@ class SnowflakeKeyPair_StreamConfig(StreamConfig_Base):
     update_mode: str = None
     convert_timezone: str = None
     cloud: str = None
-    
+
     _field_map: dict = field(
         default_factory=lambda: {
             "updatemode.mode": "update_mode",  # Special case with dot notation
@@ -159,7 +159,7 @@ class SnowflakeKeyPair_StreamConfig(StreamConfig_Base):
         repr=False,
         init=False,
     )
-    
+
     _fields_for_export: list[str] = field(
         default_factory=lambda: [
             "query",
@@ -187,7 +187,7 @@ if __name__ == "__main__":
     print("StreamConfig Redesign - Proof of Concept")
     print("=" * 70)
     print()
-    
+
     # Simulate API response (list of config parameters)
     api_configs = [
         {"name": "query", "type": "string", "value": "SELECT * FROM table"},
@@ -201,13 +201,13 @@ if __name__ == "__main__":
         {"name": "convertTimeZone", "type": "string", "value": "UTC"},
         {"name": "cloud", "type": "string", "value": "domo"},
     ]
-    
+
     # Convert list to dict
     config_dict = {c["name"]: c["value"] for c in api_configs}
-    
+
     # Create stream config object
     stream_config = SnowflakeKeyPair_StreamConfig.from_dict(config_dict)
-    
+
     print("Created StreamConfig from API response:")
     print(f"  Data Provider: {stream_config.data_provider_type}")
     print(f"  Query: {stream_config.query[:50]}...")
@@ -221,7 +221,7 @@ if __name__ == "__main__":
     print(f"  Timezone: {stream_config.convert_timezone}")
     print(f"  Cloud: {stream_config.cloud}")
     print()
-    
+
     # Convert back to API format
     api_output = stream_config.to_dict()
     print("Converted back to API format:")
@@ -229,7 +229,7 @@ if __name__ == "__main__":
         print(f"  {config}")
     print(f"  ... ({len(api_output)} total)")
     print()
-    
+
     print("=" * 70)
     print("Benefits of this approach:")
     print("=" * 70)

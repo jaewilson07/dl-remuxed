@@ -15,7 +15,6 @@ __all__ = [
     "add_page_owner",
 ]
 
-from typing import Optional
 
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
@@ -48,7 +47,7 @@ async def get_page_access_test(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Test page access permissions for the authenticated user.
@@ -110,7 +109,7 @@ async def get_page_access_list(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Retrieve page access list showing which users and groups have access.
@@ -193,14 +192,14 @@ async def get_page_access_list(
 async def add_page_owner(
     auth: DomoAuth,
     page_id_ls: list[int | str],
-    group_id_ls: Optional[list[int | str]] = None,
-    user_id_ls: Optional[list[int | str]] = None,
+    group_id_ls: list[int | str] | None = None,
+    user_id_ls: list[int | str] | None = None,
     note: str = "",
     send_email: bool = False,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Add owners to multiple pages.

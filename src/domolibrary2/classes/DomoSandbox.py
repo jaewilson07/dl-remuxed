@@ -8,7 +8,6 @@ __all__ = [
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import Optional
 
 import dateutil.parser as dtut
 import httpx
@@ -32,10 +31,10 @@ class DomoRepository(DomoEntity_w_Lineage):
     commit_dt: dt.datetime
     commit_version: str
 
-    content_page_id_ls: Optional[list[str]] = None
-    content_card_id_ls: Optional[list[str]] = None
-    content_dataflow_id_ls: Optional[list[str]] = None
-    content_view_id_ls: Optional[list[str]] = None
+    content_page_id_ls: list[str] | None = None
+    content_card_id_ls: list[str] | None = None
+    content_dataflow_id_ls: list[str] | None = None
+    content_view_id_ls: list[str] | None = None
 
     def __post_init__(self):
         """Initialize lineage tracking for the repository."""
@@ -166,7 +165,7 @@ class DomoRepository(DomoEntity_w_Lineage):
 class DomoSandbox(DomoManager):
     auth: DomoAuth = field(repr=False)
 
-    repositories: Optional[list[DomoRepository]] = None
+    repositories: list[DomoRepository] | None = None
 
     async def get_repositories(
         self, debug_api: bool = False, session: httpx.AsyncClient = None

@@ -41,7 +41,7 @@ class DictDot(SimpleNamespace):
     return None instead of raising AttributeError.
 
     Args:
-        dictionary (Dict[str, Any]): Dictionary to convert to dot notation object
+        dictionary (dict[str, Any]): Dictionary to convert to dot notation object
         **kwargs: Additional keyword arguments passed to SimpleNamespace
 
     Attributes:
@@ -115,7 +115,7 @@ class DictDot(SimpleNamespace):
         Convert the DictDot object back to a regular dictionary.
 
         Returns:
-            Dict[str, Any]: Regular dictionary representation
+            dict[str, Any]: Regular dictionary representation
 
         Example:
             >>> obj = DictDot({"user": {"name": "John"}})

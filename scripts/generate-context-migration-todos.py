@@ -14,7 +14,7 @@ class RouteAnalyzer(ast.NodeVisitor):
     """Analyze route functions for context migration needs."""
 
     def __init__(self):
-        self.functions: List[Dict] = []
+        self.functions: list[Dict] = []
         self.has_route_decorator = False
 
     def visit_FunctionDef(self, node: ast.FunctionDef):
@@ -84,7 +84,7 @@ class ClassAnalyzer(ast.NodeVisitor):
     """Analyze class methods for context migration needs."""
 
     def __init__(self):
-        self.methods: List[Dict] = []
+        self.methods: list[Dict] = []
         self.current_class = None
 
     def visit_ClassDef(self, node: ast.ClassDef):

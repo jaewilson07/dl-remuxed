@@ -1,7 +1,5 @@
 """Utility functions for authentication validation."""
 
-from typing import Optional
-
 from dc_logger.decorators import LogDecoratorConfig, log_call
 
 from ..base.exceptions import AuthError
@@ -27,7 +25,7 @@ def test_is_full_auth(
 
     Args:
         auth: The authentication object to validate
-        function_name (Optional[str]): Override function name for error reporting
+        function_name (str | None): Override function name for error reporting
         debug_num_stacks_to_drop (int): Number of stack frames to drop for debugging
 
     Raises:
@@ -50,7 +48,7 @@ def test_is_full_auth(
 )
 def test_is_jupyter_auth(
     auth,
-    required_auth_type_ls: Optional[list] = None,
+    required_auth_type_ls: list | None = None,
 ):
     """Test that the provided object is a valid Jupyter authentication instance.
 
@@ -60,7 +58,7 @@ def test_is_jupyter_auth(
 
     Args:
         auth: The authentication object to validate
-        required_auth_type_ls (Optional[list]): list of acceptable auth types.
+        required_auth_type_ls (list | None): list of acceptable auth types.
             Defaults to [DomoJupyterFullAuth, DomoJupyterTokenAuth]
 
     Raises:

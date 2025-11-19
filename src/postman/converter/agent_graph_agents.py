@@ -236,7 +236,7 @@ CRITICAL - HTTP Library:
 Function signature should:
 - Start with required parameters
 - Follow with optional parameters with defaults
-- Include auth parameter (Dict[str, str])
+- Include auth parameter (dict[str, str])
 - Include session parameter (Optional[httpx.AsyncClient] = None)
 - Include debug_api flag (bool = False)
 - Return type: httpx.Response
@@ -250,7 +250,7 @@ Code should:
 
 Example function signature:
 def api_function(
-    auth: Dict[str, str],
+    auth: dict[str, str],
     param1: str,
     param2: Optional[str] = None,
     session: Optional[httpx.AsyncClient] = None,

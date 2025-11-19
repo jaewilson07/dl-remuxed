@@ -15,7 +15,7 @@ __all__ = [
 
 import json
 from enum import Enum
-from typing import Optional, TypedDict
+from typing import TypedDict
 
 import httpx
 
@@ -31,7 +31,7 @@ from ..client import (
 class AIGETError(RouteError):
     """Raised when AI service retrieval operations fail."""
 
-    def __init__(self, message: Optional[str] = None, res=None, **kwargs):
+    def __init__(self, message: str | None = None, res=None, **kwargs):
         super().__init__(
             message=message or "AI service retrieval failed",
             res=res,
@@ -45,7 +45,7 @@ class AICRUDError(RouteError):
     def __init__(
         self,
         operation: str,
-        message: Optional[str] = None,
+        message: str | None = None,
         res=None,
         **kwargs,
     ):
@@ -70,9 +70,9 @@ def generate_chat_body(
 async def llm_generate_text(
     text_input: str,
     auth: DomoAuth,
-    chat_body: Optional[dict] = None,
+    chat_body: dict | None = None,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
     session: httpx.AsyncClient | None = None,
@@ -134,15 +134,15 @@ def generate_summarize_body(
 async def llm_summarize_text(
     text_input: str,
     auth: DomoAuth,
-    system_prompt: Optional[str] = None,
+    system_prompt: str | None = None,
     summary_length: int = 100,
     output_style: OutputStyleEnum = OutputStyleEnum.BULLETED,
-    summary_body: Optional[dict] = None,
+    summary_body: dict | None = None,
     return_raw: bool = False,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     session: httpx.AsyncClient | None = None,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
 ) -> rgd.ResponseGetData:
     output_style = (
         output_style.value
@@ -188,7 +188,7 @@ async def get_dataset_ai_readiness(
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     session: httpx.AsyncClient | None = None,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
 ) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/ai/readiness/v1/data-dictionary/dataset/{dataset_id}"
 
@@ -222,12 +222,12 @@ async def create_dataset_ai_readiness(
     auth: DomoAuth,
     dataset_id: str,
     dictionary_name: str,
-    description: Optional[str] = None,
-    columns: Optional[list[DataDictionary_ColumnsDict]] = None,
+    description: str | None = None,
+    columns: list[DataDictionary_ColumnsDict] | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     session: httpx.AsyncClient | None = None,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
 ) -> rgd.ResponseGetData:
     body = {
         "datasetId": dataset_id,
@@ -269,15 +269,15 @@ class ColumnsDict(TypedDict):
 async def update_dataset_ai_readiness(
     auth: DomoAuth,
     dataset_id: str,
-    dictionary_id: Optional[str] = None,
-    dictionary_name: Optional[str] = None,
-    columns: Optional[list[ColumnsDict]] = None,
-    description: Optional[str] = None,
-    body: Optional[dict] = None,
+    dictionary_id: str | None = None,
+    dictionary_name: str | None = None,
+    columns: list[ColumnsDict] | None = None,
+    description: str | None = None,
+    body: dict | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     session: httpx.AsyncClient | None = None,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
 ) -> rgd.ResponseGetData:
     body = body or {
         "id": dictionary_id,

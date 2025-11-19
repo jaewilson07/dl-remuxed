@@ -11,7 +11,6 @@ __all__ = [
     "JupyterWorkspace_Error",
 ]
 
-from typing import Optional
 
 from ...base.exceptions import RouteError
 
@@ -21,8 +20,8 @@ class Jupyter_GET_Error(RouteError):
 
     def __init__(
         self,
-        workspace_id: Optional[str] = None,
-        message: Optional[str] = None,
+        workspace_id: str | None = None,
+        message: str | None = None,
         res=None,
         **kwargs,
     ):
@@ -40,7 +39,7 @@ class SearchJupyterNotFoundError(RouteError):
     def __init__(
         self,
         search_criteria: str,
-        message: Optional[str] = None,
+        message: str | None = None,
         res=None,
         **kwargs,
     ):
@@ -59,9 +58,9 @@ class Jupyter_CRUD_Error(RouteError):
     def __init__(
         self,
         operation: str,
-        workspace_id: Optional[str] = None,
-        content_path: Optional[str] = None,
-        message: Optional[str] = None,
+        workspace_id: str | None = None,
+        content_path: str | None = None,
+        message: str | None = None,
         res=None,
         **kwargs,
     ):
@@ -81,7 +80,7 @@ class JupyterWorkspace_Error(RouteError):
         self,
         operation: str,
         workspace_id: str,
-        message: Optional[str] = None,
+        message: str | None = None,
         res=None,
         **kwargs,
     ):

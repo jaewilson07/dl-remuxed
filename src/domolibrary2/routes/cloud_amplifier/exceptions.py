@@ -11,7 +11,6 @@ __all__ = [
     "Cloud_Amplifier_Error",
 ]
 
-from typing import Optional
 
 from ...base.exceptions import RouteError
 from ...client import response as rgd
@@ -27,9 +26,9 @@ class CloudAmplifier_GET_Error(RouteError):
 
     def __init__(
         self,
-        entity_id: Optional[str] = None,
-        res: Optional[rgd.ResponseGetData] = None,
-        message: Optional[str] = None,
+        entity_id: str | None = None,
+        res: rgd.ResponseGetData | None = None,
+        message: str | None = None,
         **kwargs,
     ):
         if not message:
@@ -44,7 +43,7 @@ class CloudAmplifier_GET_Error(RouteError):
         def __init__(
             self,
             search_criteria: str,
-            res: Optional[rgd.ResponseGetData] = None,
+            res: rgd.ResponseGetData | None = None,
             **kwargs,
         ):
             message = f"No Cloud Amplifier resources found matching: {search_criteria}"
@@ -66,7 +65,7 @@ class SearchCloudAmplifierNotFoundError(RouteError):
     def __init__(
         self,
         search_criteria: str,
-        res: Optional[rgd.ResponseGetData] = None,
+        res: rgd.ResponseGetData | None = None,
         **kwargs,
     ):
         message = f"No Cloud Amplifier resources found matching: {search_criteria}"
@@ -88,9 +87,9 @@ class CloudAmplifier_CRUD_Error(RouteError):
     def __init__(
         self,
         operation: str,
-        entity_id: Optional[str] = None,
-        res: Optional[rgd.ResponseGetData] = None,
-        message: Optional[str] = None,
+        entity_id: str | None = None,
+        res: rgd.ResponseGetData | None = None,
+        message: str | None = None,
         **kwargs,
     ):
         if not message:
@@ -120,7 +119,7 @@ class Cloud_Amplifier_Error(RouteError):
 
     def __init__(
         self,
-        res: Optional[rgd.ResponseGetData] = None,
+        res: rgd.ResponseGetData | None = None,
         account_id: str = "",
         message: str = "",
         **kwargs,

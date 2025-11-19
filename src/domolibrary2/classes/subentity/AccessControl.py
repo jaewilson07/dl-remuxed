@@ -23,14 +23,12 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from enum import Enum
-from typing import Any, Dict, List, Optional, Set, Union
+from typing import Any
 
-import httpx
-
-from ...client.auth import DomoAuth
-from ...entities.entities import DomoEntity, DomoEnum, DomoSubEntity, Entity_Relation
-from ...client.exceptions import DomoError
+from ...auth import DomoAuth
+from ...base.base import DomoEnum
+from ...base.entities import DomoEntity
+from ...base.exceptions import DomoError
 
 
 class AccessLevel(DomoEnum):
@@ -63,16 +61,16 @@ class AccessGrant:
     entity_id: str
     entity_type: EntityType
     access_level: AccessLevel
-    granted_by: Optional[str] = None  # ID of who granted access
-    granted_date: Optional[str] = None
-    effective_date: Optional[str] = None
-    expiry_date: Optional[str] = None
+    granted_by: str | None = None  # ID of who granted access
+    granted_date: str | None = None
+    effective_date: str | None = None
+    expiry_date: str | None = None
 
     # Optional: track if this came from group membership resolution
-    source_group_id: Optional[str] = None  # Group ID if resolved from group
+    source_group_id: str | None = None  # Group ID if resolved from group
 
     # Additional metadata
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -82,7 +80,7 @@ class AccessSummary:
     entity_id: str
     entity_type: EntityType
     effective_access_level: AccessLevel  # Highest level from all grants
-    access_grants: List[AccessGrant] = field(default_factory=list)
+    access_grants: list[AccessGrant] = field(default_factory=list)
 
     @property
     def direct_access_level(self) -> AccessLevel:
@@ -115,11 +113,11 @@ class DomoAccessController(ABC):
         self.parent_id = parent_object.id
 
         # Cache for access data
-        self._access_cache: Dict[str, AccessSummary] = {}
+        self._access_cache: dict[str, AccessSummary] = {}
         self._cache_valid = False
 
     @abstractmethod
-    async def get_direct_access_grants(self) -> List[AccessGrant]:
+    async def get_direct_access_grants(self) -> list[AccessGrant]:
         """Get all direct access grants for the parent object."""
         pass
 
@@ -141,7 +139,7 @@ class DomoAccessController(ABC):
         """Revoke access from an entity."""
         pass
 
-    async def get_inherited_access_grants(self) -> List[AccessGrant]:
+    async def get_inherited_access_grants(self) -> list[AccessGrant]:
         """Get inherited access grants (through group memberships)."""
         # This would query group memberships and calculate inherited permissions
         # Implementation depends on group hierarchy and membership resolution
@@ -172,7 +170,7 @@ class DomoAccessController(ABC):
 
     async def get_all_access_grants(
         self, include_inherited: bool = True
-    ) -> List[AccessGrant]:
+    ) -> list[AccessGrant]:
         """Get all access grants (direct and optionally inherited)."""
         grants = await self.get_direct_access_grants()
 
@@ -196,7 +194,7 @@ class DomoAccessController(ABC):
             ),
         )
 
-    async def get_all_access_summaries(self) -> Dict[str, AccessSummary]:
+    async def get_all_access_summaries(self) -> dict[str, AccessSummary]:
         """Get access summaries for all entities with access."""
         if not self._cache_valid:
             await self._refresh_access_cache()
@@ -208,7 +206,7 @@ class DomoAccessController(ABC):
         all_grants = await self.get_all_access_grants()
 
         # Group grants by entity
-        entity_grants: Dict[str, List[AccessGrant]] = {}
+        entity_grants: dict[str, list[AccessGrant]] = {}
         for grant in all_grants:
             if grant.entity_id not in entity_grants:
                 entity_grants[grant.entity_id] = []
@@ -236,7 +234,7 @@ class DomoAccessController(ABC):
 
         self._cache_valid = True
 
-    async def _get_group_members(self, group_id: str) -> List[Any]:
+    async def _get_group_members(self, group_id: str) -> list[Any]:
         """Get members of a group. Override in subclasses for specific implementations."""
         # This would be implemented to get actual group members
         # For now, return empty list
@@ -252,13 +250,13 @@ class DomoObjectAccessManager:
 
     def __init__(self, auth: DomoAuth):
         self.auth = auth
-        self._controllers: Dict[str, DomoAccessController] = {}
+        self._controllers: dict[str, DomoAccessController] = {}
 
     def register_controller(self, object_type: str, controller_class: type):
         """Register an access controller for a specific object type."""
         self._controllers[object_type] = controller_class
 
-    def get_controller(self, domo_object: DomoEntity) -> Optional[DomoAccessController]:
+    def get_controller(self, domo_object: DomoEntity) -> DomoAccessController | None:
         """Get the appropriate access controller for a Domo object."""
         object_type = type(domo_object).__name__
 
@@ -268,8 +266,8 @@ class DomoObjectAccessManager:
         return None
 
     async def get_user_access_across_objects(
-        self, user_id: str, object_types: Optional[List[str]] = None
-    ) -> Dict[str, Dict[str, AccessSummary]]:
+        self, user_id: str, object_types: list[str] | None = None
+    ) -> dict[str, dict[str, AccessSummary]]:
         """Get a user's access across all objects of specified types."""
         # This would query all objects of specified types and check user access
         # Implementation would depend on available APIs and object discovery methods
@@ -277,7 +275,7 @@ class DomoObjectAccessManager:
 
     async def get_object_access_summary(
         self, domo_object: DomoEntity, include_inherited: bool = True
-    ) -> Dict[str, AccessSummary]:
+    ) -> dict[str, AccessSummary]:
         """Get complete access summary for a Domo object."""
         controller = self.get_controller(domo_object)
         if not controller:
@@ -294,7 +292,7 @@ class DomoObjectAccessManager:
 class DomoAccountAccessController(DomoAccessController):
     """Access controller for DomoAccount objects."""
 
-    async def get_direct_access_grants(self) -> List[AccessGrant]:
+    async def get_direct_access_grants(self) -> list[AccessGrant]:
         """Get direct access grants for the account."""
         from ...routes import account as account_routes
 
@@ -347,7 +345,7 @@ class DomoAccountAccessController(DomoAccessController):
 class DomoGroupAccessController(DomoAccessController):
     """Access controller for DomoGroup objects (membership management)."""
 
-    async def get_direct_access_grants(self) -> List[AccessGrant]:
+    async def get_direct_access_grants(self) -> list[AccessGrant]:
         """Get direct membership grants for the group."""
         from ...routes import group as group_routes
 

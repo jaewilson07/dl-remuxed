@@ -9,7 +9,6 @@ __all__ = [
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import Optional
 
 import httpx
 
@@ -193,7 +192,7 @@ class DomoJob_Base(DomoEntity):
         session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
-        parent_class: Optional[str] = None,
+        parent_class: str | None = None,
         return_raw: bool = False,
         new_cls: "DomoJob_Base" = None,  # pass in a child class which has the mandatory "from_dict" function
     ):

@@ -2,7 +2,7 @@
 
 __all__ = ["DomoError", "RouteError", "ClassError", "AuthError"]
 
-from typing import Any, Optional, Union
+from typing import Any, Union
 
 
 class DomoError(Exception):
@@ -15,14 +15,14 @@ class DomoError(Exception):
 
     def __init__(
         self,
-        message: Optional[str] = None,
-        exception: Optional[Exception] = None,
-        entity_id: Optional[str] = None,
-        entity_name: Optional[str] = None,
-        function_name: Optional[str] = None,
-        parent_class: Optional[str] = None,
-        status: Optional[int] = None,
-        domo_instance: Optional[str] = None,
+        message: str | None = None,
+        exception: Exception | None = None,
+        entity_id: str | None = None,
+        entity_name: str | None = None,
+        function_name: str | None = None,
+        parent_class: str | None = None,
+        status: int | None = None,
+        domo_instance: str | None = None,
         is_warning: bool = False,
     ):
         self.message = message
@@ -123,9 +123,9 @@ class RouteError(DomoError):
 
     def __init__(
         self,
-        res: Optional[
-            Any
-        ] = None,  # Should be ResponseGetData but avoiding circular import
+        res: (
+            Any | None
+        ) = None,  # Should be ResponseGetData but avoiding circular import
         **kwargs,
     ):
         self.res = res
@@ -161,7 +161,7 @@ class ClassError(DomoError):
         self,
         cls: Any = None,
         cls_instance: Any = None,
-        entity_id_col: Optional[str] = "id",
+        entity_id_col: str | None = "id",
         **kwargs,
     ):
         self.cls = cls

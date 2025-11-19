@@ -1,6 +1,6 @@
 __all__ = ["upload_data"]
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import httpx
 import pandas as pd
@@ -78,13 +78,13 @@ async def upload_data(
     instance_auth: DomoAuth,  # instance to run the data function against
     consol_ds: DomoDataset,  # dataset where data should be accumulated
     # if partition key supplied, will replace existing partition
-    partition_key: Optional[str] = None,
+    partition_key: str | None = None,
     upload_method: str = "REPLACE",
     is_index: bool = False,  # index dataset
     debug_prn: bool = False,
     debug_fn: bool = True,
     debug_api: bool = False,
-    logger: Optional[Logger] = None,
+    logger: Logger | None = None,
     max_retry: int = 2,  # number of times to attempt upload
 ):
     try:

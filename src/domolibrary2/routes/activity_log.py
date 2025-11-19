@@ -6,7 +6,6 @@ __all__ = [
     "search_activity_log",
 ]
 
-from typing import Optional
 
 import httpx
 
@@ -21,7 +20,7 @@ from ..client import (
 class ActivityLog_GET_Error(RouteError):
     """Raised when activity log retrieval operations fail."""
 
-    def __init__(self, message: Optional[str] = None, res=None, **kwargs):
+    def __init__(self, message: str | None = None, res=None, **kwargs):
         super().__init__(
             message=message or "Activity log retrieval failed",
             res=res,
@@ -32,7 +31,7 @@ class ActivityLog_GET_Error(RouteError):
 @gd.route_function
 async def get_activity_log_object_types(
     auth: DomoAuth,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop: int = 1,
     debug_api: bool = False,
     session: httpx.AsyncClient | None = None,
@@ -64,11 +63,11 @@ async def search_activity_log(
     auth: DomoAuth,
     start_time: int,  # epoch time in milliseconds
     end_time: int,  # epoch time in milliseconds
-    maximum: Optional[int] = None,
-    object_type: Optional[str] = None,
+    maximum: int | None = None,
+    object_type: str | None = None,
     debug_api: bool = False,
     debug_loop: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop: int = 1,
     session: httpx.AsyncClient | None = None,
 ) -> rgd.ResponseGetData:

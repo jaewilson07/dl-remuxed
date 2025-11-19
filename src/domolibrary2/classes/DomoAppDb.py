@@ -5,7 +5,7 @@ import datetime as dt
 import numbers
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Callable, Optional, list
+from typing import Callable, list
 
 import httpx
 
@@ -36,15 +36,15 @@ def to_dict(value):
 
 @dataclass
 class AppDbDocument(DomoEntity):
-    auth: Optional[DomoAuth] = field(repr=False)
-    _id: Optional[str] = None
-    _created_on_dt: Optional[datetime] = None
-    _updated_on_dt: Optional[datetime] = None
-    content: Optional[dict] = None
-    _collection_id: Optional[str] = None
-    _identity_columns: Optional[list[str]] = None
+    auth: DomoAuth | None = field(repr=False)
+    _id: str | None = None
+    _created_on_dt: datetime | None = None
+    _updated_on_dt: datetime | None = None
+    content: dict | None = None
+    _collection_id: str | None = None
+    _identity_columns: list[str] | None = None
 
-    def to_dict(self, custom_content_to_dict_fn: Optional[Callable] = None):
+    def to_dict(self, custom_content_to_dict_fn: Callable | None = None):
         self.update_config()
 
         s = {"id": self._id, "collectionId": self._collection_id}
@@ -134,7 +134,7 @@ class AppDbDocument(DomoEntity):
 
     async def update_document(
         self,
-        content: Optional[dict] = None,
+        content: dict | None = None,
         debug_api: bool = False,
         session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop=1,
@@ -576,7 +576,7 @@ class AppDbCollections:
     async def get_collections(
         cls,
         auth: DomoAuth,
-        datastore_id: Optional[str] = None,
+        datastore_id: str | None = None,
         debug_api: bool = False,
         session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop=1,

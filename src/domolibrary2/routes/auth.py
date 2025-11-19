@@ -18,7 +18,7 @@ __all__ = [
     "elevate_user_otp",
 ]
 
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 from dc_logger.decorators import LogDecoratorConfig
@@ -56,8 +56,8 @@ class InvalidAuthTypeError(RouteError):
     def __init__(
         self,
         res=None,
-        required_auth_type: Optional[Any] = None,
-        required_auth_type_ls: Optional[list[Any]] = None,
+        required_auth_type: Any | None = None,
+        required_auth_type_ls: list[Any] | None = None,
         **kwargs,
     ):
         # Convert class types to strings
@@ -82,7 +82,7 @@ class InvalidAuthTypeError(RouteError):
 class InvalidInstanceError(RouteError):
     """Raised when an invalid Domo instance is provided."""
 
-    def __init__(self, res=None, domo_instance: Optional[str] = None, **kwargs):
+    def __init__(self, res=None, domo_instance: str | None = None, **kwargs):
         message = (
             f"Invalid Domo instance: {domo_instance}"
             if domo_instance
@@ -115,10 +115,10 @@ async def get_full_auth(
     domo_instance: str,  # domo_instance.domo.com
     domo_username: str,  # email address
     domo_password: str,
-    auth: Optional[Any] = None,
+    auth: Any | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
@@ -131,10 +131,10 @@ async def get_full_auth(
         domo_instance (str): The Domo instance identifier
         domo_username (str): User's email address
         domo_password (str): User's password
-        auth (Optional[Any]): Existing auth object (optional)
+        auth (Any | None): Existing auth object (optional)
         session (httpx.AsyncClient | None): HTTP client session to use
         debug_api (bool): Whether to enable API debugging
-        parent_class (Optional[str]): Name of calling class for debugging
+        parent_class (str | None): Name of calling class for debugging
         debug_num_stacks_to_drop (int): Number of stack frames to drop for debugging
         return_raw (bool): Whether to return raw response without processing
 
@@ -215,10 +215,10 @@ async def get_full_auth(
 async def get_developer_auth(
     domo_client_id: str,
     domo_client_secret: str,
-    auth: Optional[Any] = None,
+    auth: Any | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
@@ -230,10 +230,10 @@ async def get_developer_auth(
     Args:
         domo_client_id (str): OAuth2 client ID from developer app registration
         domo_client_secret (str): OAuth2 client secret
-        auth (Optional[Any]): Existing auth object (optional)
+        auth (Any | None): Existing auth object (optional)
         session (httpx.AsyncClient | None): HTTP client session to use
         debug_api (bool): Whether to enable API debugging
-        parent_class (Optional[str]): Name of calling class for debugging
+        parent_class (str | None): Name of calling class for debugging
         debug_num_stacks_to_drop (int): Number of stack frames to drop for debugging
         return_raw (bool): Whether to return raw response without processing
 
@@ -289,7 +289,7 @@ async def get_developer_auth(
 async def who_am_i(
     auth: Any,
     session: httpx.AsyncClient | None = None,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop: int = 0,
     debug_api: bool = False,
     return_raw: bool = False,
@@ -302,7 +302,7 @@ async def who_am_i(
     Args:
         auth (Any): Authentication object containing domo_instance and auth tokens
         session (httpx.AsyncClient | None): HTTP client session to use
-        parent_class (Optional[str]): Name of calling class for debugging
+        parent_class (str | None): Name of calling class for debugging
         debug_num_stacks_to_drop (int): Number of stack frames to drop for debugging
         debug_api (bool): Whether to enable API debugging
         return_raw (bool): Whether to return raw response without processing
@@ -362,11 +362,11 @@ async def who_am_i(
 async def elevate_user_otp(
     auth: Any,
     one_time_password: str,
-    user_id: Optional[str] = None,
+    user_id: str | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     session: httpx.AsyncClient | None = None,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
 ) -> rgd.ResponseGetData:
     """Elevate authentication using a one-time password (OTP).
 
@@ -376,11 +376,11 @@ async def elevate_user_otp(
     Args:
         auth (Any): Authentication object containing domo_instance and tokens
         one_time_password (str): The OTP code for authentication elevation
-        user_id (Optional[str]): User ID (will be retrieved from auth if not provided)
+        user_id (str | None): User ID (will be retrieved from auth if not provided)
         debug_api (bool): Whether to enable API debugging
         debug_num_stacks_to_drop (int): Number of stack frames to drop for debugging
         session (httpx.AsyncClient | None): HTTP client session to use
-        parent_class (Optional[str]): Name of calling class for debugging
+        parent_class (str | None): Name of calling class for debugging
 
     Returns:
         rgd.ResponseGetData: Response from the OTP elevation request

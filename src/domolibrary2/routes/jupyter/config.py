@@ -8,7 +8,6 @@ __all__ = [
     "update_jupyter_workspace_config",
 ]
 
-from typing import Optional
 
 import httpx
 
@@ -28,7 +27,7 @@ async def update_jupyter_workspace_config(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 2,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Update the configuration of a Jupyter workspace.

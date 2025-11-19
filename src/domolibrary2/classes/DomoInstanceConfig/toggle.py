@@ -9,7 +9,6 @@ and left navigation settings.
 __all__ = ["Toggle_InstantiationError", "DomoToggle"]
 
 from dataclasses import dataclass, field
-from typing import Optional
 
 import httpx
 
@@ -54,11 +53,11 @@ class DomoToggle:
     """
 
     auth: DomoAuth = field(repr=False)
-    is_invite_social_users_enabled: Optional[bool] = None
-    is_user_invite_notifications_enabled: Optional[bool] = None
-    is_weekly_digest_enabled: Optional[bool] = None
-    is_left_nav_enabled: Optional[bool] = None
-    customer_id: Optional[str] = field(default=None, repr=False)
+    is_invite_social_users_enabled: bool | None = None
+    is_user_invite_notifications_enabled: bool | None = None
+    is_weekly_digest_enabled: bool | None = None
+    is_left_nav_enabled: bool | None = None
+    customer_id: str | None = field(default=None, repr=False)
     raw: dict = field(default_factory=dict, repr=False)
 
     @property
@@ -104,7 +103,7 @@ class DomoToggle:
 
     async def get_is_invite_social_users_enabled(
         self,
-        customer_id: Optional[str] = None,
+        customer_id: str | None = None,
         debug_api: bool = False,
         session: httpx.AsyncClient | None = None,
         return_raw: bool = False,
@@ -147,7 +146,7 @@ class DomoToggle:
     async def toggle_is_invite_social_users_enabled(
         self,
         is_enabled: bool,
-        customer_id: Optional[str] = None,
+        customer_id: str | None = None,
         debug_api: bool = False,
         debug_prn: bool = False,
         session: httpx.AsyncClient | None = None,
@@ -464,7 +463,7 @@ class DomoToggle:
 
     async def get_all(
         self,
-        customer_id: Optional[str] = None,
+        customer_id: str | None = None,
         debug_api: bool = False,
         session: httpx.AsyncClient | None = None,
     ) -> dict:

@@ -15,7 +15,6 @@ __all__ = [
     "set_sso_certificate",
 ]
 
-from typing import Optional
 
 import httpx
 
@@ -93,7 +92,7 @@ async def get_sso_oidc_config(
     auth: dmda.DomoAuth,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop=1,
 ):
     """Open ID Connect framework"""
@@ -169,7 +168,7 @@ async def _update_sso_oidc_temp_config(
     body_sso: dict,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop=1,
 ):
     """to successfully update the SSO Configuration, you must send all the parameters related to SSO Configuration"""
@@ -198,7 +197,7 @@ async def _update_sso_oidc_standard_config(
     body_sso: dict,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop=1,
 ):
     """to successfully update the SSO Configuration, you must send all the parameters related to SSO Configuration"""
@@ -234,7 +233,7 @@ async def update_sso_oidc_config(
     body_sso: dict,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop=1,
 ):
     """
@@ -266,7 +265,7 @@ async def get_sso_saml_config(
     auth: dmda.DomoAuth,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop=1,
 ):
     """Security Assertion Markup Language"""
@@ -294,7 +293,7 @@ async def get_sso_saml_certificate(
     auth: dmda.DomoAuth,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop=1,
 ):
     res = await get_sso_saml_config(
@@ -320,7 +319,7 @@ def generate_sso_saml_body(
     require_invitation: bool = False,
     enforce_allowlist: bool = False,
     relay_state: bool = False,
-    redirect_url: Optional[str] = None,  # url
+    redirect_url: str | None = None,  # url
     idp_enabled: bool = False,
     skip_to_idp: bool = False,
     login_enabled=None,
@@ -375,7 +374,7 @@ async def _update_sso_saml_temp_config(
     body_sso: dict,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop=1,
 ):
     url = f"https://{auth.domo_instance}.domo.com/api/identity/v1/authentication/saml/temp/settings"
@@ -404,7 +403,7 @@ async def _update_sso_saml_standard_config(
     body_sso: dict,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop=1,
 ):
     url = f"https://{auth.domo_instance}.domo.com/api/identity/v1/authentication/saml/std/settings"
@@ -438,7 +437,7 @@ async def update_sso_saml_config(
     body_sso: dict,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop=1,
 ):
     """
@@ -471,7 +470,7 @@ async def toggle_sso_skip_to_idp(
     is_skip_to_idp: bool,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop=1,
 ):
     url = f"https://{auth.domo_instance}.domo.com/api/customer/v1/properties/domo.policy.sso.skip_to_idp"
@@ -500,7 +499,7 @@ async def toggle_sso_custom_attributes(
     is_custom_attributes: bool,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop=1,
 ):
     """unsure what this API does"""
@@ -532,7 +531,7 @@ async def set_sso_certificate(
     idp_certificate: str,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop=1,
     return_raw: bool = False,
 ):

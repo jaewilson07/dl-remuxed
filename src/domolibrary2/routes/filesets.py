@@ -9,7 +9,7 @@ __all__ = [
     "get_data_file_by_id",
 ]
 
-from typing import Literal, Optional
+from typing import Literal
 
 import httpx
 
@@ -26,8 +26,8 @@ class Fileset_GET_Error(RouteError):
 
     def __init__(
         self,
-        fileset_id: Optional[str] = None,
-        message: Optional[str] = None,
+        fileset_id: str | None = None,
+        message: str | None = None,
         res=None,
         **kwargs,
     ):
@@ -45,8 +45,8 @@ class Fileset_CRUD_Error(RouteError):
     def __init__(
         self,
         operation: str,
-        fileset_id: Optional[str] = None,
-        message: Optional[str] = None,
+        fileset_id: str | None = None,
+        message: str | None = None,
         res=None,
         **kwargs,
     ):
@@ -66,7 +66,7 @@ async def create_filesets_index(
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
     session: httpx.AsyncClient | None = None,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
 ) -> rgd.ResponseGetData:
     """Creates a new vectorDB index."""
 
@@ -99,14 +99,14 @@ EmbedData_Type = Literal["base64"]
 @gd.route_function
 async def embed_image(
     auth: DomoAuth,
-    body: Optional[dict] = None,
-    image_data: Optional[str] = None,
-    media_type: Optional[str] = None,
+    body: dict | None = None,
+    image_data: str | None = None,
+    media_type: str | None = None,
     data_type: EmbedData_Type = "base64",
     model: str = "domo.domo_ai",
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     session: httpx.AsyncClient | None = None,
 ) -> rgd.ResponseGetData:
     """
@@ -155,7 +155,7 @@ async def get_fileset_by_id(
     fileset_id: str,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     session: httpx.AsyncClient | None = None,
 ) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/files/v1/filesets/{fileset_id}"
@@ -179,10 +179,10 @@ async def get_fileset_by_id(
 async def search_fileset_files(
     auth: DomoAuth,
     domo_fileset_id: str,
-    body: Optional[dict] = None,
+    body: dict | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     session: httpx.AsyncClient | None = None,
 ) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/files/v1/filesets/{domo_fileset_id}/files/search?directoryPath=&immediateChildren=true"
@@ -217,7 +217,7 @@ async def get_data_file_by_id(
     file_id: str,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     session: httpx.AsyncClient | None = None,
 ) -> rgd.ResponseGetData:
     """

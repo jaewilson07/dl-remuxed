@@ -15,7 +15,6 @@ __all__ = [
     "get_page_definition",
 ]
 
-from typing import Optional
 
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
@@ -39,15 +38,15 @@ from .exceptions import Page_GET_Error, SearchPageNotFoundError
 )
 async def get_pages_adminsummary(
     auth: DomoAuth,
-    search_title: Optional[str] = None,
-    page_parent_id: Optional[str] = None,
-    body: Optional[dict] = None,
+    search_title: str | None = None,
+    page_parent_id: str | None = None,
+    body: dict | None = None,
     limit: int = 35,
     debug_loop: bool = False,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Retrieve all pages in instance that user is able to see.
@@ -134,7 +133,7 @@ async def get_page_by_id(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Retrieve a specific page by ID.
@@ -208,7 +207,7 @@ async def get_page_definition(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Retrieve detailed page definition including metadata and layout.

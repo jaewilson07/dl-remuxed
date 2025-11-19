@@ -22,7 +22,7 @@ __all__ = [
     "CredentialsError",
 ]
 
-from typing import Any, Optional
+from typing import Any
 
 
 class UtilityError(Exception):
@@ -41,7 +41,7 @@ class UtilityError(Exception):
         details (Any): Additional error details
     """
 
-    def __init__(self, message: str, details: Optional[Any] = None):
+    def __init__(self, message: str, details: Any | None = None):
         self.message = message
         self.details = details
         super().__init__(self.message)
@@ -123,7 +123,7 @@ class FileOperationError(UtilityError):
         Error: Failed to create folder at "/invalid/path"
     """
 
-    def __init__(self, operation: str, file_path: str, details: Optional[Any] = None):
+    def __init__(self, operation: str, file_path: str, details: Any | None = None):
         message = f'Failed to {operation} at "{file_path}"'
         super().__init__(message, details)
         self.operation = operation
@@ -149,7 +149,7 @@ class ImageProcessingError(UtilityError):
         Error: Failed to load image
     """
 
-    def __init__(self, operation: str, details: Optional[Any] = None):
+    def __init__(self, operation: str, details: Any | None = None):
         message = f"Failed to {operation}"
         super().__init__(message, details)
         self.operation = operation
@@ -174,7 +174,7 @@ class CredentialsError(UtilityError):
         Error: Failed to read credentials from ".env"
     """
 
-    def __init__(self, source: str, details: Optional[Any] = None):
+    def __init__(self, source: str, details: Any | None = None):
         message = f'Failed to read credentials from "{source}"'
         super().__init__(message, details)
         self.source = source

@@ -32,7 +32,7 @@ __all__ = [
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 from ...base.base import DomoBase, DomoEnumMixin
 from .schedule import DomoSchedule, DomoSchedule_Base
@@ -131,7 +131,7 @@ class DomoTriggerEvent_DatasetUpdated(DomoTriggerEvent_Base):
             "triggerOnDataChanged": self.trigger_on_data_changed,
         }
 
-    def export_as_dict(self, override_fn: Optional[Callable] = None) -> dict[str, Any]:
+    def export_as_dict(self, override_fn: Callable | None = None) -> dict[str, Any]:
         """Export event as unified dictionary format
 
         Args:
@@ -159,8 +159,8 @@ class DomoTriggerEvent_Schedule(DomoTriggerEvent_Base):
     ensuring consistency with Stream and other schedule implementations.
     """
 
-    schedule_id: Optional[str] = None
-    schedule: Optional[DomoSchedule_Base] = None  # Can be any DomoSchedule subclass
+    schedule_id: str | None = None
+    schedule: DomoSchedule_Base | None = None  # Can be any DomoSchedule subclass
     event_type: TriggerEventType = field(default=TriggerEventType.SCHEDULE, init=False)
 
     def get_human_readable_description(self) -> str:
@@ -252,7 +252,7 @@ class DomoTriggerEvent_Schedule(DomoTriggerEvent_Base):
 
         return result
 
-    def export_as_dict(self, override_fn: Optional[Callable] = None) -> dict[str, Any]:
+    def export_as_dict(self, override_fn: Callable | None = None) -> dict[str, Any]:
         """Export event as unified dictionary format
 
         Args:
@@ -303,7 +303,7 @@ class DomoTriggerCondition(DomoBase):
             **{k: v for k, v in self.raw.items() if k not in ["type", "parameters"]},
         }
 
-    def export_as_dict(self, override_fn: Optional[Callable] = None) -> dict[str, Any]:
+    def export_as_dict(self, override_fn: Callable | None = None) -> dict[str, Any]:
         """Export condition as unified dictionary format
 
         Args:
@@ -370,7 +370,7 @@ class DomoTrigger(DomoBase):
             ],
         }
 
-    def export_as_dict(self, override_fn: Optional[Callable] = None) -> dict[str, Any]:
+    def export_as_dict(self, override_fn: Callable | None = None) -> dict[str, Any]:
         """Export trigger as unified dictionary format
 
         Args:
@@ -508,7 +508,7 @@ class DomoTriggerSettings(DomoBase):
             "locale": self.locale,
         }
 
-    def export_as_dict(self, override_fn: Optional[Callable] = None) -> dict[str, Any]:
+    def export_as_dict(self, override_fn: Callable | None = None) -> dict[str, Any]:
         """Export trigger settings as unified dictionary format
 
         Calls export_as_dict on each trigger to get detailed, readable format.
@@ -534,7 +534,7 @@ class DomoTriggerSettings(DomoBase):
             },
         }
 
-    def get_trigger_by_id(self, trigger_id: int) -> Optional[DomoTrigger]:
+    def get_trigger_by_id(self, trigger_id: int) -> DomoTrigger | None:
         """Get a specific trigger by ID"""
         for trigger in self.triggers:
             if trigger.trigger_id == trigger_id:

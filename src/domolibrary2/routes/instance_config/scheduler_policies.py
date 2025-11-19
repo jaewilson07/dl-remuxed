@@ -29,7 +29,7 @@ __all__ = [
     "delete_scheduler_policy",
 ]
 
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -51,9 +51,9 @@ class SchedulerPolicy_GET_Error(Config_GET_Error):  # noqa: N801
 
     def __init__(
         self,
-        entity_id: Optional[str] = None,
-        res: Optional[rgd.ResponseGetData] = None,
-        message: Optional[str] = None,
+        entity_id: str | None = None,
+        res: rgd.ResponseGetData | None = None,
+        message: str | None = None,
         **kwargs,
     ):
         if not message:
@@ -85,9 +85,9 @@ class SchedulerPolicy_CRUD_Error(Config_CRUD_Error):  # noqa: N801
     def __init__(
         self,
         operation: str,
-        entity_id: Optional[str] = None,
-        res: Optional[rgd.ResponseGetData] = None,
-        message: Optional[str] = None,
+        entity_id: str | None = None,
+        res: rgd.ResponseGetData | None = None,
+        message: str | None = None,
         **kwargs,
     ):
         if not message:
@@ -116,7 +116,7 @@ class SearchSchedulerPolicy_NotFound_Error(Config_GET_Error):  # noqa: N801
     def __init__(
         self,
         search_criteria: str,
-        res: Optional[rgd.ResponseGetData] = None,
+        res: rgd.ResponseGetData | None = None,
         **kwargs,
     ):
         message = f"No scheduler policies found matching: {search_criteria}"
@@ -140,7 +140,7 @@ async def get_scheduler_policies(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -202,7 +202,7 @@ async def get_scheduler_policy_by_id(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -264,7 +264,7 @@ async def create_scheduler_policy(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -348,7 +348,7 @@ async def update_scheduler_policy(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -404,7 +404,7 @@ async def delete_scheduler_policy(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """

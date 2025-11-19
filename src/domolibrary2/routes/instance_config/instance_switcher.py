@@ -5,7 +5,6 @@ __all__ = [
     "set_instance_switcher_mapping",
 ]
 
-from typing import Optional
 
 import httpx
 
@@ -22,9 +21,9 @@ class InstanceSwitcher_GET_Error(RouteError):
 
     def __init__(
         self,
-        entity_id: Optional[str] = None,
+        entity_id: str | None = None,
         res=None,
-        message: Optional[str] = None,
+        message: str | None = None,
         **kwargs,
     ):
         super().__init__(
@@ -41,9 +40,9 @@ class InstanceSwitcher_CRUD_Error(RouteError):
     def __init__(
         self,
         operation: str,
-        entity_id: Optional[str] = None,
+        entity_id: str | None = None,
         res=None,
-        message: Optional[str] = None,
+        message: str | None = None,
         **kwargs,
     ):
         super().__init__(
@@ -63,7 +62,7 @@ async def get_instance_switcher_mapping(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
     timeout: int = 20,
 ) -> rgd.ResponseGetData:
@@ -121,7 +120,7 @@ async def set_instance_switcher_mapping(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
     timeout: int = 60,
 ) -> rgd.ResponseGetData:

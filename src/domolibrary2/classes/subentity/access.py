@@ -1,6 +1,6 @@
 __all__ = [
     "AccessConfigError",
-    "Access_Relation",
+    "AccessRelationship",
     "DomoAccess",
 ]
 

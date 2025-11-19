@@ -9,7 +9,7 @@ __all__ = [
 
 
 from dataclasses import dataclass
-from typing import Callable, Optional
+from typing import Callable
 
 import httpx
 
@@ -26,7 +26,7 @@ class FederatedDomoDataset(DomoDataset_Default, DomoFederatedEntity):
     async def get_federated_parent(
         self,
         parent_auth: None = None,
-        parent_auth_retrieval_fn: Optional[Callable] = None,
+        parent_auth_retrieval_fn: Callable | None = None,
     ):
         from ...classes.DomoEverywhere import DomoEverywhere
 
@@ -80,7 +80,7 @@ class FederatedDomoDataset(DomoDataset_Default, DomoFederatedEntity):
         session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop: int = 2,
         is_use_default_dataset_class: bool = False,
-        parent_class: Optional[str] = None,
+        parent_class: str | None = None,
         is_suppress_no_account_config: bool = True,
     ):
         """retrieves federated dataset metadata"""
@@ -110,7 +110,7 @@ class DomoPublishDataset(FederatedDomoDataset, DomoPublishedEntity):
     async def get_parent_publication(
         self,
         parent_auth: None = None,
-        parent_auth_retrieval_fn: Optional[Callable] = None,
+        parent_auth_retrieval_fn: Callable | None = None,
     ):
         raise NotImplementedError("To Do")
 

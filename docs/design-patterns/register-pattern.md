@@ -101,7 +101,7 @@ def register_controller(object_type: str):
 class AccessController(ABC):
     auth: DomoAuth
     parent_object: DomoEntity
-    
+
     @abstractmethod
     async def grant_access(self, entity_id: str, access_level: str) -> bool:
         pass
@@ -131,9 +131,9 @@ You can combine both patterns when you need both extensibility AND an enum inter
 ```python
 class StreamConfig_Mappings(DomoEnumMixin, Enum):
     """Auto-generated enum from registry."""
-    
+
     default = None
-    
+
     @classmethod
     def _missing_(cls, value):
         """Handle missing values by searching registry."""
@@ -141,16 +141,16 @@ class StreamConfig_Mappings(DomoEnumMixin, Enum):
             mapping_cls = _MAPPING_REGISTRY[value]
             return cls._create_pseudo_member_(value, mapping_cls())
         return cls.default
-    
+
     @classmethod
     def search(cls, value, debug_api: bool = False) -> StreamConfig_Mapping:
         """Search for a mapping by data provider type."""
         if value in _MAPPING_REGISTRY:
             return _MAPPING_REGISTRY[value]()
-        
+
         if debug_api:
             print(f"{value} not in registry, using default")
-        
+
         return _MAPPING_REGISTRY.get("default", StreamConfig_Mapping)()
 ```
 
@@ -168,7 +168,7 @@ class DataProvider_Enum(DomoEnumMixin, Enum):
     ADOBE = "adobe-analytics-v2"
     QUALTRICS = "qualtrics"
     # ... 50+ more providers
-    
+
     # What happens when Domo adds a new connector?
     # → Must modify this file
     # → Breaks Open/Closed Principle
@@ -227,7 +227,7 @@ async def create_group(
 ):
     # Normalize once at the top
     group_type = group_type.value if isinstance(group_type, GroupType_Enum) else group_type
-    
+
     # Rest of function uses normalized value
 
 # Option 2: Utility function
@@ -242,7 +242,7 @@ group_type = normalize_enum(group_type)
 **Best Design (if using enums):**
 ```python
 # Accept only enum, convert internally
-@gd.route_function  
+@gd.route_function
 async def create_group(
     auth: DomoAuth,
     group_type: GroupType_Enum = GroupType_Enum.OPEN,
@@ -295,20 +295,20 @@ async def create_group(
 ```python
 async def test_register_pattern():
     """Test that decorator populates registry correctly."""
-    
+
     # Verify registration
     assert "snowflake" in _MAPPING_REGISTRY
     assert "postgresql" in _MAPPING_REGISTRY
-    
+
     # Verify factory creation
     mapping = StreamConfig_Mappings.search("snowflake")
     assert isinstance(mapping, SnowflakeMapping)
     assert mapping.sql == "query"
-    
+
     # Verify fallback behavior
     mapping = StreamConfig_Mappings.search("unknown-type", debug_api=False)
     assert isinstance(mapping, StreamConfig_Mapping)  # Default
-    
+
     # Verify case-insensitive search
     mapping = StreamConfig_Mappings.search("SNOWFLAKE")
     assert isinstance(mapping, SnowflakeMapping)
@@ -319,10 +319,10 @@ async def test_register_pattern():
 ```python
 async def test_end_to_end_stream_config():
     """Test register pattern in real usage."""
-    
+
     # Create stream with registered type
     stream = await DomoStream.get_by_id(auth=auth, stream_id="test-id")
-    
+
     # Verify mapping was found via registry
     assert stream.has_mapping is True
     assert "snowflake" in stream.configuration_query
@@ -363,7 +363,7 @@ _MAPPING_REGISTRY: dict[str, type[StreamConfig_Mapping]] = {}
 ```python
 class StreamConfig_Mappings(DomoEnumMixin, Enum):
     """Enum of all registered stream config mappings.
-    
+
     Currently registered types:
     - snowflake
     - snowflake_federated
@@ -372,7 +372,7 @@ class StreamConfig_Mappings(DomoEnumMixin, Enum):
     - adobe-analytics-v2
     - qualtrics
     - sharepointonline
-    
+
     To add a new mapping, create a subclass with @register_mapping decorator
     in the stream_configs subfolder.
     """

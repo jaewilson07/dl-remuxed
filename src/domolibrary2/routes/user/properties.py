@@ -43,7 +43,6 @@ __all__ = [
 import base64
 import os
 from enum import Enum
-from typing import Optional
 
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
@@ -146,7 +145,7 @@ async def update_user(
     auth: DomoAuth,
     debug_api: bool = False,
     session: httpx.AsyncClient | None = None,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
 ):
@@ -217,7 +216,7 @@ async def set_user_landing_page(
     user_id: str,
     page_id: str,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop=1,
     session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
@@ -278,7 +277,7 @@ async def reset_password(
     user_id: str,
     new_password: str,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop=1,
     session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
@@ -356,7 +355,7 @@ async def request_password_reset(
     locale="en-us",
     debug_api: bool = False,
     session: httpx.AsyncClient | None = None,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop=1,
     return_raw: bool = False,
 ):
@@ -423,7 +422,7 @@ async def download_avatar(
     is_download_image: bool = True,
     debug_api: bool = False,
     return_raw: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop=1,
     session: httpx.AsyncClient | None = None,
 ):
@@ -521,7 +520,7 @@ async def upload_avatar(
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
     session: httpx.AsyncClient | None = None,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ):
     """Upload an avatar image for a user.
@@ -591,7 +590,7 @@ async def user_is_allowed_direct_signon(
     is_allow_dso: bool = True,
     debug_api: bool = False,
     debug_num_stacks_to_drop=1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:

@@ -23,14 +23,11 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from enum import Enum
-from typing import Any, Dict, List, Optional, Set, Union
+from typing import Any
 
-import httpx
-
-from ...client.auth import DomoAuth
-from ...entities.entities import DomoEntity, DomoEnum, DomoSubEntity
-from ...client.exceptions import DomoError
+from ...auth import DomoAuth
+from ...base.base import DomoEnum
+from ...base.entities import DomoEntity
 
 
 class EntityType(DomoEnum):
@@ -96,18 +93,18 @@ class Relationship:
     relationship_type: RelationshipType
 
     # Relationship metadata
-    created_date: Optional[str] = None
-    created_by: Optional[str] = None
-    effective_date: Optional[str] = None
-    expiry_date: Optional[str] = None
+    created_date: str | None = None
+    created_by: str | None = None
+    effective_date: str | None = None
+    expiry_date: str | None = None
 
     # For resolved relationships (e.g., inherited through groups)
-    source_relationship_id: Optional[str] = (
+    source_relationship_id: str | None = (
         None  # ID of relationship this was derived from
     )
 
     # Additional metadata
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     @property
     def is_access_relationship(self) -> bool:
@@ -140,25 +137,25 @@ class RelationshipSummary:
 
     entity_id: str
     entity_type: EntityType
-    relationships: List[Relationship] = field(default_factory=list)
+    relationships: list[Relationship] = field(default_factory=list)
 
     def get_relationships_by_type(
         self, relationship_type: RelationshipType
-    ) -> List[Relationship]:
+    ) -> list[Relationship]:
         """Get all relationships of a specific type."""
         return [
             r for r in self.relationships if r.relationship_type == relationship_type
         ]
 
-    def get_access_relationships(self) -> List[Relationship]:
+    def get_access_relationships(self) -> list[Relationship]:
         """Get all access-related relationships."""
         return [r for r in self.relationships if r.is_access_relationship]
 
-    def get_membership_relationships(self) -> List[Relationship]:
+    def get_membership_relationships(self) -> list[Relationship]:
         """Get all membership-related relationships."""
         return [r for r in self.relationships if r.is_membership_relationship]
 
-    def get_lineage_relationships(self) -> List[Relationship]:
+    def get_lineage_relationships(self) -> list[Relationship]:
         """Get all lineage-related relationships."""
         return [r for r in self.relationships if r.is_lineage_relationship]
 
@@ -194,11 +191,11 @@ class DomoRelationshipController(ABC):
         self.parent_id = parent_object.id
 
         # Cache for relationship data
-        self._relationship_cache: Dict[str, RelationshipSummary] = {}
+        self._relationship_cache: dict[str, RelationshipSummary] = {}
         self._cache_valid = False
 
     @abstractmethod
-    async def get_direct_relationships(self) -> List[Relationship]:
+    async def get_direct_relationships(self) -> list[Relationship]:
         """Get all direct relationships for the parent object."""
         pass
 
@@ -224,7 +221,7 @@ class DomoRelationshipController(ABC):
         """Remove a relationship."""
         pass
 
-    async def get_resolved_relationships(self) -> List[Relationship]:
+    async def get_resolved_relationships(self) -> list[Relationship]:
         """Get resolved relationships (including those derived from group memberships)."""
         resolved_relationships = []
         direct_relationships = await self.get_direct_relationships()
@@ -272,7 +269,7 @@ class DomoRelationshipController(ABC):
             ),
         )
 
-    async def get_all_relationship_summaries(self) -> Dict[str, RelationshipSummary]:
+    async def get_all_relationship_summaries(self) -> dict[str, RelationshipSummary]:
         """Get relationship summaries for all entities with relationships to this object."""
         if not self._cache_valid:
             await self._refresh_relationship_cache()
@@ -284,7 +281,7 @@ class DomoRelationshipController(ABC):
         all_relationships = await self.get_resolved_relationships()
 
         # Group relationships by from_entity
-        entity_relationships: Dict[str, List[Relationship]] = {}
+        entity_relationships: dict[str, list[Relationship]] = {}
         for rel in all_relationships:
             if rel.from_entity_id not in entity_relationships:
                 entity_relationships[rel.from_entity_id] = []
@@ -307,7 +304,7 @@ class DomoRelationshipController(ABC):
 
         self._cache_valid = True
 
-    async def _get_group_members(self, group_id: str) -> List[Any]:
+    async def _get_group_members(self, group_id: str) -> list[Any]:
         """Get members of a group. Override in subclasses for specific implementations."""
         # This would be implemented to get actual group members
         return []
@@ -322,7 +319,7 @@ class DomoRelationshipManager:
 
     def __init__(self, auth: DomoAuth):
         self.auth = auth
-        self._controllers: Dict[str, type] = {}
+        self._controllers: dict[str, type] = {}
 
     def register_controller(self, object_type: str, controller_class: type):
         """Register a relationship controller for a specific object type."""
@@ -330,7 +327,7 @@ class DomoRelationshipManager:
 
     def get_controller(
         self, domo_object: DomoEntity
-    ) -> Optional[DomoRelationshipController]:
+    ) -> DomoRelationshipController | None:
         """Get the appropriate relationship controller for a Domo object."""
         object_type = type(domo_object).__name__
 
@@ -343,8 +340,8 @@ class DomoRelationshipManager:
         self,
         entity_id: str,
         entity_type: EntityType,
-        relationship_types: Optional[List[RelationshipType]] = None,
-    ) -> List[Relationship]:
+        relationship_types: list[RelationshipType] | None = None,
+    ) -> list[Relationship]:
         """Get all relationships for an entity across all objects."""
         # This would query relationships across all object types
         # Implementation depends on available APIs and indexing
@@ -357,7 +354,7 @@ class DomoRelationshipManager:
 class DomoAccessRelationshipController(DomoRelationshipController):
     """Relationship controller for access/sharing relationships."""
 
-    async def get_direct_relationships(self) -> List[Relationship]:
+    async def get_direct_relationships(self) -> list[Relationship]:
         """Get direct access relationships for the object."""
         # Implementation depends on the specific object type
         # This would be specialized in subclasses
@@ -389,7 +386,7 @@ class DomoAccessRelationshipController(DomoRelationshipController):
 class DomoMembershipRelationshipController(DomoRelationshipController):
     """Relationship controller for group membership relationships."""
 
-    async def get_direct_relationships(self) -> List[Relationship]:
+    async def get_direct_relationships(self) -> list[Relationship]:
         """Get direct membership relationships for the group."""
         from ...routes import group as group_routes
 

@@ -7,7 +7,6 @@ __all__ = [
     "get_bootstrap_pages",
 ]
 
-from typing import Optional
 
 import httpx
 
@@ -22,7 +21,7 @@ from ..client import (
 class Bootstrap_GET_Error(RouteError):
     """Raised when bootstrap retrieval operations fail."""
 
-    def __init__(self, message: Optional[str] = None, res=None, **kwargs):
+    def __init__(self, message: str | None = None, res=None, **kwargs):
         super().__init__(
             message=message or "Bootstrap retrieval failed",
             res=res,
@@ -35,7 +34,7 @@ async def get_bootstrap(
     auth: DomoFullAuth,  ## only works with DomoFullAuth authentication, do not use TokenAuth
     debug_api: bool = False,
     session: httpx.AsyncClient | None = None,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop: int = 1,
 ) -> rgd.ResponseGetData:
     """get bootstrap data"""
@@ -76,15 +75,15 @@ async def get_bootstrap(
 @gd.route_function
 async def get_bootstrap_customerid(
     auth: DomoFullAuth,  # this function requires the DomoFullAuth object to authenticate the bootstrap
-    session: Optional[
-        httpx.AsyncClient
-    ] = None,  # optional parameter to improve same instance query performance
+    session: (
+        httpx.AsyncClient | None
+    ) = None,  # optional parameter to improve same instance query performance
     debug_api: bool = False,  # pass True to see the parameters sent to the Domo API
     return_raw: bool = False,  # pass True to return the raw API response
     debug_num_stacks_to_drop: int = 2,  # number frames to drop off the stacktrace.  retrieved from `res.traceback_details`
-    parent_class: Optional[
-        str
-    ] = None,  # Optional parent class that calls the route function
+    parent_class: (
+        str | None
+    ) = None,  # Optional parent class that calls the route function
 ) -> (
     rgd.ResponseGetData
 ):  # the response contains the string representation of the customer_id
@@ -112,7 +111,7 @@ async def get_bootstrap_features(
     debug_api: bool = False,
     return_raw: bool = False,
     debug_num_stacks_to_drop: int = 2,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
 ) -> rgd.ResponseGetData:
     res = await get_bootstrap(
         auth=auth,
@@ -136,7 +135,7 @@ async def get_bootstrap_features_is_accountsv2_enabled(
     debug_api: bool = False,
     return_raw: bool = False,
     debug_num_stacks_to_drop: int = 2,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
 ) -> rgd.ResponseGetData:
     res = await get_bootstrap_features(
         auth=auth,
@@ -170,7 +169,7 @@ async def get_bootstrap_pages(
     debug_api: bool = False,
     return_raw: bool = False,
     debug_num_stacks_to_drop: int = 2,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
 ) -> rgd.ResponseGetData:
     """this API will return the downstream (children) hierarchy of a page"""
     res = await get_bootstrap(

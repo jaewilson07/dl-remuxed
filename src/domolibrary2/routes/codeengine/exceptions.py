@@ -11,8 +11,6 @@ Exception Classes:
     CodeEngine_FunctionCallError: Raised when function call parameters are invalid
 """
 
-from typing import Optional
-
 from ...auth import DomoAuth
 from ...base.exceptions import RouteError
 from ...client import response as rgd
@@ -23,9 +21,9 @@ class CodeEngine_GET_Error(RouteError):
 
     def __init__(
         self,
-        entity_id: Optional[str] = None,
-        res: Optional[rgd.ResponseGetData] = None,
-        message: Optional[str] = None,
+        entity_id: str | None = None,
+        res: rgd.ResponseGetData | None = None,
+        message: str | None = None,
         **kwargs,
     ):
         if not message:
@@ -43,7 +41,7 @@ class SearchCodeEngineNotFoundError(RouteError):
     def __init__(
         self,
         search_criteria: str,
-        res: Optional[rgd.ResponseGetData] = None,
+        res: rgd.ResponseGetData | None = None,
         **kwargs,
     ):
         message = f"No codeengine packages found matching: {search_criteria}"
@@ -61,9 +59,9 @@ class CodeEngine_CRUD_Error(RouteError):
     def __init__(
         self,
         operation: str = "CRUD",
-        entity_id: Optional[str] = None,
-        res: Optional[rgd.ResponseGetData] = None,
-        message: Optional[str] = None,
+        entity_id: str | None = None,
+        res: rgd.ResponseGetData | None = None,
+        message: str | None = None,
         **kwargs,
     ):
         if not message:
@@ -77,8 +75,8 @@ class CodeEngine_InvalidPackageError(RouteError):
     def __init__(
         self,
         message: str,
-        auth: Optional[DomoAuth] = None,
-        res: Optional[rgd.ResponseGetData] = None,
+        auth: DomoAuth | None = None,
+        res: rgd.ResponseGetData | None = None,
         **kwargs,
     ):
         # Extract domo_instance from auth if provided
@@ -94,8 +92,8 @@ class CodeEngine_FunctionCallError(RouteError):
     def __init__(
         self,
         message: str,
-        auth: Optional[DomoAuth] = None,
-        res: Optional[rgd.ResponseGetData] = None,
+        auth: DomoAuth | None = None,
+        res: rgd.ResponseGetData | None = None,
         **kwargs,
     ):
         # Extract domo_instance from auth if provided

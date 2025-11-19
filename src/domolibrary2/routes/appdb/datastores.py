@@ -18,7 +18,6 @@ __all__ = [
     "create_datastore",
 ]
 
-from typing import Optional
 
 import httpx
 
@@ -36,7 +35,7 @@ async def get_datastores(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Retrieve all datastores.
@@ -83,7 +82,7 @@ async def get_datastore_by_id(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Retrieve a specific datastore by ID.
@@ -137,7 +136,7 @@ async def get_collections_from_datastore(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Get collections from a specific datastore.
@@ -181,11 +180,11 @@ async def get_collections_from_datastore(
 @gd.route_function
 async def create_datastore(
     auth: DomoAuth,
-    datastore_name: Optional[str] = None,  # in UI shows up as appName
+    datastore_name: str | None = None,  # in UI shows up as appName
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Create a new datastore.

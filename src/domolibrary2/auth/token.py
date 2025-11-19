@@ -1,7 +1,6 @@
 """Token-based authentication classes for Domo (access tokens)."""
 
 from dataclasses import dataclass, field
-from typing import Optional
 
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
@@ -26,9 +25,9 @@ class _DomoTokenAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):  # noqa: 
         self,
         domo_access_token: str,
         domo_instance: str,
-        token_name: Optional[str] = None,
-        token: Optional[str] = None,
-        user_id: Optional[str] = None,
+        token_name: str | None = None,
+        token: str | None = None,
+        user_id: str | None = None,
         is_valid_token: bool = False,
     ):
         """Initialize token authentication with pre-generated access token.
@@ -36,9 +35,9 @@ class _DomoTokenAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):  # noqa: 
         Args:
             domo_access_token (str): Pre-generated access token from Domo admin panel
             domo_instance (str): The Domo instance identifier
-            token_name (Optional[str]): Name identifier for the token
-            token (Optional[str]): The authentication token (will be set to access token)
-            user_id (Optional[str]): The authenticated user's ID
+            token_name (str | None): Name identifier for the token
+            token (str | None): The authentication token (will be set to access token)
+            user_id (str | None): The authenticated user's ID
             is_valid_token (bool): Whether the current token is valid
 
         Raises:
@@ -74,7 +73,7 @@ class _DomoTokenAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):  # noqa: 
         session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
-        token_name: Optional[str] = None,
+        token_name: str | None = None,
         **kwargs,
     ) -> str:
         """Retrieve the access token, updating internal attributes as necessary.
@@ -86,7 +85,7 @@ class _DomoTokenAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):  # noqa: 
             session (httpx.AsyncClient | None): HTTP client session to use
             debug_api (bool): Whether to enable API debugging
             debug_num_stacks_to_drop (int): Number of stack frames to drop for debugging
-            token_name (Optional[str]): Override token name for display purposes
+            token_name (str | None): Override token name for display purposes
             **kwargs: Additional keyword arguments
 
         Returns:
@@ -120,9 +119,9 @@ class DomoTokenAuth(_DomoTokenAuth_Required):
     Attributes:
         domo_access_token (str): Pre-generated access token (not shown in repr)
         domo_instance (str): The Domo instance identifier
-        token_name (Optional[str]): Name identifier for the token
-        token (Optional[str]): The authentication token (not shown in repr)
-        user_id (Optional[str]): The authenticated user's ID
+        token_name (str | None): Name identifier for the token
+        token (str | None): The authentication token (not shown in repr)
+        user_id (str | None): The authenticated user's ID
         is_valid_token (bool): Whether the current token is valid
 
     Example:
@@ -136,9 +135,9 @@ class DomoTokenAuth(_DomoTokenAuth_Required):
     domo_access_token: str = field(repr=False)
     domo_instance: str
 
-    token_name: Optional[str] = None
-    token: Optional[str] = field(default=None, repr=False)
-    user_id: Optional[str] = None
+    token_name: str | None = None
+    token: str | None = field(default=None, repr=False)
+    user_id: str | None = None
     is_valid_token: bool = False
 
     def __post_init__(self):

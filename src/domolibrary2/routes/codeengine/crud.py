@@ -26,9 +26,6 @@ __all__ = [
     "share_accounts_with_package",
 ]
 
-from typing import Optional
-
-import httpx
 
 from ...auth import DomoAuth
 from ...client import (
@@ -36,13 +33,13 @@ from ...client import (
     response as rgd,
 )
 from ...client.context import RouteContext
-from .packages import generate_share_account_package
 from . import core as codeengine_routes
 from .exceptions import (
     CodeEngine_CRUD_Error,
     CodeEngine_GET_Error,
     CodeEngine_InvalidPackageError,
 )
+from .packages import generate_share_account_package
 
 
 class CodeEnginePackageBuilder:
@@ -165,7 +162,7 @@ def increment_version(version: str) -> str:
 async def upsert_codeengine_package_version(
     auth: DomoAuth,
     payload: dict,
-    version: Optional[str] = None,
+    version: str | None = None,
     auto_increment_version: bool = True,
     debug_prn: bool = False,
     *,
