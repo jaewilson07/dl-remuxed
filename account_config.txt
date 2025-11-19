@@ -1,0 +1,89 @@
+Account: Snowflake Internal Unload Advanced Partition Account (14)
+  Data Provider: snowflake-internal-unload-advanced-partition
+
+  Configuration:
+    Config Object: DomoAccount_Config_SnowflakeUnloadAdvancedPartition(data_provider_type='snowflake-internal-unload-advanced-partition', is_oauth=False, allow_external_use='true', _fields_for_serialization=['password', 'role', 'account', 'username'], account='siebis', username='antony.rowe@sony.com', role=None)
+    Config to_dict: {'allowExternalUse': 'true', 'password': '********', 'account': 'siebis', 'username': 'antony.rowe@sony.com'}
+
+================================================================================
+
+Account: DSO Marketing Snowflake Account (Non-Prod) (77)
+  Data Provider: snowflake
+
+  Configuration:
+    Config Object: DomoAccount_Config_Snowflake(data_provider_type='snowflake', is_oauth=False, allow_external_use='true', _fields_for_serialization=['account', 'username', 'password', 'role'], account='********', username='GLOBAL_MARKETING_ANALYTICS_NONPROD_USR', role='TR_MARKETING_ANALYTICS_CONSUMERINSIGHT_NONPROD')
+    Config to_dict: {'allowExternalUse': 'true', 'account': '********', 'username': 'GLOBAL_MARKETING_ANALYTICS_NONPROD_USR', 'password': '********', 'role': 'TR_MARKETING_ANALYTICS_CONSUMERINSIGHT_NONPROD'}
+
+================================================================================
+
+Account: DSO Marketing Snowflake WriteBack Account (57)
+  Data Provider: snowflake-writeback
+
+  Configuration:
+    Config Object: DomoAccount_Config_SnowflakeWriteback(data_provider_type='snowflake-writeback', is_oauth=False, allow_external_use='true', _fields_for_serialization=['domo_client_secret', 'password', 'domo_client_id', 'account', 'username', 'role'], domo_client_id='749548ca-1da0-46c5-ae33-87f4ed79a3c7', account='SIEBIS', username='GLOBAL_MARKETING_ANALYTICS_USR', role='TR_GLOBAL_MARKETING_CIMA_CONFIDENTIAL')
+    Config to_dict: {'allowExternalUse': 'true', 'domoClientSecret': '********', 'password': '********', 'domoClientId': '749548ca-1da0-46c5-ae33-87f4ed79a3c7', 'account': 'SIEBIS', 'username': 'GLOBAL_MARKETING_ANALYTICS_USR', 'role': 'TR_GLOBAL_MARKETING_CIMA_CONFIDENTIAL'}
+
+================================================================================
+
+Account: ca_d2c (98)
+  Data Provider: snowflakekeypairauthentication
+
+  Configuration:
+    Config Object: DomoAccount_Config_SnowflakeKeyPairAuthentication(data_provider_type='snowflakekeypairauthentication', is_oauth=False, allow_external_use='false', _fields_for_serialization=['private_key', 'role', 'account', 'username', 'passphrase'], username=None, role=None)
+    Config to_dict: {'allowExternalUse': 'false', 'privateKey': '********', 'account': 'siebis', 'passPhrase': '********'}
+
+================================================================================
+
+Account: sdk_GSS_BUSINESS_PLANNING_DOMO_USR (128)
+  Data Provider: snowflake-key-pair-writeback
+
+  Configuration:
+    Config Object: DomoAccount_Config_SnowflakeKeyPairWriteback(data_provider_type='snowflake-key-pair-writeback', is_oauth=False, allow_external_use='false', _field_map={'passPhrase': 'passphrase'}, _fields_for_serialization=['private_key', 'role', 'account', 'username', 'passphrase'], account='siebis', username='GSS_BUSINESS_PLANNING_DOMO_USR', role='TR_GLOBAL_STORE_AND_SERVICES')
+    Config to_dict: {'allowExternalUse': 'false', 'privateKey': '********', 'role': 'TR_GLOBAL_STORE_AND_SERVICES', 'account': 'siebis', 'username': 'GSS_BUSINESS_PLANNING_DOMO_USR', 'passPhrase': '********'}
+
+================================================================================
+
+Account: sdk_GLOBAL_MARKETING_ANALYTICS_NONPROD_USR (109)
+  Data Provider: snowflake-key-pair-unload-v2
+
+  Configuration:
+    Config Object: DomoAccount_Config_SnowflakeKeyPairUnload_V2(data_provider_type='snowflake-key-pair-unload-v2', is_oauth=False, allow_external_use='false', _field_map={'passPhrase': 'passphrase'}, _fields_for_serialization=['private_key', 'role', 'account', 'username', 'passphrase', 'access_key', 'secret_key', 'bucket', 'region', 'encryption_type'], account='siebis', username='STRATEGIC_ANALYTICS_DOMO_NONPROD_USR', role='TR_MARKETING_ANALYTICS_CONSUMERINSIGHT_NONPROD', access_key='AKIA5Q5WPVKFJWBEB5H3', bucket='dso-prod-domo-snowflake', region='us-west-2', encryption_type='AWS_SSE_S3')
+    Config to_dict: {'allowExternalUse': 'false', 'privateKey': '********', 'role': 'TR_MARKETING_ANALYTICS_CONSUMERINSIGHT_NONPROD', 'account': 'siebis', 'username': 'STRATEGIC_ANALYTICS_DOMO_NONPROD_USR', 'passPhrase': '********', 'accessKey': 'AKIA5Q5WPVKFJWBEB5H3', 'secretKey': '********', 'bucket': 'dso-prod-domo-snowflake', 'region': 'us-west-2', 'encryptionType': 'AWS_SSE_S3'}
+
+================================================================================
+
+Account: Snowflake Managed Unload Account (39)
+  Data Provider: snowflake-internal-unload
+
+  Configuration:
+    Config Object: DomoAccount_Config_SnowflakeInternalUnload(data_provider_type='snowflake-internal-unload', is_oauth=False, allow_external_use='true', _fields_for_serialization=['password', 'role', 'account', 'username'], account='SIENETADS', username='DLALONDE', role='ACCOUNTADMIN')
+    Config to_dict: {'allowExternalUse': 'true', 'password': '********', 'role': 'ACCOUNTADMIN', 'account': 'SIENETADS', 'username': 'DLALONDE'}
+
+================================================================================
+
+Account: sdk_GSS_BUSINESS_PLANNING_DOMO_USR (125)
+  Data Provider: snowflake-keypair-internal-managed-unload
+
+  Configuration:
+    Config Object: DomoAccount_Config_SnowflakeKeyPairInternalManagedUnload(data_provider_type='snowflake-keypair-internal-managed-unload', is_oauth=False, allow_external_use='false', _field_map={'passPhrase': 'passphrase'}, account='siebis', username='GSS_BUSINESS_PLANNING_DOMO_USR', role=None)
+    Config to_dict: {'allowExternalUse': 'false', 'privateKey': '********', 'account': 'siebis', 'passPhrase': '********', 'username': 'GSS_BUSINESS_PLANNING_DOMO_USR'}
+
+================================================================================
+
+Account: sdk_snowflake_d2c-domo (89)
+  Data Provider: snowflake-unload-v2
+
+  Configuration:
+    Config Object: DomoAccount_Config_SnowflakeUnload_V2(data_provider_type='snowflake-unload-v2', is_oauth=False, allow_external_use='false', _fields_for_serialization=['account', 'username', 'password', 'access_key', 'secret_key', 'bucket', 'region', 'role'], account='siebis', username='GLOBAL_MARKETING_ANALYTICS_SELF_SERVE_DOMO_USR', access_key='AKIAZPA3GBEZMVU7X6F4', region='us-east-1', bucket='domo-poc-playstation-partneranalytics-integration', role='')
+    Config to_dict: {'allowExternalUse': 'false', 'account': 'siebis', 'username': 'GLOBAL_MARKETING_ANALYTICS_SELF_SERVE_DOMO_USR', 'password': '********', 'accessKey': 'AKIAZPA3GBEZMVU7X6F4', 'secretKey': '********', 'bucket': 'domo-poc-playstation-partneranalytics-integration', 'region': 'us-east-1', 'role': ''}
+
+================================================================================
+
+Account: snowflake-federated 31/07/2023, 12:42:52 (26)
+  Data Provider: snowflake-federated
+
+  Configuration:
+    Config Object: DomoAccount_Config_SnowflakeFederated(data_provider_type='snowflake-federated', is_oauth=False, allow_external_use='true', _fields_for_serialization=['password', 'port', 'host', 'warehouse', 'username', 'role'], host='siegfm.snowflakecomputing.com', warehouse='GSS_TABLEAU', username='SVCACCT_GSS_TABLEAU', port='443', role='SVCACCT_GSS_TABLEAU_WHS')
+    Config to_dict: {'allowExternalUse': 'true', 'password': '********', 'port': '443', 'host': 'siegfm.snowflakecomputing.com', 'warehouse': 'GSS_TABLEAU', 'user': 'SVCACCT_GSS_TABLEAU', 'role': 'SVCACCT_GSS_TABLEAU_WHS'}
+
+================================================================================

@@ -272,7 +272,14 @@ class _DomoAuth_Optional(ABC):  # noqa: N801
             )
             return False
 
-        print(f"🎉 {self.token_name} token retrieved from {self.domo_instance} ⚙️")
+        try:
+            # Try to print with emoji (works on modern terminals)
+            print(f"🎉 {self.token_name} token retrieved from {self.domo_instance} ⚙️")
+        except UnicodeEncodeError:
+            # Fallback for Windows console without emoji support
+            print(
+                f"[SUCCESS] {self.token_name} token retrieved from {self.domo_instance}"
+            )
         return True
 
 
