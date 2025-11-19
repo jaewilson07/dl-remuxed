@@ -21,6 +21,9 @@ from ..auth.base import DomoAuth
 from ..client.context import RouteContext
 from .base import DomoBase
 from .relationships import DomoRelationshipController
+from ..utils.logging import get_colored_logger, log_call
+
+logger = get_colored_logger()
 
 
 @dataclass
@@ -186,6 +189,7 @@ class DomoEntity(DomoBase):
         """
         raise NotImplementedError("This method should be implemented by subclasses.")
 
+    @log_call(level_name="class", log_level="DEBUG", color="cyan")
     async def refresh(
         self,
         debug_num_stacks_to_drop=2,
@@ -194,14 +198,25 @@ class DomoEntity(DomoBase):
         **kwargs,
     ):
         """Refresh this instance from the API using its id and auth."""
-        result = await type(self).get_entity_by_id(
-            auth=self.auth,
-            entity_id=self.id,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-            debug_api=debug_api,
-            session=session,
-            **kwargs,
-        )
+
+        try:
+            await logger.info(
+                f"Refreshing {self.__class__.__name__} - {self.id} in {self.auth.domo_instance}..."
+            )
+            result = await type(self).get_entity_by_id(
+                auth=self.auth,
+                entity_id=self.id,
+                debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+                debug_api=debug_api,
+                session=session,
+                **kwargs,
+            )
+        except Exception as e:
+            await logger.error(
+                f"Failed to refresh {self.__class__.__name__} - {self.id} in {self.auth.domo_instance}: {e}"
+            )
+            raise e
+
         # Spread attributes from result to self
         if isinstance(result, type(self)):
             self.__dict__.update(

@@ -68,7 +68,9 @@ class DomoSchedule_Base(DomoBase, ABC):
     # Raw data for reference
     raw: dict[str, Any] = field(default_factory=dict, repr=False)
 
-    parent: Any = None  # DomoDataset, DomoStream, DomoDataflow
+    parent: Any = field(
+        default=None, repr=None
+    )  # DomoDataset, DomoStream, DomoDataflow
 
     def __post_init__(self):
         """Post-initialization to interpret the schedule configuration"""

@@ -176,6 +176,8 @@ class DomoAccount_Default(DomoEntity):
         is_unmask: bool = True,
         is_suppress_no_config: bool = False,  # can be used to suppress cases where the config is not defined, either because the account_config is OAuth, and therefore not stored in Domo OR because the AccountConfig class doesn't cover the data_type
     ):
+        await logger.debug(f"Getting config for {self.__class__.__name__} id {self.id}")
+
         if not self.data_provider_type:
             res = await account_routes.get_account_by_id(
                 auth=self.auth,
@@ -209,11 +211,16 @@ class DomoAccount_Default(DomoEntity):
             )
 
         except (DomoError, ValueError, TypeError) as e:
-            await logger.warning(
-                f"unable to parse account config for account id {self.id} - {e}"
-            )
+            message = f"unable to parse account config for {self.__class__.__name__} id {self.id} - {e}"
+
             if not is_suppress_no_config:
+                await logger.error(message, color="red")
                 raise e from e
+
+            await logger.warning(
+                message,
+                color="yellow",
+            )
 
         if self.Config and self.Config.to_dict() != {}:
             self._test_missing_keys(
@@ -257,7 +264,7 @@ class DomoAccount_Default(DomoEntity):
             obj=obj,
             auth=auth,
             is_admin_summary=False,
-            is_use_default_account_class=is_use_default_account_class,
+            is_use_default_class=is_use_default_account_class,
             new_cls=cls,
             **kwargs,
         )

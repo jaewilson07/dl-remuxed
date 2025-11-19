@@ -23,6 +23,7 @@ class RouteContext:
         debug_num_stacks_to_drop: Number of stack frames to drop in debug output
         parent_class: Optional parent class name for debugging context
         log_level: Optional log level for the request
+        dry_run: If True, return request parameters without executing the API call
     """
 
     session: httpx.AsyncClient | None = None
@@ -30,6 +31,7 @@ class RouteContext:
     parent_class: str | None = None
     log_level: LogLevel | str | None = LogLevel.INFO
     debug_api: bool = False
+    dry_run: bool = False
 
     @classmethod
     def build_context(
@@ -46,7 +48,7 @@ class RouteContext:
         Args:
             context: Optional pre-built RouteContext
             **kwargs: Individual context parameters (session, debug_api, debug_num_stacks_to_drop,
-                    parent_class, log_level)
+                    parent_class, log_level, dry_run)
 
         Returns:
             RouteContext built from provided parameters
@@ -57,13 +59,12 @@ class RouteContext:
             ...     context = build_context(context, **context_kwargs)
             ...     res = await get_data(auth=auth, url=url, context=context)
         """
-        if context is not None:
-            return context
+        context = context or RouteContext()
 
-        return RouteContext(
-            session=kwargs.get("session"),
-            debug_api=kwargs.get("debug_api", False),
-            debug_num_stacks_to_drop=kwargs.get("debug_num_stacks_to_drop", 1),
-            parent_class=kwargs.get("parent_class"),
-            log_level=kwargs.get("log_level", LogLevel.INFO),
-        )
+        # Update context attributes from kwargs if provided
+        # Only update if the value is explicitly provided (not None for non-booleans)
+        for key, value in kwargs.items():
+            if hasattr(context, key) and value is not None:
+                setattr(context, key, value)
+
+        return context

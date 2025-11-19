@@ -175,12 +175,12 @@ To test `stream_config` specifically without triggering the full import chain, y
 import sys
 sys.path.insert(0, "src")
 
-# Import just the stream_config module file
-from domolibrary2.classes.DomoDataset import stream_config
+# Import just the stream_configs module
+from domolibrary2.classes.DomoDataset import stream_configs
 
 # Access the registry and functions
-StreamConfig_Mapping = stream_config.StreamConfig_Mapping
-_MAPPING_REGISTRY = stream_config._MAPPING_REGISTRY
+StreamConfig_Mapping = stream_configs.StreamConfig_Mapping
+_MAPPING_REGISTRY = stream_configs._MAPPING_REGISTRY
 ```
 
 This works because you're bypassing `DomoDataset/__init__.py` which triggers the full chain.

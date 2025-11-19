@@ -92,7 +92,7 @@ async def test_from_dict():
         obj=sample_data,
         auth=token_auth,
         is_admin_summary=True,
-        is_use_default_account_class=True,
+        is_use_default_class=True,
     )
 
     # Validate conversion
