@@ -6,7 +6,7 @@ applies appropriate colors to different log levels for better visual distinction
 in console output.
 """
 
-from typing import Any, Optional
+from typing import Any
 
 from dc_logger.client.base import Logger, get_global_logger, set_global_logger
 from dc_logger.color_utils import colorize
@@ -87,8 +87,8 @@ class ColoredLogger(Logger):
         self,
         message: str,
         method: str = "COMMENT",
-        level_name: Optional[str] = None,
-        color: Optional[str] = None,
+        level_name: str | None = None,
+        color: str | None = None,
         **context: Any,
     ) -> bool:
         """Log DEBUG level message with automatic coloring."""
@@ -103,8 +103,8 @@ class ColoredLogger(Logger):
         self,
         message: str,
         method: str = "COMMENT",
-        level_name: Optional[str] = None,
-        color: Optional[str] = None,
+        level_name: str | None = None,
+        color: str | None = None,
         **context: Any,
     ) -> bool:
         """Log INFO level message with automatic coloring."""
@@ -119,8 +119,8 @@ class ColoredLogger(Logger):
         self,
         message: str,
         method: str = "COMMENT",
-        level_name: Optional[str] = None,
-        color: Optional[str] = None,
+        level_name: str | None = None,
+        color: str | None = None,
         **context: Any,
     ) -> bool:
         """Log WARNING level message with automatic coloring."""
@@ -135,8 +135,8 @@ class ColoredLogger(Logger):
         self,
         message: str,
         method: str = "COMMENT",
-        level_name: Optional[str] = None,
-        color: Optional[str] = None,
+        level_name: str | None = None,
+        color: str | None = None,
         **context: Any,
     ) -> bool:
         """Log ERROR level message with automatic coloring."""
@@ -151,8 +151,8 @@ class ColoredLogger(Logger):
         self,
         message: str,
         method: str = "COMMENT",
-        level_name: Optional[str] = None,
-        color: Optional[str] = None,
+        level_name: str | None = None,
+        color: str | None = None,
         **context: Any,
     ) -> bool:
         """Log CRITICAL level message with automatic coloring."""

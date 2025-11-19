@@ -1,6 +1,5 @@
 __all__ = ["Grant_GET_Error", "get_grants"]
 
-from typing import Optional
 
 import httpx
 
@@ -15,7 +14,7 @@ from ..client import (
 class Grant_GET_Error(RouteError):
     """Raised when grant retrieval operations fail."""
 
-    def __init__(self, message: Optional[str] = None, res=None, **kwargs):
+    def __init__(self, message: str | None = None, res=None, **kwargs):
         super().__init__(
             message=message or "Grant retrieval failed",
             res=res,
@@ -29,7 +28,7 @@ async def get_grants(
     debug_api: bool = False,
     session: httpx.AsyncClient | None = None,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
 ) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/authorization/v1/authorities"
 

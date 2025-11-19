@@ -1,11 +1,9 @@
 """Domo-specific account configurations."""
 
 from dataclasses import dataclass, field
-from typing import Any
-
-from ._base import DomoAccount_Config
 
 from ..config import register_account_config
+from ._base import DomoAccount_Config
 
 __all__ = [
     "DomoAccount_Config_AbstractCredential",

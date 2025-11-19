@@ -96,8 +96,8 @@ def generate_share_account_v1_payload(
 
 def generate_share_account_v2_payload(
     access_level: Union[ShareAccount_AccessLevel, str],
-    user_id: Optional[int] = None,
-    group_id: Optional[int] = None,
+    user_id: int | None = None,
+    group_id: int | None = None,
 ) -> dict:
     """Generate v2 API sharing payload for users or groups.
 
@@ -140,8 +140,8 @@ def generate_share_account_v2_payload(
 
 def generate_share_account_payload(
     access_level: Union[ShareAccount_AccessLevel, ShareAccount_V1_AccessLevel, str],
-    user_id: Optional[int] = None,
-    group_id: Optional[int] = None,
+    user_id: int | None = None,
+    group_id: int | None = None,
     use_v1_api: bool = False,
 ) -> dict:
     """Orchestrator function to generate appropriate sharing payload.
@@ -237,7 +237,7 @@ async def get_account_accesslist(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Get access list for an account.
@@ -295,7 +295,7 @@ async def get_oauth_account_accesslist(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Get access list for an OAuth account.
@@ -346,17 +346,17 @@ async def get_oauth_account_accesslist(
 async def share_account(
     auth: DomoAuth,
     account_id: str,
-    share_payload: Optional[dict] = None,
+    share_payload: dict | None = None,
     access_level: Optional[
         Union[ShareAccount_AccessLevel, ShareAccount_V1_AccessLevel, str]
     ] = None,
-    user_id: Optional[int] = None,
-    group_id: Optional[int] = None,
+    user_id: int | None = None,
+    group_id: int | None = None,
     use_v1_api: bool = False,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Share account with users/groups using v2 API.
@@ -470,14 +470,14 @@ async def share_account(
 async def share_oauth_account(
     auth: DomoAuth,
     account_id: str,
-    share_payload: Optional[dict] = None,
-    access_level: Optional[Union[ShareAccount_AccessLevel, str]] = None,
-    user_id: Optional[int] = None,
-    group_id: Optional[int] = None,
+    share_payload: dict | None = None,
+    access_level: Union[ShareAccount_AccessLevel, str] | None = None,
+    user_id: int | None = None,
+    group_id: int | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Share OAuth account with users/groups.
@@ -559,13 +559,13 @@ async def share_oauth_account(
 async def share_account_v1(
     auth: DomoAuth,
     account_id: str,
-    share_payload: Optional[dict] = None,
-    access_level: Optional[Union[ShareAccount_V1_AccessLevel, str]] = None,
-    user_id: Optional[int] = None,
+    share_payload: dict | None = None,
+    access_level: Union[ShareAccount_V1_AccessLevel, str] | None = None,
+    user_id: int | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Share account using legacy v1 API (users only).

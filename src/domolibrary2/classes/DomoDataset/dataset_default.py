@@ -7,7 +7,7 @@ __all__ = [
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import ClassVar, Optional
+from typing import ClassVar
 
 import httpx
 
@@ -53,24 +53,24 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
     data_provider_type: str = ""
     name: str = ""
     description: str = ""
-    row_count: Optional[int] = None
-    column_count: Optional[int] = None
+    row_count: int | None = None
+    column_count: int | None = None
 
-    stream_id: Optional[int] = None
-    cloud_id: Optional[str] = None
+    stream_id: int | None = None
+    cloud_id: str | None = None
 
-    last_touched_dt: Optional[dt.datetime] = None
-    last_updated_dt: Optional[dt.datetime] = None
-    created_dt: Optional[dt.datetime] = None
+    last_touched_dt: dt.datetime | None = None
+    last_updated_dt: dt.datetime | None = None
+    created_dt: dt.datetime | None = None
 
     owner: dict = field(default_factory=dict)
     formulas: dict = field(default_factory=dict)
 
-    Data: Optional[DomoDataset_Data] = field(default=None, repr=False)
-    Schema: Optional[dmdsc.DomoDataset_Schema] = field(default=None, repr=False)
-    Stream: Optional[dmdst.DomoStream] = field(default=None, repr=False)
-    Tags: Optional[dmtg.DomoTags] = field(default=None, repr=False)
-    PDP: Optional[dmpdp.DatasetPdpPolicies] = field(default=None, repr=False)
+    Data: DomoDataset_Data | None = field(default=None, repr=False)
+    Schema: dmdsc.DomoDataset_Schema | None = field(default=None, repr=False)
+    Stream: dmdst.DomoStream | None = field(default=None, repr=False)
+    Tags: dmtg.DomoTags | None = field(default=None, repr=False)
+    PDP: dmpdp.DatasetPdpPolicies | None = field(default=None, repr=False)
 
     Certification: dmdc.DomoCertification = field(default=None, repr=False)
 
@@ -110,7 +110,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
         return has_hint or has_federate
 
     @property
-    def transport_type(self) -> Optional[str]:
+    def transport_type(self) -> str | None:
         """Get the transport type of the dataset if available.
 
         Returns None if transport type cannot be determined rather than raising an exception.
@@ -213,7 +213,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
         session: httpx.AsyncClient | None = None,
         debug_num_stacks_to_drop: int = 2,
         is_use_default_dataset_class: bool = False,
-        parent_class: Optional[str] = None,
+        parent_class: str | None = None,
         is_get_account: bool = True,
         is_suppress_no_account_config: bool = True,
     ):
@@ -257,8 +257,8 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
 
     async def delete(
         self,
-        dataset_id: Optional[str] = None,
-        auth: Optional[DomoAuth] = None,
+        dataset_id: str | None = None,
+        auth: DomoAuth | None = None,
         debug_api: bool = False,
         session: httpx.AsyncClient | None = None,
     ):
@@ -274,7 +274,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
     async def share(
         self,
         member,  # DomoUser or DomoGroup
-        auth: Optional[DomoAuth] = None,
+        auth: DomoAuth | None = None,
         share_type: ShareDataset_AccessLevelEnum = ShareDataset_AccessLevelEnum.CAN_SHARE,
         is_send_email=False,
         debug_api: bool = False,
@@ -307,7 +307,7 @@ class DomoDataset_Default(DomoEntity_w_Lineage):  # noqa: N801
         auth: DomoAuth,
         dataset_name: str,
         dataset_type: str = "api",
-        schema: Optional[dict] = None,
+        schema: dict | None = None,
         debug_api: bool = False,
         session: httpx.AsyncClient | None = None,
         return_raw: bool = False,

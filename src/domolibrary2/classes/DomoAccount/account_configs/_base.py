@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-
 from typing import Any
 
 from ....base.entities import DomoBase
@@ -92,11 +91,14 @@ class DomoAccount_Config(DomoBase):
         """
         # Get _field_map from dataclass field's default_factory if it exists
         field_map = {}
-        if hasattr(cls, "__dataclass_fields__") and "_field_map" in cls.__dataclass_fields__:
+        if (
+            hasattr(cls, "__dataclass_fields__")
+            and "_field_map" in cls.__dataclass_fields__
+        ):
             field_def = cls.__dataclass_fields__["_field_map"]
             if field_def.default_factory:
                 field_map = field_def.default_factory()
-        
+
         # Build a reverse map for input keys that are snake_case but need to be mapped to camelCase
         reverse_map = {
             v: k for k, v in field_map.items()

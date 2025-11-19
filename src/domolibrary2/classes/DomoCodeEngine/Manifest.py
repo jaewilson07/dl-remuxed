@@ -35,7 +35,7 @@ class CodeEngineManifest:
         Returns:
             Manifest: A manifest object containing:
                 - functions (list[FunctionMetadata]): list of function metadata objects
-                - configuration (Dict[str, Any]): Configuration dictionary with accountsMapping
+                - configuration (dict[str, Any]): Configuration dictionary with accountsMapping
 
         Error Handling:
             - Returns a Manifest with empty functions list if file loading fails
@@ -83,7 +83,7 @@ class CodeEngineManifest:
         Returns:
             Manifest: A manifest object containing:
                 - functions (list[FunctionMetadata]): list of function metadata objects
-                - configuration (Dict[str, Any]): Configuration dictionary with accountsMapping
+                - configuration (dict[str, Any]): Configuration dictionary with accountsMapping
 
         Error Handling:
             - Returns a Manifest with empty functions list if string loading fails

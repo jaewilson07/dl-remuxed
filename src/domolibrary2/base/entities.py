@@ -13,15 +13,15 @@ Classes:
 
 import abc
 from dataclasses import dataclass, field
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 import httpx
 
 from ..auth.base import DomoAuth
 from ..client.context import RouteContext
+from ..utils.logging import get_colored_logger, log_call
 from .base import DomoBase
 from .relationships import DomoRelationshipController
-from ..utils.logging import get_colored_logger, log_call
 
 logger = get_colored_logger()
 
@@ -117,7 +117,7 @@ class DomoEntity(DomoBase):
         )
 
     def to_dict(
-        self, override_fn: Optional[Callable] = None, return_snake_case: bool = False
+        self, override_fn: Callable | None = None, return_snake_case: bool = False
     ) -> dict:
         """Convert all dataclass attributes to a dictionary in camelCase or snake_case.
 
@@ -128,7 +128,7 @@ class DomoEntity(DomoBase):
         __serialize_properties__.
 
         Args:
-            override_fn (Optional[Callable]): Custom conversion function to override default behavior
+            override_fn (Callable | None): Custom conversion function to override default behavior
             return_snake_case (bool): If True, return keys in snake_case. If False (default), return camelCase.
 
         Returns:
@@ -290,7 +290,7 @@ class DomoEntity_w_Lineage(DomoEntity):
         This method should be called from subclass __post_init__ after setting self.raw.
 
         Returns:
-            Optional[DomoSchedule]: Schedule instance if schedule data exists, None otherwise
+            DomoSchedule | None: Schedule instance if schedule data exists, None otherwise
         """
         from ..classes.subentity.schedule import DomoSchedule
 

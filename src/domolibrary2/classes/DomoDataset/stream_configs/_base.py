@@ -351,12 +351,10 @@ class StreamConfig:
     @classmethod
     def from_json(cls, obj: dict, data_provider_type: str, parent_stream: Any = None):
         """Create StreamConfig from API JSON response.
-
         Args:
             obj: JSON object with 'name', 'type', 'value' keys
             data_provider_type: Data provider type (e.g., 'snowflake')
             parent_stream: Parent stream object
-
         Returns:
             StreamConfig instance
         """
@@ -382,7 +380,6 @@ class StreamConfig:
 
     def to_dict(self):
         """Convert to dictionary for API submission.
-
         Returns:
             Dict with 'field', 'key', 'value' keys
         """
@@ -409,7 +406,6 @@ class StreamConfig_Mappings(DomoEnumMixin, Enum):
     @register_mapping decorators. To add a new mapping, simply create a
     new subclass with the @register_mapping decorator in the appropriate
     platform file.
-
     Usage:
         mapping = StreamConfig_Mappings.get('snowflake')
         sql_param = mapping.value.sql  # "query"

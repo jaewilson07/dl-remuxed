@@ -8,7 +8,7 @@ using DomoEnum for operators and the relationship system for user/group associat
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from domolibrary2.base.base import DomoEnumMixin
 from domolibrary2.base.entities import DomoEntity, DomoSubEntity
@@ -81,14 +81,14 @@ class PdpParameter(DomoSubEntity):
         trusted_attribute_key: For dynamic parameters, the trusted attribute to use
     """
 
-    column_name: Optional[str] = None
+    column_name: str | None = None
     column_values: list[str] = field(default_factory=list)
-    operator: Optional[PDPOperator] = PDPOperator.EQUALS
-    parameter_type: Optional[PDPParameterType] = PDPParameterType.COLUMN
+    operator: PDPOperator | None = PDPOperator.EQUALS
+    parameter_type: PDPParameterType | None = PDPParameterType.COLUMN
     ignore_case: bool = True
     is_required: bool = True
-    description: Optional[str] = None
-    trusted_attribute_key: Optional[str] = None
+    description: str | None = None
+    trusted_attribute_key: str | None = None
 
     def to_api_dict(self) -> dict[str, Any]:
         """Convert parameter to API format for Domo requests."""
@@ -147,23 +147,21 @@ class PDPPolicy(DomoEntity):
         relationship_controller: Manages user/group relationships for this policy
     """
 
-    dataset_id: Optional[str] = None
-    filter_group_id: Optional[str] = None
+    dataset_id: str | None = None
+    filter_group_id: str | None = None
     parameters: list[PdpParameter] = field(default_factory=list)
-    policy_status: Optional[PDPPolicyStatus] = PDPPolicyStatus.ACTIVE
+    policy_status: PDPPolicyStatus | None = PDPPolicyStatus.ACTIVE
     is_enabled: bool = True
     priority: int = 1
-    effective_date: Optional[datetime] = None
-    expiration_date: Optional[datetime] = None
-    created_by_user_id: Optional[str] = None
-    last_modified_by_user_id: Optional[str] = None
+    effective_date: datetime | None = None
+    expiration_date: datetime | None = None
+    created_by_user_id: str | None = None
+    last_modified_by_user_id: str | None = None
     relationship_controller: DomoRelationshipController = field(
         default_factory=DomoRelationshipController
     )
 
-    def add_user(
-        self, user_id: str, created_by: Optional[str] = None
-    ) -> DomoRelationship:
+    def add_user(self, user_id: str, created_by: str | None = None) -> DomoRelationship:
         """Add a user to this PDP policy.
 
         Args:
@@ -268,7 +266,7 @@ class PDPPolicy(DomoEntity):
         return policy
 
     def add_group(
-        self, group_id: str, created_by: Optional[str] = None
+        self, group_id: str, created_by: str | None = None
     ) -> DomoRelationship:
         """Add a group to this PDP policy.
 
@@ -337,7 +335,7 @@ class DatasetPdpPolicies(DomoSubEntity):
             if p.id != policy_id and p.filter_group_id != policy_id
         ]
 
-    def get_policy_by_id(self, policy_id: str) -> Optional[PDPPolicy]:
+    def get_policy_by_id(self, policy_id: str) -> PDPPolicy | None:
         """Get a policy by its ID."""
         return next(
             (
@@ -350,7 +348,7 @@ class DatasetPdpPolicies(DomoSubEntity):
 
     def get_policy_by_name(
         self, name: str, exact_match: bool = True
-    ) -> Optional[PDPPolicy]:
+    ) -> PDPPolicy | None:
         """Get a policy by its name."""
         if exact_match:
             return next((p for p in self.policies if p.name == name), None)

@@ -8,7 +8,7 @@ the building blocks for all Domo entities and relationships.
 import abc
 from dataclasses import dataclass, field, fields
 from enum import Enum
-from typing import Any, Callable, ClassVar, Optional
+from typing import Any, Callable, ClassVar
 
 from ..client.context import RouteContext
 from ..utils.convert import convert_snake_to_pascal
@@ -180,7 +180,7 @@ class DomoBase(abc.ABC):
         )
 
     def to_dict(
-        self, override_fn: Optional[Callable] = None, return_snake_case: bool = False
+        self, override_fn: Callable | None = None, return_snake_case: bool = False
     ) -> dict:
         """Convert dataclass to dictionary with camelCase or snake_case keys, excluding fields with repr=False.
 

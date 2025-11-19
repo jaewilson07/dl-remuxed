@@ -8,7 +8,6 @@ __all__ = [
     "get_workflow_executions",
 ]
 
-from typing import Optional
 
 import httpx
 
@@ -25,8 +24,8 @@ class Workflow_GET_Error(RouteError):
 
     def __init__(
         self,
-        workflow_id: Optional[str] = None,
-        message: Optional[str] = None,
+        workflow_id: str | None = None,
+        message: str | None = None,
         res=None,
         **kwargs,
     ):
@@ -44,8 +43,8 @@ class Workflow_CRUD_Error(RouteError):
     def __init__(
         self,
         operation: str,
-        workflow_id: Optional[str] = None,
-        message: Optional[str] = None,
+        workflow_id: str | None = None,
+        message: str | None = None,
         res=None,
         **kwargs,
     ):
@@ -64,7 +63,7 @@ async def get_workflow(
     version_id: str,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     session: httpx.AsyncClient | None = None,
 ) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/workflow/v1/models/{model_id}/versions/{version_id}"
@@ -101,10 +100,10 @@ async def trigger_workflow(
     starting_tile: str,
     model_id: str,
     version_id: str,
-    execution_parameters: Optional[dict] = None,
+    execution_parameters: dict | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     session: httpx.AsyncClient | None = None,
 ) -> rgd.ResponseGetData:
     body = generate_trigger_workflow_body(
@@ -139,7 +138,7 @@ async def get_workflow_trigger_history(
     model_id: str,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     session: httpx.AsyncClient | None = None,
 ) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/workflow/v2/executions/{model_id}"
@@ -167,7 +166,7 @@ async def get_workflow_executions(
     version_id: str,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     session: httpx.AsyncClient | None = None,
 ) -> rgd.ResponseGetData:
     params = {

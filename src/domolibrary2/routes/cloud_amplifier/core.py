@@ -16,7 +16,7 @@ __all__ = [
     "convert_federated_to_cloud_amplifier",
 ]
 
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -36,11 +36,11 @@ from .utils import ENGINES, create_integration_body
 @gd.route_function
 async def get_integrations(
     auth: DomoAuth,
-    integration_engine: Optional[ENGINES] = None,
+    integration_engine: ENGINES | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -106,7 +106,7 @@ async def get_integration_by_id(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -163,12 +163,12 @@ async def get_integration_by_id(
 @gd.route_function
 async def get_integration_permissions(
     auth: DomoAuth,
-    user_id: Optional[str] = None,
-    integration_ids: Optional[list[str]] = None,
+    user_id: str | None = None,
+    integration_ids: list[str] | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -234,7 +234,7 @@ async def get_integration_warehouses(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -299,11 +299,11 @@ async def create_integration(
     service_account_id: str,
     auth_method: str,
     description: str = "",
-    admin_auth_method: Optional[str] = None,
+    admin_auth_method: str | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -385,7 +385,7 @@ async def update_integration(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -447,7 +447,7 @@ async def update_integration_warehouses(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -512,7 +512,7 @@ async def delete_integration(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -571,7 +571,7 @@ async def convert_federated_to_cloud_amplifier(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """

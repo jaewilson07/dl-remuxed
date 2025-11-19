@@ -82,8 +82,8 @@ You can customize the sync schedule by editing `.github/workflows/sync-upstream.
 
 ## Benefits
 
-✅ Always stay up to date with the latest prompts and improvements  
-✅ Automatic process requires no manual intervention  
-✅ Safe merging with conflict detection  
-✅ Manual trigger option when needed  
+✅ Always stay up to date with the latest prompts and improvements
+✅ Automatic process requires no manual intervention
+✅ Safe merging with conflict detection
+✅ Manual trigger option when needed
 ✅ Full transparency through GitHub Actions logs

@@ -4,7 +4,7 @@ __all__ = ["STREAM_FILE_PATH", "ResponseGetData", "find_ip", "RequestMetadata"]
 
 import re
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 import requests
@@ -15,10 +15,10 @@ from bs4 import BeautifulSoup
 class RequestMetadata:
     url: str
     headers: dict = field(repr=False, default_factory=dict)
-    body: Optional[str] = field(default=None)
-    params: Optional[dict] = field(default=None)
+    body: str | None = field(default=None)
+    params: dict | None = field(default=None)
 
-    def to_dict(self, auth_headers: Optional[list[str]] = None) -> dict:
+    def to_dict(self, auth_headers: list[str] | None = None) -> dict:
         """returns dict representation of RequestMetadata"""
 
         return {
@@ -39,8 +39,8 @@ class ResponseGetData:
     response: dict[str, Any] | str | list[Any]
     is_success: bool
 
-    request_metadata: Optional[RequestMetadata] = field(default=None)
-    additional_information: Optional[dict] = field(default=None, repr=False)
+    request_metadata: RequestMetadata | None = field(default=None)
+    additional_information: dict | None = field(default=None, repr=False)
 
     def to_dict(self, is_exclude_response: bool = True) -> dict:
         """returns dict representation of ResponseGetData"""
@@ -58,8 +58,8 @@ class ResponseGetData:
     def from_requests_response(
         cls,
         res: requests.Response,
-        request_metadata: Optional[RequestMetadata] = None,
-        additional_information: Optional[dict] = None,
+        request_metadata: RequestMetadata | None = None,
+        additional_information: dict | None = None,
     ) -> "ResponseGetData":
         """returns ResponseGetData from requests.Response"""
 
@@ -92,8 +92,8 @@ class ResponseGetData:
     def from_httpx_response(
         cls,
         res: httpx.Response,
-        request_metadata: Optional[RequestMetadata] = None,
-        additional_information: Optional[dict] = None,
+        request_metadata: RequestMetadata | None = None,
+        additional_information: dict | None = None,
     ) -> "ResponseGetData":
         """returns ResponseGetData from httpx.Response"""
 
@@ -146,7 +146,7 @@ class ResponseGetData:
         return res
 
 
-def find_ip(html: str, html_tag: str = "p") -> Optional[str]:
+def find_ip(html: str, html_tag: str = "p") -> str | None:
     """Extract IP address from HTML content.
 
     Args:

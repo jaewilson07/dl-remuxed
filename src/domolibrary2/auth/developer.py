@@ -1,7 +1,6 @@
 """Developer authentication classes for Domo (OAuth2 client credentials)."""
 
 from dataclasses import dataclass, field
-from typing import Optional
 
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
@@ -24,9 +23,9 @@ class DomoDeveloperAuth(_DomoAuth_Optional, _DomoAuth_Required):
         domo_client_id (str): OAuth2 client ID from developer app registration
         domo_client_secret (str): OAuth2 client secret (not shown in repr)
         domo_instance (str): The Domo instance identifier
-        token_name (Optional[str]): Name identifier for the token
-        token (Optional[str]): The bearer token (not shown in repr)
-        user_id (Optional[str]): The authenticated user's ID
+        token_name (str | None): Name identifier for the token
+        token (str | None): The bearer token (not shown in repr)
+        user_id (str | None): The authenticated user's ID
         is_valid_token (bool): Whether the current token is valid
 
     Example:
@@ -42,9 +41,9 @@ class DomoDeveloperAuth(_DomoAuth_Optional, _DomoAuth_Required):
     domo_client_secret: str = field(repr=False)
     domo_instance: str
 
-    token_name: Optional[str] = None
-    token: Optional[str] = field(default=None, repr=False)
-    user_id: Optional[str] = None
+    token_name: str | None = None
+    token: str | None = field(default=None, repr=False)
+    user_id: str | None = None
     is_valid_token: bool = False
 
     def __post_init__(self):

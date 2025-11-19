@@ -1,7 +1,6 @@
 __all__ = ["DomoGrant", "DomoGrants"]
 
 from dataclasses import dataclass, field
-from typing import Optional
 
 import httpx
 
@@ -15,11 +14,11 @@ from ...utils import DictDot as util_dd
 @dataclass
 class DomoGrant(DomoBase):
     id: str
-    display_group: Optional[str] = None
-    title: Optional[str] = None
-    depends_on_ls: Optional[list[str]] = None
-    description: Optional[str] = None
-    role_membership_ls: Optional[list[str]] = field(default=None)
+    display_group: str | None = None
+    title: str | None = None
+    depends_on_ls: list[str] | None = None
+    description: str | None = None
+    role_membership_ls: list[str] | None = field(default=None)
 
     def __post_init__(self):
         self.id = str(self.id)
@@ -50,7 +49,7 @@ class DomoGrant(DomoBase):
 class DomoGrants(DomoManager):
     auth: dmda = field(repr=False)
 
-    grants: Optional[list[DomoGrant]] = field(default=None)
+    grants: list[DomoGrant] | None = field(default=None)
 
     async def get(
         self,

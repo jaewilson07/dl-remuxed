@@ -98,7 +98,7 @@ class DomoRelationship(DomoBase):
         relationship_type (RelationshipType): Nature of the relationship (owner, member, viewer, etc.)
         parent_entity (DomoEntity): The entity that owns this relationship (optional for standalone use)
         relative_entity (DomoEntity): Cached instance of the related entity (optional for performance)
-        metadata (Dict[str, Any]): Additional properties and context for the relationship
+        metadata (dict[str, Any]): Additional properties and context for the relationship
 
     Examples:
         # User has viewer access to a dataset

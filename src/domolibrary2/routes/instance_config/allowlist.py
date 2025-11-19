@@ -8,8 +8,6 @@ __all__ = [
 ]
 
 
-from typing import Optional
-
 import httpx
 
 from ... import auth as dmda
@@ -118,7 +116,7 @@ async def get_allowlist_is_filter_all_traffic_enabled(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     return_raw: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop: int = 1,
 ) -> rgd.ResponseGetData:
     """this endpoint determines if ALL traffic is filtered through the allowlist or just browser traffic
@@ -167,7 +165,7 @@ async def toggle_allowlist_is_filter_all_traffic_enabled(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     return_raw: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop: int = 1,
 ) -> rgd.ResponseGetData:
     """this endpoint determines if ALL traffic is filtered through the allowlist or just browser traffic

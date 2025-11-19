@@ -32,8 +32,8 @@ from enum import Enum
 import httpx
 
 from ...auth import DomoAuth
+from ...base.entities import DomoEntity, DomoManager, DomoSubEntity
 from ...base.exceptions import ClassError
-from ...client.entities import DomoEntity, DomoManager, DomoSubEntity
 from ...routes import codeengine as codeengine_routes
 from ...routes.codeengine.exceptions import (
     CodeEngine_CRUD_Error,

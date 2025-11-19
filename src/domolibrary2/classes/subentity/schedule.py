@@ -14,7 +14,7 @@ import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 # from ...auth import DomoAuth
 from ...base.base import DomoBase, DomoEnumMixin
@@ -46,7 +46,7 @@ class DomoSchedule_Base(DomoBase, ABC):
     """Base class for interpreting and managing Domo schedule configurations"""
 
     # Raw schedule data
-    schedule_start_date: Optional[dt.datetime] = None
+    schedule_start_date: dt.datetime | None = None
 
     # Interpreted schedule information
     frequency: ScheduleFrequencyEnum = ScheduleFrequencyEnum.MANUAL
@@ -54,16 +54,16 @@ class DomoSchedule_Base(DomoBase, ABC):
 
     # Detailed frequency information
     interval: int = 1
-    minute: Optional[int] = None
-    hour: Optional[int] = None
-    day_of_week: Optional[list[int]] = None  # 0=Sunday, 6=Saturday
-    day_of_month: Optional[list[int]] = None
-    month: Optional[list[int]] = None
+    minute: int | None = None
+    hour: int | None = None
+    day_of_week: list[int] | None = None  # 0=Sunday, 6=Saturday
+    day_of_month: list[int] | None = None
+    month: list[int] | None = None
 
     # Schedule metadata
-    timezone: Optional[str] = None
+    timezone: str | None = None
     is_active: bool = True
-    next_run_time: Optional[dt.datetime] = None
+    next_run_time: dt.datetime | None = None
 
     # Raw data for reference
     raw: dict[str, Any] = field(default_factory=dict, repr=False)
@@ -310,7 +310,7 @@ class DomoSchedule_Base(DomoBase, ABC):
         return scheduler_fields
 
     @staticmethod
-    def _parse_datetime_input(date_input: Any) -> Optional[dt.datetime]:
+    def _parse_datetime_input(date_input: Any) -> dt.datetime | None:
         """Parse various datetime input formats into datetime object"""
         if not date_input:
             return None
@@ -357,7 +357,7 @@ class DomoSchedule_Base(DomoBase, ABC):
         return None
 
     @staticmethod
-    def _parse_json_input(json_input: Any) -> Optional[dict[str, Any]]:
+    def _parse_json_input(json_input: Any) -> dict[str, Any] | None:
         """Parse JSON input that might be string or dict"""
         if not json_input:
             return None
@@ -373,7 +373,7 @@ class DomoSchedule_Base(DomoBase, ABC):
 
         return None
 
-    def to_dict(self, override_fn: Optional[Callable] = None) -> dict[str, Any]:
+    def to_dict(self, override_fn: Callable | None = None) -> dict[str, Any]:
         if override_fn:
             return override_fn(self)
 
@@ -482,7 +482,7 @@ class DomoSchedule_Base(DomoBase, ABC):
 
         return base_desc
 
-    def is_due_now(self, current_time: Optional[dt.datetime] = None) -> bool:
+    def is_due_now(self, current_time: dt.datetime | None = None) -> bool:
         """Check if the schedule is due to run now (simplified logic)"""
         if not self.is_active or self.frequency == ScheduleFrequencyEnum.MANUAL:
             return False
@@ -504,7 +504,7 @@ class DomoSchedule_Base(DomoBase, ABC):
         return f"DomoSchedule(frequency={self.frequency.value}, type={self.schedule_type.value})"
 
     def export_as_dict(
-        self, override_fn: Optional[Callable] = None, return_snake_case: bool = False
+        self, override_fn: Callable | None = None, return_snake_case: bool = False
     ) -> dict[str, Any]:
         """
         Export the schedule as a unified dictionary format.
@@ -559,7 +559,7 @@ class DomoSchedule_Base(DomoBase, ABC):
 
     async def refresh(
         self,
-        session: Optional[Any] = None,
+        session: Any | None = None,
         debug_api: bool = False,
         is_suppress_no_config: bool = False,
         **kwargs,
@@ -643,7 +643,7 @@ class DomoSchedule_Base(DomoBase, ABC):
 class DomoManualSchedule(DomoSchedule_Base):
     """Schedule for manual execution only"""
 
-    schedule_expression: Optional[str] = None
+    schedule_expression: str | None = None
 
     def _interpret_schedule(self):
         """Interpret manual schedule configuration"""
@@ -676,8 +676,8 @@ class DomoManualSchedule(DomoSchedule_Base):
 class DomoCronSchedule(DomoSchedule_Base):
     """Schedule based on cron-like expressions, advanced JSON, or simple expressions"""
 
-    schedule_expression: Optional[str] = None
-    advanced_schedule_json: Optional[dict[str, Any]] = None
+    schedule_expression: str | None = None
+    advanced_schedule_json: dict[str, Any] | None = None
 
     def _interpret_schedule(self):
         """Interpret schedule from expression or advanced JSON"""

@@ -25,7 +25,7 @@ __all__ = [
     "set_mfa_num_days_valid",
 ]
 
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -48,7 +48,7 @@ class MFA_GET_Error(Config_GET_Error):
     def __init__(
         self,
         res: rgd.ResponseGetData,
-        message: Optional[str] = None,
+        message: str | None = None,
         **kwargs,
     ):
         if not message:
@@ -68,7 +68,7 @@ class MFA_CRUD_Error(Config_CRUD_Error):
     def __init__(
         self,
         res: rgd.ResponseGetData,
-        message: Optional[str] = None,
+        message: str | None = None,
     ):
         super().__init__(
             res=res, message=message or "Failed to update MFA configuration"
@@ -82,7 +82,7 @@ async def toggle_enable_mfa(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -156,7 +156,7 @@ async def get_mfa_config(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -260,7 +260,7 @@ async def set_mfa_max_code_attempts(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -344,7 +344,7 @@ async def set_mfa_num_days_valid(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """

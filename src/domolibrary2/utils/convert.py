@@ -457,11 +457,11 @@ def merge_dict(
     over destination values for conflicts.
 
     Args:
-        source (Dict[str, Any]): Dictionary to merge from
-        destination (Dict[str, Any]): Dictionary to merge into (modified in place)
+        source (dict[str, Any]): Dictionary to merge from
+        destination (dict[str, Any]): Dictionary to merge into (modified in place)
 
     Returns:
-        Dict[str, Any]: The merged destination dictionary
+        dict[str, Any]: The merged destination dictionary
 
     Example:
         >>> dest = {"a": 1, "b": {"c": 2, "d": 3}}

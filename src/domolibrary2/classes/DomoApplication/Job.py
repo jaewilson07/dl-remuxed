@@ -10,7 +10,6 @@ __all__ = [
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import Optional
 
 import httpx
 
@@ -69,8 +68,8 @@ class DomoJob(DomoEntity):
     execution_timeout: int = 1440
     is_enabled: bool = False
     customer_id: str = None
-    created_dt: Optional[dt.datetime] = None
-    updated_dt: Optional[dt.datetime] = None
+    created_dt: dt.datetime | None = None
+    updated_dt: dt.datetime | None = None
     description: str = None
     execution_payload: dict = field(default_factory=dict)
     share_state: dict = field(default_factory=dict)
