@@ -8,7 +8,6 @@ __all__ = [
     "execute_stream",
 ]
 
-from typing import Optional
 
 import httpx
 
@@ -25,8 +24,8 @@ class Stream_GET_Error(RouteError):
 
     def __init__(
         self,
-        stream_id: Optional[str] = None,
-        message: Optional[str] = None,
+        stream_id: str | None = None,
+        message: str | None = None,
         res=None,
         **kwargs,
     ):
@@ -44,8 +43,8 @@ class Stream_CRUD_Error(RouteError):
     def __init__(
         self,
         operation: str,
-        stream_id: Optional[str] = None,
-        message: Optional[str] = None,
+        stream_id: str | None = None,
+        message: str | None = None,
         res=None,
         **kwargs,
     ):
@@ -64,7 +63,7 @@ async def get_streams(
     session: httpx.AsyncClient | None = None,
     context=None,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_api: bool = False,
     debug_loop: bool = False,
     return_raw: bool = False,
@@ -117,7 +116,7 @@ async def get_stream_by_id(
     context=None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Get a stream by its ID.
@@ -164,7 +163,7 @@ async def update_stream(
     context=None,
     debug_num_stacks_to_drop: int = 1,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Update a stream configuration.
@@ -215,7 +214,7 @@ async def create_stream(
     context=None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Create a new stream.
@@ -264,7 +263,7 @@ async def execute_stream(
     session: httpx.AsyncClient | None = None,
     context=None,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop: int = 1,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:

@@ -7,7 +7,7 @@ __all__ = [
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import Any, Optional, Union
+from typing import Any, Union
 
 import httpx
 
@@ -43,7 +43,7 @@ class ApiClient(DomoEntity):
     # authorization_grant_types: list[str] # no longer part of API 6/10/2025
 
     scopes: list[ApiClient_ScopeEnum] = field(default_factory=list)
-    description: Optional[str] = None
+    description: str | None = None
 
     @property
     def display_url(self) -> str:
@@ -84,7 +84,7 @@ class ApiClient(DomoEntity):
         session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
-        parent_class: Optional[str] = None,
+        parent_class: str | None = None,
         return_raw: bool = False,
     ) -> "ApiClient":
         """
@@ -130,7 +130,7 @@ class ApiClient(DomoEntity):
         session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
-        parent_class: Optional[str] = None,
+        parent_class: str | None = None,
         return_raw: bool = False,
     ) -> rgd.ResponseGetData:
         """
@@ -179,7 +179,7 @@ class ApiClients(DomoManager):
         session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
-        parent_class: Optional[str] = None,
+        parent_class: str | None = None,
         return_raw: bool = False,
     ) -> list[ApiClient] | rgd.ResponseGetData:
         """
@@ -235,7 +235,7 @@ class ApiClients(DomoManager):
         session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
-        parent_class: Optional[str] = None,
+        parent_class: str | None = None,
     ) -> ApiClient:
         """
         Retrieve an API client by its name.
@@ -281,11 +281,11 @@ class ApiClients(DomoManager):
         self,
         client_name: str,
         client_description: str = f"created via DL {dt.date.today()}",
-        scope: Optional[list[ApiClient_ScopeEnum]] = None,
+        scope: list[ApiClient_ScopeEnum] | None = None,
         session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
-        parent_class: Optional[str] = None,
+        parent_class: str | None = None,
         return_raw: bool = False,
     ) -> ApiClient:
         """
@@ -338,13 +338,13 @@ class ApiClients(DomoManager):
     async def upsert_client(
         self,
         client_name: str,
-        client_description: Optional[str] = None,
-        scope: Optional[list[ApiClient_ScopeEnum]] = None,
+        client_description: str | None = None,
+        scope: list[ApiClient_ScopeEnum] | None = None,
         is_regenerate: bool = False,
         session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
-        parent_class: Optional[str] = None,
+        parent_class: str | None = None,
     ) -> ApiClient:
         """
         Create or update an API client (upsert operation).

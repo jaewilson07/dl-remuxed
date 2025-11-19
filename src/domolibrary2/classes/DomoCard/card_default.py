@@ -6,7 +6,7 @@ import json
 import os
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
@@ -34,22 +34,22 @@ class DomoCard_Default(DomoEntity_w_Lineage):
 
     id: str
     auth: DomoAuth = field(repr=False)
-    Lineage: Optional[DomoLineage] = field(repr=False, default=None)
-    Datasets: Optional["CardDatasets"] = field(repr=False, default=None)
+    Lineage: DomoLineage | None = field(repr=False, default=None)
+    Datasets: "CardDatasets" | None = field(repr=False, default=None)
 
-    title: Optional[str] = None
-    description: Optional[str] = None
-    type: Optional[str] = None
-    urn: Optional[str] = None
-    chart_type: Optional[str] = None
-    dataset_id: Optional[str] = None
+    title: str | None = None
+    description: str | None = None
+    type: str | None = None
+    urn: str | None = None
+    chart_type: str | None = None
+    dataset_id: str | None = None
 
-    datastore_id: Optional[str] = None
+    datastore_id: str | None = None
 
     domo_collections: list[Any] = field(default_factory=list)
     domo_source_code: Any = None
 
-    certification: Optional[dict] = None
+    certification: dict | None = None
     owners: list[Any] = field(default_factory=list)
 
     @property
@@ -211,10 +211,10 @@ class DomoCard_Default(DomoEntity_w_Lineage):
 
     async def share(
         self,
-        auth: Optional[DomoAuth] = None,
-        domo_users: Optional[list[DomoUser]] = None,
-        domo_groups: Optional[list[DomoGroup]] = None,
-        message: Optional[str] = None,
+        auth: DomoAuth | None = None,
+        domo_users: list[DomoUser] | None = None,
+        domo_groups: list[DomoGroup] | None = None,
+        message: str | None = None,
         debug_api: bool = False,
         session: httpx.AsyncClient | None = None,
     ):

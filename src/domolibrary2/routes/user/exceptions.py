@@ -27,7 +27,6 @@ __all__ = [
     "DownloadAvatar_Error",
 ]
 
-from typing import Optional
 
 from ...base.exceptions import RouteError
 from ...client import response as rgd
@@ -37,7 +36,7 @@ class User_GET_Error(RouteError):
     """Raised when user retrieval operations fail."""
 
     def __init__(
-        self, user_id: Optional[str] = None, res=None, message: str = None, **kwargs
+        self, user_id: str | None = None, res=None, message: str = None, **kwargs
     ):
         if not message:
             message = "User retrieval failed"
@@ -51,7 +50,7 @@ class User_CRUD_Error(RouteError):
     def __init__(
         self,
         operation: str,
-        user_id: Optional[str] = None,
+        user_id: str | None = None,
         res=None,
         message: str = None,
         **kwargs,
@@ -78,7 +77,7 @@ class UserSharing_Error(RouteError):
     def __init__(
         self,
         operation: str,
-        user_id: Optional[str] = None,
+        user_id: str | None = None,
         res=None,
         message: str = None,
         **kwargs,
@@ -95,7 +94,7 @@ class DeleteUserError(RouteError):
         self,
         res: rgd.ResponseGetData,
         message: str = None,
-        user_id: Optional[str] = None,
+        user_id: str | None = None,
         **kwargs,
     ):
         super().__init__(res=res, entity_id=user_id, message=message, **kwargs)
@@ -106,8 +105,8 @@ class UserAttributes_GET_Error(RouteError):
 
     def __init__(
         self,
-        attribute_id: Optional[str] = None,
-        message: Optional[str] = None,
+        attribute_id: str | None = None,
+        message: str | None = None,
         res=None,
         **kwargs,
     ):
@@ -122,8 +121,8 @@ class UserAttributes_CRUD_Error(RouteError):
     def __init__(
         self,
         operation: str,
-        attribute_id: Optional[str] = None,
-        message: Optional[str] = None,
+        attribute_id: str | None = None,
+        message: str | None = None,
         res=None,
         **kwargs,
     ):
@@ -138,9 +137,9 @@ class ResetPasswordPasswordUsedError(RouteError):
 
     def __init__(
         self,
-        user_id: Optional[str] = None,
-        res: Optional[rgd.ResponseGetData] = None,
-        message: Optional[str] = None,
+        user_id: str | None = None,
+        res: rgd.ResponseGetData | None = None,
+        message: str | None = None,
         **kwargs,
     ):
         if not message:
@@ -153,9 +152,9 @@ class DownloadAvatar_Error(RouteError):
 
     def __init__(
         self,
-        user_id: Optional[str] = None,
-        res: Optional[rgd.ResponseGetData] = None,
-        message: Optional[str] = None,
+        user_id: str | None = None,
+        res: rgd.ResponseGetData | None = None,
+        message: str | None = None,
         **kwargs,
     ):
         if not message:

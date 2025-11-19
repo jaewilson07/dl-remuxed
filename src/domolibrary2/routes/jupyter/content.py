@@ -25,7 +25,7 @@ import os
 import urllib
 from enum import Enum, member
 from functools import partial
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -145,7 +145,7 @@ async def get_jupyter_content(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     is_run_test_jupyter_auth: bool = True,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
@@ -211,7 +211,7 @@ async def create_jupyter_obj(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Create new content in a Jupyter workspace.
@@ -324,7 +324,7 @@ async def delete_jupyter_content(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Delete content from a Jupyter workspace.
@@ -390,11 +390,11 @@ async def update_jupyter_file(
     auth: dmda.DomoJupyterAuth,
     new_content: Any,
     content_path: str = "",
-    body: Optional[dict] = None,
+    body: dict | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Update content in a Jupyter workspace file.
@@ -476,7 +476,7 @@ async def get_content_recursive(
     return_raw: bool = False,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 0,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     session: httpx.AsyncClient = None,
 ):
     """Recursively retrieve content from a Jupyter workspace.
@@ -623,7 +623,7 @@ async def get_content(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 2,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Get content from a Jupyter workspace recursively.

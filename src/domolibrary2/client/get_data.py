@@ -11,7 +11,7 @@ __all__ = [
 import time
 from functools import wraps
 from pprint import pprint
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
@@ -40,9 +40,9 @@ class GetDataError(DomoError):
 
 def create_headers(
     auth: "dmda.DomoAuth" = None,  # The authentication object containing the Domo API token.
-    content_type: Optional[
-        str
-    ] = None,  # The content type for the request. Defaults to None.
+    content_type: (
+        str | None
+    ) = None,  # The content type for the request. Defaults to None.
     headers: dict = None,  # Any additional headers for the request. Defaults to None.
 ) -> dict:  # The headers for the request.
     """
@@ -105,9 +105,9 @@ async def get_data(
     return_raw: bool = False,
     is_follow_redirects: bool = False,
     timeout: int = DEFAULT_TIMEOUT,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_num_stacks_to_drop: int = 2,
-    log_level: Optional[str] = None,
+    log_level: str | None = None,
     is_verify: bool = False,
     dry_run: bool = False,
 ) -> rgd.ResponseGetData:
@@ -173,10 +173,16 @@ async def get_data(
         additional_information["log_level"] = log_level
 
     if debug_api:
-        pprint(request_metadata.to_dict())
+        message = f"[DEBUG] Request Metadata: {request_metadata.to_dict()}"
+        print(message)
+        await logger.debug(message)
 
     # Handle dry run mode
     if dry_run:
+        message = "[DEBUG] Dry run mode enabled. Request not sent."
+        print(message)
+        await logger.debug(message)
+
         additional_information["dry_run"] = True
         return rgd.ResponseGetData(
             status=200,
@@ -261,13 +267,13 @@ async def get_data_stream(
     url: str,
     auth: dmda.DomoAuth,
     method: str = "GET",
-    content_type: Optional[str] = "application/json",
-    headers: Optional[dict] = None,
-    params: Optional[dict] = None,
+    content_type: str | None = "application/json",
+    headers: dict | None = None,
+    params: dict | None = None,
     context: RouteContext | None = None,
     debug_api: bool = False,
     timeout: int = DEFAULT_STREAM_TIMEOUT,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     session: httpx.AsyncClient | None = None,
     is_verify: bool = False,
     is_follow_redirects: bool = True,
@@ -299,8 +305,9 @@ async def get_data_stream(
         debug_api = context.debug_api if context.debug_api is not None else debug_api
 
     if debug_api:
-        print(f"[DEBUG] get_data_stream: {method} {url}", flush=True)
-        await logger.debug(f"🐛 Debugging get_data_stream: {method} {url}")
+        message = f"[DEBUG] get_data_stream: {method} {url}"
+        print(message)
+        await logger.debug(message)
 
     if auth and not auth.token:
         await auth.get_auth_token()
@@ -392,8 +399,8 @@ async def looper(
     arr_fn: Callable = None,
     loop_until_end: bool = False,  # usually you'll set this to true.  it will override maximum
     method="POST",
-    body: Optional[dict] = None,
-    fixed_params: Optional[dict] = None,
+    body: dict | None = None,
+    fixed_params: dict | None = None,
     offset_params_in_body: bool = False,
     body_fn=None,
     limit=1000,
@@ -403,7 +410,7 @@ async def looper(
     debug_api: bool = False,
     debug_loop: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     timeout: int = 10,
     wait_sleep: int = 0,
     is_verify: bool = False,
@@ -457,7 +464,7 @@ async def looper(
     all_rows = []
     is_loop = True
 
-    res: Optional[rgd.ResponseGetData] = None
+    res: rgd.ResponseGetData | None = None
 
     if maximum and maximum <= limit and not loop_until_end:
         limit = maximum
@@ -614,11 +621,11 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(func)
     async def wrapper(
         *args: Any,
-        parent_class: Optional[str] = None,
+        parent_class: str | None = None,
         debug_num_stacks_to_drop: int = 1,
         debug_api: bool = False,
         session: httpx.AsyncClient | None = None,
-        log_level: Optional[str] = None,
+        log_level: str | None = None,
         dry_run: bool = False,
         context: RouteContext | None = None,
         **kwargs: Any,

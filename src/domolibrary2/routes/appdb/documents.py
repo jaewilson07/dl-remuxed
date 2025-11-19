@@ -18,7 +18,7 @@ __all__ = [
     "update_document",
 ]
 
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -34,11 +34,11 @@ from .exceptions import AppDb_CRUD_Error, AppDb_GET_Error, SearchAppDb_NotFound
 async def get_documents_from_collection(
     auth: DomoAuth,
     collection_id: str,
-    query: Optional[dict[str, Any]] = None,
+    query: dict[str, Any] | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Get documents from a collection.
@@ -92,11 +92,11 @@ async def get_collection_document_by_id(
     auth: DomoAuth,
     collection_id: str,
     document_id: str,
-    query: Optional[dict[str, Any]] = None,
+    query: dict[str, Any] | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Get a specific document by ID from a collection.
@@ -154,7 +154,7 @@ async def create_document(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Create a new document in a collection.
@@ -206,7 +206,7 @@ async def update_document(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Update an existing document in a collection.

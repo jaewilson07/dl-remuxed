@@ -7,7 +7,6 @@ __all__ = [
     "get_repo_from_id",
 ]
 
-from typing import Optional
 
 import httpx
 
@@ -24,8 +23,8 @@ class Sandbox_GET_Error(RouteError):
 
     def __init__(
         self,
-        repository_id: Optional[str] = None,
-        message: Optional[str] = None,
+        repository_id: str | None = None,
+        message: str | None = None,
         res=None,
         **kwargs,
     ):
@@ -43,8 +42,8 @@ class Sandbox_CRUD_Error(RouteError):
     def __init__(
         self,
         operation: str,
-        repository_id: Optional[str] = None,
-        message: Optional[str] = None,
+        repository_id: str | None = None,
+        message: str | None = None,
         res=None,
         **kwargs,
     ):
@@ -63,7 +62,7 @@ async def get_is_allow_same_instance_promotion_enabled(
     return_raw: bool = False,
     debug_num_stacks_to_drop: int = 1,
     debug_api: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
 ) -> rgd.ResponseGetData:
     url = f"https://{auth.domo_instance}.domo.com/api/version/v1/settings"
 
@@ -98,7 +97,7 @@ async def toggle_allow_same_instance_promotion(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Toggle the allow same instance promotion setting.
@@ -147,7 +146,7 @@ async def get_shared_repos(
     auth: DomoAuth,
     session: httpx.AsyncClient | None = None,
     return_raw: bool = False,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
 ) -> rgd.ResponseGetData:
@@ -207,7 +206,7 @@ async def get_repo_from_id(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Get a sandbox repository by ID.

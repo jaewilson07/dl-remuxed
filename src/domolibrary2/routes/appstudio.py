@@ -11,7 +11,6 @@ __all__ = [
     "share",
 ]
 
-from typing import Optional
 
 import httpx
 
@@ -28,9 +27,9 @@ class AppStudio_GET_Error(dmde.RouteError):
 
     def __init__(
         self,
-        appstudio_id: Optional[str] = None,
-        res: Optional[rgd.ResponseGetData] = None,
-        message: Optional[str] = None,
+        appstudio_id: str | None = None,
+        res: rgd.ResponseGetData | None = None,
+        message: str | None = None,
         **kwargs,
     ):
         super().__init__(
@@ -47,9 +46,9 @@ class AppStudio_CRUD_Error(dmde.RouteError):
     def __init__(
         self,
         operation: str = "operation",
-        appstudio_id: Optional[str] = None,
-        res: Optional[rgd.ResponseGetData] = None,
-        message: Optional[str] = None,
+        appstudio_id: str | None = None,
+        res: rgd.ResponseGetData | None = None,
+        message: str | None = None,
         **kwargs,
     ):
         super().__init__(
@@ -65,9 +64,9 @@ class AppStudioSharing_Error(dmde.RouteError):
 
     def __init__(
         self,
-        appstudio_id: Optional[str] = None,
-        res: Optional[rgd.ResponseGetData] = None,
-        message: Optional[str] = None,
+        appstudio_id: str | None = None,
+        res: rgd.ResponseGetData | None = None,
+        message: str | None = None,
         **kwargs,
     ):
         super().__init__(
@@ -85,7 +84,7 @@ async def get_appstudio_by_id(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Retrieves an AppStudio page by ID.
@@ -137,7 +136,7 @@ async def get_appstudio_access(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Retrieves access list for an AppStudio page.
@@ -189,7 +188,7 @@ async def get_appstudios_adminsummary(
     debug_loop: bool = False,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 2,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Retrieves all AppStudio pages in instance user is able to see.
@@ -250,8 +249,8 @@ async def get_appstudios_adminsummary(
 
 def generate_body_add_page_owner_appstudios(
     appstudio_id_ls: list[int],
-    group_id_ls: Optional[list[int]] = None,
-    user_id_ls: Optional[list[int]] = None,
+    group_id_ls: list[int] | None = None,
+    user_id_ls: list[int] | None = None,
     note: str = "",
     send_email: bool = False,
 ) -> dict:
@@ -288,9 +287,9 @@ def generate_body_add_page_owner_appstudios(
 
 def generate_body_share_appstudio(
     appstudio_ids: list[int],
-    group_ids: Optional[list[int]] = None,
-    user_ids: Optional[list[int]] = None,
-    message: Optional[str] = None,
+    group_ids: list[int] | None = None,
+    user_ids: list[int] | None = None,
+    message: str | None = None,
 ) -> dict:
     """Generates request body for sharing AppStudio pages.
 
@@ -340,14 +339,14 @@ def generate_body_share_appstudio(
 async def add_page_owner(
     auth: DomoAuth,
     appstudio_id_ls: list[int],
-    group_id_ls: Optional[list[int]] = None,
-    user_id_ls: Optional[list[int]] = None,
+    group_id_ls: list[int] | None = None,
+    user_id_ls: list[int] | None = None,
     note: str = "",
     send_email: bool = False,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Adds page owners to AppStudio pages.
@@ -407,13 +406,13 @@ async def add_page_owner(
 async def share(
     auth: DomoAuth,
     appstudio_ids: list[int],
-    group_ids: Optional[list[int]] = None,
-    user_ids: Optional[list[int]] = None,
-    message: Optional[str] = None,
+    group_ids: list[int] | None = None,
+    user_ids: list[int] | None = None,
+    message: str | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Shares AppStudio pages with users or groups.

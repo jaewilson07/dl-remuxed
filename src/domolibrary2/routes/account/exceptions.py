@@ -13,15 +13,13 @@ Exception Classes:
     Account_CreateParams_Error: Raised when account creation parameters are invalid
 """
 
-from typing import Optional
-
 from ...base.exceptions import RouteError
 
 
 class Account_GET_Error(RouteError):
     """Raised when account retrieval operations fail."""
 
-    def __init__(self, account_id: Optional[str] = None, res=None, **kwargs):
+    def __init__(self, account_id: str | None = None, res=None, **kwargs):
         super().__init__(
             message="Account retrieval failed",
             entity_id=account_id,
@@ -49,9 +47,9 @@ class Account_CRUD_Error(RouteError):
     def __init__(
         self,
         operation: str = "CRUD",
-        account_id: Optional[str] = None,
+        account_id: str | None = None,
         res=None,
-        message: Optional[str] = None,
+        message: str | None = None,
         **kwargs,
     ):
         if not message:
@@ -65,9 +63,9 @@ class AccountSharing_Error(RouteError):
     def __init__(
         self,
         operation: str,
-        account_id: Optional[str] = None,
+        account_id: str | None = None,
         res=None,
-        message: Optional[str] = None,
+        message: str | None = None,
         **kwargs,
     ):
         if not message:
@@ -80,9 +78,9 @@ class Account_Config_Error(RouteError):
 
     def __init__(
         self,
-        account_id: Optional[str] = None,
+        account_id: str | None = None,
         res=None,
-        message: Optional[str] = None,
+        message: str | None = None,
         **kwargs,
     ):
         if not message:
@@ -95,7 +93,7 @@ class AccountNoMatchError(RouteError):
 
     def __init__(
         self,
-        account_id: Optional[str] = None,
+        account_id: str | None = None,
         res=None,
         message: str = "Account not found -- has it been shared with the user?",
         **kwargs,

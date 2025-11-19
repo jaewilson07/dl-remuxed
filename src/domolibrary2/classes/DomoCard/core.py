@@ -7,7 +7,7 @@ __all__ = [
 ]
 
 from dataclasses import dataclass
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 import httpx
 
@@ -28,7 +28,7 @@ class FederatedDomoCard(DomoCard_Default, DomoFederatedEntity):
     async def get_federated_parent(
         self,
         parent_auth: None = None,
-        parent_auth_retrieval_fn: Optional[Callable] = None,
+        parent_auth_retrieval_fn: Callable | None = None,
     ):
         from ...classes.DomoEverywhere import DomoEverywhere
 
@@ -106,7 +106,7 @@ class DomoPublishCard(FederatedDomoCard, DomoPublishedEntity):
     async def get_parent_publication(
         self,
         parent_auth: None = None,
-        parent_auth_retrieval_fn: Optional[Callable] = None,
+        parent_auth_retrieval_fn: Callable | None = None,
     ):
         raise NotImplementedError("To Do")
 

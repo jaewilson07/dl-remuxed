@@ -222,7 +222,7 @@ class CodeEngine_Argument:
         tests for Optional[] or Union[Type, None] wrappers from type annotation strings.
 
         Examples:
-            'Optional[str]' -> 'str'
+            'str | None' -> 'str'
             'Union[int, None]' -> 'int'
             'Union[None, str]' -> 'str'
         """
@@ -256,7 +256,7 @@ class CodeEngine_Argument:
         Examples:
             'list[str]' -> 'str'
             'list[int]' -> 'int'
-            'list[Dict[str, Any]]' -> 'Dict[str, Any]'
+            'list[dict[str, Any]]' -> 'dict[str, Any]'
         """
 
         # is this superfluoous given how enum has been implemented with "in" checks?

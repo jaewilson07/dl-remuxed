@@ -1,13 +1,9 @@
 """AWS-specific account configurations."""
 
 from dataclasses import dataclass, field
-from typing import Any
 
-from ._base import DomoAccount_Config
 from ..config import register_account_config
-
-from ....utils import DictDot as util_dd
-
+from ._base import DomoAccount_Config
 
 __all__ = [
     "DomoAccount_Config_AmazonS3",

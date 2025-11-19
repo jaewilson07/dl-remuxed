@@ -17,7 +17,6 @@ __all__ = [
     "SearchApiClientNotFoundError",
 ]
 
-from typing import Optional
 
 from ...base.exceptions import RouteError
 from ...client import response as rgd
@@ -43,9 +42,9 @@ class ApiClient_GET_Error(RouteError):
 
     def __init__(
         self,
-        entity_id: Optional[str] = None,
-        res: Optional[rgd.ResponseGetData] = None,
-        message: Optional[str] = None,
+        entity_id: str | None = None,
+        res: rgd.ResponseGetData | None = None,
+        message: str | None = None,
         **kwargs,
     ):
         if not message:
@@ -68,9 +67,9 @@ class ApiClient_CRUD_Error(RouteError):
     def __init__(
         self,
         operation: str = "operation",
-        entity_id: Optional[str] = None,
-        res: Optional[rgd.ResponseGetData] = None,
-        message: Optional[str] = None,
+        entity_id: str | None = None,
+        res: rgd.ResponseGetData | None = None,
+        message: str | None = None,
         **kwargs,
     ):
         if not message:
@@ -98,9 +97,9 @@ class ApiClient_RevokeError(RouteError):
 
     def __init__(
         self,
-        client_id: Optional[str] = None,
-        res: Optional[rgd.ResponseGetData] = None,
-        message: Optional[str] = None,
+        client_id: str | None = None,
+        res: rgd.ResponseGetData | None = None,
+        message: str | None = None,
         **kwargs,
     ):
         if not message:
@@ -128,8 +127,8 @@ class SearchApiClientNotFoundError(RouteError):
     def __init__(
         self,
         search_criteria: str,
-        res: Optional[rgd.ResponseGetData] = None,
-        message: Optional[str] = None,
+        res: rgd.ResponseGetData | None = None,
+        message: str | None = None,
         **kwargs,
     ):
         if not message:

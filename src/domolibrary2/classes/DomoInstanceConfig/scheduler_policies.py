@@ -76,10 +76,10 @@ class DomoScheduler_Policy(DomoBase):
     name: str
     frequencies: DomoScheduler_Policy_Frequencies
     members: list[DomoScheduler_Policy_Member] = field(default_factory=list)
-    id: Optional[str] = field(
+    id: str | None = field(
         default=None
     )  # Will be None if the policy is not yet created (used on upsert)
-    policy_id: Optional[str] = field(default=None)
+    policy_id: str | None = field(default=None)
 
     @classmethod
     def from_dict(cls, d: dict):

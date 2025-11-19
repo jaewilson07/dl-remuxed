@@ -53,7 +53,7 @@ __all__ = [
 
 import datetime as dt
 import random
-from typing import Callable, Optional
+from typing import Callable
 
 # Optional dependency with fallback
 try:
@@ -71,7 +71,7 @@ LEET = {"a": "@", "i": "!", "A": "@", "I": "!", "e": "3", "E": "3"}
 PADDING = ".!?"
 
 
-def add_leet_to_string(text: str, leet: Optional[dict] = None) -> str:
+def add_leet_to_string(text: str, leet: dict | None = None) -> str:
     """
     Apply leet speak transformations to text.
 
@@ -98,7 +98,7 @@ def add_leet_to_string(text: str, leet: Optional[dict] = None) -> str:
 
 def add_padding_characters_fn(
     text: str,
-    padding: Optional[str] = None,
+    padding: str | None = None,
     n: int = 1,
 ) -> str:
     """
@@ -326,7 +326,7 @@ def process_domo_password_fn(my_pass: str, delimiter: str) -> tuple[str, bool]:
 
 
 def generate_domo_password(
-    delimiter: str = "-", process_fn: Optional[Callable] = None
+    delimiter: str = "-", process_fn: Callable | None = None
 ) -> str:
     """
     Generate a Domo-style password with specific formatting rules.

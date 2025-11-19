@@ -31,7 +31,7 @@ __all__ = [
 
 import datetime as dt
 import time
-from typing import Optional, Union
+from typing import Union
 
 import httpx
 from dc_logger.client.base import Logger
@@ -54,9 +54,9 @@ class AccessToken_GET_Error(RouteError):
 
     def __init__(
         self,
-        entity_id: Optional[str] = None,
-        res: Optional[rgd.ResponseGetData] = None,
-        message: Optional[str] = None,
+        entity_id: str | None = None,
+        res: rgd.ResponseGetData | None = None,
+        message: str | None = None,
         **kwargs,
     ):
         if not message:
@@ -79,7 +79,7 @@ class SearchAccessTokenNotFoundError(RouteError):
     def __init__(
         self,
         search_criteria: str,
-        res: Optional[rgd.ResponseGetData] = None,
+        res: rgd.ResponseGetData | None = None,
         **kwargs,
     ):
         message = f"No access tokens found matching: {search_criteria}"
@@ -102,9 +102,9 @@ class AccessToken_CRUD_Error(RouteError):
     def __init__(
         self,
         operation: str,
-        entity_id: Optional[str] = None,
-        res: Optional[rgd.ResponseGetData] = None,
-        message: Optional[str] = None,
+        entity_id: str | None = None,
+        res: rgd.ResponseGetData | None = None,
+        message: str | None = None,
         **kwargs,
     ):
         if not message:
@@ -128,9 +128,9 @@ async def get_access_tokens(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
-    logger: Optional[Logger] = None,
+    logger: Logger | None = None,
 ) -> rgd.ResponseGetData:
     """
     Retrieve all access tokens for the authenticated instance.
@@ -203,7 +203,7 @@ async def get_access_token_by_id(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -313,7 +313,7 @@ async def generate_access_token(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -404,7 +404,7 @@ async def revoke_access_token(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """

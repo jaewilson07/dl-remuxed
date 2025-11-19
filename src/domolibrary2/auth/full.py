@@ -1,7 +1,7 @@
 """Full authentication classes for Domo (username/password)."""
 
 from dataclasses import dataclass, field
-from typing import Optional, Union
+from typing import Union
 
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
@@ -28,9 +28,9 @@ class _DomoFullAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):  # noqa: N
         domo_username: str,
         domo_password: str,
         domo_instance: str,
-        token_name: Optional[str] = None,
-        token: Optional[str] = None,
-        user_id: Optional[str] = None,
+        token_name: str | None = None,
+        token: str | None = None,
+        user_id: str | None = None,
         is_valid_token: bool = False,
     ):
         """Initialize full authentication with username and password.
@@ -39,9 +39,9 @@ class _DomoFullAuth_Required(_DomoAuth_Required, _DomoAuth_Optional):  # noqa: N
             domo_username (str): Domo username for authentication
             domo_password (str): Domo password for authentication
             domo_instance (str): The Domo instance identifier
-            token_name (Optional[str]): Name identifier for the token
-            token (Optional[str]): Pre-existing authentication token
-            user_id (Optional[str]): The authenticated user's ID
+            token_name (str | None): Name identifier for the token
+            token (str | None): Pre-existing authentication token
+            user_id (str | None): The authenticated user's ID
             is_valid_token (bool): Whether the current token is valid
 
         Raises:
@@ -149,9 +149,9 @@ class DomoFullAuth(
         domo_instance (str): The Domo instance identifier
         domo_username (str): Domo username for authentication
         domo_password (str): Domo password for authentication (not shown in repr)
-        token_name (Optional[str]): Name identifier for the token
-        token (Optional[str]): The authentication token (not shown in repr)
-        user_id (Optional[str]): The authenticated user's ID
+        token_name (str | None): Name identifier for the token
+        token (str | None): The authentication token (not shown in repr)
+        user_id (str | None): The authenticated user's ID
         is_valid_token (bool): Whether the current token is valid
 
     Example:
@@ -166,9 +166,9 @@ class DomoFullAuth(
     domo_instance: str
     domo_username: str
     domo_password: str = field(repr=False)
-    token_name: Optional[str] = None
-    token: Optional[str] = field(default=None, repr=False)
-    user_id: Optional[str] = None
+    token_name: str | None = None
+    token: str | None = field(default=None, repr=False)
+    user_id: str | None = None
     is_valid_token: bool = False
 
     def __post_init__(self):

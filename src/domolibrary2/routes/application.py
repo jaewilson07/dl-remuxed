@@ -44,7 +44,7 @@ __all__ = [
 ]
 
 from pprint import pprint
-from typing import Optional, Union
+from typing import Union
 
 import httpx
 
@@ -66,9 +66,9 @@ class Application_GET_Error(RouteError):
 
     def __init__(
         self,
-        entity_id: Optional[str] = None,
-        res: Optional[rgd.ResponseGetData] = None,
-        message: Optional[str] = None,
+        entity_id: str | None = None,
+        res: rgd.ResponseGetData | None = None,
+        message: str | None = None,
         **kwargs,
     ):
         if not message:
@@ -91,7 +91,7 @@ class SearchApplication_NotFound_Error(RouteError):
     def __init__(
         self,
         search_criteria: str,
-        res: Optional[rgd.ResponseGetData] = None,
+        res: rgd.ResponseGetData | None = None,
         **kwargs,
     ):
         message = f"No applications found matching: {search_criteria}"
@@ -127,9 +127,9 @@ class Application_CRUD_Error(RouteError):
     def __init__(
         self,
         operation: str,
-        entity_id: Optional[str] = None,
-        res: Optional[rgd.ResponseGetData] = None,
-        message: Optional[str] = None,
+        entity_id: str | None = None,
+        res: rgd.ResponseGetData | None = None,
+        message: str | None = None,
         **kwargs,
     ):
         if not message:
@@ -152,7 +152,7 @@ async def get_applications(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -211,7 +211,7 @@ async def get_application_by_id(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """

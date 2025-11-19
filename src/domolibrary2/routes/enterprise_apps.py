@@ -33,7 +33,6 @@ __all__ = [
 ]
 
 import os
-from typing import Optional
 
 import httpx
 
@@ -56,9 +55,9 @@ class EnterpriseApp_GET_Error(RouteError):
 
     def __init__(
         self,
-        entity_id: Optional[str] = None,
-        res: Optional[rgd.ResponseGetData] = None,
-        message: Optional[str] = None,
+        entity_id: str | None = None,
+        res: rgd.ResponseGetData | None = None,
+        message: str | None = None,
         **kwargs,
     ):
         if not message:
@@ -81,9 +80,9 @@ class EnterpriseApp_CRUD_Error(RouteError):
     def __init__(
         self,
         operation: str,
-        entity_id: Optional[str] = None,
-        res: Optional[rgd.ResponseGetData] = None,
-        message: Optional[str] = None,
+        entity_id: str | None = None,
+        res: rgd.ResponseGetData | None = None,
+        message: str | None = None,
         **kwargs,
     ):
         if not message:
@@ -111,9 +110,9 @@ class EnterpriseAppAssets_GET_Error(RouteError):
 
     def __init__(
         self,
-        entity_id: Optional[str] = None,
-        res: Optional[rgd.ResponseGetData] = None,
-        message: Optional[str] = None,
+        entity_id: str | None = None,
+        res: rgd.ResponseGetData | None = None,
+        message: str | None = None,
         **kwargs,
     ):
         if not message:
@@ -133,7 +132,7 @@ async def get_all_designs(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -216,7 +215,7 @@ async def get_design_by_id(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -275,7 +274,7 @@ async def get_design_versions(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """
@@ -334,12 +333,12 @@ async def get_design_source_code_by_version(
     auth: DomoAuth,
     design_id: str,
     version: str,
-    download_path: Optional[str] = None,
+    download_path: str | None = None,
     is_unpack_archive: bool = True,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """

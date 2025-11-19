@@ -11,7 +11,6 @@ __all__ = [
     "PageSharing_Error",
 ]
 
-from typing import Optional
 
 from ...base.exceptions import RouteError
 from ...client import response as rgd
@@ -22,9 +21,9 @@ class Page_GET_Error(RouteError):
 
     def __init__(
         self,
-        page_id: Optional[str] = None,
-        message: Optional[str] = None,
-        res: Optional[rgd.ResponseGetData] = None,
+        page_id: str | None = None,
+        message: str | None = None,
+        res: rgd.ResponseGetData | None = None,
         **kwargs,
     ):
         super().__init__(
@@ -40,9 +39,9 @@ class SearchPageNotFoundError(RouteError):
 
     def __init__(
         self,
-        message: Optional[str] = None,
-        search_criteria: Optional[str] = None,
-        res: Optional[rgd.ResponseGetData] = None,
+        message: str | None = None,
+        search_criteria: str | None = None,
+        res: rgd.ResponseGetData | None = None,
         **kwargs,
     ):
         super().__init__(
@@ -58,9 +57,9 @@ class Page_CRUD_Error(RouteError):
 
     def __init__(
         self,
-        message: Optional[str] = None,
-        operation: Optional[str] = None,
-        page_id: Optional[str] = None,
+        message: str | None = None,
+        operation: str | None = None,
+        page_id: str | None = None,
         res=None,
         **kwargs,
     ):
@@ -77,10 +76,10 @@ class PageSharing_Error(RouteError):
 
     def __init__(
         self,
-        message: Optional[str] = None,
-        operation: Optional[str] = None,
-        page_id: Optional[str] = None,
-        res: Optional[rgd.ResponseGetData] = None,
+        message: str | None = None,
+        operation: str | None = None,
+        page_id: str | None = None,
+        res: rgd.ResponseGetData | None = None,
         **kwargs,
     ):
         super().__init__(

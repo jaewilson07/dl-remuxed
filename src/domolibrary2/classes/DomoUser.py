@@ -20,7 +20,7 @@ __all__ = [
 import asyncio
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import Any, Optional, Union
+from typing import Any, Union
 
 import httpx
 from dc_logger.decorators import log_call
@@ -90,37 +90,37 @@ class DomoUser(DomoEntity):
     """A class for interacting with a Domo User"""
 
     id: str
-    display_name: Optional[str] = None
-    email_address: Optional[str] = None
-    role_id: Optional[int] = None  # Updated to match expected type
-    department: Optional[str] = None
-    title: Optional[str] = None
-    avatar_key: Optional[str] = None
-    avatar: Optional[Image.Image] = None
-    password: Optional[str] = field(repr=False, default=None)
+    display_name: str | None = None
+    email_address: str | None = None
+    role_id: int | None = None  # Updated to match expected type
+    department: str | None = None
+    title: str | None = None
+    avatar_key: str | None = None
+    avatar: Image.Image | None = None
+    password: str | None = field(repr=False, default=None)
 
-    phone_number: Optional[str] = None
-    web_landing_page: Optional[str] = None
-    web_mobile_landing_page: Optional[str] = None
-    employee_id: Optional[str] = None
-    employee_number: Optional[str] = None
-    hire_date: Optional[str] = None
-    reports_to: Optional[str] = None
+    phone_number: str | None = None
+    web_landing_page: str | None = None
+    web_mobile_landing_page: str | None = None
+    employee_id: str | None = None
+    employee_number: str | None = None
+    hire_date: str | None = None
+    reports_to: str | None = None
 
-    publisher_domain: Optional[str] = None
-    subscriber_domain: Optional[str] = None
-    virtual_user_id: Optional[str] = None
+    publisher_domain: str | None = None
+    subscriber_domain: str | None = None
+    virtual_user_id: str | None = None
 
-    created_dt: Optional[dt.datetime] = None
-    last_activity_dt: Optional[dt.datetime] = None
+    created_dt: dt.datetime | None = None
+    last_activity_dt: dt.datetime | None = None
 
     custom_attributes: dict = field(default_factory=dict)
 
-    domo_api_clients: Optional[list[Any]] = None
-    domo_access_tokens: Optional[list[Any]] = None
+    domo_api_clients: list[Any] | None = None
+    domo_access_tokens: list[Any] | None = None
 
-    Role: Optional[Any] = None  # DomoRole
-    ApiClients: Optional[Any] = None  # DomoApiClients
+    Role: Any | None = None  # DomoRole
+    ApiClients: Any | None = None  # DomoApiClients
 
     def __post_init__(self):
         from .DomoInstanceConfig.api_client import ApiClients
@@ -269,7 +269,7 @@ class DomoUser(DomoEntity):
         pixels: int = 300,
         folder_path="./images",
         img_name=None,  # will default to user_id
-        auth: Optional[DomoAuth] = None,
+        auth: DomoAuth | None = None,
         is_download_image: bool = True,  # option to prevent downloading the image file
         debug_api: bool = False,
         return_raw: bool = False,
@@ -304,7 +304,7 @@ class DomoUser(DomoEntity):
             UserProperty
         ],  # use the UserProperty class to define a list of user properties to update, see user route documentation to see a list of UserProperty_Types that can be updated
         return_raw: bool = False,
-        auth: Optional[DomoAuth] = None,
+        auth: DomoAuth | None = None,
         debug_api: bool = False,
         session: httpx.AsyncClient | None = None,
     ):
@@ -341,7 +341,7 @@ class DomoUser(DomoEntity):
         self,
         page_id: str,
         id: str,
-        auth: Optional[DomoAuth] = None,
+        auth: DomoAuth | None = None,
         debug_api: bool = False,
     ):
         res = await user_routes.set_user_landing_page(
@@ -360,7 +360,7 @@ class DomoUser(DomoEntity):
         display_name,
         email_address,
         role: Any,  # DomoRole - will use default role if none provided
-        password: Optional[str] = None,
+        password: str | None = None,
         send_password_reset_email: bool = False,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
@@ -801,8 +801,8 @@ class DomoUsers(DomoManager):
     async def upsert(
         self,
         email_address: str,
-        display_name: Optional[str] = None,
-        role: Optional[Any] = None,  # DomoRole
+        display_name: str | None = None,
+        role: Any | None = None,  # DomoRole
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
         session: httpx.AsyncClient | None = None,

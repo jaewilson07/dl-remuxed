@@ -14,7 +14,7 @@ Functions:
     generate_create_oauth_account_body: Helper to generate OAuth account creation payload
 """
 
-from typing import Optional, Union
+from typing import Union
 
 import httpx
 from dc_logger.decorators import LogDecoratorConfig, log_call
@@ -58,14 +58,14 @@ def generate_create_oauth_account_body(
 )
 async def create_account(
     auth: DomoAuth,
-    account_name: Optional[str] = None,
-    data_provider_type: Optional[str] = None,
-    config_body: Optional[dict] = None,
-    payload: Optional[dict] = None,
+    account_name: str | None = None,
+    data_provider_type: str | None = None,
+    config_body: dict | None = None,
+    payload: dict | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Create a new account.
@@ -136,7 +136,7 @@ async def delete_account(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Delete an account.
@@ -188,15 +188,15 @@ async def delete_account(
 )
 async def create_oauth_account(
     auth: DomoAuth,
-    account_name: Optional[str] = None,
-    data_provider_type: Optional[str] = None,
+    account_name: str | None = None,
+    data_provider_type: str | None = None,
     origin: str = "OAUTH_CONFIGURATION",
-    config: Optional[dict] = None,
-    create_body: Optional[dict] = None,
+    config: dict | None = None,
+    create_body: dict | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Create a new OAuth account.
@@ -272,7 +272,7 @@ async def delete_oauth_account(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Delete an OAuth account.
@@ -326,7 +326,7 @@ async def update_account_name(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Update the name of an account.
@@ -386,7 +386,7 @@ async def update_oauth_account_name(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Update the name of an OAuth account.

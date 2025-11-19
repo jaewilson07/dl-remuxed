@@ -23,7 +23,6 @@ __all__ = [
 ]
 
 from enum import Enum
-from typing import Optional
 
 import httpx
 
@@ -53,7 +52,7 @@ async def create_collection(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Create a new collection in a datastore.
@@ -106,13 +105,13 @@ async def create_collection(
 @gd.route_function
 async def get_collections(
     auth: DomoAuth,
-    datastore_id: Optional[str] = None,  # filters for a specific datastoreId
+    datastore_id: str | None = None,  # filters for a specific datastoreId
     *,
     context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Retrieve all collections, optionally filtered by datastore ID.
@@ -175,7 +174,7 @@ async def get_collection_by_id(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Retrieve a specific collection by ID.
@@ -231,15 +230,15 @@ async def get_collection_by_id(
 async def modify_collection_permissions(
     auth: DomoAuth,
     collection_id: str,
-    user_id: Optional[str] = None,
-    group_id: Optional[str] = None,
+    user_id: str | None = None,
+    group_id: str | None = None,
     permission: Collection_Permission_Enum = Collection_Permission_Enum.READ_CONTENT,
     *,
     context: RouteContext | None = None,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Modify collection permissions for users or groups.

@@ -13,7 +13,6 @@ __all__ = [
 ]
 
 import urllib
-from typing import Optional
 
 import httpx
 
@@ -32,7 +31,7 @@ async def get_jupyter_workspaces(
     debug_api: bool = False,
     debug_loop: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Retrieve all available Jupyter workspaces.
@@ -100,7 +99,7 @@ async def get_jupyter_workspace_by_id(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 2,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Retrieve a specific Jupyter workspace by ID.
@@ -191,7 +190,7 @@ async def start_jupyter_workspace(
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     debug_num_stacks_to_drop: int = 1,
-    parent_class: Optional[str] = None,
+    parent_class: str | None = None,
     return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     """Start a Jupyter workspace instance.
