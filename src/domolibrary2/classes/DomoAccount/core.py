@@ -37,12 +37,12 @@ class DomoAccount(DomoAccount_Default):
         obj: dict,
         is_admin_summary: bool = True,
         auth: DomoAuth = None,
-        is_use_default_account_class=False,
+        is_use_default_class=False,
         **kwargs,
     ):
         """converts data_v1_accounts API response into an accounts class object"""
 
-        if is_use_default_account_class:
+        if is_use_default_class:
             new_cls = cls
 
         if obj.get("credentialsType") == "oauth":
@@ -134,7 +134,7 @@ class DomoAccounts(DomoManager):
             DomoAccount.from_dict(
                 account_obj,
                 auth=self.auth,
-                is_use_default_account_class=is_use_default_account_class,
+                is_use_default_class=is_use_default_account_class,
             )
             for account_obj in res.response
         ]
