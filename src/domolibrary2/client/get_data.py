@@ -158,7 +158,7 @@ async def get_data(
         auth=auth, content_type=content_type, headers=headers or {}
     )
     session, is_close_session = create_httpx_session(
-        session=context.session, is_verify=is_verify
+        session=session, is_verify=is_verify
     )
 
     # Build metadata and additional information
@@ -173,10 +173,16 @@ async def get_data(
         additional_information["log_level"] = log_level
 
     if debug_api:
-        pprint(request_metadata.to_dict())
+        message = f"[DEBUG] Request Metadata: {request_metadata.to_dict()}"
+        print(message)
+        await logger.debug(message)
 
     # Handle dry run mode
     if dry_run:
+        message = "[DEBUG] Dry run mode enabled. Request not sent."
+        print(message)
+        await logger.debug(message)
+
         additional_information["dry_run"] = True
         return rgd.ResponseGetData(
             status=200,
@@ -299,8 +305,9 @@ async def get_data_stream(
         debug_api = context.debug_api if context.debug_api is not None else debug_api
 
     if debug_api:
-        print(f"[DEBUG] get_data_stream: {method} {url}", flush=True)
-        await logger.debug(f"🐛 Debugging get_data_stream: {method} {url}")
+        message = f"[DEBUG] get_data_stream: {method} {url}"
+        print(message)
+        await logger.debug(message)
 
     if auth and not auth.token:
         await auth.get_auth_token()
@@ -452,17 +459,7 @@ async def looper(
 
     is_close_session = False
 
-    if context is None:
-        context = RouteContext(
-            session=session,
-            debug_api=debug_api,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-            parent_class=parent_class,
-        )
-
-    session, is_close_session = create_httpx_session(
-        context.session, is_verify=is_verify
-    )
+    session, is_close_session = create_httpx_session(session, is_verify=is_verify)
 
     all_rows = []
     is_loop = True
