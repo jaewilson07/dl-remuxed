@@ -1,6 +1,11 @@
 # PowerShell script to activate the local virtual environment
 # Usage: Run this script when opening PowerShell in this directory
 
+# Enable VS Code shell integration
+if ($env:TERM_PROGRAM -eq "vscode") {
+    . "$(code --locate-shell-integration-path pwsh)"
+}
+
 # Check if we're in the correct directory
 if (Test-Path ".venv\Scripts\Activate.ps1") {
     Write-Host "Activating local virtual environment..." -ForegroundColor Green

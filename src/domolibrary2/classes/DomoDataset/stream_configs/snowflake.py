@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 
-from ..stream_config import StreamConfig_Mapping, register_mapping
+from ._base import StreamConfig_Mapping, register_mapping
 
 __all__ = [
     "SnowflakeMapping",
@@ -53,7 +53,14 @@ class SnowflakeKeypairAuthMapping(StreamConfig_Mapping):
     data_provider_type: str = "snowflakekeypairauthentication"
     sql: str = "query"
     database_name: str = "databaseName"
+    schema_name: str = "schemaName"
     warehouse: str = "warehouseName"
+    report_type: str = "reportType"
+    query_tag: str = "queryTag"
+    fetch_size: str = "fetchSize"
+    update_mode: str = "updatemode.mode"
+    convert_timezone: str = "convertTimeZone"
+    cloud: str = "cloud"
 
 
 @register_mapping("snowflake-keypair-internal-managed-unload")

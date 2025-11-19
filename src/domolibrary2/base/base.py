@@ -52,6 +52,30 @@ class DomoEnumMixin:
         return getattr(cls, "default", None)
 
     @classmethod
+    def _create_pseudo_member(cls, member_name: str, member_value: Any):
+        """Create a pseudo enum member dynamically.
+
+        This is used by _missing_() implementations to create enum members
+        on-the-fly when they are accessed but not explicitly defined.
+
+        Args:
+            member_name: The name for the enum member (will be normalized)
+            member_value: The value to assign to the enum member
+
+        Returns:
+            A pseudo enum member with _name_ and _value_ attributes set
+        """
+        # Normalize the member name (replace hyphens with underscores)
+        normalized_name = member_name.replace("-", "_")
+
+        # Create a raw enum instance
+        pseudo_member = object.__new__(cls)
+        pseudo_member._name_ = normalized_name
+        pseudo_member._value_ = member_value
+
+        return pseudo_member
+
+    @classmethod
     def _missing_(cls, value):
         """Handle missing enum values with case-insensitive fallback.
 
