@@ -1,28 +1,47 @@
 """Stream configuration utilities.
 
-DEPRECATED: This module is kept for backward compatibility.
-All functionality has been moved to the stream_configs subpackage.
+UPDATED: This module now supports two patterns:
 
-New imports should use:
-    from domolibrary2.classes.DomoDataset.stream_configs import (
-        StreamConfig,
-        StreamConfig_Mapping,
-        StreamConfig_Mappings,
-        register_mapping,
-    )
+1. NEW PATTERN (Recommended): Typed Config Classes
+   - Import from stream_configs subpackage
+   - Type-safe, follows AccountConfig pattern
+
+   from domolibrary2.classes.DomoDataset.stream_configs import (
+       StreamConfig_Base,
+       Snowflake_StreamConfig,
+   )
+
+2. OLD PATTERN (Deprecated): Mapping Classes
+   - Still works for backward compatibility
+   - Will be removed in future version
+
+   from domolibrary2.classes.DomoDataset.stream_config import (
+       StreamConfig_Mapping,
+       StreamConfig_Mappings,
+   )
 """
 
 # Re-export everything from stream_configs for backward compatibility
 from .stream_configs import (
+    Snowflake_StreamConfig,
+    SnowflakeKeyPairAuth_StreamConfig,
     Stream_CRUD_Error,
     Stream_GET_Error,
     StreamConfig,
+    StreamConfig_Base,
     StreamConfig_Mapping,
     StreamConfig_Mappings,
     register_mapping,
+    register_stream_config,
 )
 
 __all__ = [
+    # NEW PATTERN (Recommended)
+    "StreamConfig_Base",
+    "register_stream_config",
+    "Snowflake_StreamConfig",
+    "SnowflakeKeyPairAuth_StreamConfig",
+    # OLD PATTERN (Deprecated)
     "StreamConfig_Mapping",
     "StreamConfig_Mappings",
     "StreamConfig",
