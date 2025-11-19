@@ -16,7 +16,7 @@ from ...routes.stream import Stream_CRUD_Error, Stream_GET_Error
 from ...utils import chunk_execution as dmce
 from ...utils.logging import get_colored_logger
 from ..subentity.schedule import DomoSchedule
-from .stream_config import StreamConfig
+from .stream_configs import StreamConfig
 
 __all__ = [
     "DomoStream",
@@ -77,10 +77,6 @@ class DomoStream(DomoEntity):
         )
 
     @property
-    def dataset_id(self) -> str:
-        return self.parent.id
-
-    @property
     def entity_type(self):
         return "STREAM"
 
@@ -126,12 +122,50 @@ class DomoStream(DomoEntity):
         # Create typed config instance
         return config_class.from_dict(config_dict)
 
+    def _get_conformed_value(self, property_name: str) -> str | None:
+        """Generic helper to extract conformed property value.
+
+        Uses the CONFORMED_PROPERTIES registry to map semantic property names
+        to platform-specific typed_config attributes.
+
+        Args:
+            property_name: Name of conformed property (e.g., "query", "database")
+
+        Returns:
+            Value from typed_config if available, None otherwise
+
+        Example:
+            >>> stream._get_conformed_value("query")
+            "SELECT * FROM my_table"
+        """
+        from .stream_configs._conformed import CONFORMED_PROPERTIES
+
+        typed = self.typed_config
+        if typed is None:
+            return None
+
+        # Get the conformed property definition
+        conformed_prop = CONFORMED_PROPERTIES.get(property_name)
+        if not conformed_prop:
+            return None
+
+        # Get the attribute name for this provider
+        attr_name = conformed_prop.get_key_for_provider(self.data_provider_key)
+        if not attr_name:
+            return None
+
+        # Get the value from typed config
+        return getattr(typed, attr_name, None)
+
     @property
     def sql(self) -> str | None:
-        """Get SQL query from stream configuration.
+        """Get SQL query from stream configuration (cross-platform).
 
-        Convenience property that extracts the query/SQL from typed_config.
-        Works for providers that have a 'query' field (Snowflake, AWS Athena, PostgreSQL, etc.)
+        Works across providers that use SQL queries:
+        - Snowflake (all variants)
+        - AWS Athena
+        - Amazon Athena High Bandwidth
+        - PostgreSQL
 
         Returns:
             SQL query string or None if not available
@@ -141,12 +175,264 @@ class DomoStream(DomoEntity):
             >>> print(stream.sql)
             "SELECT * FROM my_table"
         """
-        typed = self.typed_config
-        if typed is None:
-            return None
+        # Try standard query property first
+        result = self._get_conformed_value("query")
+        if result:
+            return result
 
-        # Try to get query attribute (most providers use this)
-        return getattr(typed, "query", None)
+        # Fall back to custom_query for some Snowflake variants
+        return self._get_conformed_value("custom_query")
+
+    @property
+    def database(self) -> str | None:
+        """Get database name from stream configuration (cross-platform).
+
+        Works across database providers:
+        - Snowflake (all variants)
+        - AWS Athena
+        - PostgreSQL
+
+        Returns:
+            Database name or None if not available
+
+        Example:
+            >>> stream.database
+            "SA_PRD"
+        """
+        return self._get_conformed_value("database")
+
+    @property
+    def schema(self) -> str | None:
+        """Get schema name from stream configuration (cross-platform).
+
+        Works for providers that support schemas:
+        - Snowflake (with keypair auth)
+        - PostgreSQL
+
+        Returns:
+            Schema name or None if not available
+
+        Example:
+            >>> stream.schema
+            "PUBLIC"
+        """
+        return self._get_conformed_value("schema")
+
+    @property
+    def warehouse(self) -> str | None:
+        """Get warehouse/compute resource from stream configuration.
+
+        Works for Snowflake variants that use compute warehouses.
+
+        Returns:
+            Warehouse name or None if not available
+
+        Example:
+            >>> stream.warehouse
+            "COMPUTE_WH"
+        """
+        return self._get_conformed_value("warehouse")
+
+    @property
+    def table(self) -> str | None:
+        """Get table name from stream configuration (cross-platform).
+
+        Works for providers that operate on specific tables:
+        - AWS Athena
+        - Snowflake Writeback
+
+        Returns:
+            Table name or None if not available
+
+        Example:
+            >>> stream.table
+            "my_table"
+        """
+        return self._get_conformed_value("table")
+
+    @property
+    def report_id(self) -> str | None:
+        """Get report identifier from stream configuration (cross-platform).
+
+        Works for reporting/analytics platforms:
+        - Adobe Analytics (report suite ID)
+        - Qualtrics (survey ID)
+
+        Returns:
+            Report/survey identifier or None if not available
+
+        Example:
+            >>> stream.report_id
+            "report_suite_12345"
+        """
+        return self._get_conformed_value("report_id")
+
+    @property
+    def spreadsheet(self) -> str | None:
+        """Get spreadsheet identifier from stream configuration.
+
+        Works for Google connectors:
+        - Google Sheets
+        - Google Spreadsheets
+
+        Returns:
+            Spreadsheet ID/filename or None if not available
+
+        Example:
+            >>> stream.spreadsheet
+            "1A2B3C4D5E6F7G8H9I"
+        """
+        return self._get_conformed_value("spreadsheet")
+
+    @property
+    def bucket(self) -> str | None:
+        """Get S3 bucket or cloud storage location from stream configuration.
+
+        Works for AWS S3 connectors.
+
+        Returns:
+            Bucket name/path or None if not available
+
+        Example:
+            >>> stream.bucket
+            "my-s3-bucket"
+        """
+        return self._get_conformed_value("bucket")
+
+    @property
+    def dataset_id(self) -> str:
+        """Get dataset ID for this stream.
+
+        For Domo-to-Domo dataset copy connectors, returns the source dataset ID.
+        For all other streams, returns the parent dataset ID.
+
+        Returns:
+            Dataset ID string
+
+        Example:
+            >>> stream.dataset_id
+            "abc123"
+        """
+        # Check for dataset-copy connector first
+        dataset_copy_id = self._get_conformed_value("dataset_id")
+        if dataset_copy_id:
+            return dataset_copy_id
+
+        # Return parent dataset ID
+        return self.parent.id
+
+    @property
+    def file_url(self) -> str | None:
+        """Get file URL from stream configuration.
+
+        Works for file-based connectors like Domo CSV.
+
+        Returns:
+            File URL or None if not available
+
+        Example:
+            >>> stream.file_url
+            "https://example.com/data.csv"
+        """
+        return self._get_conformed_value("file_url")
+
+    @property
+    def host(self) -> str | None:
+        """Get host/server address from stream configuration.
+
+        Works for database and API connectors:
+        - PostgreSQL (database host)
+        - SharePoint Online (site URL)
+
+        Returns:
+            Host address/URL or None if not available
+
+        Example:
+            >>> stream.host
+            "mydb.example.com"
+        """
+        return self._get_conformed_value("host")
+
+    @property
+    def port(self) -> str | None:
+        """Get port number from stream configuration.
+
+        Works for database connectors like PostgreSQL.
+
+        Returns:
+            Port number as string or None if not available
+
+        Example:
+            >>> stream.port
+            "5432"
+        """
+        return self._get_conformed_value("port")
+
+    def __repr__(self) -> str:
+        """Custom repr that includes conformed properties.
+
+        Shows ID, provider, and relevant conformed properties based on
+        the stream's data provider type. Only shows properties where
+        is_repr=True in CONFORMED_PROPERTIES registry.
+
+        Example:
+            >>> stream
+            DomoStream(id='123', provider='snowflake', sql='SELECT...', database='SA_PRD')
+        """
+        from .stream_configs._repr import create_stream_repr
+
+        return create_stream_repr(self)
+
+    @property
+    def _missing_mappings(self) -> list[str]:
+        """Get list of conformed properties that don't have mappings for this provider.
+
+        Useful for debugging and understanding which properties are not applicable
+        for a given stream's data provider.
+
+        Returns:
+            List of property names (where is_repr=True) that don't support this provider
+
+        Example:
+            >>> stream.data_provider_key = "google-sheets"
+            >>> stream._missing_mappings
+            ['query', 'database', 'warehouse']  # SQL properties not supported
+
+            >>> stream.data_provider_key = "snowflake"
+            >>> stream._missing_mappings
+            ['report_id', 'spreadsheet']  # Analytics properties not supported
+        """
+        from .stream_configs._repr import get_missing_mappings
+
+        return get_missing_mappings(self)
+
+    @property
+    def _available_config_keys(self) -> list[str]:
+        """Get list of typed_config keys that are NOT mapped to conformed properties.
+
+        This helps identify gaps in conformed property mappings - keys that exist
+        in the typed_config but don't have a corresponding conformed property yet.
+
+        Useful for:
+        - Discovering new properties to add to CONFORMED_PROPERTIES
+        - Understanding provider-specific configuration options
+        - Identifying unmapped configuration parameters
+
+        Returns:
+            List of typed_config attribute names not mapped to conformed properties
+
+        Example:
+            >>> stream.data_provider_key = "snowflake"
+            >>> stream._available_config_keys
+            ['role', 'authenticator', 'private_key']
+            # These keys exist in config but aren't mapped to conformed properties yet
+
+            >>> # Add missing keys to CONFORMED_PROPERTIES registry
+            >>> # Then they'll disappear from _available_config_keys
+        """
+        from .stream_configs._repr import get_available_config_keys
+
+        return get_available_config_keys(self)
 
     @classmethod
     def from_dict(cls, auth, obj, parent: Any | None = None, **kwargs):  # DomoDataset
@@ -219,6 +505,9 @@ class DomoStream(DomoEntity):
         )
 
         return self
+
+    async def get(self, **kwargs):
+        return await self.refresh(**kwargs)
 
     @classmethod
     async def get_by_id(

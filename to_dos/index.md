@@ -93,7 +93,6 @@ Last updated: 1763406750.5020604
 - [ ] `DomoDataset/dataset_default.py` – 4 methods
 - [ ] `DomoDataset/schema.py` – 6 methods
 - [ ] `DomoDataset/stream.py` – 7 methods
-- [ ] `DomoDataset/stream_config.py` – 1 methods
 - [ ] `DomoEverywhere/core.py` – 14 methods
 - [ ] `DomoGroup/core.py` – 9 methods
 - [ ] `DomoGroup/membership.py` – 13 methods

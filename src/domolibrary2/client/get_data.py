@@ -150,7 +150,7 @@ async def get_data(
         dry_run = context.dry_run if context.dry_run is not None else dry_run
 
     if debug_api:
-        print(f"🐛 Debugging get_data: {method} {url}")
+        print(f"[DEBUG] get_data: {method} {url}", flush=True)
         await logger.debug(f"🐛 Debugging get_data: {method} {url}")
 
     # Create headers and session
@@ -216,7 +216,8 @@ async def get_data(
         response = await session.request(**request_kwargs)
 
         if debug_api:
-            print(f"Response Status: {response.status_code}")
+            print(f"[DEBUG] Response Status: {response.status_code}", flush=True)
+            print(f"[DEBUG] Response Text: {response.text[:500]}", flush=True)
             await logger.debug(f"Response Status: {response.status_code}")
 
         # Handle special response cases
@@ -298,7 +299,7 @@ async def get_data_stream(
         debug_api = context.debug_api if context.debug_api is not None else debug_api
 
     if debug_api:
-        print(f"🐛 Debugging get_data_stream: {method} {url}")
+        print(f"[DEBUG] get_data_stream: {method} {url}", flush=True)
         await logger.debug(f"🐛 Debugging get_data_stream: {method} {url}")
 
     if auth and not auth.token:
@@ -626,18 +627,18 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
         # Only pass parameters that are not None to avoid overwriting with defaults
         context_params = {}
         if session is not None:
-            context_params['session'] = session
+            context_params["session"] = session
         if debug_api is not False:  # Only pass if explicitly True
-            context_params['debug_api'] = debug_api
+            context_params["debug_api"] = debug_api
         if debug_num_stacks_to_drop != 1:  # Only pass if not default
-            context_params['debug_num_stacks_to_drop'] = debug_num_stacks_to_drop
+            context_params["debug_num_stacks_to_drop"] = debug_num_stacks_to_drop
         if parent_class is not None:
-            context_params['parent_class'] = parent_class
+            context_params["parent_class"] = parent_class
         if log_level is not None:
-            context_params['log_level'] = log_level
+            context_params["log_level"] = log_level
         if dry_run is not False:  # Only pass if explicitly True
-            context_params['dry_run'] = dry_run
-        
+            context_params["dry_run"] = dry_run
+
         context = RouteContext.build_context(context, **context_params)
 
         # Build kwargs for the function call

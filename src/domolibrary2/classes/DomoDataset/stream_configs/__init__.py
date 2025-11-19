@@ -32,6 +32,7 @@ TWO PATTERNS AVAILABLE:
 
 # Import and re-export base classes and utilities
 from ._base import (
+    _MAPPING_REGISTRY,
     Stream_CRUD_Error,
     Stream_GET_Error,
     StreamConfig,
@@ -41,9 +42,17 @@ from ._base import (
     register_mapping,
     register_stream_config,
 )
+from ._conformed import CONFORMED_PROPERTIES, ConformedProperty
 
 # Import new typed config classes
 from ._default import Default_StreamConfig
+from ._repr import (
+    ConformedPropertyReprMixin,
+    create_stream_repr,
+    get_available_config_keys,
+    get_conformed_properties_for_repr,
+    get_missing_mappings,
+)
 from .aws import (
     AmazonAthenaHighBandwidth_StreamConfig,
     AmazonS3AssumeRole_StreamConfig,
@@ -66,6 +75,15 @@ __all__ = [
     # NEW PATTERN (Recommended)
     "StreamConfig_Base",
     "register_stream_config",
+    # Conformed properties (semantic layer)
+    "ConformedProperty",
+    "CONFORMED_PROPERTIES",
+    # Custom repr utilities
+    "create_stream_repr",
+    "get_conformed_properties_for_repr",
+    "get_missing_mappings",
+    "get_available_config_keys",
+    "ConformedPropertyReprMixin",
     # NEW: Snowflake configs
     "Snowflake_StreamConfig",
     "SnowflakeKeyPairAuth_StreamConfig",
@@ -90,6 +108,7 @@ __all__ = [
     "StreamConfig_Mapping",
     "StreamConfig_Mappings",
     "StreamConfig",
+    "_MAPPING_REGISTRY",
     "register_mapping",
     # Route exceptions
     "Stream_GET_Error",

@@ -134,13 +134,11 @@ class Snowflake_StreamConfig(StreamConfig_Base):
     # Stream configuration parameters
     query: str = None
     database_name: str = None
-    warehouse: str = None
+    warehouse_name: str = None
     schema_name: str = None
 
     _field_map: dict = field(
-        default_factory=lambda: {
-            "warehouseName": "warehouse",  # Special case - avoid warehouse_name
-        },
+        default_factory=lambda: {},
         repr=False,
         init=False,
     )
@@ -181,7 +179,7 @@ class SnowflakeKeyPairAuth_StreamConfig(StreamConfig_Base):
     query: str = None
     database_name: str = None
     schema_name: str = None
-    warehouse: str = None
+    warehouse_name: str = None
     report_type: str = None
     query_tag: str = None
     fetch_size: str = None
@@ -191,7 +189,6 @@ class SnowflakeKeyPairAuth_StreamConfig(StreamConfig_Base):
 
     _field_map: dict = field(
         default_factory=lambda: {
-            "warehouseName": "warehouse",  # Special case - avoid warehouse_name
             "updatemode.mode": "update_mode",  # Special case with dot notation
         },
         repr=False,
@@ -214,3 +211,231 @@ class SnowflakeKeyPairAuth_StreamConfig(StreamConfig_Base):
         repr=False,
         init=False,
     )
+
+
+@register_stream_config("snowflake-internal-unload")
+@dataclass
+class SnowflakeInternalUnload_StreamConfig(StreamConfig_Base):
+    """Snowflake internal unload stream configuration.
+
+    Used for Snowflake managed unload operations with custom queries.
+    """
+
+    data_provider_type: str = "snowflake-internal-unload"
+
+    # Stream configuration parameters
+    custom_query: str = None
+    database_name: str = None
+    schema_name: str = None
+    warehouse_name: str = None
+    query_tag: str = None
+    query_type: str = None
+    database_objects: str = None
+    view_name: str = None
+    cloud: str = None
+    bypass_data_upload: str = None
+    update_mode: str = None
+    partition_criteria: str = None
+    date_format: str = None
+
+    _field_map: dict = field(
+        default_factory=lambda: {
+            "customQuery": "custom_query",
+            "updatemode.mode": "update_mode",
+        },
+        repr=False,
+        init=False,
+    )
+
+
+@register_stream_config("snowflake-keypair-internal-managed-unload")
+@dataclass
+class SnowflakeKeypairInternalManagedUnload_StreamConfig(StreamConfig_Base):
+    """Snowflake keypair internal managed unload stream configuration.
+
+    Used for Snowflake keypair-authenticated managed unload operations.
+    """
+
+    data_provider_type: str = "snowflake-keypair-internal-managed-unload"
+
+    # Stream configuration parameters
+    custom_query: str = None
+    database_name: str = None
+    schema_name: str = None
+    warehouse_name: str = None
+    query_tag: str = None
+    query_type: str = None
+    database_objects: str = None
+    cloud: str = None
+    bypass_data_upload: str = None
+    update_mode: str = None
+    partition_criteria: str = None
+    date_format: str = None
+    partition_column_dropdown_format: str = None
+    include_partition: str = None
+
+    _field_map: dict = field(
+        default_factory=lambda: {
+            "customQuery": "custom_query",
+            "updatemode.mode": "update_mode",
+        },
+        repr=False,
+        init=False,
+    )
+
+
+@register_stream_config("snowflake-writeback")
+@dataclass
+class SnowflakeWriteback_StreamConfig(StreamConfig_Base):
+    """Snowflake writeback stream configuration.
+
+    Used for writing data from Domo back to Snowflake tables.
+    """
+
+    data_provider_type: str = "snowflake-writeback"
+
+    # Stream configuration parameters
+    table_name: str = None
+    database_name: str = None
+    schema_name: str = None
+    warehouse_name: str = None
+    queried_dataset_id: str = None
+    update_mode: str = None
+    update_table_options: str = None
+    escape_character: str = None
+    use_caps: str = None
+    validate_table_name: str = None
+    use_icebox: str = None
+    tablename_dropdown: str = None
+
+    _field_map: dict = field(
+        default_factory=lambda: {
+            "enterTableName": "table_name",
+            "updatemode.mode": "update_mode",
+        },
+        repr=False,
+        init=False,
+    )
+
+
+@register_stream_config("snowflake-key-pair-writeback")
+@dataclass
+class SnowflakeKeyPairWriteback_StreamConfig(StreamConfig_Base):
+    """Snowflake key pair authentication writeback stream configuration.
+
+    Used for keypair-authenticated writes from Domo to Snowflake tables.
+    """
+
+    data_provider_type: str = "snowflake-key-pair-writeback"
+
+    # Stream configuration parameters
+    database_name: str = None
+    schema_name: str = None
+    warehouse_name: str = None
+    queried_dataset_id: str = None
+    update_mode: str = None
+    update_table_options: str = None
+    escape_character: str = None
+    use_caps: str = None
+    validate_table_name: str = None
+    use_icebox: str = None
+    tablename_dropdown: str = None
+    cloud: str = None
+
+    _field_map: dict = field(
+        default_factory=lambda: {
+            "updatemode.mode": "update_mode",
+        },
+        repr=False,
+        init=False,
+    )
+
+
+@register_stream_config("snowflake-key-pair-unload-v2")
+@dataclass
+class SnowflakeKeyPairUnloadV2_StreamConfig(StreamConfig_Base):
+    """Snowflake key pair unload v2 stream configuration.
+
+    Used for v2 keypair-authenticated unload operations.
+    """
+
+    data_provider_type: str = "snowflake-key-pair-unload-v2"
+
+    # Stream configuration parameters
+    database_name: str = None
+    schema_name: str = None
+    warehouse_name: str = None
+    table_name: str = None
+    generated_query: str = None
+    column_names: str = None
+    query_type: str = None
+    database_objects: str = None
+    import_data_method: str = None
+    partition_criteria: str = None
+    partition_column_name: str = None
+    date_format: str = None
+    relative_days: str = None
+    upsert_key_columns: str = None
+    update_mode: str = None
+    bypass_data_upload: str = None
+    cloud: str = None
+
+    _field_map: dict = field(
+        default_factory=lambda: {
+            "generatedQuery": "generated_query",
+            "updatemode.mode": "update_mode",
+        },
+        repr=False,
+        init=False,
+    )
+
+
+@register_stream_config("snowflake_unload_v2")
+@register_stream_config("snowflake-unload-v2")
+@dataclass
+class SnowflakeUnloadV2_StreamConfig(StreamConfig_Base):
+    """Snowflake unload v2 stream configuration.
+
+    Used for v2 unload operations (both underscore and hyphen variants).
+    """
+
+    data_provider_type: str = "snowflake_unload_v2"
+
+    # Stream configuration parameters
+    database_name: str = None
+    schema_name: str = None
+    warehouse_name: str = None
+    table_name: str = None
+    generated_query: str = None
+    column_names: str = None
+    query_type: str = None
+    database_objects: str = None
+    import_data_method: str = None
+    partition_criteria: str = None
+    date_format: str = None
+    update_mode: str = None
+    bypass_data_upload: str = None
+
+    _field_map: dict = field(
+        default_factory=lambda: {
+            "generatedQuery": "generated_query",
+            "updatemode.mode": "update_mode",
+        },
+        repr=False,
+        init=False,
+    )
+
+
+@register_stream_config("snowflake-federated")
+@dataclass
+class SnowflakeFederated_StreamConfig(StreamConfig_Base):
+    """Snowflake federated stream configuration.
+
+    Used for federated Snowflake data sources.
+    """
+
+    data_provider_type: str = "snowflake-federated"
+
+    # Stream configuration parameters
+    source_name: str = None
+    source_type: str = None
