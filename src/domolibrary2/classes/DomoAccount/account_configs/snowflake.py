@@ -17,7 +17,62 @@ __all__ = [
     "DomoAccount_Config_SnowflakeKeyPairWriteback",
     "DomoAccount_Config_SnowflakeKeyPairUnload_V2",
     "DomoAccount_Config_SnowflakeKeyPairInternalManagedUnload",
+    "DomoAccount_Config_SnowflakeKeyPairHighBandwidthAdvancedPartitions",
+    "DomoAccount_Config_SnowflakeFederatedKeyPair",
 ]
+
+
+@register_account_config("snowflake-federated-keypair")
+@dataclass
+class DomoAccount_Config_SnowflakeFederatedKeyPair(DomoAccount_Config):
+    """Snowflake Federated Key Pair Authentication"""
+
+    data_provider_type: str = "snowflake-federated-keypair"
+    is_oauth: bool = False
+
+    private_key: str = field(repr=False, default=None)
+    passphrase: str = field(repr=False, default=None)
+    role: str = None
+    host: str = None
+    warehouse: str = None
+    username: str = None
+
+    _field_map: dict = field(
+        default_factory=lambda: {
+            "privateKeyString": "private_key",
+            "privateKeyPassphrase": "passphrase",
+            "user": "username",
+        },
+        repr=False,
+        init=False,
+    )
+
+
+@register_account_config("snowflake-key-pair-high-bandwidth-advanced-partitions")
+@dataclass
+class DomoAccount_Config_SnowflakeKeyPairHighBandwidthAdvancedPartitions(
+    DomoAccount_Config
+):
+    """Snowflake Key Pair High Bandwidth Advanced Partitions"""
+
+    data_provider_type: str = "snowflake-key-pair-high-bandwidth-advanced-partitions"
+    is_oauth: bool = False
+
+    private_key: str = field(repr=False, default=None)
+    account: str = None
+    passphrase: str = field(repr=False, default=None)
+    username: str = None
+    role: str = None
+    partition_strategy: str = None
+    bandwidth_limit: int = None
+
+    _field_map: dict = field(
+        default_factory=lambda: {
+            "passPhrase": "passphrase",
+        },
+        repr=False,
+        init=False,
+    )
 
 
 @register_account_config("snowflake")
@@ -31,16 +86,8 @@ class DomoAccount_Config_Snowflake(DomoAccount_Config):
     account: str = None
     username: str = None
     password: str = field(repr=False, default=None)
+    host: str = None
     role: str = None
-
-    _fields_for_serialization: list[str] = field(
-        default_factory=lambda: [
-            "account",
-            "username",
-            "password",
-            "role",
-        ]
-    )
 
 
 @register_account_config("snowflake-unload-v2")
@@ -74,6 +121,19 @@ class DomoAccount_Config_SnowflakeUnload_V2(DomoAccount_Config):
             "role",
         ]
     )
+
+
+@register_account_config("snowflake-partition")
+@dataclass
+class DomoAccount_Config_SnowflakePartition(DomoAccount_Config):
+    data_provider_type: str = "snowflake-partition"
+    is_oauth: bool = False
+
+    password: str = field(repr=False, default=None)
+    account: str = None
+    username: str = None
+    role: str = None
+    host: str = None
 
 
 @register_account_config("snowflake-internal-unload-advanced-partition")
@@ -178,17 +238,6 @@ class DomoAccount_Config_SnowflakeFederated(DomoAccount_Config):
         },
         repr=False,
         init=False,
-    )
-
-    _fields_for_serialization: list[str] = field(
-        default_factory=lambda: [
-            "password",
-            "port",
-            "host",
-            "warehouse",
-            "username",  # Will be mapped to "user" in to_dict
-            "role",
-        ]
     )
 
 
