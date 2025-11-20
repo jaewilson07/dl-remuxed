@@ -220,7 +220,7 @@ async def get_data(
             "timeout": timeout,
         }
 
-        if isinstance(body, dict):
+        if isinstance(body, (dict, list)):
             request_kwargs["json"] = body
         elif isinstance(body, str):
             request_kwargs["content"] = body
@@ -661,6 +661,18 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
         # Only pass context if the function accepts it
         if is_accepts_context:
             call_kwargs["context"] = context
+        else:
+            # Pass individual parameters if function doesn't accept context
+            if "debug_api" in sig.parameters:
+                call_kwargs["debug_api"] = debug_api
+            if "session" in sig.parameters:
+                call_kwargs["session"] = session
+            if "parent_class" in sig.parameters:
+                call_kwargs["parent_class"] = parent_class
+            if "debug_num_stacks_to_drop" in sig.parameters:
+                call_kwargs["debug_num_stacks_to_drop"] = debug_num_stacks_to_drop
+            if "dry_run" in sig.parameters:
+                call_kwargs["dry_run"] = dry_run
 
         result = await func(*args, **call_kwargs)
 
