@@ -70,6 +70,7 @@ class DomoAccount_Default(DomoEntity):
     owners: list[Any] = None  # DomoUser or DomoGroup
 
     is_admin_summary: bool = True
+    dataset_count: int = None
 
     Config: DomoAccount_Config = field(repr=False, default=None, compare=False)
     Access: DomoAccess_Account = field(repr=False, default=None, compare=False)
@@ -123,6 +124,7 @@ class DomoAccount_Default(DomoEntity):
             auth=auth,
             is_admin_summary=is_admin_summary,
             owners=obj.get("owners"),
+            dataset_count=obj.get("datasetCount"),
             raw=obj,
             **kwargs,
         )

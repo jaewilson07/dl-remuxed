@@ -27,16 +27,16 @@ class RouteContext:
     """
 
     session: httpx.AsyncClient | None = None
-    debug_num_stacks_to_drop: int = 1
+    debug_num_stacks_to_drop: int = None
     parent_class: str | None = None
-    log_level: LogLevel | str | None = LogLevel.INFO
-    debug_api: bool = False
-    dry_run: bool = False
+    log_level: LogLevel | str | None = None
+    debug_api: bool = None
+    dry_run: bool = None
 
     @classmethod
     def build_context(
         cls,
-        context: "RouteContext | None" = None,
+        context: "RouteContext" | None = None,
         **kwargs,
     ) -> "RouteContext":
         """Build RouteContext from either existing context or individual parameters.
@@ -62,9 +62,11 @@ class RouteContext:
         context = context or RouteContext()
 
         # Update context attributes from kwargs if provided
-        # Only update if the value is explicitly provided (not None for non-booleans)
+        # For boolean values, allow False to be set explicitly
+
         for key, value in kwargs.items():
-            if hasattr(context, key) and value is not None:
-                setattr(context, key, value)
+            if hasattr(context, key):
+                if value is not None:
+                    setattr(context, key, value)
 
         return context

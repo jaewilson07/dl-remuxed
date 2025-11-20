@@ -341,14 +341,14 @@ class DomoAccountCredential(DomoAccount_Default):
             print(f"{self.name}: unable to generate valid target_auth: {e}")
         return self.to_dict()
 
-    def to_dict(self) -> dict:
+    def to_dict(self, return_snake_case: bool = False) -> dict:
         """Convert credential information to dictionary.
 
         Returns:
             Dictionary containing account ID, alias, instance, and auth validity status
         """
 
-        s = super().to_dict()
+        s = super().to_dict(return_snake_case=return_snake_case)
         s.update(
             {
                 "account_id": self.id,
