@@ -327,12 +327,11 @@ class DomoDataset_Data(DomoSubEntity):
             return None
 
         # create empty dataset to retain schema
-        empty_df = empty_df or (
-            await self.query(
+        if not isinstance(empty_df, pd.DataFrame):
+            empty_df = await self.query(
                 sql="SELECT * from table limit 1",
                 debug_api=debug_api,
             )
-        )
 
         empty_df = pd.DataFrame(columns=empty_df.columns)
 

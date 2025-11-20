@@ -26,15 +26,14 @@ async def main():
     )
 
     # Package ID to share accounts with
-    package_id = "b368d630-7ca5-4b8a-b4ec-f130cf312dc1"
+    package_id = "your-package-id-here"
 
     # Define account mappings
     # Each mapping contains an accountId and an alias that the package can use
     account_mappings = [
-        {"accountId": 92, "alias": "sdk_playstation-config"},
-        {"accountId": 189, "alias": "sdk_playstation-d2c"},
-        {"accountId": 366, "alias": "sdk_playstation-audit"},
-        {"accountId": "231", "alias": "sdk_playstation-ae"},  # Can be string or int
+        {"accountId": 101, "alias": "sdk_config"},
+        {"accountId": 202, "alias": "sdk_data"},
+        {"accountId": 303, "alias": "sdk_audit"},
     ]
 
     try:
@@ -75,12 +74,12 @@ async def example_add_accounts():
         domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],
     )
 
-    package_id = "b368d630-7ca5-4b8a-b4ec-f130cf312dc1"
+    package_id = "your-package-id-here"
 
     # First, set initial account mappings
     initial_accounts = [
-        {"accountId": 92, "alias": "sdk_playstation-config"},
-        {"accountId": 189, "alias": "sdk_playstation-d2c"},
+        {"accountId": 101, "alias": "sdk_config"},
+        {"accountId": 202, "alias": "sdk_data"},
     ]
 
     print("Setting initial accounts...")
@@ -94,8 +93,8 @@ async def example_add_accounts():
 
     # Now add more accounts without removing existing ones
     additional_accounts = [
-        {"accountId": 366, "alias": "sdk_playstation-audit"},
-        {"accountId": "231", "alias": "sdk_playstation-ae"},
+        {"accountId": 303, "alias": "sdk_audit"},
+        {"accountId": 404, "alias": "sdk_extra"},
     ]
 
     print("\nAdding additional accounts...")
@@ -127,9 +126,9 @@ async def example_with_session():
         domo_access_token=os.environ["DOMO_ACCESS_TOKEN"],
     )
 
-    package_id = "b368d630-7ca5-4b8a-b4ec-f130cf312dc1"
+    package_id = "your-package-id-here"
     account_mappings = [
-        {"accountId": 92, "alias": "sdk_playstation-config"},
+        {"accountId": 101, "alias": "sdk_config"},
     ]
 
     # Use a shared session for better performance with multiple API calls

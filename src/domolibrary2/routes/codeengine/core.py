@@ -437,6 +437,9 @@ async def execute_codeengine_function(
         context=context,
     )
 
+    if return_raw:
+        return res
+
     if not res.is_success:
         raise CodeEngine_GET_Error(
             entity_id=f"{package_id}/v{version}/function/{function_name}", res=res
