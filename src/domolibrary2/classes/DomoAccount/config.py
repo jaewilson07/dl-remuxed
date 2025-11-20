@@ -13,6 +13,7 @@ __all__ = [
     "DomoAccount_Config_Governance",
     "DomoAccount_Config_AmazonS3",
     "DomoAccount_Config_AmazonS3Advanced",
+    "DomoAccount_Config_DomoToS3",
     "DomoAccount_Config_AwsAthena",
     "DomoAccount_Config_HighBandwidthConnector",
     "DomoAccount_Config_Snowflake",
@@ -135,6 +136,7 @@ from .account_configs.aws import (  # noqa: E402
     DomoAccount_Config_AmazonS3,
     DomoAccount_Config_AmazonS3Advanced,
     DomoAccount_Config_AwsAthena,
+    DomoAccount_Config_DomoToS3,
     DomoAccount_Config_HighBandwidthConnector,
 )
 from .account_configs.domo import (  # noqa: E402

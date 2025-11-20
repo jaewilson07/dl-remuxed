@@ -22,8 +22,16 @@ class DomoAccount_Config_AbstractCredential(DomoAccount_Config):
 
     @classmethod
     def from_dict(cls, obj, parent=None, **kwargs):
-        return cls.from_parent(
-            parent=parent, raw=obj, **{"credentials": obj["credentials"], **kwargs}
+        # Don't use from_parent - directly instantiate to avoid recursion
+        return cls(
+            parent=parent,
+            raw=obj,
+            credentials=obj.get("credentials"),
+            **{
+                k: v
+                for k, v in kwargs.items()
+                if k not in ["credentials", "raw", "parent"]
+            },
         )
 
 

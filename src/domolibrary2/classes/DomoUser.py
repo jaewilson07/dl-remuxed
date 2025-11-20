@@ -523,21 +523,46 @@ class DomoUser(DomoEntity):
 
     async def toggle_direct_signon_access(
         self: "DomoUser",
-        is_enable_direct_signon: bool = True,
+        is_enable_direct_signon: bool = None,
+        note: str | None = None,  # add a note to the sso entry
         session: httpx.AsyncClient | None = None,
         debug_api: bool = False,
         debug_num_stacks_to_drop: int = 2,
+        return_raw: bool = False,
     ):
-        res = await sso_routes.toggle_user_direct_signon_access(
-            auth=self.auth,
-            id_ls=[self.id],
-            is_enable_direct_signon=is_enable_direct_signon,
-            session=session,
-            debug_api=debug_api,
-            parent_class=self.__class__.__name__,
-            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
-        )
+        response = ""
+        if is_enable_direct_signon is not None:
+            res = await sso_routes.toggle_user_direct_signon_access(
+                auth=self.auth,
+                user_id_ls=[self.id],
+                is_enable_direct_signon=is_enable_direct_signon,
+                session=session,
+                debug_api=debug_api,
+                parent_class=self.__class__.__name__,
+                debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+                return_raw=return_raw,
+            )
 
+            response = res.response
+
+        if note is not None:
+            note_res = await sso_routes.add_note_to_user_direct_signon(
+                auth=self.auth,
+                user_id_ls=[self.id],
+                note=note,
+                session=session,
+                debug_api=debug_api,
+                parent_class=self.__class__.__name__,
+                debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+                return_raw=return_raw,
+            )
+
+            response += note_res.response
+
+        if return_raw:
+            return res
+
+        res.response = response
         return res
 
     async def get_api_clients(

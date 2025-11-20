@@ -100,16 +100,15 @@ async def get_data(
     body: dict | list | str | None = None,
     params: dict = None,
     context: RouteContext | None = None,
-    debug_api: bool = False,
+    debug_api: bool = None,
     session: httpx.AsyncClient | None = None,
-    return_raw: bool = False,
-    is_follow_redirects: bool = False,
-    timeout: int = DEFAULT_TIMEOUT,
+    return_raw: bool = None,
+    is_follow_redirects: bool = None,
+    timeout: int = None,
     parent_class: str | None = None,
-    debug_num_stacks_to_drop: int = 2,
-    log_level: str | None = None,
-    is_verify: bool = False,
-    dry_run: bool = False,
+    debug_num_stacks_to_drop: int = None,
+    is_verify: bool = None,
+    dry_run: bool = None,
 ) -> rgd.ResponseGetData:
     """Asynchronously performs an HTTP request to retrieve data from a Domo API endpoint.
 
@@ -136,18 +135,27 @@ async def get_data(
     Returns:
         ResponseGetData object containing the response
     """
-    # Extract parameters from context if provided
-    if isinstance(context, RouteContext):
-        session = session or context.session
-        debug_num_stacks_to_drop = (
-            context.debug_num_stacks_to_drop
-            if context.debug_num_stacks_to_drop is not None
-            else debug_num_stacks_to_drop
-        )
-        parent_class = context.parent_class or parent_class
-        log_level = context.log_level or log_level
-        debug_api = context.debug_api if context.debug_api is not None else debug_api
-        dry_run = context.dry_run if context.dry_run is not None else dry_run
+
+    def _parse_input_param(input_param, default_value, context, param_name):
+        if input_param is not None:
+            return input_param
+        if isinstance(context, RouteContext) and hasattr(context, param_name):
+            return getattr(context, param_name, default_value)
+        return default_value
+
+    # Extract parameters from context if provided (manual params take precedence)
+    session = _parse_input_param(session, None, context, "session")
+    debug_num_stacks_to_drop = _parse_input_param(
+        debug_num_stacks_to_drop, 2, context, "debug_num_stacks_to_drop"
+    )
+    is_follow_redirects = _parse_input_param(
+        is_follow_redirects, True, context, "is_follow_redirects"
+    )
+
+    parent_class = _parse_input_param(parent_class, None, context, "parent_class")
+
+    debug_api = _parse_input_param(debug_api, False, context, "debug_api")
+    dry_run = _parse_input_param(dry_run, False, context, "dry_run")
 
     if debug_api:
         print(f"[DEBUG] get_data: {method} {url}", flush=True)
@@ -169,18 +177,16 @@ async def get_data(
     additional_information = {}
     if parent_class:
         additional_information["parent_class"] = parent_class
-    if log_level:
-        additional_information["log_level"] = log_level
 
     if debug_api:
         message = f"[DEBUG] Request Metadata: {request_metadata.to_dict()}"
-        print(message)
+        print(message, flush=True)
         await logger.debug(message)
 
     # Handle dry run mode
     if dry_run:
         message = "[DEBUG] Dry run mode enabled. Request not sent."
-        print(message)
+        print(message, flush=True)
         await logger.debug(message)
 
         additional_information["dry_run"] = True
@@ -214,7 +220,7 @@ async def get_data(
             "timeout": timeout,
         }
 
-        if isinstance(body, dict):
+        if isinstance(body, (dict, list)):
             request_kwargs["json"] = body
         elif isinstance(body, str):
             request_kwargs["content"] = body
@@ -271,12 +277,12 @@ async def get_data_stream(
     headers: dict | None = None,
     params: dict | None = None,
     context: RouteContext | None = None,
-    debug_api: bool = False,
+    debug_api: bool = None,
     timeout: int = DEFAULT_STREAM_TIMEOUT,
     parent_class: str | None = None,
     session: httpx.AsyncClient | None = None,
-    is_verify: bool = False,
-    is_follow_redirects: bool = True,
+    is_verify: bool = None,
+    is_follow_redirects: bool = None,
 ) -> rgd.ResponseGetData:
     """Asynchronously streams data from a Domo API endpoint.
 
@@ -306,7 +312,7 @@ async def get_data_stream(
 
     if debug_api:
         message = f"[DEBUG] get_data_stream: {method} {url}"
-        print(message)
+        print(message, flush=True)
         await logger.debug(message)
 
     if auth and not auth.token:
@@ -446,7 +452,7 @@ async def looper(
     Returns:
         An instance of ResponseGetData containing the aggregated data and pagination metadata.
     """
-    # Extract parameters from context if provided
+    # Extract parameters from context if provided (manual params take precedence)
     if isinstance(context, RouteContext):
         session = session or context.session
         debug_num_stacks_to_drop = (
@@ -455,7 +461,8 @@ async def looper(
             else debug_num_stacks_to_drop
         )
         parent_class = context.parent_class or parent_class
-        debug_api = context.debug_api if context.debug_api is not None else debug_api
+        # Only use context.debug_api if manual param is False (default)
+        debug_api = debug_api or (context.debug_api if context.debug_api else False)
 
     is_close_session = False
 
@@ -553,7 +560,7 @@ async def looper(
         message = f"🐛 Looper iteration complete: {{'all_rows': {len(all_rows)}, 'new_records': {len(new_records)}, 'skip': {skip}, 'limit': {limit}}}"
 
         if debug_loop:
-            print(message)
+            print(message, flush=True)
             await logger.debug(message)
 
         if maximum and skip + limit > maximum and not loop_until_end:
@@ -564,7 +571,7 @@ async def looper(
 
     if debug_loop:
         message = f"\n🎉 Success - {len(all_rows)} records retrieved from {url} in query looper\n"
-        print(message)
+        print(message, flush=True)
         await logger.info(message)
 
     if is_close_session:
@@ -654,6 +661,18 @@ def route_function(func: Callable[..., Any]) -> Callable[..., Any]:
         # Only pass context if the function accepts it
         if is_accepts_context:
             call_kwargs["context"] = context
+        else:
+            # Pass individual parameters if function doesn't accept context
+            if "debug_api" in sig.parameters:
+                call_kwargs["debug_api"] = debug_api
+            if "session" in sig.parameters:
+                call_kwargs["session"] = session
+            if "parent_class" in sig.parameters:
+                call_kwargs["parent_class"] = parent_class
+            if "debug_num_stacks_to_drop" in sig.parameters:
+                call_kwargs["debug_num_stacks_to_drop"] = debug_num_stacks_to_drop
+            if "dry_run" in sig.parameters:
+                call_kwargs["dry_run"] = dry_run
 
         result = await func(*args, **call_kwargs)
 

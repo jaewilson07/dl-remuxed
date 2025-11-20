@@ -15,8 +15,6 @@ from ...utils.logging import DomoEntityExtractor, DomoEntityResultProcessor
 from .exceptions import Dataset_CRUD_Error, DatasetNotFoundError, QueryRequestError
 
 
-# typically do not use
-@gd.route_function
 @log_call(
     level_name="route",
     config=LogDecoratorConfig(
@@ -24,6 +22,7 @@ from .exceptions import Dataset_CRUD_Error, DatasetNotFoundError, QueryRequestEr
         result_processor=DomoEntityResultProcessor(),
     ),
 )
+@gd.route_function
 async def query_dataset_public(
     dev_auth: dmda.DomoDeveloperAuth,
     dataset_id: str,
@@ -56,7 +55,6 @@ async def query_dataset_public(
     return res
 
 
-@gd.route_function
 @log_call(
     level_name="route",
     config=LogDecoratorConfig(
@@ -64,6 +62,7 @@ async def query_dataset_public(
         result_processor=DomoEntityResultProcessor(),
     ),
 )
+@gd.route_function
 async def query_dataset_private(
     auth: DomoAuth,
     dataset_id: str,
@@ -153,6 +152,7 @@ async def query_dataset_private(
         parent_class=parent_class,
         debug_api=debug_api,
         debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        context=context,
     )
 
     if return_raw:
