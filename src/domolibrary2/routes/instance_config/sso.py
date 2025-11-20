@@ -1,6 +1,7 @@
 __all__ = [
     "SSO_AddUserDirectSignonError",
     "toggle_user_direct_signon_access",
+    "add_note_to_user_direct_signon",
     "SSO_GET_Error",
     "SSO_CRUD_Error",
     "get_sso_oidc_config",
@@ -16,7 +17,12 @@ __all__ = [
 ]
 
 
+from urllib.parse import quote_plus
+
 import httpx
+from dc_logger.decorators import LogDecoratorConfig, log_call
+
+from domolibrary2.utils.logging.processors import ResponseGetDataProcessor
 
 from ... import auth as dmda
 from ...base import exceptions as dmde
@@ -53,24 +59,31 @@ class SSO_CRUD_Error(dmde.RouteError):
         )
 
 
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
 @gd.route_function
 async def toggle_user_direct_signon_access(
     auth: dmda.DomoAuth,
     user_id_ls: list[str],
-    is_enable_direct_signon: bool = True,
+    is_enable_direct_signon: bool,
     session: httpx.AsyncClient | None = None,
     debug_api: bool = False,
     parent_class=None,
     debug_num_stacks_to_drop=1,
+    return_raw: bool = False,
 ) -> rgd.ResponseGetData:
     user_id_ls = user_id_ls if isinstance(user_id_ls, list) else [user_id_ls]
+
+    user_id_ls = [int(user_id) for user_id in user_id_ls]
 
     url = f"https://{auth.domo_instance}.domo.com/api/content/v3/users/directSignOn"
 
     res = await gd.get_data(
         auth=auth,
         url=url,
-        params={"value": is_enable_direct_signon},
+        params={"value": str(is_enable_direct_signon).lower()},
         method="POST",
         body=user_id_ls,
         session=session,
@@ -78,11 +91,55 @@ async def toggle_user_direct_signon_access(
         parent_class=parent_class,
         debug_num_stacks_to_drop=debug_num_stacks_to_drop,
     )
+    if return_raw:
+        return res
 
     if not res.is_success:
         raise SSO_AddUserDirectSignonError(res=res, user_id_ls=user_id_ls)
 
     res.response = f"successfully added {', '.join(user_id_ls)} to direct signon list in {auth.domo_instance}"
+
+    return res
+
+
+@log_call(
+    level_name="route",
+    config=LogDecoratorConfig(result_processor=ResponseGetDataProcessor()),
+)
+@gd.route_function
+async def add_note_to_user_direct_signon(
+    auth: dmda.DomoAuth,
+    user_id_ls: list[str],
+    note: str,  # add a note to the sso entry
+    session: httpx.AsyncClient | None = None,
+    debug_api: bool = False,
+    parent_class=None,
+    debug_num_stacks_to_drop=1,
+    return_raw: bool = False,
+) -> rgd.ResponseGetData:
+    user_id_ls = user_id_ls if isinstance(user_id_ls, list) else [user_id_ls]
+
+    if note:
+        url = f"https://{auth.domo_instance}.domo.com/api/content/v3/users/directSignOn/note"
+        res = await gd.get_data(
+            auth=auth,
+            url=url,
+            params={"note": quote_plus(note)},
+            method="POST",
+            body=user_id_ls,
+            session=session,
+            debug_api=debug_api,
+            parent_class=parent_class,
+            debug_num_stacks_to_drop=debug_num_stacks_to_drop,
+        )
+
+    if return_raw:
+        return res
+
+    if not res.is_success:
+        raise SSO_AddUserDirectSignonError(res=res, user_id_ls=user_id_ls)
+
+    res.response = f"successfully amended note for {', '.join(user_id_ls)} in direct signon list in {auth.domo_instance}"
 
     return res
 

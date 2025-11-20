@@ -319,7 +319,6 @@ async def share_accounts_with_package(
     account_mappings: list[dict[str, str | int]],
     is_set: bool = True,
     version_id: str = None,
-    s: dict = None,
     *,
     context: RouteContext | None = None,
     return_raw: bool = False,
