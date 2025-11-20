@@ -277,12 +277,12 @@ async def get_data_stream(
     headers: dict | None = None,
     params: dict | None = None,
     context: RouteContext | None = None,
-    debug_api: bool = False,
+    debug_api: bool = None,
     timeout: int = DEFAULT_STREAM_TIMEOUT,
     parent_class: str | None = None,
     session: httpx.AsyncClient | None = None,
-    is_verify: bool = False,
-    is_follow_redirects: bool = True,
+    is_verify: bool = None,
+    is_follow_redirects: bool = None,
 ) -> rgd.ResponseGetData:
     """Asynchronously streams data from a Domo API endpoint.
 
